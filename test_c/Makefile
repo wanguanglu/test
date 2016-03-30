@@ -2,29 +2,35 @@ INCLUDEDIR= \
 	-I ./
 
 LIBDIR= \
-	-lcrypto -lpthread -lm -lstdc++	
+	-lcrypto -lpthread -lm -lrt -lstdc++	
 
 GCC = g++
+CPPFLAGS       = -g -finline-functions -Wall -Winline -pipe -Wno-deprecated -Wunused-variable
 
 SRCWILD    = $(wildcard *.cpp)
 OBJS       = $(patsubst %.cpp, %_at.o, $(SRCWILD))
 
-BINS       = $(patsubst %.cpp, %, $(SRCWILD))
+BINS       = $(patsubst %.cpp, %.bin, $(SRCWILD))
+FINAL_BINS = $(patsubst %.cpp, %, $(SRCWILD))
 
-all : clean $(BINS)
-	rm -rf $(OBJS)
+all : clean makebin
 
-CPPFLAGS       = -g -finline-functions -Wall -Winline -pipe -Wno-deprecated -Wunused-variable
 
-$(LIBS) : $(OBJS)
-	ar rcv $@ $^
 
 clean:
 	rm -rf $(OBJS)
 	rm -rf $(BINS)
+	rm -rf $(FINAL_BINS)
 
-%_at.o : %.cc
+%_at.o : %.cpp
 	$(GCC) $(CPPFLAGS) -c $< -o $@ $(INCLUDEDIR)
 
-%	   : %_at.o
+%.bin  : %_at.o
 	$(GCC) -g -o $@ $^ $(LIBDIR) $(INCLUDEDIR)
+
+makebin: $(BINS)
+	for bin in $(BINS);\
+	do\
+		newname=`echo $$bin | sed s/.bin//g`;\
+		mv $$bin $$newname;\
+	done
