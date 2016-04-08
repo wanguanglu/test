@@ -1,9 +1,9 @@
 # 第一章. Boost.Log v2
 Andrey Semashev（万广鲁翻译）
 
-	
+
 目录
-	
+
 * [动机](#motivation)
 * [如何阅读本文档](#how-to-read-this-document)
 * [安装和兼容性](#install)
@@ -12,6 +12,9 @@ Andrey Semashev（万广鲁翻译）
 * [定义](#definition)
 * [设计概要](#design-overview)
 * [教程](#tutorial)
+	* [Trivial logging](#trivial-logging)
+	* [包含过滤器的Trivial logging](#trivial-logging-with-filters)
+	* [建立sink][#set-up-sink]
 
 
 ## <a name="motivation"></a>动机
@@ -37,7 +40,7 @@ Andrey Semashev（万广鲁翻译）
 &emsp;&emsp;为了是的本文档更加简洁，我们对一些命名空间定义了一些别名
 ```
 namespace logging = boost::log;
-namespace sinks = boost::log::sinks;	
+namespace sinks = boost::log::sinks;
 namespace src = boost::log::sources;
 namespace expr = boost::log::expressions;
 namespace attrs = boost::log::attributes;
@@ -94,7 +97,7 @@ Cygwin的支持非常初步，Cygwin中默认的GCC版本是4.5.3（编写此文
 **表格 1.1. 配置宏**
 
 |宏名称          |影响             |
-|:------------- |:----------------| 
+|:------------- |:----------------|
 |BOOST_LOG_DYN_LINK|如果在用户程序的定义，本程序库会假定这个二进制会被构建成一个动态加载库("dll"或者"so")，否则会假定这个程序被静态构建，这个宏必须在用户所有的应用程序中，要么都定义，要么都不定义，在自动链接的情况下该宏会有帮助|
 |BOOST_ALL_DYN_LINK|和BOOST_LOG_DYN_LINK一样，但是会影响其他的Boost库|
 |BOOST_USE_WINAPI_VERSION|会影响编译程序库和用户的程序，这个宏是windows环境特有的，选定一个目标的Windows版本下的Boost库，包括Boost.Log，程序会在指定的windows版本下编译有可能会在老版本的Windows环境下失败。由于使用了新版本的操作系统特性，有可能会提升性能。这个宏有一个整型值等效于[_WIN32_WINNT](https://msdn.microsoft.com/en-us/library/6sehtctf.aspx)|
@@ -116,6 +119,7 @@ Cygwin的支持非常初步，Cygwin中默认的GCC版本是4.5.3（编写此文
 [boost_xpressive]: http://www.boost.org/doc/libs/release/doc/html/xpressive.html
 [boost_thread]: http://www.boost.org/doc/libs/release/doc/html/thread.html
 [boost_asio]: http://www.boost.org/doc/libs/release/doc/html/boost_asio.html
+[boost_phoenix]: http://www.boost.org/doc/libs/release/libs/phoenix/doc/html/index.html
 
 &emsp;&emsp;你可以在bjam命令行中定义配置宏，像下面这样：
 ``` sh
@@ -258,6 +262,7 @@ bjam --with-log variant=release define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_
 
 * [Trivial logging](#trivial-logging)
 * [包含过滤器的Trivial logging](#trivial-logging-with-filters)
+* [建立sink][#set-up-sink]
 
 &emsp;&emsp;在本小结中，我们会把一些基本的步骤走一遍，来熟悉此程序库。在阅读完本节信息之后，你应该能够开始使用此程序库，并在自己的应用程序中打印日志。本教程中的示例代码都可以在```libs/log/examples```文件夹中获取，可以随意地编译并查看运行结果。
 
@@ -278,25 +283,57 @@ int main(int, char*[])
     return 0;
 }
 ```
+[查看完成代码](http://www.boost.org/doc/libs/1_60_0/libs/log/example/doc/tutorial_trivial.cpp)
 
+&emsp;&emsp;BOOST_LOG_TRIVIAL宏接收严重程度参数，会产生一个类似于流的对象，支持插入操作符。上述代码的结果，会让日志信息打印到屏幕上。此程序库的使用方式和std::cout的使用方式非常类似。然而，此程序库提供了一些优势：
+
+1. 除去记录信息之外，每个输出的日志记录包含一个时间戳，当前线程的id以及日志的严重程度。
+2. 不同的线程同时写日志是安全的，日志信息不会错误。
+3. 后面会讲到，可以添加过滤器。
+
+&emsp;&emsp;必须要讲的是，此宏和本程序库中提供的其他宏类似，不是仅有的使用此程序库的接口方式。可以不使用任何宏就能够完成日志的记录。
 
 ### <a name="trivial-logging-with-filters"></a>包含过滤器的Trivial logging
+&emsp;&emsp; 可以通过日志的严重程度来区分信息，我们会希望使用一个过滤器来仅输出有意义的记录并忽略其他的记录。通过在程序库核心中设置一个全局的过滤器可以非常方便的实现此功能。就像这样：
+```csharp
+void init()
+{
+    logging::core::get()->set_filter
+    (
+        logging::trivial::severity >= logging::trivial::info
+    );
+}
+
+int main(int, char*[])
+{
+    init();
+
+    BOOST_LOG_TRIVIAL(trace) << "A trace severity message";
+    BOOST_LOG_TRIVIAL(debug) << "A debug severity message";
+    BOOST_LOG_TRIVIAL(info) << "An informational severity message";
+    BOOST_LOG_TRIVIAL(warning) << "A warning severity message";
+    BOOST_LOG_TRIVIAL(error) << "An error severity message";
+    BOOST_LOG_TRIVIAL(fatal) << "A fatal severity message";
+
+    return 0;
+}
+```
+
+[查看完整代码](http://www.boost.org/doc/libs/1_60_0/libs/log/example/doc/tutorial_trivial_flt.cpp)
+
+&emsp;&emsp;现在，如果你运行上述示例程序，前两行日志记录会被忽略，剩下的四条记录会输出到显示器上。
+
+![important](http://www.boost.org/doc/libs/1_60_0/doc/src/images/important.png)**重要**
+
+	需要记住流表达式只有在记录通过过滤器之后才会执行。不要在流表达式中指定关键业务调用。因为当记录被过滤掉之后，这些调用可能没有被执行。
+
+&emsp;&emsp;过滤器设置形式需要再说一下。在我们设置一个全局过滤器时，我们需要获取一个日志核心实例。这个就是```logging::core::get()```所做的事情，它会返回一个指向核心单例的指针。日志核心的```set_filter```函数设置了全局过滤函数。
+
+&emsp;&emsp;在本示例中的过滤器像[Boost.Phoenix][boost_phoenix]lambda表达式一样编写。在我们的例子中，表达式包含一个单独的谓词逻辑。谓词左边参数描述一个等待被校验的属性，谓词的右边是需要被校验的值。severity是此程序库提供的关键词，此关键词标识日志的严重程度属性。其名称为"Severity"，类型为[severity_level](http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/log/reference.html#boost.log.trivial.severity_level)。在trivial logging中自动提供此属性。用户只需在声明中提供属性值。关键词以及比较操作符创建一个函数对象，此函数对象会被日志核心调用，来过滤日志记录。结果是，只有日志严重等级不低于给定值的日志记录会通过此过滤器，并输出到屏幕上。
+
+&emsp;&emsp;也可以构建更加复杂的过滤器。组合像这样的多个谓词逻辑，或者定义自己的函数(包括C++11 lambda函数)来作为一个过滤器。我们会在后续的章节中继续回到过滤器。
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+### <a name="set-up-sink"></a> 建立sink ###
 
 ## <a name="detailed-feature-description"></a>详细特征描述
