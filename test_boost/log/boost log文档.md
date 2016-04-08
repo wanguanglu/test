@@ -94,7 +94,31 @@ Cygwin的支持非常初步，Cygwin中默认的GCC版本是4.5.3（编写此文
 |宏名称          |影响             |
 |:------------- |:---------------:| 
 |BOOST_LOG_DYN_LINK|如果在用户程序的定义，本程序库会假定这个二进制会被构建成一个动态加载库("dll"或者"so")，否则会假定这个程序被静态构建，这个宏必须在用户所有的应用程序中，要么都定义，要么都不定义，在自动链接的情况下该宏会有帮助|
-|BOOST_ALL_DYN_LINK||
+|BOOST_ALL_DYN_LINK|和BOOST_LOG_DYN_LINK一样，但是会影响其他的Boost库|
+|BOOST_USE_WINAPI_VERSION|会影响编译程序库和用户的程序，这个宏是windows环境特有的，选定一个目标的Windows版本下的Boost库，包括Boost.Log，程序会在指定的windows版本下编译有可能会在老版本的Windows环境下失败。由于使用了新版本的操作系统特性，有可能会提升性能。这个宏有一个整型值等效于[_WIN32_WINNT](https://msdn.microsoft.com/en-us/library/6sehtctf.aspx)|
+|BOOST_LOG_NO_THREADS|如果定义，则取消对多线程的支持。对程序库和用户程序的编译都有影响，如果检测到不支持多线程，则此宏会被自动定义|
+|BOOST_LOG_WITHOUT_CHAR|如果定义，对窄字节字符日志的支持失效，对程序库和用户程序的编译都有影响|
+|BOOST_LOG_WITHOUT_WCHAR_T|如果定义，对宽字节字符日志的支持失效，对程序库和用户程序的编译都有影响|
+|BOOST_LOG_NO_QUERY_PERFORMANCE_COUNTER|此宏只对Windows有效，对程序库和用户程序的编译都有影响。如果定义，则对timer属性中的QueryPerformanceCounter API支持失效。会导致时间读取准确性降低。此宏是为了解决一些早期AMD速龙CPU中可能存在的问题。在[链接1](http://support.microsoft.com/?scid=kb%3ben-us%3b895980)和[链接2](http://support.microsoft.com/?id=896256)中都有介绍。还有一些已知的芯片组失败会阻止此API运行正常。（参考[此链接](http://support.microsoft.com/kb/274323)。|
+|BOOST_LOG_USE_NATIVE_SYSLOG|只影响程序库的编译，如果由于一些原因没有自动检测到本地系统日志API的支持，可以定义此宏强行使其生效。|
+|BOOST_LOG_WITHOUT_DEFAULT_FACTORIES|只影响程序库的编译。如果定义，会构建一个没有初始过滤器和格式化工厂的设置解析器。用户必须在解析过滤器和格式化字符串之前注册所有属性，这样会大幅降低程序库的大小。|
+|BOOST_LOG_WITHOUT_SETTINGS_PARSERS|只影响程序库的编译。如果定义，所有解析设置类的功能都不会被构建，这样会大幅降低程序库的大小。|
+|BOOST_LOG_WITHOUT_DEBUG_OUTPUT|只影响程序库的编译。如果定义，对与在Windows上调试输出只是将不会被构建。|
+|BOOST_LOG_WITHOUT_EVENT_LOG|只影响程序库的编译。如果定义，对于Windows时间日志支持不会被构建，定义此宏会使得信息编译工具集不再必要。|
+|BOOST_LOG_WITHOUT_SYSLOG|只影响程序库的编译。如果定义，对于系统日志后端(syslog backend)的支持将失效。|
+|BOOST_LOG_NO_SHORTHAND_NAMES|只影响程序库的编译。如果定义，一些过时的速记宏名称将失效。|
+|BOOST_LOG_USE_COMPILER_TLS|只影响程序库的编译。此宏使对于编译器线程内存储内敛函数生效。在一些使用限制可以接受的情况下，定义此宏可能会提升Boost.Log的性能。在下面可以看到更详细的解释|
+|BOOST_LOG_USE_STD_REGEX,<br> BOOST_LOG_USE_BOOST_REGEX or <br> BOOST_LOG_USE_BOOST_XPRESSIVE|只影响程序库的编译。|
+
+
+
+
+
+
+
+
+
+
 
 ## <a name="design-overview"></a>设计概要
 
