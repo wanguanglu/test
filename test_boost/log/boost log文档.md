@@ -11,6 +11,7 @@ Andrey Semashev（万广鲁翻译）
 	* [配置和构建本程序库](#configuring-and-building-the-library)
 * [定义](#definition)
 * [设计概要](#design-overview)
+* [教程](#tutorial)
 
 
 ## <a name="motivation"></a>动机
@@ -29,7 +30,7 @@ Andrey Semashev（万广鲁翻译）
 
 &emsp;&emsp;如果你是第一次使用本程序库，推荐先阅读[设计概要](#design-overview)小节，对本程序库的功能和架构有一个基本的了解，通过阅读[安装](#install)和[教程](#tutorial)章节的内容可以实验本程序库。在教程章节中通过实际代码来介绍本程序库的功能，一些教程分为初级和高级来分别介绍，初级形式介绍最通用和简单易用的方式来进行工作，我们推荐初学者这么使用。高级版本介绍延伸的方式来实现同样的事情，但是在深度上进行扩展，同时进行了一些客户化。这种方式适合有经验的开发者来阅读，如果初级版本无法满足需要的话。
 
-&emsp;&emsp;在教程之外，[功能细节介绍](#detailed-feature-description)章节，介绍了本程序库提供的其它工具，这一部分最好按照案例来进行阅读。
+&emsp;&emsp;在教程之外，[详细特征介绍](#detailed-feature-description)章节，介绍了本程序库提供的其它工具，这一部分最好按照案例来进行阅读。
 
 &emsp;&emsp;最后会有一个详细介绍本程序库组件的参考书。
 
@@ -247,7 +248,11 @@ bjam --with-log variant=release define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_
 &emsp;&emsp;需要提到的是，对于一个指定的日志记录，过滤仅仅实施一次。显然，只有在过滤之前产生的属性可以参与过滤。一些属性值，比如日志记录的message信息，一般在过滤之后才依附到日志记录中。这些属性值在过滤时是不会被用到的，你只能在sink和格式化是使用。
 
 #### sink和格式化
+&emsp;&emsp;如果一个日志记录通过了过滤，至少一个sink是可以处理此日志记录的。如果此sink支持结构化输出，在当前点会发生结构化的操作。结构化之后的信息以及属性值组合被传输到接收此日志记录的sink。需要注意的是结构化是发生在pre-sink阶段，因此每个sink可以将日志记录按照特定格式输出。
 
+&emsp;&emsp;sink包含两部分，前端和后端。之所以如此区分，是为了提取sink的通用功能。比如过滤、格式化以及线程同步到独立的实体（前端）中。本程序库提供sink前端，用户基本上不用重新实现他们。后端，则相反，是程序库中最可能进行扩展的地方。sink后端是真正进行处理日志记录的地方。可能有一个sink将一条日志记录存储到文件中，有一个sink将日志记录通过网络发送到远端处理节点，也可能有sink，像之前提到的，将记录信息发送到桌面通知。大部分通用的sink在程序库中已经提供。
+
+&emsp;&emsp;除了一些上述的基础设施，本程序库还提供各种各样的辅助工具，例如属性、格式化工具以及过滤器，表现为lambda表达式。甚至一些程序库初始化基本帮助。你会在[详细特征描述](#detailed-feature-description)小节学习到这些知识。不过对于初学者来说，推荐从[教程](#tutorial)小节开始学习。
 
 ## <a name="tutorial"></a>教程
 
@@ -270,4 +275,4 @@ bjam --with-log variant=release define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_
 
 
 
-## <a name="detailed-feature-description"></a>功能细节介绍
+## <a name="detailed-feature-description"></a>详细特征描述
