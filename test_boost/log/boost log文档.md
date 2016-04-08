@@ -43,9 +43,8 @@ namespace keywords = boost::log::keywords;
 ```
 
 ## <a name="install"></a>安装和兼容性
-
-    [支持的编译器和平台](#supported-compilers-and-platforms)
-    [配置和构建本程序库](#configuring-and-building-the-library)
+* [支持的编译器和平台](#supported-compilers-and-platforms)
+* [配置和构建本程序库](#configuring-and-building-the-library)
 
 ### <a name="supported-compilers-and-platforms"></a>支持的编译器和平台
 &emsp;&emsp;本程序库需要在一些可兼容的编译器下进行构建和工作，本程序库在以下的平台上进行了成功的构建和测试。
@@ -85,9 +84,17 @@ namespace keywords = boost::log::keywords;
 #### *Cygwin用户的额外须知*
 Cygwin的支持非常初步，Cygwin中默认的GCC版本是4.5.3（编写此文档时），是无法编译此程序库的。你必须构建一个更新版本的GCC，即使这样一些Boost.Log的功能还是无法使用。特别指出，socket相关的系统日志后端是不支持的。因为它是基于Boost.ASIO的，但是Boost.ASIO在此平台上无法编译。但是本地的系统日志支持是可以工作的。
 
-
 ### <a name="configuring-and-building-the-library"></a>配置和构建本程序库
+本程序库有一个的单独构建部分，已经在[初始引导](http://www.boost.org/doc/libs/release/more/getting_started/)中介绍。但是，有一件事情需要注意，如果你的应用包含不止一个模块（例如一个exe文件包含多个dll）使用Boost.log，本程序库必须被构建成共享对象。如果你只有一个可执行程序或者一个模块使用Boost.log，你可以将本程序库构建成静态库。
 
+本程序库支持许多配置宏
+
+**表格 1.1. 配置宏**
+
+|宏名称          |影响             |
+|:------------- |:---------------:| 
+|BOOST_LOG_DYN_LINK|如果在用户程序的定义，本程序库会假定这个二进制会被构建成一个动态加载库("dll"或者"so")，否则会假定这个程序被静态构建，这个宏必须在用户所有的应用程序中，要么都定义，要么都不定义，在自动链接的情况下该宏会有帮助|
+|BOOST_ALL_DYN_LINK||
 
 ## <a name="design-overview"></a>设计概要
 
