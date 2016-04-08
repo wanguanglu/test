@@ -256,7 +256,31 @@ bjam --with-log variant=release define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_
 
 ## <a name="tutorial"></a>教程
 
+* [Trivial logging](#trivial-logging)
+* [包含过滤器的Trivial logging](#trivial-logging-with-filters)
 
+&emsp;&emsp;在本小结中，我们会把一些基本的步骤走一遍，来熟悉此程序库。在阅读完本节信息之后，你应该能够开始使用此程序库，并在自己的应用程序中打印日志。本教程中的示例代码都可以在```libs/log/examples```文件夹中获取，可以随意地编译并查看运行结果。
+
+### <a name="trivial-logging"></a>Trivial logging
+&emsp;&emsp;对于不想阅读复杂的使用手册，仅仅需要一些简单的日志功能，以下代码就可以实现
+```csharp
+#include <boost/log/trivial.hpp>
+
+int main(int, char*[])
+{
+    BOOST_LOG_TRIVIAL(trace) << "A trace severity message";
+    BOOST_LOG_TRIVIAL(debug) << "A debug severity message";
+    BOOST_LOG_TRIVIAL(info) << "An informational severity message";
+    BOOST_LOG_TRIVIAL(warning) << "A warning severity message";
+    BOOST_LOG_TRIVIAL(error) << "An error severity message";
+    BOOST_LOG_TRIVIAL(fatal) << "A fatal severity message";
+
+    return 0;
+}
+```
+
+
+### <a name="trivial-logging-with-filters"></a>包含过滤器的Trivial logging
 
 
 
