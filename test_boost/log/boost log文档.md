@@ -14,7 +14,7 @@ Andrey Semashev（万广鲁翻译）
 * [教程](#tutorial)
 	* [Trivial logging](#trivial-logging)
 	* [包含过滤器的Trivial logging](#trivial-logging-with-filters)
-	* [建立sink][#set-up-sink]
+	* [建立sink](#set-up-sink)
 
 
 ## <a name="motivation"></a>动机
@@ -262,7 +262,7 @@ bjam --with-log variant=release define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_
 
 * [Trivial logging](#trivial-logging)
 * [包含过滤器的Trivial logging](#trivial-logging-with-filters)
-* [建立sink][#set-up-sink]
+* [建立sink](#set-up-sink)
 
 &emsp;&emsp;在本小结中，我们会把一些基本的步骤走一遍，来熟悉此程序库。在阅读完本节信息之后，你应该能够开始使用此程序库，并在自己的应用程序中打印日志。本教程中的示例代码都可以在```libs/log/examples```文件夹中获取，可以随意地编译并查看运行结果。
 
