@@ -110,11 +110,13 @@ Cygwin的支持非常初步，Cygwin中默认的GCC版本是4.5.3（编写此文
 |BOOST_LOG_USE_COMPILER_TLS|只影响程序库的编译。此宏使对于编译器线程内存储内敛函数生效。在一些使用限制可以接受的情况下，定义此宏可能会提升Boost.Log的性能。在下面可以看到更详细的解释|
 |BOOST_LOG_USE_STD_REGEX,<br> BOOST_LOG_USE_BOOST_REGEX or <br> BOOST_LOG_USE_BOOST_XPRESSIVE|只影响程序库的编译。通过定义这些宏可以指示Boost.Log使用std::regex，[Boost.Regex][boost_log]，[Boost.Xpressive][boost_xpressive]来进行字符串匹配过滤解析。如果上述都没有定义，Boost.Log会默认使用[Boost.Regex][boost_regex]，使用std::regex或者[Boost.Regex][boost_regex]会使得生成的可执行程序更小，[Boost.Regex][boost_regex]在运行时更快，使用[Boost.Xpressive][boost_xpressive]可以避免对[Boost.Regex][boost_regex]的编译依赖。这些宏不影响用户创建的[过滤器表达式](http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/log/detailed/expressions.html#log.detailed.expressions.predicates.advanced_string_matching)。|
 
+&emsp;&emsp;你可以在bjam命令行中定义配置宏，像下面这样：
+``` sh
+bjam --with-log variant=release define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_USE_WINAPI_VERSION=0x0600 stage
+```
+
 [boost_regex]: http://www.boost.org/doc/libs/release/libs/regex/index.html
 [boost_xpressive]: http://www.boost.org/doc/libs/release/doc/html/xpressive.html
-
-
-
 
 
 
