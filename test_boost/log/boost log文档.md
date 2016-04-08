@@ -9,7 +9,7 @@ Andrey Semashev（万广鲁翻译）
 * [安装和兼容性](#install)
 	* [支持的编译器和平台](#supported-compilers-and-platforms)
 	* [配置和构建本程序库](#configuring-and-building-the-library)
-
+* [定义](#definition)
 
 
 ## <a name="motivation"></a>动机
@@ -107,23 +107,103 @@ Cygwin的支持非常初步，Cygwin中默认的GCC版本是4.5.3（编写此文
 |BOOST_LOG_WITHOUT_EVENT_LOG|只影响程序库的编译。如果定义，对于Windows时间日志支持不会被构建，定义此宏会使得信息编译工具集不再必要。|
 |BOOST_LOG_WITHOUT_SYSLOG|只影响程序库的编译。如果定义，对于系统日志后端(syslog backend)的支持将失效。|
 |BOOST_LOG_NO_SHORTHAND_NAMES|只影响程序库的编译。如果定义，一些过时的速记宏名称将失效。|
-|BOOST_LOG_USE_COMPILER_TLS|只影响程序库的编译。此宏使对于编译器线程内存储内敛函数生效。在一些使用限制可以接受的情况下，定义此宏可能会提升Boost.Log的性能。在下面可以看到更详细的解释|
+|BOOST_LOG_USE_COMPILER_TLS|只影响程序库的编译。此宏使对于编译器线程本地存储内联函数生效。在一些使用限制可以接受的情况下，定义此宏可能会提升Boost.Log的性能。在下面可以看到更详细的解释|
 |BOOST_LOG_USE_STD_REGEX,<br> BOOST_LOG_USE_BOOST_REGEX or <br> BOOST_LOG_USE_BOOST_XPRESSIVE|只影响程序库的编译。通过定义这些宏可以指示Boost.Log使用std::regex，[Boost.Regex][boost_log]，[Boost.Xpressive][boost_xpressive]来进行字符串匹配过滤解析。如果上述都没有定义，Boost.Log会默认使用[Boost.Regex][boost_regex]，使用std::regex或者[Boost.Regex][boost_regex]会使得生成的可执行程序更小，[Boost.Regex][boost_regex]在运行时更快，使用[Boost.Xpressive][boost_xpressive]可以避免对[Boost.Regex][boost_regex]的编译依赖。这些宏不影响用户创建的[过滤器表达式](http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/log/detailed/expressions.html#log.detailed.expressions.predicates.advanced_string_matching)。|
+
+[boost_regex]: http://www.boost.org/doc/libs/release/libs/regex/index.html
+[boost_xpressive]: http://www.boost.org/doc/libs/release/doc/html/xpressive.html
+[boost_thread]: http://www.boost.org/doc/libs/release/doc/html/thread.html
+[boost_asio]: http://www.boost.org/doc/libs/release/doc/html/boost_asio.html
 
 &emsp;&emsp;你可以在bjam命令行中定义配置宏，像下面这样：
 ``` sh
 bjam --with-log variant=release define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_USE_WINAPI_VERSION=0x0600 stage
 ```
 
-[boost_regex]: http://www.boost.org/doc/libs/release/libs/regex/index.html
-[boost_xpressive]: http://www.boost.org/doc/libs/release/doc/html/xpressive.html
+&emsp;&emsp;在头文件"/boost/config/user.hpp"文件中定义配置宏会更加方便一些，这样会同时影响程序库和用户的工程。如果这些所有选项都没有定义，程序库会只是最全面的安装，支持目标平台所有可用的的字节类型和特征。
 
+&emsp;&emsp;本日志程序库使用了几个其他的Boost库，这些也需要进行构建，包括[Boost.Filesystem](http://www.boost.org/doc/libs/release/libs/filesystem/doc/index.htm)，[Boost.System](http://www.boost.org/doc/libs/release/libs/system/doc/index.html)，[Boost.DateTime](http://www.boost.org/doc/libs/release/doc/html/date_time.html)，[Boost.Thread][boost_thread]以及[Boost.Regex][boost_regex]。通过参考他们的文档可以了解在构建过程中更细节的指令。
 
+&emsp;&emsp;在最后需要说的是，此程序库需要实时类型信息（run-time type information, RTTI)，这样会同时影响本程序库以及用户程序的编译。正常来说，你不需要做什么，除非在你的工程中RTTI未被禁止。
 
+#### *编译器提供的支持TLS内联函数须知*
+&emsp;&emsp;许多广泛应用的编译器支持内敛函数来管理线程本地存储（Thread Local Storage，TLS，可以参考[链接](http://www.cppblog.com/Tim/archive/2012/07/04/181018.html)），这些被应用在本程序库的许多地方。这个特性也包含在C++11中作为标准。通常来说，这些内联函数比任何代理实现方式对内存更有效的管理。比如[Boost.Thread][boost_thread]甚至本地操作系统API。然而使用TLS需要注意以下几点
 
+* 当TLS定义在动态库，在应用程序运行时动态加载时，使用这些内联函数，在一些操作系统中并不支持。这些操作系统包括Linux，Vista之前Windows的版本。Windows Vista以及以后的版本不存在这个问题。
+* TLS可能不能被全局的构造和析构可靠地访问。至少在Windows环境中MSVC 8.0存在此问题。
 
+&emsp;&emsp;本程序库提供```BOOST_LOG_USE_COMPILER_TLS```配置宏，运行使用此特征，来提升程序库的性能。但是必须在以下前提下
 
+* 此应用程序必须静态链接Boost.Log库，不能是运行时动态加载。
+* 此应用程序必须不能在全局的构造和析构中使用logging。
 
+&emsp;&emsp;需要注意的是，```BOOST_LOG_USE_COMPILER_TLS```宏仅仅控制Boost.Log中TLS的应用，但无法控制Boost.Log使用的其他的程序库。比如，[BOOST.ASIO][boost_asio]默认使用编译器提供的TLS。为了完全自由地构建Boost.Log程序库，不使用编译器提供的TLS，在其他程序库中也将此特性的设置为关闭。（在[BOOST.ASIO][boost_asio]中，可以通过在构建过程中定义BOOST_ASIO_DISABLE_THREAD_KEYWORD_EXTENSION宏来达到此目的）。
+
+#### *使用本地wchar_t支持须知*
+&emsp;&emsp;一些编译器，尤其是MSVC，有一些选项来关闭本地wchar_t类型，通过类型定义一个整型来模仿wchar_t。这种做法并不太遵守从C++语言的一些规范，但是可以兼容一些古老的难以更新的代码。
+
+&emsp;&emsp;默认情况下，Boost（以及Boost.Log作为其中一部分）在构建中将wchar_t设置为打开状态。在编写本文档时，用户必须更改Boost.Build来开启模拟模式。可以在此模式下构建Boost.Log。但是有一些注意事项必须牢记
+
+* 编译之后的Boost.Log会根据构建时的配置输出一些符号，用户代码必须使用同样的设置，否则会残生链接错误。
+* 在模拟模式下，wchar_t和整型是无法区分的。此程序库的一些部分在正常模式和模拟模式下会有不同的表现。特别是宽字节文字会被拒绝或者格式化成另外的形式。
+* 模拟模式没有进行测试，有可能会有意想不到的错误。
+
+&emsp;&emsp;因此，使用模拟模式是不被孤立的，而且应该避免。在未来的发布版本中，对于模拟模式的支持有可能会被完全删除掉。
+
+### <a name=definition></a>定义
+&emsp;&emsp;此处一些术语的定义，这些定义在此文档中会被广泛应用
+
+**日志记录 Log record**
+
+&emsp;&emsp;从用户的应用程序中收集的一个信息簇，是被输出到日志的候选信息。在简单的情况下，一个日志记录经过日志程序库处理之后表示为日志文件中的一行文本。
+
+**属性 attribute**
+
+&emsp;&emsp;一个属性是一条元数据，用于表示一个日志记录。在Boost.Log中，用一些有具体接口的函数对象来表示属性，在调用的时候返回真实的属性值。
+
+**属性值**
+
+&emsp;&emsp;属性值是从属性中获取的真实数据。这些数据依附于一条特定的日志记录，程序库会进行处理这些属性值。属性值有可能有不同的类型（整型，字符串类型或者更加复杂的类型，包括用户自定义类型）。一些属性值的示例包括：当前时间戳、文件名、行号、当前范围名称等等。属性值包装在一个包装器中，其真实类型在接口中是不可见的。值的真实类型有时被称作存储类型。
+
+**(属性)值访问**
+
+&emsp;&emsp;一种处理属性值的方式。这种方法调用一个应用于属性值的函数对象(访问者）。为了处理此属性值，这个访问者需要知道属性值的存储类型。
+
+**(属性)值提取**
+
+&emsp;&emsp;当调用者试图得到一个存储值的引用时，处理属性值的方式。为了提取属性值，调用者应当知道属性值的存储类型。
+
+**Log sink**
+
+&emsp;&emsp;将所有的用户应用程序收集到的日志记录输出到的目标。sink定义了这些日志记录被怎么处理以及被存储到哪儿。
+
+**日志源Log source**
+
+&emsp;&emsp;用户应用程序的日志记录的输入点。在一个简单的示例中，一个日志对象保持一套属性，用户根据需要将这些属性组成一个日志记录。当然，用户可以创建一个source，从其他的事件中获取信息，并产生日志记录。例如，通过截流和解析其他应用程序的显示器输出。
+
+**日志过滤器Log filter**
+
+&emsp;&emsp;用于判断一个日志记录是否应该通过或者被丢弃。日志过滤器通常需要根据日志的属性值类决策是否需要通过或丢弃。
+
+**日志格式化工具Log formatter**
+
+&emsp;&emsp;一个生成日志记录最终文本输出格式函数对象。一些sink，例如二进制日志sink也许不需要它。但是大部分基于文本的sink会需要一个格式化工具来组合它的输出。
+
+**日志核心Logging core**
+
+&emsp;&emsp;一个全局实体，保持了源和sink之间的连接，同时对记录提供过滤器。主要在日志程序库初始化的时候使用。
+
+**国际化 i18n**
+
+&emsp;&emsp;国际化，操纵宽字节的能力。
+
+**线程本地存储 TLS**
+
+&emsp;&emsp;线程本地存储，对于不同的线程访问一个变量时，其值是相互独立的。
+
+**实时类型信息RTTI**
+
+&emsp;&emsp;实时类型信息。这个是一个C++支持的数据结构。需要通过```dynamic_cast```和```typeid```来正常工作。
 
 ## <a name="design-overview"></a>设计概要
 
