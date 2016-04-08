@@ -1,7 +1,18 @@
 # 第一章. Boost.Log v2
 Andrey Semashev（万广鲁翻译）
 
-## 动机
+	
+目录
+	
+* [动机](#motivation)
+* [如何阅读本文档](#how-to-read-this-document)
+* [安装和兼容性](#install)
+	* [支持的编译器和平台](#supported-compilers-and-platforms)
+	* [配置和构建本程序库](#configuring-and-building-the-library)
+
+
+
+## <a name="motivation"></a>动机
 &emsp;&emsp;当前应用程序快速发展，越来越复杂，非常难以测试和调试。应用程序大部分时间运行在远端的服务器上，让开发者难以监控他们的运行情况，而且在出现问题时，难以找出运行失败的原因。即使对于本地程序，程序的运行情况严重依赖于异步的事件，调试也越来越困难。比如很多程序依赖于设备的反馈或者其他线程的运行情况。
 
 &emsp;&emsp;这就是日志能够帮助的地方，应用程序保存运行信息到日志中，当出现问题时，可以根据日志来分析错误原因。日志还有很多用途，比如收集统计信息和一些重要的事件（比如出现了某些情况或者异常），这些对于工业界的实际应用都至关重要。
@@ -12,7 +23,7 @@ Andrey Semashev（万广鲁翻译）
 * 可扩展&emsp;用户可以通过扩展本程序库的功能来收集和存储信息到日志中
 * 性能&emsp;本程序库应该尽可能少地影响到用户的应用程序
 
-## 如何阅读本文档
+## <a name="how-to-read-this-document"></a>如何阅读本文档
 &emsp;&emsp;本文档同时面向新老读者，但是我们期望用户对于常用的boost组件比较熟悉，比如```shared_ptr```,```make_shared```，这些信息可以参见[Boost.SmartPtr](http://www.boost.org/doc/libs/release/libs/smart_ptr/smart_ptr.htm)，本文档中的部分文档会参考boost中的其它程序库的文档。
 
 &emsp;&emsp;如果你是第一次使用本程序库，推荐先阅读[设计概要](#design-overview)小节，对本程序库的功能和架构有一个基本的了解，通过阅读[安装](#install)和[教程](#tutorial)章节的内容可以实验本程序库。在教程章节中通过实际代码来介绍本程序库的功能，一些教程分为初级和高级来分别介绍，初级形式介绍最通用和简单易用的方式来进行工作，我们推荐初学者这么使用。高级版本介绍延伸的方式来实现同样的事情，但是在深度上进行扩展，同时进行了一些客户化。这种方式适合有经验的开发者来阅读，如果初级版本无法满足需要的话。
@@ -22,9 +33,9 @@ Andrey Semashev（万广鲁翻译）
 &emsp;&emsp;最后会有一个详细介绍本程序库组件的参考书。
 
 &emsp;&emsp;为了是的本文档更加简洁，我们对一些命名空间定义了一些别名
-```c++
+```
 namespace logging = boost::log;
-namespace sinks = boost::log::sinks;
+namespace sinks = boost::log::sinks;	
 namespace src = boost::log::sources;
 namespace expr = boost::log::expressions;
 namespace attrs = boost::log::attributes;
@@ -67,15 +78,21 @@ namespace keywords = boost::log::keywords;
 
 &emsp;&emsp;另一中方案是尝试使用MinGW和Cygwin发布的windmc.exe工具，它是一个模拟原始mc.exe的工具。如果你想这样做，你需要打包在[此便签](https://svn.boost.org/trac/boost/ticket/4111)中介绍的Boost.Build文件(明确来说，是tools/build/tools/mc.jam文件)，然后你可以在bjam中使用 mc-compiler=windmc来构建本程序库。
 
-&emsp;&emsp;在某些情况下，消息编译工具检测失败，你可以显示的取消时间日志后端的支持，通过在构建本程序库时定义`BOOST_LOG_WITHOUT_EVENT_LOG`配置宏。这样会去除对于消息编译器的需要，请查看[这一小节](#configure-optinon)来了解更多的配置选项。
+&emsp;&emsp;在某些情况下，消息编译工具检测失败，你可以显示的取消时间日志后端的支持，通过在构建本程序库时定义`BOOST_LOG_WITHOUT_EVENT_LOG`配置宏。这样会去除对于消息编译器的需要，请查看[这一小节](#configuring-and-building-the-library)来了解更多的配置选项。
 
-&emsp;&emsp;Windows XP的MinGW用户可能会被msvcrt.dll中的[bug](http://sourceforge.net/p/mingw-w64/bugs/307/)影响，这个动态链接库是操作系统自带的，这个bug的现象是自身在结构话日志输出时会崩溃。这个问题不仅仅在
+&emsp;&emsp;Windows XP的MinGW用户可能会被msvcrt.dll中的[bug](http://sourceforge.net/p/mingw-w64/bugs/307/)影响，这个动态链接库是操作系统自带的，这个bug的现象是自身在结构话日志输出时会崩溃。这个问题不仅仅在Boost.Log会出现，在一些其他的本地化以及输入输出流管理的情景下都有可能出现。
+
+#### *Cygwin用户的额外须知*
+Cygwin的支持非常初步，Cygwin中默认的GCC版本是4.5.3（编写此文档时），是无法编译此程序库的。你必须构建一个更新版本的GCC，即使这样一些Boost.Log的功能还是无法使用。特别指出，socket相关的系统日志后端是不支持的。因为它是基于Boost.ASIO的，但是Boost.ASIO在此平台上无法编译。但是本地的系统日志支持是可以工作的。
+
+
+### <a name="configuring-and-building-the-library"></a>配置和构建本程序库
+
 
 ## <a name="design-overview"></a>设计概要
 
 ## <a name="tutorial"></a>教程
 
-## <a name="configure-optinon"></a>配置选项
 
 
 
