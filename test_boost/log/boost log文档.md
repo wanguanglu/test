@@ -1,4 +1,4 @@
-# 第一章. Boost.Log v2
+# Boost.Log v2
 Andrey Semashev（万广鲁翻译）
 
 
@@ -16,6 +16,7 @@ Andrey Semashev（万广鲁翻译）
 	* [包含过滤器的Trivial logging](#trivial-logging-with-filters)
 	* [建立sink](#set-up-sink)
 	* [创建logger并写日志](#create-logger-and-write-log)
+	* [属性](#attributes)
 
 
 ## <a name="motivation"></a>动机
@@ -261,6 +262,7 @@ bjam --with-log variant=release define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_
 * [包含过滤器的Trivial logging](#trivial-logging-with-filters)
 * [建立sink](#set-up-sink)
 * [创建logger并写日志](#create-logger-and-write-log)
+* [属性](#attributes)
 
 &emsp;&emsp;在本小结中，我们会把一些基本的步骤走一遍，来熟悉此程序库。在阅读完本节信息之后，你应该能够开始使用此程序库，并在自己的应用程序中打印日志。本教程中的示例代码都可以在```libs/log/examples```文件夹中获取，可以随意地编译并查看运行结果。
 
@@ -428,6 +430,76 @@ sink->locked_backend()->add_stream(stream);
 &emsp;&emsp;最后在这里需要提醒的是，通过调用```locked_backend```成员函数可以获取sink后端，通过它可以对后端进行线程安全地访问。此函数在所有的sink前端都有提供。这个函数返回一个指向后端的智能指针，只要这个智能指针存在，后端就被锁住。这就意味着如果有其它线程尝试写日志，同时日志记录通过了sink的话，这条日志将会被阻塞，直到你释放了这个后端。但是此处有一个例外，[unlocked_sink](log.detailed.sink_frontends.unlocked)完全不同步，当他调用```locked_backend```函数时，其简单地返回不加锁的后端指针。
 
 ### <a name="create-logger-and-write-log"></a>创建logger并写日志
+#### *专门的logger对象*
+&emsp;&emsp;目前我们定义了日志将如何存储以及存储在哪儿。接下来将继续尝试写日志。我们可以创建一个日志源。在我们的例子中它是一个logger对象，非常简单。
+```csharp
+src::logger lg;
+```
+
+>![Note](note-image) **须知**
+好奇的读者会发现我们在trivial logging中没有创建任何logger对象。事实上程序库已经提供了logger，在幕后已经使用
+
+&emsp;&emsp;和sink不一样，日志源不需要在各处注册，因为它直接与日志核心进行交互。需要注意的是，程序库提供了两个版本的logger，线程安全版和非线程安全版。
+对于非线程安全的logger，不同的线程使用不同的logger实例来写日志是安全的，因此需要每个线程有其单独的logger对象来写日志。线程安全版可以被不同的线程同时访问，但是这将会导致加锁，有可能会在打印日志的时候降低程序运行速度。线程安全的logger在他们的名字中包含_mt后缀。
+
+&emsp;&emsp;抛开线程安全性，本程序库提供的所有的logger都支持复制构造并且支持交换。因此在你的类中添加一个logger对象是没有问题的，而且在之后你会看到，通过这种方式会得到一些额外的好处。
+
+&emsp;&emsp;本程序库提供的一些logger包含不同的特性，比如严重等级和channel支持。这些特性可以互相组合来构建更加复杂的logger。点击[这里](#detaild-logging-source)可以看到更多细节。
+
+#### *全局logger对象*
+&emsp;&emsp;如果你不能将logger对象添加到你的类中，本程序库提供了一种声明全局logger的方式
+
+```csharp
+BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(my_logger, src::logger_mt)
+```
+
+&emsp;&emsp;在这里```my_logger```是一个用户定义的名称，通过使用此名称可以在后续获取logger实例。logger_mt是logger类型。任何本程序库提供的以及用户自己定义的logger类型都可以使用这种声明方式。然而，因为这个logger只有一个实例，你需要在多线程的情况下使用线程安全的logger作为全局logger。
+
+>![Tip][tip-image] **小技巧**
+有另外一个更复杂情况下的宏。细节在[这个小节](#log.detailed.sources.global_storage)介绍
+
+&emsp;&emsp;后续你可以像这样获取logger
+```csharp
+src::logger_mt& lg = my_logger::get();
+```
+
+&emsp;&emsp;lg指向的是应用程序仅有的logger实例，即使这个应用程序含有许多模块。get函数本身是线程安全的，因此不需要在周围添加额外的同步信息。
+
+#### *写日志*
+&emsp;&emsp;无论你是用哪一种logger(成员变量或全局变量，线程安全或不安全)，你都可以按照以下形式来写日志记录。
+
+```csharp
+logging::record rec = lg.open_record();
+if (rec)
+{
+    logging::record_ostream strm(rec);
+    strm << "Hello, World!";
+    strm.flush();
+    lg.push_record(boost::move(rec));
+}
+```
+
+&emsp;&emsp;在这里调用```open_record```函数来判断这条记录是否至少被一个sink处理。在此时会进行过滤。如果这条记录被处理，这个函数返回一个有效的日志记录对象，可以继续填充记录信息字符串。然后调用```push_record```函数完成日志记录的处理。
+
+&emsp;&emsp;当然，上面的句法可以简单的包装到一个宏里面。而且实际上，我们鼓励用户用宏的方式而不是通过调用C++ logger方式。上述日志记录可以写成这样的形式。
+
+```csharp
+BOOST_LOG(lg) << "Hello, World!";
+```
+
+看起来短了很多。本程序库里还顶定义了一些类似于```BOOST_LOG```的其它宏。提供了一种类似于STL流的方式来格式化信息。
+当所有的代码完成之后，编译运行，你会在"sample.log"文件中发现"Hello, World!"记录。你可以在[这里](http://www.boost.org/doc/libs/1_60_0/libs/log/example/doc/tutorial_logging.cpp)看到本节的完整代码。
+
+### <a name="attributes"></a> 属性
+
+
+
+
+
+
+
+
+
 
 
 
@@ -442,12 +514,17 @@ sink->locked_backend()->add_stream(stream);
 
 ## <a name="detailed-feature-description"></a>详细特征描述
 
+
+<a name="detaild-logging-source"></a>日志源
+
 <a name="sink_frontends"></a>sink前端
 
 <a name="sink_backends"></a>sink后端
 
 <a name="log.detailed.sink_backends.syslog"></a>syslog后端
 <a name="log.detailed.sink_backends.event_log"></a>Windows事件日志后端
+
+<a name="log.detailed.sources.global_storage"></a>logger的全局存储
 
 <a name="log.detailed.sink_frontends.sync"></a>同步sink前端
 
@@ -465,3 +542,4 @@ sink->locked_backend()->add_stream(stream);
 [boost_asio]: http://www.boost.org/doc/libs/release/doc/html/boost_asio.html
 [boost_phoenix]: http://www.boost.org/doc/libs/release/libs/phoenix/doc/html/index.html
 [note-image]: http://www.boost.org/doc/libs/1_60_0/doc/src/images/note.png
+[tip-image]: http://www.boost.org/doc/libs/1_60_0/doc/src/images/tip.png
