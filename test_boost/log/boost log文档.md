@@ -15,6 +15,7 @@ Andrey Semashev（万广鲁翻译）
 	* [Trivial logging](#trivial-logging)
 	* [包含过滤器的Trivial logging](#trivial-logging-with-filters)
 	* [建立sink](#set-up-sink)
+	* [创建logger并写日志](#create-logger-and-write-log)
 
 
 ## <a name="motivation"></a>动机
@@ -115,11 +116,7 @@ Cygwin的支持非常初步，Cygwin中默认的GCC版本是4.5.3（编写此文
 |BOOST_LOG_USE_COMPILER_TLS|只影响程序库的编译。此宏使对于编译器线程本地存储内联函数生效。在一些使用限制可以接受的情况下，定义此宏可能会提升Boost.Log的性能。在下面可以看到更详细的解释|
 |BOOST_LOG_USE_STD_REGEX,<br> BOOST_LOG_USE_BOOST_REGEX or <br> BOOST_LOG_USE_BOOST_XPRESSIVE|只影响程序库的编译。通过定义这些宏可以指示Boost.Log使用std::regex，[Boost.Regex][boost_log]，[Boost.Xpressive][boost_xpressive]来进行字符串匹配过滤解析。如果上述都没有定义，Boost.Log会默认使用[Boost.Regex][boost_regex]，使用std::regex或者[Boost.Regex][boost_regex]会使得生成的可执行程序更小，[Boost.Regex][boost_regex]在运行时更快，使用[Boost.Xpressive][boost_xpressive]可以避免对[Boost.Regex][boost_regex]的编译依赖。这些宏不影响用户创建的[过滤器表达式](http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/log/detailed/expressions.html#log.detailed.expressions.predicates.advanced_string_matching)。|
 
-[boost_regex]: http://www.boost.org/doc/libs/release/libs/regex/index.html
-[boost_xpressive]: http://www.boost.org/doc/libs/release/doc/html/xpressive.html
-[boost_thread]: http://www.boost.org/doc/libs/release/doc/html/thread.html
-[boost_asio]: http://www.boost.org/doc/libs/release/doc/html/boost_asio.html
-[boost_phoenix]: http://www.boost.org/doc/libs/release/libs/phoenix/doc/html/index.html
+
 
 &emsp;&emsp;你可以在bjam命令行中定义配置宏，像下面这样：
 ``` sh
@@ -263,6 +260,7 @@ bjam --with-log variant=release define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_
 * [Trivial logging](#trivial-logging)
 * [包含过滤器的Trivial logging](#trivial-logging-with-filters)
 * [建立sink](#set-up-sink)
+* [创建logger并写日志](#create-logger-and-write-log)
 
 &emsp;&emsp;在本小结中，我们会把一些基本的步骤走一遍，来熟悉此程序库。在阅读完本节信息之后，你应该能够开始使用此程序库，并在自己的应用程序中打印日志。本教程中的示例代码都可以在```libs/log/examples```文件夹中获取，可以随意地编译并查看运行结果。
 
@@ -335,5 +333,139 @@ int main(int, char*[])
 
 
 ### <a name="set-up-sink"></a> 建立sink ###
+&emsp;&emsp;有时候trivial logging不能够提供足够的灵活度。例如，我们可能希望在日志处理过程中采用更加复杂的逻辑，而不是简单的打印到屏幕上。为了实现这些个性化的需求，你必须建立日志sink，并将它们注册到日志核心。这些操作只需要在你的应用程序启动时执行一次即可。
+
+![Note][note-image] **须知**
+
+	需要注意的是，在之前的小节中我们没有初始化任何sink，但是trivail logging也可以工作。这是因为本程序库包含了一个默认的sink。当用户没有设置任何sink时，就会使用此sink。此sink将以一个固定的格式日志记录打印到屏幕上。默认的sink可以让trivial logging在没有任何初始化的情况下也可以正确使用。一旦你往日志核心中添加了sink，默认的sink就不会被使用。但是trivail logging的宏可以继续使用。
+
+#### *使用文件日志*
+&emsp;&emsp;在开始是，你应该初始化日志输出到文件。
+```csharp
+void init()
+{
+    logging::add_file_log("sample.log");
+
+    logging::core::get()->set_filter
+    (
+        logging::trivial::severity >= logging::trivial::info
+    );
+}
+```
+
+&emsp;&emsp;在初始化中添加了```add_file_log```函数调用。这个函数初始化一个将日志记录保存到文本文件的日志sink。这个函数也接受一些客户化的选项，比如日志滚动间隔和大小限制。例如：
+```csharp
+void init()
+{
+    logging::add_file_log
+    (
+        keywords::file_name = "sample_%N.log",                                        
+        keywords::rotation_size = 10 * 1024 * 1024,                                   
+        keywords::time_based_rotation = sinks::file::rotation_at_time_point(0, 0, 0),
+        keywords::format = "[%TimeStamp%]: %Message%"                                 
+    );
+
+    logging::core::get()->set_filter
+    (
+        logging::trivial::severity >= logging::trivial::info
+    );
+}
+```
+1. 文件名的模式
+2. 每10M滚动一次文件...
+3. ...或者在凌晨0点
+4. 日志记录的格式
+
+[查看完整代码](http://www.boost.org/doc/libs/1_60_0/libs/log/example/doc/tutorial_file_manual.cpp)
+
+&emsp;&emsp;可以看到，传给函数的选项是是一种命名表单的方式。这种方式在此程序库中的其他地方也有使用。你需要学会他。这些参数的意义是自解释的，在使用手册中有详细记录(点击[此链接](#log.detaild.sink_backends.text_file)可以查看关于文本文件sink的部分)。另外一种快捷的添加方法在[此小节](#log.detailed.utilities.setup.convenience)有介绍。
+
+![Note][note-image] **须知**
+
+	你可以注册多个sink，每一个sink会接收并处理日志记录，互相独立。
+
+#### *深度学习sink 更多细节*
+&emsp;&emsp;如果你不想了解更多细节，勀有跳过此小节，继续阅读下一节。如果你想对sink的配置有更加复杂的控制，或者除了已有的sink之外，希望使用更多sink，你可以手动注册更多的sink。
+
+&emsp;&emsp;在最简单的情形下，调用```add_file_log```函数，和以下代码基本等价。
+
+```csharp
+void init()
+{
+    // Construct the sink
+    typedef sinks::synchronous_sink< sinks::text_ostream_backend > text_sink;
+    boost::shared_ptr< text_sink > sink = boost::make_shared< text_sink >();
+
+    // Add a stream to write log to
+    sink->locked_backend()->add_stream(
+        boost::make_shared< std::ofstream >("sample.log"));
+
+    // Register the sink in the logging core
+    logging::core::get()->add_sink(sink);
+}
+```
+
+[查看完整代码](http://www.boost.org/doc/libs/1_60_0/libs/log/example/doc/tutorial_file_manual.cpp)
+
+&emsp;&emsp;首先可以看到上面的sink是由两个类合成的，分别是前端和后端。前端(在上面代码中使用[synchronous_sink](#log.detailed.sink_frontends.sync)模板)负责对于sink来说的许多通用任务，比如线程同步模式、过滤、格式化等。后端(在上述代码中使用[text_ostream_backend](#log.detailed.sink_backends.text_ostream)类)实现sink特定的事情，在此示例中是写到一个文件。此程序库提供了许多直接可用的前端和后端。
+
+&emsp;&emsp;[synchronous_sink](#log.detailed.sink_frontends.sync)类模板表示此sink是同步的。它允许许多个线程同时写日志，当出现冲突时会阻塞。这就意味着后端类[text_ostream_backend](#log.detailed.sink_backends.text_ostream)完全不用担心多线程的问题。本程序库还提供了很多sink前端，你可以点击[此链接](#sink_frontends)来查看他们。
+
+&emsp;&emsp;[text_ostream_backend](#log.detailed.sink_backends.text_ostream)类写格式化的日志记录到STL流中。在上面我们使用文件流，其实我们可以使用任何形式的流。例如，我们可以像下面代码所表示的，输出到屏幕中。
+
+```csharp
+#include <boost/core/null_deleter.hpp>
+
+// We have to provide an empty deleter to avoid destroying the global stream object
+boost::shared_ptr< std::ostream > stream(&std::clog, boost::null_deleter());
+sink->locked_backend()->add_stream(stream);
+```
+
+&emsp;&emsp;[text_ostream_backend](#log.detailed.sink_backends.text_ostream)类支持添加多个流，在这种情况下它的输出会被复制到所有添加的流中。这对需要同时将日志打印到文件和屏幕是非常有用的。这样的话，对于每个日志记录，过滤、格式化以及一些其他的操作只需要执行一次。
+
+![Note][note-image] **须知**
+
+	需要注意注册多个sink，以及注册一个包含多个目标流的sink之间的差别。因为对于前者来说用户话的输出在sink之间是相互独立的，对于后者来说，如果这些客户化的操作是不需要的，会运行更快。这个此后端类的一个特性。
+
+&emsp;&emsp;此程序库提供了许多[后端](#sink_backends)，他们分别实现了不同的日志处理逻辑。例如指定[Syslog](#log.detailed.sink_backends.syslog)后端，你可以通过网络将日志发送到syslog服务器。或者通过设置[Windows事件日志](log.detailed.sink_backends.event_log)后端，你通过标准的windows工具来监控你的程序运行情况。
+
+&emsp;&emsp;最后在这里需要提醒的是，通过调用```locked_backend```成员函数可以获取sink后端，通过它可以对后端进行线程安全地访问。此函数在所有的sink前端都有提供。这个函数返回一个指向后端的智能指针，只要这个智能指针存在，后端就被锁住。这就意味着如果有其它线程尝试写日志，同时日志记录通过了sink的话，这条日志将会被阻塞，直到你释放了这个后端。但是此处有一个例外，[unlocked_sink](log.detailed.sink_frontends.unlocked)完全不同步，当他调用```locked_backend```函数时，其简单地返回不加锁的后端指针。
+
+### <a name="create-logger-and-write-log"></a>创建logger并写日志
+
+
+
+
+
+
+
+
+
+
+
 
 ## <a name="detailed-feature-description"></a>详细特征描述
+
+<a name="sink_frontends"></a>sink前端
+
+<a name="sink_backends"></a>sink后端
+
+<a name="log.detailed.sink_backends.syslog"></a>syslog后端
+<a name="log.detailed.sink_backends.event_log"></a>Windows事件日志后端
+
+<a name="log.detailed.sink_frontends.sync"></a>同步sink前端
+
+<a name="log.detailed.sink_backends.text_ostream"></a>文本输出
+
+<a name="log.detaild.sink_backends.text_file"></a>文本文件
+
+<a name="log.detailed.sink_frontends.unlocked"></a>不加锁的sink前端
+
+<a name="log.detailed.utilities.setup.convenience"></a>快捷方法
+
+[boost_regex]: http://www.boost.org/doc/libs/release/libs/regex/index.html
+[boost_xpressive]: http://www.boost.org/doc/libs/release/doc/html/xpressive.html
+[boost_thread]: http://www.boost.org/doc/libs/release/doc/html/thread.html
+[boost_asio]: http://www.boost.org/doc/libs/release/doc/html/boost_asio.html
+[boost_phoenix]: http://www.boost.org/doc/libs/release/libs/phoenix/doc/html/index.html
+[note-image]: http://www.boost.org/doc/libs/1_60_0/doc/src/images/note.png
