@@ -321,9 +321,8 @@ int main(int, char*[])
 
 &emsp;&emsp;现在，如果你运行上述示例程序，前两行日志记录会被忽略，剩下的四条记录会输出到显示器上。
 
-![important](http://www.boost.org/doc/libs/1_60_0/doc/src/images/important.png)**重要**
-
-	需要记住流表达式只有在记录通过过滤器之后才会执行。不要在流表达式中指定关键业务调用。因为当记录被过滤掉之后，这些调用可能没有被执行。
+>![important](http://www.boost.org/doc/libs/1_60_0/doc/src/images/important.png)**重要**
+需要记住流表达式只有在记录通过过滤器之后才会执行。不要在流表达式中指定关键业务调用。因为当记录被过滤掉之后，这些调用可能没有被执行。
 
 &emsp;&emsp;过滤器设置形式需要再说一下。在我们设置一个全局过滤器时，我们需要获取一个日志核心实例。这个就是```logging::core::get()```所做的事情，它会返回一个指向核心单例的指针。日志核心的```set_filter```函数设置了全局过滤函数。
 
@@ -335,9 +334,8 @@ int main(int, char*[])
 ### <a name="set-up-sink"></a> 建立sink ###
 &emsp;&emsp;有时候trivial logging不能够提供足够的灵活度。例如，我们可能希望在日志处理过程中采用更加复杂的逻辑，而不是简单的打印到屏幕上。为了实现这些个性化的需求，你必须建立日志sink，并将它们注册到日志核心。这些操作只需要在你的应用程序启动时执行一次即可。
 
-![Note][note-image] **须知**
-
-	需要注意的是，在之前的小节中我们没有初始化任何sink，但是trivail logging也可以工作。这是因为本程序库包含了一个默认的sink。当用户没有设置任何sink时，就会使用此sink。此sink将以一个固定的格式日志记录打印到屏幕上。默认的sink可以让trivial logging在没有任何初始化的情况下也可以正确使用。一旦你往日志核心中添加了sink，默认的sink就不会被使用。但是trivail logging的宏可以继续使用。
+>![Note][note-image] **须知**
+需要注意的是，在之前的小节中我们没有初始化任何sink，但是trivail logging也可以工作。这是因为本程序库包含了一个默认的sink。当用户没有设置任何sink时，就会使用此sink。此sink将以一个固定的格式日志记录打印到屏幕上。默认的sink可以让trivial logging在没有任何初始化的情况下也可以正确使用。一旦你往日志核心中添加了sink，默认的sink就不会被使用。但是trivail logging的宏可以继续使用。
 
 #### *使用文件日志*
 &emsp;&emsp;在开始是，你应该初始化日志输出到文件。
@@ -380,9 +378,8 @@ void init()
 
 &emsp;&emsp;可以看到，传给函数的选项是是一种命名表单的方式。这种方式在此程序库中的其他地方也有使用。你需要学会他。这些参数的意义是自解释的，在使用手册中有详细记录(点击[此链接](#log.detaild.sink_backends.text_file)可以查看关于文本文件sink的部分)。另外一种快捷的添加方法在[此小节](#log.detailed.utilities.setup.convenience)有介绍。
 
-![Note][note-image] **须知**
-
-	你可以注册多个sink，每一个sink会接收并处理日志记录，互相独立。
+>![Note][note-image] **须知**
+你可以注册多个sink，每一个sink会接收并处理日志记录，互相独立。
 
 #### *深度学习sink 更多细节*
 &emsp;&emsp;如果你不想了解更多细节，勀有跳过此小节，继续阅读下一节。如果你想对sink的配置有更加复杂的控制，或者除了已有的sink之外，希望使用更多sink，你可以手动注册更多的sink。
@@ -423,9 +420,8 @@ sink->locked_backend()->add_stream(stream);
 
 &emsp;&emsp;[text_ostream_backend](#log.detailed.sink_backends.text_ostream)类支持添加多个流，在这种情况下它的输出会被复制到所有添加的流中。这对需要同时将日志打印到文件和屏幕是非常有用的。这样的话，对于每个日志记录，过滤、格式化以及一些其他的操作只需要执行一次。
 
-![Note][note-image] **须知**
-
-	需要注意注册多个sink，以及注册一个包含多个目标流的sink之间的差别。因为对于前者来说用户话的输出在sink之间是相互独立的，对于后者来说，如果这些客户化的操作是不需要的，会运行更快。这个此后端类的一个特性。
+>![Note][note-image] **须知**
+需要注意注册多个sink，以及注册一个包含多个目标流的sink之间的差别。因为对于前者来说用户话的输出在sink之间是相互独立的，对于后者来说，如果这些客户化的操作是不需要的，会运行更快。这个此后端类的一个特性。
 
 &emsp;&emsp;此程序库提供了许多[后端](#sink_backends)，他们分别实现了不同的日志处理逻辑。例如指定[Syslog](#log.detailed.sink_backends.syslog)后端，你可以通过网络将日志发送到syslog服务器。或者通过设置[Windows事件日志](log.detailed.sink_backends.event_log)后端，你通过标准的windows工具来监控你的程序运行情况。
 
