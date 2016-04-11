@@ -491,29 +491,180 @@ BOOST_LOG(lg) << "Hello, World!";
 当所有的代码完成之后，编译运行，你会在"sample.log"文件中发现"Hello, World!"记录。你可以在[这里](http://www.boost.org/doc/libs/1_60_0/libs/log/example/doc/tutorial_logging.cpp)看到本节的完整代码。
 
 ### <a name="attributes"></a> 属性
+&emsp;&emsp;在之前的章节中已经多次提到属性和属性值。在本节将带领大家学习如何使用属性为日志记录增加更多信息。
+
+&emsp;&emsp;每一个日志记录都可以包含一些命名属性。属性可以表示日志记录发生时的任何基本信息。比如代码中的位置、可执行模块的名称、当前日期和时间、与你程序相关的任何数据以及运行环境。一个属性就像一个数值发生器一样，对于每一个日志记录返回不同的值。一旦属性产生了数值，后面的操作就与产生者独立了，可以被过滤器，格式化工具以及sink使用。用户想使用属性，必须要知道它的名字和类型。你可以在本文档中找到一些本程序库提供的常用属性。
+
+&emsp;&emsp;除此之外，就像在[设计概要][#design-overview]中提到的，属性分为三种作用域类型，源相关属性、线程相关属性、全局属性。当日志记录产生之后，这三种类型的属性组成一个集合，传输到sink。对于sink来说，属性的来源没有任何差别。任何作用域可以注册任何属性。注册时，需要给属性一个唯一的名称，通过名称可以查找到该属性。如果在不同作用域内有同名的属性，最小的作用域会覆盖大的作用域中的属性。就是源相关属性>线程相关属性>全局属性。这样可以通过在logger中注册同名属性来覆盖全局属性和线程属性，减少线程干扰。
+
+&emsp;&emsp;下面介绍一些属性注册过程。
+
+#### *常用属性*
+&emsp;&emsp;有一些属性几乎在所有的应用程序中都会使用，比如日志记录个数，时间。这些属性可以通过一个简单的函数来添加啊。
+
+```csharp
+logging::add_common_attributes();
+
+```
+
+&emsp;&emsp;通过调用此函数，日志行ID、时间戳、进程ID、线程ID都会被注册。行ID是一个日志记录计数器，第一个日志记录的ID是1。时间戳是当前的时间(日志记录产生的时间，不是传输到sink的时间）。最后的两个属性代表产生当前日志记录的进程和线程。
+
+>![Note][note-image] **须知**
+>在单线程程序中“线程ID”没有被注册。
+
+&emsp;
+>![Tip][tip-image] **小技巧**
+>在程序启动时，默认没有任何属性被注册。应用程序需要在写日志之前注册必要的属性。注册过程可以在程序库初始化时完成。细心的读者会好奇trivial logging是怎么工作的。答案是trivial logging使用的默认sink，默认sink除了需要日志严重等级之外，不需要任何其他的属性，因此也不需要初始化。一旦你使用了过滤器、格式化工具和非默认sink，你必须注册必要的属性。
+
+&emsp;&emsp;[add_common_attributes](http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/add_common_attributes.html)函数在[这里][#log.detailed.utilities.setup.convenience]有更详细的描述。
+
+&emsp;&emsp;logger在构建时会自动注册一些属性。例如[severity_logger][#log.detailed.sources.severity_level_logger]类会注册一个源相关的属性“Severity”，此属性可以用来表示一个日志记录的重要程度。例如：
+
+```csharp
+// We define our own severity levels
+enum severity_level
+{
+    normal,
+    notification,
+    warning,
+    error,
+    critical
+};
+
+void logging_function()
+{
+    // The logger implicitly adds a source-specific attribute 'Severity'
+    // of type 'severity_level' on construction
+    src::severity_logger< severity_level > slg;
+
+    BOOST_LOG_SEV(slg, normal) << "A regular message";
+    BOOST_LOG_SEV(slg, warning) << "Something bad is going on but I can handle it";
+    BOOST_LOG_SEV(slg, critical) << "Everything crumbles, shoot me now!";
+}
+```
+
+>![Tip][tip-image] **小技巧**
+>你可以为通过重载```operator <<```函数为日志等级类型定义自己的格式化规则。
+>查看[这里][#log.detailed.expressions.attr]来查看具体信息。
+
+&emsp;&emsp;```BOOST_LOG_SEV```宏和```BOOST_LOG```宏很相似，
+不同之处是此函数还需要提供调用的日志logger。```BOOST_LOG_SEV```宏可以被以下代码替换。
+
+```csharp
+void manual_logging()
+{
+    src::severity_logger< severity_level > slg;
+
+    logging::record rec = slg.open_record(keywords::severity = normal);
+    if (rec)
+    {
+        logging::record_ostream strm(rec);
+        strm << "A regular message";
+        strm.flush();
+        slg.push_record(boost::move(rec));
+    }
+}
+```
+
+&emsp;&emsp;可以看到```open_record```函数可以支持一个命名的参数。本程序库提供的一些logger类型至此回这种参数方法。
+用户也可以在自己的logger类中使用类似的方法。
 
 
+#### *更多属性*
+&emsp;&emsp;我们可以先理解一下add_common_attributes函数，它可能是类似于这样的形式
 
+```csharp
+void add_common_attributes()
+{
+    boost::shared_ptr< logging::core > core = logging::core::get();
+    core->add_global_attribute("LineID", attrs::counter< unsigned int >(1));
+    core->add_global_attribute("TimeStamp", attrs::local_clock());
 
+    // other attributes skipped for brevity
+}
+```
 
+&emsp;&emsp;在这里counter和local_clock都是属性类，他们派生自通用属性接口[attribute](#http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/attribute.html)。
+&emsp;&emsp;本程序库提供了一些其他[属性类](#detailed-attribute)。包括一些函数属性，通过调用一些函数来获取数值。
+例如，我们可以非常简单地注册一个[named_scope](#log.detailed.attributes.named_scope)属性。
 
+```csharp
+core->add_global_attribute("Scope", attrs::named_scope());
+```
 
+&emsp;&emsp;通过这样我们就可以在日志记录中存储命名空间，下面是它的用法。
 
+```csharp
+void named_scope_logging()
+{
+    BOOST_LOG_NAMED_SCOPE("named_scope_logging");
 
+    src::severity_logger< severity_level > slg;
 
+    BOOST_LOG_SEV(slg, normal) << "Hello from the function named_scope_logging!";
+}
+```
 
+&emsp;&emsp;logger相关属性和全局属性同样重要。严重等级、channel名称是最重要的源相关属性。你也可以添加更多的属性到你的logger中。例如
 
+```csharp
+void tagged_logging()
+{
+    src::severity_logger< severity_level > slg;
+    slg.add_attribute("Tag", attrs::constant< std::string >("My tag value"));
 
+    BOOST_LOG_SEV(slg, normal) << "Here goes the tagged record";
+}
+```
 
+&emsp;&emsp;这样此logger生成的所有的日志记录就会包含Tag属性，此属性可以用于后续的过滤和格式化。
+属性的另外一个作用是标记应用程序不同部分产生的日志记录，这样可以高亮某一个过程的活动。
+我们甚至可以实现一个粗糙的profiling工具来检测性能瓶颈。例如：
 
+```csharp
+void timed_logging()
+{
+    BOOST_LOG_SCOPED_THREAD_ATTR("Timeline", attrs::timer());
 
+    src::severity_logger< severity_level > slg;
+    BOOST_LOG_SEV(slg, normal) << "Starting to time nested functions";
 
+    logging_function();
 
+    BOOST_LOG_SEV(slg, normal) << "Stopping to time nested functions";
+}
+```
+
+&emsp;&emsp;Timeline包含高精度的时间信息，可以用来判断哪一部分程序需要很多的执行时间。
+并不是所有的logging_function函数生成的日志记录，或者它调用的其他函数包含"Timeline"属性。
+"Timeline"属性在离开timed_logging函数的空间之后，就将失效。
+
+&emsp;&emsp;可以参考[属性](#detailed-attribute)小结，来阅读本程序库提供属性的详细描述。
+详细代码可以点击[这里](http://www.boost.org/doc/libs/1_60_0/libs/log/example/doc/tutorial_attributes.cpp)。
+
+#### *定义属性占位符*
+&emsp;&emsp;在未来的章节中我们会看到，用一个关键词来对应用程序使用的属性是非常有用的。
+这个关键词可以参与到过滤和格式化的表达式中。就像日志等级占位符一样。
+例如，要使用我们之前的示例中提到的属性，我们要像如下一样定义占位符。
+
+```csharp
+BOOST_LOG_ATTRIBUTE_KEYWORD(line_id, "LineID", unsigned int)
+BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", severity_level)
+BOOST_LOG_ATTRIBUTE_KEYWORD(tag_attr, "Tag", std::string)
+BOOST_LOG_ATTRIBUTE_KEYWORD(scope, "Scope", attrs::named_scope::value_type)
+BOOST_LOG_ATTRIBUTE_KEYWORD(timeline, "Timeline", attrs::timer::value_type)
+```
+
+&emsp;&emsp;每一个宏定义了一个关键词。第一个参数是占位符的名称，第二个是属性名称，最后一个属性是属性类型。
+一旦定义，这个占位符可以在模板表达式以及其他地方使用。定义属性关键词的详细信息可以点击[这里](#log.detailed.expressions.attr_keywords)。
 
 
 
 ## <a name="detailed-feature-description"></a>详细特征描述
 
+<a name="detailed-attribute"></a>属性
+
+<a name="#log.detailed.attributes.named_scope"></a>命名空间
 
 <a name="detaild-logging-source"></a>日志源
 
@@ -526,6 +677,8 @@ BOOST_LOG(lg) << "Hello, World!";
 
 <a name="log.detailed.sources.global_storage"></a>logger的全局存储
 
+<a name="log.detailed.sources.severity_level_logger"></a>带有日志等级支持的logger
+
 <a name="log.detailed.sink_frontends.sync"></a>同步sink前端
 
 <a name="log.detailed.sink_backends.text_ostream"></a>文本输出
@@ -534,7 +687,11 @@ BOOST_LOG(lg) << "Hello, World!";
 
 <a name="log.detailed.sink_frontends.unlocked"></a>不加锁的sink前端
 
-<a name="log.detailed.utilities.setup.convenience"></a>快捷方法
+<a name="log.detailed.utilities.setup.convenience"></a>快捷函数
+
+<a name="log.detailed.expressions.attr"></a>具体属性
+
+<a name="log.detailed.expressions.attr_keywords"></a>定义属性关键词
 
 [boost_regex]: http://www.boost.org/doc/libs/release/libs/regex/index.html
 [boost_xpressive]: http://www.boost.org/doc/libs/release/doc/html/xpressive.html
