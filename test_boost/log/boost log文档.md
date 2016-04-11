@@ -436,7 +436,7 @@ sink->locked_backend()->add_stream(stream);
 src::logger lg;
 ```
 
->![Note](note-image) **须知**
+>![Note][note-image] **须知**
 好奇的读者会发现我们在trivial logging中没有创建任何logger对象。事实上程序库已经提供了logger，在幕后已经使用
 
 &emsp;&emsp;和sink不一样，日志源不需要在各处注册，因为它直接与日志核心进行交互。需要注意的是，程序库提供了两个版本的logger，线程安全版和非线程安全版。
