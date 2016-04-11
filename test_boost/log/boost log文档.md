@@ -857,7 +857,7 @@ void init()
 void (logging::record_view const& rec, logging::basic_formatting_ostream< CharT >& strm);
 ```
 
->![Tip](tip-image)
+>![Tip][tip-image]
 >record_view和记录很相似。不同之处是record_view是不可变的，其实现了浅拷贝。 formatter和sink仅仅在record_view上操作，这样避免他们修改日志记录，这样其他线程的sink还可以继续使用这些日志记录。
 
 &emsp;&emsp;格式化之后记录可以通过STL格式的输出流来组合。这里是一个客户formatter函数的示例。
