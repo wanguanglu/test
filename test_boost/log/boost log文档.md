@@ -985,7 +985,7 @@ void init()
 >在上面的例子中，通过调用or_none来实现。这样在值无法找到时，会返回一个空的[value_ref](#log.detailed.utilities.value_ref)。
 >在其他的场景下，默认采用此策略。还可以使用这里的[其他策略](#log.detailed.expressions.attr.fallback_policies)来替代。
 
-&emsp;&emsp;你可以运行[示例](#http://www.boost.org/doc/libs/1_60_0/libs/log/example/doc/tutorial_filtering.cpp)程序，来查看工作情况。
+&emsp;&emsp;你可以运行[示例](http://www.boost.org/doc/libs/1_60_0/libs/log/example/doc/tutorial_filtering.cpp)程序，来查看工作情况。
 
 
 ## <a name="detailed-feature-description"></a>详细特征描述
