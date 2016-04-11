@@ -339,7 +339,7 @@ int main(int, char*[])
 &emsp;&emsp;有时候trivial logging不能够提供足够的灵活度。例如，我们可能希望在日志处理过程中采用更加复杂的逻辑，而不是简单的打印到屏幕上。为了实现这些个性化的需求，你必须建立日志sink，并将它们注册到日志核心。这些操作只需要在你的应用程序启动时执行一次即可。
 
 >![Note][note-image] **须知**
-需要注意的是，在之前的小节中我们没有初始化任何sink，但是trivail logging也可以工作。这是因为本程序库包含了一个默认的sink。当用户没有设置任何sink时，就会使用此sink。此sink将以一个固定的格式日志记录打印到屏幕上。默认的sink可以让trivial logging在没有任何初始化的情况下也可以正确使用。一旦你往日志核心中添加了sink，默认的sink就不会被使用。但是trivail logging的宏可以继续使用。
+需要注意的是，在之前的小节中我们没有初始化任何sink，但是trivial logging也可以工作。这是因为本程序库包含了一个默认的sink。当用户没有设置任何sink时，就会使用此sink。此sink将以一个固定的格式日志记录打印到屏幕上。默认的sink可以让trivial logging在没有任何初始化的情况下也可以正确使用。一旦你往日志核心中添加了sink，默认的sink就不会被使用。但是trivial logging的宏可以继续使用。
 
 #### *使用文件日志*
 &emsp;&emsp;在开始是，你应该初始化日志输出到文件。
@@ -660,14 +660,242 @@ BOOST_LOG_ATTRIBUTE_KEYWORD(timeline, "Timeline", attrs::timer::value_type)
 &emsp;&emsp;每一个宏定义了一个关键词。第一个参数是占位符的名称，第二个是属性名称，最后一个属性是属性类型。
 一旦定义，这个占位符可以在模板表达式以及其他地方使用。定义属性关键词的详细信息可以点击[这里](#log.detailed.expressions.attr_keywords)。
 
-
 ### <a name="log-record-formatting"></a> **日志记录格式化**
+&emsp;&emsp;如果你尝试运行之前章节的示例，你可能会注意到只有日志记录的message信息会写到文件中。
+当没有设置格式化工具时，没有默认的输出。即使你将属性添加到logger中，属性并没有输出到文件。除非你将这些数值进行格式化。
 
+&emsp;&emsp;回到之前的一个示例。
+
+```csharp
+void init()
+{
+    logging::add_file_log
+    (
+        keywords::file_name = "sample_%N.log",
+        keywords::rotation_size = 10 * 1024 * 1024,
+        keywords::time_based_rotation = sinks::file::rotation_at_time_point(0, 0, 0),
+        keywords::format = "[%TimeStamp%]: %Message%"
+    );
+
+    logging::core::get()->set_filter
+    (
+        logging::trivial::severity >= logging::trivial::info
+    );
+}
+```
+
+&emsp;&emsp;在```add_file_log```函数中，format参数可以指定日志记录的格式。
+如果你手动设置sink，sink前端提供了```set_formatter```成员函数。
+格式可以通过多种方法设置，在后续会继续介绍。
+
+#### *Lambda形式formatter*
+&emsp;&emsp;你可以创建一个像这样的lambda表达式。
+
+```csharp
+void init()
+{
+    logging::add_file_log
+    (
+        keywords::file_name = "sample_%N.log",
+        // This makes the sink to write log records that look like this:
+        // 1: <normal> A normal severity message
+        // 2: <error> An error severity message
+        keywords::format =
+        (
+            expr::stream
+                << expr::attr< unsigned int >("LineID")
+                << ": <" << logging::trivial::severity
+                << "> " << expr::smessage
+        )
+    );
+}
+```
+
+[查看完成代码](http://www.boost.org/doc/libs/1_60_0/libs/log/example/doc/tutorial_fmt_stream.cpp)
+
+&emsp;&emsp;在这个stream是一个将日志记录格式化的流的占位符。其它的插入参数，例如[attr](#log.detailed.expressions.attr)和
+[message](#log.detailed.expressions.message)是流里定义的操作符。我们已经在过滤器表达式中看到过severity占位符，
+在这里又应用在格式化工具中。这是一个非常好的统一：你可以在过滤器和格式化工具中使用同样的占位符。
+[attr](#log.detailed.expressions.attr)占位符和severity占位符类似，它表示属性值。不同的是severity占位符表示名称为"Severity"和类型为
+trivial::severity_level的属性，[attr](#log.detailed.expressions.attr)可以表示任何属性。否则它们是等价的。
+我们可以通过以下方式替换severity占位符。
+
+```csharp
+expr::attr< logging::trivial::severity_level >("Severity")
+```
+
+>![Tip][tip-image] **须知**
+>就像在其他章节中介绍的，我们可以将用户的属性定义成类似于severity的占位符。因为占位符表达这个属性的所有信息，这样可以这样可以简化模板表达式的句法。
+>这样可以减少由于拼写带来的编码错误。因此推荐大家使用这种方法来定义新的属性，以及在模板表达式中使用。
+
+&emsp;&emsp;这里还提供了其他的[格式化表达式](#log.detailed.expressions.formatters)，来支持日期、时间以及其他的类型。
+一些格式化表达式接收额外的参数来客户化他们的行为。大部分参数都可以按照[Boost.Parameter](http://www.boost.org/doc/libs/1_60_0/libs/parameter/doc/html/index.html)
+的方式来解析。
+
+&emsp;&emsp;做一些改变，我们可以看一下人工初始化sink时情况。
+
+```csharp
+void init()
+{
+    typedef sinks::synchronous_sink< sinks::text_ostream_backend > text_sink;
+    boost::shared_ptr< text_sink > sink = boost::make_shared< text_sink >();
+
+    sink->locked_backend()->add_stream(
+        boost::make_shared< std::ofstream >("sample.log"));
+
+    sink->set_formatter
+    (
+        expr::stream
+               // line id will be written in hex, 8-digits, zero-filled
+            << std::hex << std::setw(8) << std::setfill('0') << expr::attr< unsigned int >("LineID")
+            << ": <" << logging::trivial::severity
+            << "> " << expr::smessage
+    );
+
+    logging::core::get()->add_sink(sink);
+}
+```
+
+[查看完整代码](http://www.boost.org/doc/libs/1_60_0/libs/log/example/doc/tutorial_fmt_stream_manual.cpp)
+
+&emsp;&emsp;可以看到，可以在表达式中绑定格式转换参数。这些操作符会影响紧接着的属性值格式。
+更多的操作符描述在[详细特征描述](#detailed-expresion)小节有介绍。
+
+#### *Boost.Format-style formmtter*
+
+&emsp;&emsp;另外一种方式，我们也可以定义一种类似于[Boost.Format](http://www.boost.org/doc/libs/release/libs/format/index.html)格式的句法。
+上面的格式我们可以按照下面的方式来书写：
+
+```csharp
+void init()
+{
+    typedef sinks::synchronous_sink< sinks::text_ostream_backend > text_sink;
+    boost::shared_ptr< text_sink > sink = boost::make_shared< text_sink >();
+
+    sink->locked_backend()->add_stream(
+        boost::make_shared< std::ofstream >("sample.log"));
+
+    // This makes the sink to write log records that look like this:
+    // 1: <normal> A normal severity message
+    // 2: <error> An error severity message
+    sink->set_formatter
+    (
+        expr::format("%1%: <%2%> %3%")
+            % expr::attr< unsigned int >("LineID")
+            % logging::trivial::severity
+            % expr::smessage
+    );
+
+    logging::core::get()->add_sink(sink);
+}
+```
+
+[查看完整代码](http://www.boost.org/doc/libs/1_60_0/libs/log/example/doc/tutorial_fmt_format.cpp)
+
+&emsp;&emsp;fomat占位符接受位置相关的参数进行格式化。注意现在仅仅位置相关格式化，相通的格式化方式也可以在```add_file_log```以及类似的函数中使用。
+
+##### *特殊formatter*
+
+&emsp;&emsp;本程序库提供了针对数字的特殊formmatter。例如日期，时间和named scope。这些formatter提供了针对格式化数值的扩展控制。例如，可以将日期和时间
+格式化成(Boost.DateTime)[http://www.boost.org/doc/libs/release/doc/html/date_time.html]可以编译的格式。
+
+```csharp
+void init()
+{
+    logging::add_file_log
+    (
+        keywords::file_name = "sample_%N.log",
+        // This makes the sink to write log records that look like this:
+        // YYYY-MM-DD HH:MI:SS: <normal> A normal severity message
+        // YYYY-MM-DD HH:MI:SS: <error> An error severity message
+        keywords::format =
+        (
+            expr::stream
+                << expr::format_date_time< boost::posix_time::ptime >("TimeStamp", "%Y-%m-%d %H:%M:%S")
+                << ": <" << logging::trivial::severity
+                << "> " << expr::smessage
+        )
+    );
+}
+```
+
+[查看完整代码](http://www.boost.org/doc/libs/1_60_0/libs/log/example/doc/tutorial_fmt_stream.cpp)
+
+&emsp;&emsp;同样的formatter可以在Boost.Format-style formmatter中使用。
+
+
+#### *使用字符串模板作为formatter*
+
+&emsp;&emsp;在一些场景下，文本模板可以用作formatter。在此时程序库初始化支持代码会运行，来解析这些模板并重建合适的formmatter。这里有许多注意事项需要牢记。在这里像如下定义就足够了。
+
+```csharp
+void init()
+{
+    logging::add_file_log
+    (
+        keywords::file_name = "sample_%N.log",
+        keywords::format = "[%TimeStamp%]: %Message%"
+    );
+}
+```
+
+[查看完整代码](http://www.boost.org/doc/libs/1_60_0/libs/log/example/doc/tutorial_fmt_string.cpp)
+
+&emsp;&emsp;在这里，format参数接受一个format模板。这个模板勀有包含一些占位符，用百分号(%)包围。每个占位符必须包含一个属性值来替代这个占位符。
+%Message%占位符会被日志记录的message来替换。
+
+>![Note][note-image] "须知"
+>sink后端的set_formatter函数并不接受文本格式模板。为了让formatter解析文本模板，必须调用parse_formatter函数。
+>在[这里](#log.detailed.utilities.setup.filter_formatter)看更多的详细信息。
+
+#### *客户格式化函数*
+&emsp;&emsp;你可以在sink中添加客户formmatter来支持格式化。formmater实际上是一个函数对象，支持以下格式。
+
+```csharp
+void (logging::record_view const& rec, logging::basic_formatting_ostream< CharT >& strm);
+```
+
+>[Tip][tip-image]
+>record_view和记录很相似。不同之处是record_view是不可变的，其实现了浅拷贝。 formatter和sink仅仅在record_view上操作，这样避免他们修改日志记录，这样其他线程的sink还可以继续使用这些日志记录。
+
+&emsp;&emsp;格式化之后记录可以通过STL格式的输出流来组合。这里是一个客户formatter函数的示例。
+
+```csharp
+void my_formatter(logging::record_view const& rec, logging::formatting_ostream& strm)
+{
+    // Get the LineID attribute value and put it into the stream
+    strm << logging::extract< unsigned int >("LineID", rec) << ": ";
+
+    // The same for the severity level.
+    // The simplified syntax is possible if attribute keywords are used.
+    strm << "<" << rec[logging::trivial::severity] << "> ";
+
+    // Finally, put the record message to the stream
+    strm << rec[expr::smessage];
+}
+
+void init()
+{
+    typedef sinks::synchronous_sink< sinks::text_ostream_backend > text_sink;
+    boost::shared_ptr< text_sink > sink = boost::make_shared< text_sink >();
+
+    sink->locked_backend()->add_stream(
+        boost::make_shared< std::ofstream >("sample.log"));
+
+    sink->set_formatter(&my_formatter);
+
+    logging::core::get()->add_sink(sink);
+}
+```
+
+[查看完整代码](http://www.boost.org/doc/libs/1_60_0/libs/log/example/doc/tutorial_fmt_custom.cpp)
 
 
 ## <a name="detailed-feature-description"></a>详细特征描述
 
 <a name="detailed-attribute"></a>属性
+
+<a name="detailed-expresion"></a>表达式
 
 <a name="#log.detailed.attributes.named_scope"></a>命名空间
 
@@ -696,7 +924,14 @@ BOOST_LOG_ATTRIBUTE_KEYWORD(timeline, "Timeline", attrs::timer::value_type)
 
 <a name="log.detailed.expressions.attr"></a>具体属性
 
+<a name="log.detailed.expressions.message"></a>message信息
+
 <a name="log.detailed.expressions.attr_keywords"></a>定义属性关键词
+
+<a name="log.detailed.expressions.formatters"></a>格式化表达式
+
+<a name="log.detailed.utilities.setup.filter_formatter"></a>过滤器和formatter解析器
+
 
 [boost_regex]: http://www.boost.org/doc/libs/release/libs/regex/index.html
 [boost_xpressive]: http://www.boost.org/doc/libs/release/doc/html/xpressive.html
