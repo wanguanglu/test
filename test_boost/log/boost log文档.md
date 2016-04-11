@@ -18,6 +18,7 @@ Andrey Semashev（万广鲁翻译）
 	* [创建logger并写日志](#create-logger-and-write-log)
 	* [属性](#attributes)
 	* [日志记录格式化](#log-record-formatting)
+	* [回顾filtering](#filtering-revisit)
 
 
 ## <a name="motivation"></a>动机
@@ -265,6 +266,7 @@ bjam --with-log variant=release define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_
 * [创建logger并写日志](#create-logger-and-write-log)
 * [属性](#attributes)
 * [日志记录格式化](#log-record-formatting)
+* [回顾filtering](#filtering-revisit)
 
 &emsp;&emsp;在本小结中，我们会把一些基本的步骤走一遍，来熟悉此程序库。在阅读完本节信息之后，你应该能够开始使用此程序库，并在自己的应用程序中打印日志。本教程中的示例代码都可以在```libs/log/examples```文件夹中获取，可以随意地编译并查看运行结果。
 
@@ -761,7 +763,7 @@ void init()
 &emsp;&emsp;可以看到，可以在表达式中绑定格式转换参数。这些操作符会影响紧接着的属性值格式。
 更多的操作符描述在[详细特征描述](#detailed-expresion)小节有介绍。
 
-#### *Boost.Format-style formmtter*
+#### *Boost.Format-style formatter*
 
 &emsp;&emsp;另外一种方式，我们也可以定义一种类似于[Boost.Format](http://www.boost.org/doc/libs/release/libs/format/index.html)格式的句法。
 上面的格式我们可以按照下面的方式来书写：
@@ -796,7 +798,7 @@ void init()
 
 ##### *特殊formatter*
 
-&emsp;&emsp;本程序库提供了针对数字的特殊formmatter。例如日期，时间和named scope。这些formatter提供了针对格式化数值的扩展控制。例如，可以将日期和时间
+&emsp;&emsp;本程序库提供了针对数字的特殊formatter。例如日期，时间和named scope。这些formatter提供了针对格式化数值的扩展控制。例如，可以将日期和时间
 格式化成(Boost.DateTime)[http://www.boost.org/doc/libs/release/doc/html/date_time.html]可以编译的格式。
 
 ```csharp
@@ -821,12 +823,12 @@ void init()
 
 [查看完整代码](http://www.boost.org/doc/libs/1_60_0/libs/log/example/doc/tutorial_fmt_stream.cpp)
 
-&emsp;&emsp;同样的formatter可以在Boost.Format-style formmatter中使用。
+&emsp;&emsp;同样的formatter可以在Boost.Format-style formatter中使用。
 
 
 #### *使用字符串模板作为formatter*
 
-&emsp;&emsp;在一些场景下，文本模板可以用作formatter。在此时程序库初始化支持代码会运行，来解析这些模板并重建合适的formmatter。这里有许多注意事项需要牢记。在这里像如下定义就足够了。
+&emsp;&emsp;在一些场景下，文本模板可以用作formatter。在此时程序库初始化支持代码会运行，来解析这些模板并重建合适的formatter。这里有许多注意事项需要牢记。在这里像如下定义就足够了。
 
 ```csharp
 void init()
@@ -849,13 +851,13 @@ void init()
 >在[这里](#log.detailed.utilities.setup.filter_formatter)看更多的详细信息。
 
 #### *客户格式化函数*
-&emsp;&emsp;你可以在sink中添加客户formmatter来支持格式化。formmater实际上是一个函数对象，支持以下格式。
+&emsp;&emsp;你可以在sink中添加客户formatter来支持格式化。formater实际上是一个函数对象，支持以下格式。
 
 ```csharp
 void (logging::record_view const& rec, logging::basic_formatting_ostream< CharT >& strm);
 ```
 
->[Tip][tip-image]
+>![Tip](tip-image)
 >record_view和记录很相似。不同之处是record_view是不可变的，其实现了浅拷贝。 formatter和sink仅仅在record_view上操作，这样避免他们修改日志记录，这样其他线程的sink还可以继续使用这些日志记录。
 
 &emsp;&emsp;格式化之后记录可以通过STL格式的输出流来组合。这里是一个客户formatter函数的示例。
@@ -889,6 +891,101 @@ void init()
 ```
 
 [查看完整代码](http://www.boost.org/doc/libs/1_60_0/libs/log/example/doc/tutorial_fmt_custom.cpp)
+
+### <a name="filtering-revisit"></a>回顾filtering
+&emsp;&emsp;在前面的章节中我们提到了filtering，但是我们只是提到了一些皮毛。现在我们已经可以在日志记录中添加属性，并可以设置sink。
+我们可以构建更加复杂的过滤器。
+
+```csharp
+BOOST_LOG_ATTRIBUTE_KEYWORD(line_id, "LineID", unsigned int)
+BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", severity_level)
+BOOST_LOG_ATTRIBUTE_KEYWORD(tag_attr, "Tag", std::string)
+
+void init()
+{
+    // Setup the common formatter for all sinks
+    logging::formatter fmt = expr::stream
+        << std::setw(6) << std::setfill('0') << line_id << std::setfill(' ')
+        << ": <" << severity << ">\t"
+        << expr::if_(expr::has_attr(tag_attr))
+           [
+               expr::stream << "[" << tag_attr << "] "
+           ]
+        << expr::smessage;
+
+    // Initialize sinks
+    typedef sinks::synchronous_sink< sinks::text_ostream_backend > text_sink;
+    boost::shared_ptr< text_sink > sink = boost::make_shared< text_sink >();
+
+    sink->locked_backend()->add_stream(
+        boost::make_shared< std::ofstream >("full.log"));
+
+    sink->set_formatter(fmt);
+
+    logging::core::get()->add_sink(sink);
+
+    sink = boost::make_shared< text_sink >();
+
+    sink->locked_backend()->add_stream(
+        boost::make_shared< std::ofstream >("important.log"));
+
+    sink->set_formatter(fmt);
+
+    sink->set_filter(severity >= warning || (expr::has_attr(tag_attr) && tag_attr == "IMPORTANT_MESSAGE"));
+
+    logging::core::get()->add_sink(sink);
+
+    // Add attributes
+    logging::add_common_attributes();
+}
+```
+
+[查看完整代码](http://www.boost.org/doc/libs/1_60_0/libs/log/example/doc/tutorial_filtering.cpp)
+
+&emsp;&emsp;在此示例中，我们初始化了两个sink。一个来存储完整的日志，另外一个来存储重要日志。两个sink都会向文本文件中写同样格式的日志记录。
+[formatter](http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/basic_formatter.html)类型是一个包含格式化调用签名的函数对象。
+在很多方面它和```boost::function```或者```std::function```很类似。不同之处是它从来不会为空。有一个类似的
+[过滤器函数对象](http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/filter.html)。
+
+&emsp;&emsp;值得注意的是，这个formmater本身包含一个fiter。这个formatter包含一个条件判断，来判断Tag属性。
+[has_attr](#log.detailed.expressions.predicates.has_attr)谓词判断此记录是否包含"Tag"属性值。然后控制是否将它打印到文件。
+我们使用属性关键词来指定属性的名称和类型，也可以在[has_attr](#log.detailed.expressions.predicates.has_attr)调用中指定。
+在[这里](#log.detailed.expressions.formatters.conditional)包含条件formmater的更详细描述。
+
+&emsp;&emsp;回顾一下两个sink的初始化过程，第一个sink没有任何fiter，这意味着它会将所有的日志记录输出到文件爱你。第二个sink中调用了```set_filter```函数。
+仅仅保存日志严重等级不低于```warning```的，或者包含```Tag```属性且属性值为"IMPORTANT_MESSAGE"的。我们可以看到过滤器句法和C++很像，特别当使用属性关键词时。
+
+&emsp;&emsp;和formatter类似，可以使用客户化函数来当做filter。在此情况下[Boost.Phoenix][boost_phoenix]会非常有用。因为其bind实现和属性占位符是兼容的。
+之前的示例，可以改成如下的格式。
+
+```csharp
+bool my_filter(logging::value_ref< severity_level, tag::severity > const& level,
+               logging::value_ref< std::string, tag::tag_attr > const& tag)
+{
+    return level >= warning || tag == "IMPORTANT_MESSAGE";
+}
+
+void init()
+{
+    // ...
+    namespace phoenix = boost::phoenix;
+    sink->set_filter(phoenix::bind(&my_filter, severity.or_none(), tag_attr.or_none()));
+    // ...
+}
+```
+
+&emsp;&emsp;客户化filter接受封装到[value_ref](#log.detailed.utilities.value_ref)属性值。这个wrapper包含一个代表属性类型的选项。
+当这个日志记录包含要求类型的属性值时此引用有效。```my_filter```函数中使用关系操作符不用判断有效性条件判断，因为当引用为无效是返回为```false```。
+在bind表达式中会识别```severity```和```tag_attr```关键词。并抽取相关的值传给```my_filter```函数。
+
+
+>![Note][note-image] **须知**
+>因为与[Boost.Phoenix][boost_phoenix]整合的限制(参考[#7996](#https://svn.boost.org/trac/boost/ticket/7996))，
+>在含有属性关键词时，调用phoenix::bind或者phoenix::function，必须显式地设置属性缺失时的回退策略。
+>在上面的例子中，通过调用or_none来实现。这样在值无法找到时，会返回一个空的[value_ref](#log.detailed.utilities.value_ref)。
+>在其他的场景下，默认采用此策略。还可以使用这里的[其他策略](#log.detailed.expressions.attr.fallback_policies)来替代。
+
+&emsp;&emsp;你可以运行[示例](#http://www.boost.org/doc/libs/1_60_0/libs/log/example/doc/tutorial_filtering.cpp)程序，来查看工作情况。
 
 
 ## <a name="detailed-feature-description"></a>详细特征描述
@@ -930,8 +1027,15 @@ void init()
 
 <a name="log.detailed.expressions.formatters"></a>格式化表达式
 
+<a name="log.detailed.expressions.predicates.has_attr"></a>属性存在性过滤器
+
+<a name="log.detailed.expressions.formatters.conditional"></a>条件formmater
+
+<a name="log.detailed.expressions.attr.fallback_policies"></a>客户化回退策略
+
 <a name="log.detailed.utilities.setup.filter_formatter"></a>过滤器和formatter解析器
 
+<a name="log.detailed.utilities.value_ref"></a>值引用wrapper
 
 [boost_regex]: http://www.boost.org/doc/libs/release/libs/regex/index.html
 [boost_xpressive]: http://www.boost.org/doc/libs/release/doc/html/xpressive.html
