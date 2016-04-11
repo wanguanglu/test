@@ -17,6 +17,7 @@ Andrey Semashev（万广鲁翻译）
 	* [建立sink](#set-up-sink)
 	* [创建logger并写日志](#create-logger-and-write-log)
 	* [属性](#attributes)
+	* [日志记录格式化](#log-record-formatting)
 
 
 ## <a name="motivation"></a>动机
@@ -263,6 +264,7 @@ bjam --with-log variant=release define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_
 * [建立sink](#set-up-sink)
 * [创建logger并写日志](#create-logger-and-write-log)
 * [属性](#attributes)
+* [日志记录格式化](#log-record-formatting)
 
 &emsp;&emsp;在本小结中，我们会把一些基本的步骤走一遍，来熟悉此程序库。在阅读完本节信息之后，你应该能够开始使用此程序库，并在自己的应用程序中打印日志。本教程中的示例代码都可以在```libs/log/examples```文件夹中获取，可以随意地编译并查看运行结果。
 
@@ -657,6 +659,9 @@ BOOST_LOG_ATTRIBUTE_KEYWORD(timeline, "Timeline", attrs::timer::value_type)
 
 &emsp;&emsp;每一个宏定义了一个关键词。第一个参数是占位符的名称，第二个是属性名称，最后一个属性是属性类型。
 一旦定义，这个占位符可以在模板表达式以及其他地方使用。定义属性关键词的详细信息可以点击[这里](#log.detailed.expressions.attr_keywords)。
+
+
+### <a name="log-record-formatting"></a> **日志记录格式化**
 
 
 
