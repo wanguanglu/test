@@ -452,7 +452,7 @@ src::logger lg;
 
 &emsp;&emsp;抛开线程安全性，本程序库提供的所有的logger都支持复制构造并且支持交换。因此在你的类中添加一个logger对象是没有问题的，而且在之后你会看到，通过这种方式会得到一些额外的好处。
 
-&emsp;&emsp;本程序库提供的一些logger包含不同的特性，比如严重等级和channel支持。这些特性可以互相组合来构建更加复杂的logger。点击[这里](#detaild-logging-source)可以看到更多细节。
+&emsp;&emsp;本程序库提供的一些logger包含不同的特性，比如严重等级和channel支持。这些特性可以互相组合来构建更加复杂的logger。点击[这里](#detailed-logging-source)可以看到更多细节。
 
 #### *全局logger对象*
 &emsp;&emsp;如果你不能将logger对象添加到你的类中，本程序库提供了一种声明全局logger的方式
@@ -1103,10 +1103,10 @@ void test_wide_char_logging()
 
 ## <a name=core-facilities></a>核心组件
 
-* [日志记录](#logging-record)
+* [日志记录](#log.detailed.core.record)
 * [日志核心](#logging-core)
 
-### <a name="logging-record"></a>日志记录
+### <a name="log.detailed.core.record"></a>日志记录
 
 ```csharp
 #include <boost/log/core/record.hpp>
@@ -1205,6 +1205,7 @@ Record view提供了和日志记录类似的接口。但是有一些明显的区
 ### <a name="logging-core"></a>日志核心
 
 * [属性集合](#attribute-set)
+* [全局filtering](#global-filtering)
 
 ```csharp
 #include <boost/log/core/core.hpp>
@@ -1251,6 +1252,153 @@ void foo()
 }
 ```
 
+>![Tip][tip-image] **小技巧**
+>日志核心的所有函数，在多线程环境中都是线程安全的。然而对于其他的模块可能不是这样，比如iterator和属性集合。
+
+&emsp;&emsp;获取完整的属性集合（全局和线程相关）的拷贝或者将他们设置到核心中是可以的。
+可以通过函数```get_global_attributes```，```set_global_attributes```，```get_thread_attributes```和```set_thread_attributes```来实现。
+
+>![Warning][warning-image] **警告**
+>当设置完整的属性集合到核心之后，所有通过```add_*```函数添加产生的iterator都会失效。特别是他会影响[作用域属性](#log.detailed.attributes.related_components.scoped_attributes)，因此用户在设置属性集合是一定要非常小心。
+
+#### <a name=global-filtering></a>*全局filtering*
+&emsp;&emsp;全局filter是通过filter函数对象来处理的，通过```set_filter```函数来实现。
+更多创建filter的信息在[此小节](#log.detailed.expressions.predicates)有介绍。
+在这里我们介绍说filter就是接受一个属性值集合同时返回一个布尔值来判断此日志记录是否通过filter的过滤。
+全局filter对于每个日志记录都会实施，因此它可以用来快速的清理过度的日志记录。
+
+&emsp;&emsp;全局filter可以通过```reset_filter```函数来删除。当核心中没有filter时，就没有记录被过滤掉。
+下面是日志核心初始构建之后的默认操作。
+
+```csharp
+enum severity_level
+{
+    normal,
+    warning,
+    error,
+    critical
+};
+
+void foo()
+{
+    boost::shared_ptr< logging::core > core = logging::core::get();
+
+    // Set a global filter so that only error messages are logged
+    core->set_filter(expr::attr< severity_level >("Severity") >= error);
+
+    // ...
+}
+```
+
+&emsp;&emsp;核心同时也提供了另外的方法来禁用日志，通过调用```set_logging_enable```函数，我们可以完全禁止
+或者重新开启日志。禁用日志比设置全局filter来讲对于程序性能更好。
+
+#### *sink管理*
+&emsp;&emsp;当全局filtering实施之后，就会进入到sink。为了增加或者删除sink，核心提供了```add_sink```和```remove_sink```函数。
+这两个函数都接受一个sink指针作为参数，如果一个sink还没有添加到核心中，```add_sink```会将此sink添加到核心中。
+```remove_sink```函数会在已添加sink列表中查找给定的sink，如果找到就将它删除。核心并没有指定处理sink的顺序。
+
+```csharp
+void foo()
+{
+    boost::shared_ptr< logging::core > core = logging::core::get();
+
+    // Set a sink that will write log records to the console
+    boost::shared_ptr< sinks::text_ostream_backend > backend =
+        boost::make_shared< sinks::text_ostream_backend >();
+    backend->add_stream(
+        boost::shared_ptr< std::ostream >(&std::clog, boost::null_deleter()));
+
+    typedef sinks::unlocked_sink< sinks::text_ostream_backend > sink_t;
+    boost::shared_ptr< sink_t > sink = boost::make_shared< sink_t >(backend);
+    core->add_sink(sink);
+
+    // ...
+
+    // Remove the sink
+    core->remove_sink(sink);
+}
+```
+
+&emsp;&emsp;你可以在一下的小节[sink前端](#sink_frontends)和[sink后端](#sink_backends)中
+阅读关于sink设计的更多细节。
+
+
+#### *异常处理*
+&emsp;&emsp;核心提供了一种设置集中的异常处理的方式。在filtering或者处理一个sink时发生异常，如果用户通过```set_exception_handler```函数设置了异常处理句柄，核心会调用此异常处理句柄。
+一个异常句柄是一个零元的函数对象，在catch中调起。此程序库提供了一些[工具](#log.detailed.utilities.exception_handlers)来简化异常句柄构建。
+
+>![Tip][tip-image] **小技巧**
+>日志核心中的异常句柄是全局的，用来处理一些通用的运行错误。sink和源也会提供一些异常处理功能(参考[这里](#log.detailed.sink_frontends.basic_services.exception_handling)和
+[这里](#log.detailed.sources.exception_handling))，可以用来进行细粒度的错误处理。
+
+```csharp
+struct my_handler
+{
+    typedef void result_type;
+
+    void operator() (std::runtime_error const& e) const
+    {
+        std::cout << "std::runtime_error: " << e.what() << std::endl;
+    }
+    void operator() (std::logic_error const& e) const
+    {
+        std::cout << "std::logic_error: " << e.what() << std::endl;
+        throw;
+    }
+};
+
+void init_exception_handler()
+{
+    // Setup a global exception handler that will call my_handler::operator()
+    // for the specified exception types
+    logging::core::get()->set_exception_handler(logging::make_exception_handler<
+        std::runtime_error,
+        std::logic_error
+    >(my_handler()));
+}
+```
+
+#### *提供日志记录*
+&emsp;&emsp;日志核心最重要的函数是为所有的日志源提供了一个日志记录的入口。通过```open_record```和```push_record```函数来实现。
+
+&emsp;&emsp;第一个函数用来初始化日志记录过程。它接受一个源相关集合。此函数构建一个包含了三种集合（全局，线程相关，源相关）的属性的通用属性集合。
+同时执行filtering。如果filtering成功，比如至少一个sink接受此记录，此函数返回一个非空[record](#log.detailed.core.record)对象。
+它可以被用来填充日志记录信息。如果filtering失败，则返回一个空record对象。
+
+&emsp;&emsp;如果日志源已经完成了日志过程，它必须调用```push_record```函数，其参数是```open_record```的返回值。注意，不要对空记录调用```push_record```
+函数。记录会被当作一个右值引用来进行传输。在调用之后，会构建一个record view，这个view会传给sink，可能会引入formatting和后续的处理，
+例如，将它存储到文件或者传输给互联网。在此之后这个record对象可以毁灭。
+
+```csharp
+void logging_function(logging::attribute_set const& attrs)
+{
+    boost::shared_ptr< logging::core > core = logging::core::get();
+
+    // Attempt to open a log record
+    logging::record rec = core->open_record(attrs);
+    if (rec)
+    {
+        // Ok, the record is accepted. Compose the message now.
+        logging::record_ostream strm(rec);
+        strm << "Hello, World!";
+        strm.flush();
+
+        // Deliver the record to the sinks.
+        core->push_record(boost::move(rec));
+    }
+}
+```
+
+&emsp;&emsp;这些逻辑都隐含在宏和logger中调用的。但是这对于开发新的日志源是非常有用的。
+
+### <a name="detailed-logging-source"></a>日志源
+
+<a name="log.detailed.sources.global_storage"></a>logger的全局存储
+
+<a name="log.detailed.sources.severity_level_logger"></a>带有日志等级支持的logger
+
+<a name="log.detailed.sources.exception_handling"></a>带有异常处理支持的logger
 
 
 
@@ -1262,18 +1410,17 @@ void foo()
 <a name="log.detailed.attributes.named_scope"></a>命名空间
 <a name="log.detailed.attributes.related_components.attribute_value_set"></a>属性值集合
 
-<a name="detaild-logging-source"></a>日志源
+
 
 <a name="sink_frontends"></a>sink前端
+
+<a name="log.detailed.sink_frontends.basic_services.exception_handling"></a>异常处理
 
 <a name="sink_backends"></a>sink后端
 
 <a name="log.detailed.sink_backends.syslog"></a>syslog后端
 <a name="log.detailed.sink_backends.event_log"></a>Windows事件日志后端
 
-<a name="log.detailed.sources.global_storage"></a>logger的全局存储
-
-<a name="log.detailed.sources.severity_level_logger"></a>带有日志等级支持的logger
 
 <a name="log.detailed.sink_frontends.sync"></a>同步sink前端
 
@@ -1287,6 +1434,7 @@ void foo()
 
 <a name="log.detailed.attributes.related_components.value_processing"></a>属性值抽取和访问
 
+<a name="log.detailed.attributes.related_components.scoped_attributes"></a>作用域属性
 
 <a name="log.detailed.expressions.attr"></a>具体属性
 
@@ -1302,9 +1450,15 @@ void foo()
 
 <a name="log.detailed.expressions.attr.fallback_policies"></a>客户化回退策略
 
+<a name="log.detailed.expressions.predicates"></a>谓词表达式
+
 <a name="log.detailed.utilities.setup.filter_formatter"></a>过滤器和formatter解析器
 
+<a name="log.detailed.utilities.exception_handlers"></a>异常句柄
+
 <a name="log.detailed.utilities.value_ref"></a>值引用wrapper
+
+
 
 [boost_regex]: http://www.boost.org/doc/libs/release/libs/regex/index.html
 [boost_xpressive]: http://www.boost.org/doc/libs/release/doc/html/xpressive.html
@@ -1314,3 +1468,4 @@ void foo()
 [boost_locale]: http://www.boost.org/doc/libs/release/libs/locale/doc/html/index.html
 [note-image]: http://www.boost.org/doc/libs/1_60_0/doc/src/images/note.png
 [tip-image]: http://www.boost.org/doc/libs/1_60_0/doc/src/images/tip.png
+[warning-image]: http://www.boost.org/doc/libs/1_60_0/doc/src/images/warning.png
