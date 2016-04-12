@@ -20,6 +20,8 @@ Andrey Semashev（万广鲁翻译）
 	* [日志记录格式化](#log-record-formatting)
 	* [回顾filtering](#filtering-revisit)
 	* [宽字节日志](#wide-char-logging)
+* [详细特性描述](#detailed-feature-description)
+	* [核心组件](#core-facilities)
 
 
 ## <a name="motivation"></a>动机
@@ -853,7 +855,7 @@ void init()
 >在[这里](#log.detailed.utilities.setup.filter_formatter)看更多的详细信息。
 
 #### *客户格式化函数*
-&emsp;&emsp;你可以在sink中添加客户formatter来支持格式化。formater实际上是一个函数对象，支持以下格式。
+&emsp;&emsp;你可以在sink中添加客户formatter来支持格式化。formatter实际上是一个函数对象，支持以下格式。
 
 ```csharp
 void (logging::record_view const& rec, logging::basic_formatting_ostream< CharT >& strm);
@@ -1093,61 +1095,172 @@ void test_wide_char_logging()
 完整的代码可以点击[这里](#http://www.boost.org/doc/libs/1_60_0/libs/log/example/wide_char/main.cpp)
 
 &emsp;&emsp;需要注意的是一些sink（主要是Windows相关的）允许指定目标字节类型。当希望在日志记录中记录国际字符时，我们需要使用wchar_t来作为目标字符类型。
-一位这些sink会使用宽字节系统API来处理日志记录。当格式化时窄字节会使用locale加宽。
+因为这些sink会使用宽字节系统API来处理日志记录。当格式化时窄字节会使用locale加宽。
+
+## <a name="detailed-feature-description"></a>详细特性描述
+
+* [核心组件](#core-facilities)
+
+## <a name=core-facilities></a>核心组件
+
+* [日志记录](#logging-record)
+* [日志核心](#logging-core)
+
+### <a name="logging-record"></a>日志记录
+
+```csharp
+#include <boost/log/core/record.hpp>
+```
+
+&emsp;&emsp;在本日志程序库中，所有的信息都被打包到[record](#http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/record.html)
+对象中，所有的依附信息，包括message文本都会表示成命名属性值，可以被filter,formatter和sink处理。一些特殊的属性可以有不同的访问方式，这里有一些快速的例子。
+
+* 通过[值来访问和提取](#log.detailed.attributes.related_components.value_processing)
+
+```csharp
+enum severity_level { ... };
+std::ostream& operator<< (std::ostream& strm, severity_level level);
+
+struct print_visitor
+{
+    typedef void result_type;
+    result_type operator() (severity_level level) const
+    {
+        std::cout << level << std::endl;
+    };
+};
+
+// Prints severity level through visitation API
+void print_severity_visitation(logging::record const& rec)
+{
+    logging::visit< severity_level >("Severity", rec, print_visitor());
+}
+
+// Prints severity level through extraction API
+void print_severity_extraction(logging::record const& rec)
+{
+    logging::value_ref< severity_level > level = logging::extract< severity_level >("Severity", rec);
+    std::cout << level << std::endl;
+}
+```
+
+* 通过日志记录的attribute_value方法查找[属性值集合](#log.detailed.attributes.related_components.attribute_value_set)
+
+```csharp
+// Prints severity level by searching the attribute values
+void print_severity_lookup(logging::record const& rec)
+{
+    logging::attribute_value_set const& values = rec.attribute_values();
+    logging::attribute_value_set::const_iterator it = values.find("Severity");
+    if (it != values.end())
+    {
+        logging::attribute_value const& value = it->second;
+
+        // A single attribute value can also be visited or extracted
+        std::cout << value.extract< severity_level >() << std::endl;
+    }
+}
+```
+
+* 通过属性关键词下表。实际上是由一个方便的wrapper包含在值提取API周围
+
+```csharp
+BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", severity_level)
+
+// Prints severity level by using the subscript operator
+void print_severity_subscript(logging::record const& rec)
+{
+    // Use the attribute keyword to communicate the name and type of the value
+    logging::value_ref< severity_level, tag::severity > level = rec[severity];
+    std::cout << level << std::endl;
+}
+```
+
+&emsp;&emsp;日志记录不可以被拷贝，只能被移动。一个日志记录可以被默认初始化成为一个空状态。
+这种记录基本是不可用的，也不能被传到程序库中来处理。一个非空的日志记录只能有[日志核心](#logging-core)产生，作为成功filtering的结果。
+此非空日志记录包含属性需要的属性值。在filter之后，更多的属性值可以被添加到非空日志记录中。后续增加的值不会影响filtering结果，但是会在formatter和sink中使用。
+
+&emsp;&emsp;在多线程环境中，一个非空的日志记录创建之后，此日志记录tie到当前的线程中。
+被看作线程死昂管的资源。例如，此记录可能包含一个属性值来代表栈中的命名作用域。
+因此，日志记录不可以在不同的线程之间互传。
+
+#### *Record view*
+
+```csharp
+#include <boost/log/core/record_view.hpp>
+```
+
+&emsp;&emsp;当使用日志记录来填充信息时，此程序库使用另外的类型来处理它。
+Record view提供了和日志记录类似的接口。但是有一些明显的区别：
+
+* Record view是不可变的。这样避免formatter和sink在处理过程中修改记录。
+* Record view是可以拷贝的。因为它的内容是常量，拷贝操作是浅层拷贝而且代价很低。
+
+&emsp;&emsp;本程序库通过调用```lock```函数自动从日志记录中创建record view。
+通过调用此函数，在sink异步的情况下，同时会保证结果view不再依附于当前线程。
+调用```lock```函数是一个一次性操作。之后，record会处于空状态。
+所有的通过属性值来与日志记录交互的方式同样适用于record view。
+同时可以在客户化formatter和sink中使用。
+
+### <a name="logging-core"></a>日志核心
+
+* [属性集合](#attribute-set)
+
+```csharp
+#include <boost/log/core/core.hpp>
+```
+
+&emsp;&emsp;日志核心是一个中枢，它提供了一下功能：
+* 保存全局和线程相关属性集合。
+* 执行对于日志记录的全局filtering。
+* 通过执行sink相关的filter在sink之间调度日志记录
+* 提供一个全局的钩子来进行异常捕捉
+* 为日志源提供日志记录输入的入口
+* 提供```flush```函数，此函数可以为所有日志sink执行同步状态。
+
+&emsp;&emsp;日志核心是一个应用程序等级的单例，因此所有的日志源都需要访问它。此核心实例可以通过静态方法```get```来访问。
+
+```csharp
+void foo()
+{
+    boost::shared_ptr< logging::core > core = logging::core::get();
+
+    // ...
+}
+```
+
+#### <a name="attribute-set"></a>*属性集合*
+&emsp;&emsp;为了在核心中增加或者删除全局或者线程相关的属性，有一些相关的函数：
+```add_global_attribute```， ```remove_global_attribute```， ```add_thread_attribute```和```remove_thread_attribute```。
+属性集合提供的接口和std::map类似。因此```add_*```函数接受一个属性名字符串（key）和一个属性指针（映射value）。
+同时返回一个iterator和boolean类型的pair，类似于std::map<...>::insert工作方式。```remove_*```方法接受一个之前增加的属性的iterator。
+
+```csharp
+void foo()
+{
+    boost::shared_ptr< logging::core > core = logging::core::get();
+
+    // Add a global attribute
+    std::pair< logging::attribute_set::iterator, bool > res =
+        core->add_global_attribute("LineID", attrs::counter< unsigned int >());
+
+    // ...
+
+    // Remove the added attribute
+    core->remove_global_attribute(res.first);
+}
+```
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## <a name="detailed-feature-description"></a>详细特征描述
 
 <a name="detailed-attribute"></a>属性
 
 <a name="detailed-expresion"></a>表达式
 
-<a name="#log.detailed.attributes.named_scope"></a>命名空间
+<a name="log.detailed.attributes.named_scope"></a>命名空间
+<a name="log.detailed.attributes.related_components.attribute_value_set"></a>属性值集合
 
 <a name="detaild-logging-source"></a>日志源
 
@@ -1171,6 +1284,9 @@ void test_wide_char_logging()
 <a name="log.detailed.sink_frontends.unlocked"></a>不加锁的sink前端
 
 <a name="log.detailed.utilities.setup.convenience"></a>快捷函数
+
+<a name="log.detailed.attributes.related_components.value_processing"></a>属性值抽取和访问
+
 
 <a name="log.detailed.expressions.attr"></a>具体属性
 
