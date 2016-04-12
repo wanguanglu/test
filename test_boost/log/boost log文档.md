@@ -19,6 +19,7 @@ Andrey Semashev（万广鲁翻译）
 	* [属性](#attributes)
 	* [日志记录格式化](#log-record-formatting)
 	* [回顾filtering](#filtering-revisit)
+	* [宽字节日志](#wide-char-logging)
 
 
 ## <a name="motivation"></a>动机
@@ -267,6 +268,7 @@ bjam --with-log variant=release define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_
 * [属性](#attributes)
 * [日志记录格式化](#log-record-formatting)
 * [回顾filtering](#filtering-revisit)
+* [宽字节日志](#wide-char-logging)
 
 &emsp;&emsp;在本小结中，我们会把一些基本的步骤走一遍，来熟悉此程序库。在阅读完本节信息之后，你应该能够开始使用此程序库，并在自己的应用程序中打印日志。本教程中的示例代码都可以在```libs/log/examples```文件夹中获取，可以随意地编译并查看运行结果。
 
@@ -947,10 +949,10 @@ void init()
 在很多方面它和```boost::function```或者```std::function```很类似。不同之处是它从来不会为空。有一个类似的
 [过滤器函数对象](http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/filter.html)。
 
-&emsp;&emsp;值得注意的是，这个formmater本身包含一个fiter。这个formatter包含一个条件判断，来判断Tag属性。
+&emsp;&emsp;值得注意的是，这个formatter本身包含一个fiter。这个formatter包含一个条件判断，来判断Tag属性。
 [has_attr](#log.detailed.expressions.predicates.has_attr)谓词判断此记录是否包含"Tag"属性值。然后控制是否将它打印到文件。
 我们使用属性关键词来指定属性的名称和类型，也可以在[has_attr](#log.detailed.expressions.predicates.has_attr)调用中指定。
-在[这里](#log.detailed.expressions.formatters.conditional)包含条件formmater的更详细描述。
+在[这里](#log.detailed.expressions.formatters.conditional)包含条件formatter的更详细描述。
 
 &emsp;&emsp;回顾一下两个sink的初始化过程，第一个sink没有任何fiter，这意味着它会将所有的日志记录输出到文件爱你。第二个sink中调用了```set_filter```函数。
 仅仅保存日志严重等级不低于```warning```的，或者包含```Tag```属性且属性值为"IMPORTANT_MESSAGE"的。我们可以看到过滤器句法和C++很像，特别当使用属性关键词时。
@@ -987,6 +989,157 @@ void init()
 
 &emsp;&emsp;你可以运行[示例](http://www.boost.org/doc/libs/1_60_0/libs/log/example/doc/tutorial_filtering.cpp)程序，来查看工作情况。
 
+### <a name="wide-char-logging"></a>宽字节日志
+&emsp;&emsp;本程序库支持国际化字符。基本来说有两种方式。在类UNIX系统下，一般采用多字节字符编码（例如UTF-8），在这种情况下和纯ascii码字符
+差别不大，不需要额外的设置。
+
+&emsp;&emsp;在Windows操作系统中，一般采用宽字节字符来表示国际化字符。大部分系统API是面向宽字节字符的，这就需要Windows的sink需要支持宽字节。
+另一方面，通用的sink，例如[text_file_sink](#log.detailed.sink_backends.text_file)是面向字节的（因为，你是存储字节到文件中，而不是存储字符）。
+这样会强制此程序库在sink需要时执行字符编码转换。为了设置程序库支持这种做法，我们必须将sink进行适当的本地化设置。[Boost.Locale][boost_locale]可以用了进行类似的设置。
+我们可以查看一个示例:
+
+```csharp
+// Declare attribute keywords
+BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", severity_level)
+BOOST_LOG_ATTRIBUTE_KEYWORD(timestamp, "TimeStamp", boost::posix_time::ptime)
+
+void init_logging()
+{
+    boost::shared_ptr< sinks::synchronous_sink< sinks::text_file_backend > > sink = logging::add_file_log
+    (
+        "sample.log",
+        keywords::format = expr::stream
+            << expr::format_date_time(timestamp, "%Y-%m-%d, %H:%M:%S.%f")
+            << " <" << severity.or_default(normal)
+            << "> " << expr::message
+    );
+
+    // The sink will perform character code conversion as needed, according to the locale set with imbue()
+    std::locale loc = boost::locale::generator()("en_US.UTF-8");
+    sink->imbue(loc);
+
+    // Let's add some commonly used attributes, like timestamp and record counter.
+    logging::add_common_attributes();
+}
+```
+
+&emsp;&emsp;首先我们看一下传给formatter的格式化参数。我们用窄字节的formatter初始化sink，因为text_file_sink处理字节。
+我们可以在formatter中使用宽字节，但是不是在格式化字符串中。类似于我们使用[format_date_time](#http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/expressions/format_d_idm45635677645456.html)函数。同时需要注意的是用message关键字来表示日志记录的message，这个占位符既可以表示窄字节，也可以表示宽字节。
+这样formatter在两种模式下都可以工作。在格式化的过程中，本程序库会将宽字节信息转换成多字节编码，我们在这里设置为UTF-8。
+
+>![Tip][tip-image] **小技巧**
+>和日志记录的message类似，属性值也可以包含宽字节。这些字符串会通过imbued locale转换成目标字符编码。
+
+&emsp;&emsp;在这里我们没有将severity_level类型的定义。此类型是一个枚举类型，如果我们希望它同时支持宽字节和窄字节，我们可以实现它的流操作符。
+
+```csharp
+enum severity_level
+{
+    normal,
+    notification,
+    warning,
+    error,
+    critical
+};
+
+template< typename CharT, typename TraitsT >
+inline std::basic_ostream< CharT, TraitsT >& operator<< (
+    std::basic_ostream< CharT, TraitsT >& strm, severity_level lvl)
+{
+    static const char* const str[] =
+    {
+        "normal",
+        "notification",
+        "warning",
+        "error",
+        "critical"
+    };
+    if (static_cast< std::size_t >(lvl) < (sizeof(str) / sizeof(*str)))
+        strm << str[lvl];
+    else
+        strm << static_cast< int >(lvl);
+    return strm;
+}
+```
+
+&emsp;&emsp;在这里我们可以输出日志记录。我们可以用还有名称含有w前缀的logger来组合宽字节信息。
+
+```csharp
+void test_narrow_char_logging()
+{
+    // Narrow character logging still works
+    src::logger lg;
+    BOOST_LOG(lg) << "Hello, World! This is a narrow character message.";
+}
+
+void test_wide_char_logging()
+{
+    src::wlogger lg;
+    BOOST_LOG(lg) << L"Hello, World! This is a wide character message.";
+
+    // National characters are also supported
+    const wchar_t national_chars[] = { 0x041f, 0x0440, 0x0438, 0x0432, 0x0435, 0x0442, L',', L' ', 0x043c, 0x0438, 0x0440, L'!', 0 };
+    BOOST_LOG(lg) << national_chars;
+
+    // Now, let's try logging with severity
+    src::wseverity_logger< severity_level > slg;
+    BOOST_LOG_SEV(slg, normal) << L"A normal severity message, will not pass to the file";
+    BOOST_LOG_SEV(slg, warning) << L"A warning severity message, will pass to the file";
+    BOOST_LOG_SEV(slg, error) << L"An error severity message, will pass to the file";
+}
+```
+
+&emsp;&emsp;可以看到，宽字节字符message的合成和窄字节非常相似。你可以同时使用窄字节和宽字节。我们的文件sink会处理所有的记录。
+完整的代码可以点击[这里](#http://www.boost.org/doc/libs/1_60_0/libs/log/example/wide_char/main.cpp)
+
+&emsp;&emsp;需要注意的是一些sink（主要是Windows相关的）允许指定目标字节类型。当希望在日志记录中记录国际字符时，我们需要使用wchar_t来作为目标字符类型。
+一位这些sink会使用宽字节系统API来处理日志记录。当格式化时窄字节会使用locale加宽。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## <a name="detailed-feature-description"></a>详细特征描述
 
@@ -1013,7 +1166,7 @@ void init()
 
 <a name="log.detailed.sink_backends.text_ostream"></a>文本输出
 
-<a name="log.detaild.sink_backends.text_file"></a>文本文件
+<a name="log.detaild.sink_backends.text_file"></a>文本文件后端
 
 <a name="log.detailed.sink_frontends.unlocked"></a>不加锁的sink前端
 
@@ -1029,7 +1182,7 @@ void init()
 
 <a name="log.detailed.expressions.predicates.has_attr"></a>属性存在性过滤器
 
-<a name="log.detailed.expressions.formatters.conditional"></a>条件formmater
+<a name="log.detailed.expressions.formatters.conditional"></a>条件formatter
 
 <a name="log.detailed.expressions.attr.fallback_policies"></a>客户化回退策略
 
@@ -1042,5 +1195,6 @@ void init()
 [boost_thread]: http://www.boost.org/doc/libs/release/doc/html/thread.html
 [boost_asio]: http://www.boost.org/doc/libs/release/doc/html/boost_asio.html
 [boost_phoenix]: http://www.boost.org/doc/libs/release/libs/phoenix/doc/html/index.html
+[boost_locale]: http://www.boost.org/doc/libs/release/libs/locale/doc/html/index.html
 [note-image]: http://www.boost.org/doc/libs/1_60_0/doc/src/images/note.png
 [tip-image]: http://www.boost.org/doc/libs/1_60_0/doc/src/images/tip.png
