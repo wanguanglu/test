@@ -1398,6 +1398,7 @@ void logging_function(logging::attribute_set const& attrs)
 
 * [基本日志](#log.detailed.sources.basic_logger)
 * [带有日志等级支持的logger](#log.detailed.sources.severity_level_logger)
+* [支持channel的logger](#log.detailed.sources.channel_logger)
 
 ### <a name="log.detailed.sources.basic_logger"></a>基本日志
 ```csharp
@@ -1536,10 +1537,130 @@ void manual_logging()
 
 &emsp;&emsp;当然severity logger也提供了[basic_logger](#log.detailed.sources.basic_logger)所包含的功能。
 
+<a name="log.detailed.sources.channel_logger"></a>支持channel的logger
+
+&emsp;&emsp;在很多时候，需要将日志记录与应用程序中的模块关联起来。可以通过
+[channel_logger](#http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/sources/channel_logger.html)，
+[channel_logger_mt](#http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/sources/channel_logger_mt.html)
+以及其宽字节版本
+[wchannel_logger](#http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/sources/wchannel_logger.html)，
+[wchannel_logger_mt](#http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/sources/wchannel_logger_mt.html)来实现。
+这些logger中自动注册"Channel"属性。logger的channel名可以通过构造函数中的```channel```参数设置。
+channel属性可以看作一个包含```std::string```模板参数的logger。除此之外，其和[basic_logger](#log.detailed.sources.basic_logger)非常类似。
+
+```csharp
+class network_connection
+{
+    src::channel_logger< > m_net, m_stat;
+    logging::attribute_set::iterator m_net_remote_addr, m_stat_remote_addr;
+
+public:
+    network_connection() :
+        // We can dump network-related messages through this logger
+        // and be able to filter them later
+        m_net(keywords::channel = "net"),
+        // We also can separate statistic records in a different channel
+        // in order to route them to a different sink
+        m_stat(keywords::channel = "stat")
+    {
+    }
+
+    void on_connected(std::string const& remote_addr)
+    {
+        // Add the remote address to both channels
+        attrs::constant< std::string > addr(remote_addr);
+        m_net_remote_addr = m_net.add_attribute("RemoteAddress", addr).first;
+        m_stat_remote_addr = m_stat.add_attribute("RemoteAddress", addr).first;
+
+        // Put message to the "net" channel
+        BOOST_LOG(m_net) << "Connection established";
+    }
+
+    void on_disconnected()
+    {
+        // Put message to the "net" channel
+        BOOST_LOG(m_net) << "Connection shut down";
+
+        // Remove the attribute with the remote address
+        m_net.remove_attribute(m_net_remote_addr);
+        m_stat.remove_attribute(m_stat_remote_addr);
+    }
+
+    void on_data_received(std::size_t size)
+    {
+        BOOST_LOG(m_stat) << logging::add_value("ReceivedSize", size) << "Some data received";
+    }
+
+    void on_data_sent(std::size_t size)
+    {
+        BOOST_LOG(m_stat) << logging::add_value("SentSize", size) << "Some data sent";
+    }
+};
+```
+
+&emsp;&emsp;同时我们可以为每一个单独的日志记录设置channel，当使用[全局logger](#log.detailed.sources.global_storage)时，
+这样是非常有用的。可以通过channel修改器或者一个特殊的宏来进行记录日志。例如：
+
+```csharp
+// Define a global logger
+BOOST_LOG_INLINE_GLOBAL_LOGGER_CTOR_ARGS(my_logger, src::channel_logger_mt< >, (keywords::channel = "general"))
+
+class network_connection
+{
+    std::string m_remote_addr;
+
+public:
+    void on_connected(std::string const& remote_addr)
+    {
+        m_remote_addr = remote_addr;
+
+        // Put message to the "net" channel
+        BOOST_LOG_CHANNEL(my_logger::get(), "net")
+            << logging::add_value("RemoteAddress", m_remote_addr)
+            << "Connection established";
+    }
+
+    void on_disconnected()
+    {
+        // Put message to the "net" channel
+        BOOST_LOG_CHANNEL(my_logger::get(), "net")
+            << logging::add_value("RemoteAddress", m_remote_addr)
+            << "Connection shut down";
+
+        m_remote_addr.clear();
+    }
+
+    void on_data_received(std::size_t size)
+    {
+        BOOST_LOG_CHANNEL(my_logger::get(), "stat")
+            << logging::add_value("RemoteAddress", m_remote_addr)
+            << logging::add_value("ReceivedSize", size)
+            << "Some data received";
+    }
+
+    void on_data_sent(std::size_t size)
+    {
+        BOOST_LOG_CHANNEL(my_logger::get(), "stat")
+            << logging::add_value("RemoteAddress", m_remote_addr)
+            << logging::add_value("SentSize", size)
+            << "Some data sent";
+    }
+};
+```
+
+&emsp;&emsp;我们注意到，修改channel是持续性的，除非channel的名称被reset，否则后续的日志都会属于新的channel。
+
+>![Tip][tip-image] **小技巧**
+>处于性能的原因，我们建议避免动态为每个日志记录设置channel名称。因为这回触发动态内存分配。
+>如果可能的话，为每个channel分配不同的logger，可以避免这种额外开销。
+
+<a name="log.detailed.sources.exception_handling"></a>带有异常处理支持的logger
+
+
+
 <a name="log.detailed.sources.global_storage"></a>logger的全局存储
 
 
-<a name="log.detailed.sources.exception_handling"></a>带有异常处理支持的logger
 
 
 
