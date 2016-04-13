@@ -22,6 +22,7 @@ Andrey Semashev（万广鲁翻译）
 	* [宽字节日志](#wide-char-logging)
 * [详细特性描述](#detailed-feature-description)
 	* [核心组件](#core-facilities)
+	* [日志源](#detailed-logging-source)
 
 
 ## <a name="motivation"></a>动机
@@ -1100,6 +1101,7 @@ void test_wide_char_logging()
 ## <a name="detailed-feature-description"></a>详细特性描述
 
 * [核心组件](#core-facilities)
+* [日志源](#detailed-logging-source)
 
 ## <a name=core-facilities></a>核心组件
 
@@ -1394,9 +1396,148 @@ void logging_function(logging::attribute_set const& attrs)
 
 ### <a name="detailed-logging-source"></a>日志源
 
+* [基本日志](#log.detailed.sources.basic_logger)
+* [带有日志等级支持的logger](#log.detailed.sources.severity_level_logger)
+
+### [基本日志](#log.detailed.sources.basic_logger)
+```csharp
+#include <boost/log/sources/basic_logger.hpp>
+```
+
+&emsp;&emsp;本程序库提供的最简单的日志源是[logger](#http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/sources/logger.html)以及其线程安全版本[logger_mt](#http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/sources/logger_mt.html)，在宽字节日志下，
+是[wlogger](#http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/sources/wlogger.html)和
+[wlogger_mt](#http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/sources/wlogger_mt.html)。
+这些logger将源相关属性存储在自身对象中，用来组成日志记录。在不需要日志等级判断等高级特性是，可以使用这些logger。
+可以用来收集应用的统计信息，注册应用事件，比如通知和报警。在这些案例中logger一般结合
+[scope attribute](#log.detailed.attributes.related_components.scoped_attributes)
+一起使用。提供必要的数据来进行通知，下面是一个具体的示例。
+
+```csharp
+class network_connection
+{
+    src::logger m_logger;
+    logging::attribute_set::iterator m_remote_addr;
+
+public:
+    void on_connected(std::string const& remote_addr)
+    {
+        // Put the remote address into the logger to automatically attach it
+        // to every log record written through the logger
+        m_remote_addr = m_logger.add_attribute("RemoteAddress",
+            attrs::constant< std::string >(remote_addr)).first;
+
+        // The straightforward way of logging
+        if (logging::record rec = m_logger.open_record())
+        {
+            rec.attribute_values().insert("Message",
+                attrs::make_attribute_value(std::string("Connection established")));
+            m_logger.push_record(boost::move(rec));
+        }
+    }
+    void on_disconnected()
+    {
+        // The simpler way of logging: the above "if" condition is wrapped into a neat macro
+        BOOST_LOG(m_logger) << "Connection shut down";
+
+        // Remove the attribute with the remote address
+        m_logger.remove_attribute(m_remote_addr);
+    }
+    void on_data_received(std::size_t size)
+    {
+        // Put the size as an additional attribute
+        // so it can be collected and accumulated later if needed.
+        // The attribute will be attached only to this log record.
+        BOOST_LOG(m_logger) << logging::add_value("ReceivedSize", size) << "Some data received";
+    }
+    void on_data_sent(std::size_t size)
+    {
+        BOOST_LOG(m_logger) << logging::add_value("SentSize", size) << "Some data sent";
+    }
+};
+```
+
+&emsp;&emsp;上面代码片段中```network_connection```类，利用简单的日志，来统计网络应用的信息。
+每个方法标记一个相关事件，这些事件可以在sink级别进行追踪。此外，类中的其他函数，也可以写日志。
+值得注意的是，```network_connection```对象在连接状态下的每一个日志记录都可以标记远端站点的IP地址。
+
+### <a name="log.detailed.sources.severity_level_logger"></a>带有日志等级支持的logger
+
+```csharp
+#include <boost/log/sources/severity_feature.hpp>
+#include <boost/log/sources/severity_logger.hpp>
+```
+
+&emsp;&emsp;日志严重等级是一个日志记录最常用到的属性之一，用它来标记一条日志的严重程度。模板类
+[severity_logger](#www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/sources/severity_logger.html)和
+[severity_logger_mt](#http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/sources/severity_logger_mt.html)
+(以及在宽字节下的[wseverity_logger](#http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/sources/wseverity_logger.html)和[wseverity_logger_mt](#http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/sources/wseverity_logger_mt.html))
+提供了此功能。
+
+&emsp;&emsp;此logger自动注册一个特殊的源相关属性"Severity"，通过它可以设置每一条日志记录的严重等级，同时可以通过一个参数```severity```来调用。
+可以将它传输给```open_record```函数或者构造函数。传给```open_record```函数```severity```参数设置了此日子记录的等级。日志等级可以作为logger模板类的
+模板参数，其默认类型是int。
+
+&emsp;&emsp;此属性的实际值以及意义用户可以自己定义。但是我们推荐将等级值从0开始。因为默认构造的logger对象将默认的日志等级设置为0.
+同时推荐在整个应用程序中使用同样的日志等级，这样避免在写日志时混淆。下面的代码介绍了```severity_logger```的用法。
+
+```csharp
+// We define our own severity levels
+enum severity_level
+{
+    normal,
+    notification,
+    warning,
+    error,
+    critical
+};
+
+void logging_function()
+{
+    // The logger implicitly adds a source-specific attribute 'Severity'
+    // of type 'severity_level' on construction
+    src::severity_logger< severity_level > slg;
+
+    BOOST_LOG_SEV(slg, normal) << "A regular message";
+    BOOST_LOG_SEV(slg, warning) << "Something bad is going on but I can handle it";
+    BOOST_LOG_SEV(slg, critical) << "Everything crumbles, shoot me now!";
+}
+```
+
+```csharp
+void default_severity()
+{
+    // The default severity can be specified in constructor.
+    src::severity_logger< severity_level > error_lg(keywords::severity = error);
+
+    BOOST_LOG(error_lg) << "An error level log record (by default)";
+
+    // The explicitly specified level overrides the default
+    BOOST_LOG_SEV(error_lg, warning) << "A warning level log record (overrode the default)";
+}
+```
+
+&emsp;&emsp;如果你不喜欢使用宏
+
+```csharp
+void manual_logging()
+{
+    src::severity_logger< severity_level > slg;
+
+    logging::record rec = slg.open_record(keywords::severity = normal);
+    if (rec)
+    {
+        logging::record_ostream strm(rec);
+        strm << "A regular message";
+        strm.flush();
+        slg.push_record(boost::move(rec));
+    }
+}
+```
+
+&emsp;&emsp;当然severity logger也提供了[basic_logger](#log.detailed.sources.basic_logger)所包含的功能。
+
 <a name="log.detailed.sources.global_storage"></a>logger的全局存储
 
-<a name="log.detailed.sources.severity_level_logger"></a>带有日志等级支持的logger
 
 <a name="log.detailed.sources.exception_handling"></a>带有异常处理支持的logger
 
