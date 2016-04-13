@@ -1399,7 +1399,7 @@ void logging_function(logging::attribute_set const& attrs)
 * [基本日志](#log.detailed.sources.basic_logger)
 * [带有日志等级支持的logger](#log.detailed.sources.severity_level_logger)
 
-### [基本日志](#log.detailed.sources.basic_logger)
+### <a name="log.detailed.sources.basic_logger"></a>基本日志
 ```csharp
 #include <boost/log/sources/basic_logger.hpp>
 ```
