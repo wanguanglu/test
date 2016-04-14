@@ -1399,6 +1399,8 @@ void logging_function(logging::attribute_set const& attrs)
 * [基本日志](#log.detailed.sources.basic_logger)
 * [带有日志等级支持的logger](#log.detailed.sources.severity_level_logger)
 * [支持channel的logger](#log.detailed.sources.channel_logger)
+* [包含混合特性的logger](#log.detailed.sources.mixed_loggers")
+* [全局存储的logger](#log.detailed.sources.global_storage")
 
 ### <a name="log.detailed.sources.basic_logger"></a>基本日志
 ```csharp
@@ -1537,7 +1539,7 @@ void manual_logging()
 
 &emsp;&emsp;当然severity logger也提供了[basic_logger](#log.detailed.sources.basic_logger)所包含的功能。
 
-<a name="log.detailed.sources.channel_logger"></a>支持channel的logger
+### <a name="log.detailed.sources.channel_logger"></a>支持channel的logger
 
 &emsp;&emsp;在很多时候，需要将日志记录与应用程序中的模块关联起来。可以通过
 [channel_logger](#http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/sources/channel_logger.html)，
@@ -1654,11 +1656,138 @@ public:
 >处于性能的原因，我们建议避免动态为每个日志记录设置channel名称。因为这回触发动态内存分配。
 >如果可能的话，为每个channel分配不同的logger，可以避免这种额外开销。
 
-<a name="log.detailed.sources.exception_handling"></a>带有异常处理支持的logger
+### <a name="log.detailed.sources.exception_handling"></a>带有异常处理支持的logger
+```csharp
+#include <boost/log/sources/exception_handler_feature.hpp>
+```
+
+&emsp;&emsp;本程序库提供一个logger特性，允许用户在logger等级处理或者抑制异常。
+[exception_handler](#http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/sources/exception_handler.html)特征
+增加一个```set_exception_handler```函数到logger中，允许设置当日志核心在filtering以及处理日志记录产生异常时可以调用的函数对象。
+用户可以使用[程序库提供的适配器](#log.detailed.utilities.exception_handlers)来实现异常处理句柄。使用示例如下：
+
+```csharp
+enum severity_level
+{
+    normal,
+    warning,
+    error
+};
+
+// A logger class that allows to intercept exceptions and supports severity level
+class my_logger_mt :
+    public src::basic_composite_logger<
+        char,
+        my_logger_mt,
+        src::multi_thread_model< boost::shared_mutex >,
+        src::features<
+            src::severity< severity_level >,
+            src::exception_handler
+        >
+    >
+{
+    BOOST_LOG_FORWARD_LOGGER_MEMBERS(my_logger_mt)
+};
+
+BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_logger, my_logger_mt)
+{
+    my_logger_mt lg;
+
+    // Set up exception handler: all exceptions that occur while
+    // logging through this logger, will be suppressed
+    lg.set_exception_handler(logging::make_exception_suppressor());
+
+    return lg;
+}
+
+void logging_function()
+{
+    // This will not throw
+    BOOST_LOG_SEV(my_logger::get(), normal) << "Hello, world";
+}
+```
+
+>![Tip][tip-image] **小技巧**
+>[日志核心](#log.detailed.core.core.exception_handling)和
+>[sink前端](#log.detailed.sink_frontends.basic_services.exception_handling)
+>同样支持设置异常处理句柄。
+
+### <a name="log.detailed.sources.mixed_loggers"></a>包含混合特性的logger
+
+```csharp
+#include <boost/log/sources/severity_channel_logger.hpp>
+```
+
+&emsp;&emsp;本程序库同样提供
+[severity_channel_logger](#http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/sources/severity_channel_logger.html)
+和[severity_channel_logger_mt](#http://www.boost.org/doc/libs/1_60_0/libs/log/doc/html/boost/log/sources/severity_channel_logger_mt.html)
+他们将组合```severity level```和```channel```来描述logger。
+```severity_channel_logger_mt```的用法：
+
+```csharp
+enum severity_level
+{
+    normal,
+    notification,
+    warning,
+    error,
+    critical
+};
+
+typedef src::severity_channel_logger_mt<
+    severity_level,     // the type of the severity level
+    std::string         // the type of the channel name
+> my_logger_mt;
+
+
+BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT(my_logger, my_logger_mt)
+{
+    // Specify the channel name on construction, similarly as with the channel_logger
+    return my_logger_mt(keywords::channel = "my_logger");
+}
+
+void logging_function()
+{
+    // Do logging with the severity level. The record will have both
+    // the severity level and the channel name attached.
+    BOOST_LOG_SEV(my_logger::get(), normal) << "Hello, world!";
+}
+```
+
+### <a name="log.detailed.sources.global_storage"></a>全局存储的logger
+
+```csharp
+#include <boost/log/sources/global_logger_storage.hpp>
+```
+
+&emsp;&emsp;有时候通过一个日志对象来写日志不太方便。特别在函数风格的代码中，没有地方来存储logger。
+在此时，如果有一个或多个方便访问的全局logger就很必要。
+
+&emsp;&emsp;本程序库提供了一种声明全局logger的方法，就像访问```std::cout```一样。
+事实上，任何logger都可以使用此特性，包括用户定义的logger。如果已经声明了全局logger，
+可以确保在任何地方线程安全地访问这个logger实例，程序库保证全局logger实例是唯一的。
+这样logging只需要在头中声明，然后就可以在任何模块中使用。
+
+&emsp;&emsp;最简便地声明全局logger的方法是使用下面的宏
+```csharp
+BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(my_logger, src::severity_logger_mt< >)
+```
+
+&emsp;&emsp;```my_logger```参数提供的logger的名称，用来获取logger实例。
+第二个参数是logger的类型，在多线程的应用中，当logger可以被不同的线程访问时，用户一般会使用线程安全的logger。
+
+&emsp;&emsp;如果需要传参数到logger的构造函数，有另外一个宏
+
+```csharp
+BOOST_LOG_INLINE_GLOBAL_LOGGER_CTOR_ARGS(
+    my_logger,
+    src::severity_channel_logger< >,
+    (keywords::severity = error)(keywords::channel = "my_channel"))
+```
 
 
 
-<a name="log.detailed.sources.global_storage"></a>logger的全局存储
+
 
 
 
@@ -1692,7 +1821,11 @@ public:
 
 <a name="log.detailed.sink_frontends.unlocked"></a>不加锁的sink前端
 
-<a name="log.detailed.utilities.setup.convenience"></a>快捷函数
+<a name="log.detailed.sink_frontends.basic_services.exception_handling"></a>异常处理句柄
+
+
+<a name="log.detailed.core.core.exception_handling"></a>异常处理句柄
+
 
 <a name="log.detailed.attributes.related_components.value_processing"></a>属性值抽取和访问
 
@@ -1719,6 +1852,10 @@ public:
 <a name="log.detailed.utilities.exception_handlers"></a>异常句柄
 
 <a name="log.detailed.utilities.value_ref"></a>值引用wrapper
+
+<a name="log.detailed.utilities.setup.convenience"></a>快捷函数
+
+<a name="log.detailed.utilities.exception_handlers"></a>异常处理句柄
 
 
 
