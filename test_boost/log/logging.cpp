@@ -16,7 +16,6 @@ namespace log {
 BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(g_log, src::severity_logger<severity_level>)
 
 BOOST_LOG_ATTRIBUTE_KEYWORD(severity,  "Severity", severity_level)
-BOOST_LOG_ATTRIBUTE_KEYWORD(program,   "Program",  std::string)
 BOOST_LOG_ATTRIBUTE_KEYWORD(thread_id, "ThreadID", attrs::current_thread_id::value_type)
 BOOST_LOG_ATTRIBUTE_KEYWORD(process_name, "ProcessName", std::string)
 
@@ -32,15 +31,13 @@ int init_log(const char* log_dir, const char* log_name) {
     path_name[MAX_PATH_LEN-1] = '\0';
 
     sink->locked_backend()->add_stream(
-            boost::make_shared< std::ofstream >(path_name));
+            boost::make_shared< std::ofstream >(path_name, std::ios::app));
 
     sink->set_formatter (
         expr::stream
-//            << expr::attr< severity_level >("Severity")
             << severity << ": "
             << expr::format_date_time< boost::posix_time::ptime >("TimeStamp", "%Y-%m-%d %H:%M:%S")<< ":  "
-            << program   << " * "
-            << process_name <<" "
+            << process_name <<" * "
             << thread_id << " "
             << expr::smessage
     );
@@ -48,9 +45,8 @@ int init_log(const char* log_dir, const char* log_name) {
 
     logging::core::get()->add_sink(sink);
 
-    logging::core::get()->add_global_attribute("Program",  attrs::constant<std::string>(log_name));
-    logging::core::get()->add_global_attribute("ThreadID", attrs::current_thread_id());
     logging::core::get()->add_global_attribute("ProcessName", attrs::current_process_name());
+    logging::core::get()->add_global_attribute("ThreadID", attrs::current_thread_id());
 
 
     logging::add_common_attributes();
@@ -66,22 +62,12 @@ int main() {
     glorey::log::init_log("log", "test");
 
 
-    BOOST_LOG_FUNCTION();
-
-    BOOST_LOG_TRIVIAL(debug) << "A debug severity message";
-    BOOST_LOG_TRIVIAL(trace) << "A trace severity message";
-    BOOST_LOG_TRIVIAL(info)  << "An informational severity message";
-    BOOST_LOG_TRIVIAL(warning) << "A warning severity message";
-    BOOST_LOG_TRIVIAL(error)   << "An error severity message";
-    BOOST_LOG_TRIVIAL(fatal)   << "A fatal severity message";
-
-
     DEBUG_LOG<<"test a debug log";
+    TRACE_LOG<<"test a trace log";
+    NOTICE_LOG<<"test a notice log";
     WARNING_LOG<<"test a warning log";
+    FATAL_LOG<<"test a fatal log";
 
-    src::severity_logger<glorey::log::severity_level>& lg = glorey::log::g_log::get();
-    BOOST_LOG_SEV(lg, glorey::log::debug) << "This is a debug severity record";
-    BOOST_LOG_SEV(lg, glorey::log::trace) << "This is a trace severity record";
 
     return 0;
 }

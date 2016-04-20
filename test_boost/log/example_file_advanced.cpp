@@ -20,6 +20,9 @@
 #include <boost/log/sources/record_ostream.hpp>
 #include <boost/log/sources/global_logger_storage.hpp>
 
+#include <boost/log/attributes/scoped_attribute.hpp>
+#include <boost/log/attributes.hpp>
+
 namespace logging = boost::log;
 namespace sinks = boost::log::sinks;
 namespace src = boost::log::sources;
@@ -35,6 +38,9 @@ int main() {
         keywords::rotation_size = 10 * 1024 * 1024,
         keywords::time_based_rotation = sinks::file::rotation_at_time_point(0, 0, 0),
         keywords::format = "[%TimeStamp%]: %Message%");
+
+    attrs::local_clock TimeStamp;
+    logging::core::get()->add_global_attribute("TimeStamp", TimeStamp);
 
     logging::core::get()->set_filter(
             logging::trivial::severity >= logging::trivial::info);
