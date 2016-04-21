@@ -12,22 +12,9 @@
 
 
 ## 类Tex数学表达式
+在markdown文件中添加公式主要有两种方式，一种方式是将公式提交到其他可以解释公式的网站，生成图片，然后将图片插入到markdown文件中。另一种方式是
 
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    jax: ["input/TeX", "output/HTML-CSS"],
-    tex2jax: {
-        inlineMath: [ ['$', '$'] ],
-        displayMath: [ ['$$', '$$']],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    messageStyle: "none",
-    "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
-});
-</script>
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
 $$x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$$
 
-\\(x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}\\)
+$x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$
