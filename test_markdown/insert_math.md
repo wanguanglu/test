@@ -134,6 +134,7 @@ $$
 
 
 ## latex math语法
+&emsp;&emsp;下面学习一下latex math的一些主要语法，详细得可以参考[wiki][latex-math-wiki]。
 ### 上标下标
 上标&emsp;&emsp;```x^y```&emsp;&emsp;![x^y](http://www.forkosh.com/mathtex.cgi?x^y)
 
@@ -147,6 +148,16 @@ $$
 
 高根式&emsp;&emsp;```\\sqrt[n]{x}```&emsp;&emsp;![\\sqrt[n]{x}](http://www.forkosh.com/mathtex.cgi?\\sqrt[n]{x})
 
+### 上下划线
+
+&emsp;```\\hat{x}```&emsp;&emsp;![\\hat{x}](http://www.forkosh.com/mathtex.cgi?\\hat{x})
+
+&emsp;```\\bar{x}```&emsp;&emsp;![\\bar{x}](http://www.forkosh.com/mathtex.cgi?\\bar{x})
+
+&emsp;```\\overline{x}```&emsp;&emsp;![\\overline{x}](http://www.forkosh.com/mathtex.cgi?\\overline{x})
+
+&emsp;```\\tilde{x}```&emsp;&emsp;![\\tilde{x}](http://www.forkosh.com/mathtex.cgi?\\tilde{x})
+
 ## 参考
 [1] <http://blog.csdn.net/xiahouzuoxin/article/details/26478179>
 
@@ -154,6 +165,9 @@ $$
 
 [3] <http://www.greasespot.net>
 
+[4] <https://en.wikibooks.org/wiki/LaTeX/Mathematics>
+
 [mathjax-website]: https://www.mathjax.org
 [greasemonkey-website]:www.greasespot.net
 [tampermonkey-website]:https://www.google.com.hk/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=0ahUKEwjJ4qX2yqHMAhVIjZQKHVPABRoQFggeMAA&url=%68%74%74%70%73%3a%2f%2f%63%68%72%6f%6d%65%2e%67%6f%6f%67%6c%65%2e%63%6f%6d%2f%77%65%62%73%74%6f%72%65%2f%64%65%74%61%69%6c%2f%74%61%6d%70%65%72%6d%6f%6e%6b%65%79%2f%64%68%64%67%66%66%6b%6b%65%62%68%6d%6b%66%6a%6f%6a%65%6a%6d%70%62%6c%64%6d%70%6f%62%66%6b%66%6f%3f%68%6c%3d%7a%68%2d%43%4e&usg=AFQjCNGz6TBBSuW4e26RzTalotV4aygN5A
+[latex-math-wiki]:https://en.wikibooks.org/wiki/LaTeX/Mathematics
