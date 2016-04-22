@@ -49,6 +49,31 @@ http://www.forkosh.com/mathtex.cgi?\\Large x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}
 
 &emsp;&emsp;同时在[StackOverflow](http://stackoverflow.com/questions/11255900/mathjax-support-in-github-using-a-chrome-browser-plugin/11284227#11284227)上找到了这个问题的答案，同时也提供了可以运行的user script。
 
+&emsp;&emsp;在chrome下安装了[TamperMonkey][tampermonkey-website]插件，然后添加user script
+
+```javascript
+// ==UserScript==
+// @name           Run MathJax in Github
+// @namespace      http://www.mathjax.org/
+// @description    Runs MathJax on any page in github.com
+// @include        http://github.com/*
+// @include        https://github.com/*
+// @include        http://www.wanguanglu.com/*
+// @include        file:///*
+// @run-at        document-start;
+// ==/UserScript==
+
+/*****************************************************************/
+
+(function () {
+  var script = document.createElement("script");
+  script.type = "text/javascript";
+  script.src  = "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+  var parent = (document.head || document.body || document.documentElement);
+  parent.appendChild(script);
+})();
+```
+
 &emsp;&emsp;然而遇到的问题是不work啊。
 我在我的个人网站中插入了一条公式。
 ```
@@ -72,3 +97,4 @@ $$
 
 [mathjax-website]: https://www.mathjax.org
 [greasemonkey-website]:www.greasespot.net
+[tampermonkey-website]:https://www.google.com.hk/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=0ahUKEwjJ4qX2yqHMAhVIjZQKHVPABRoQFggeMAA&url=%68%74%74%70%73%3a%2f%2f%63%68%72%6f%6d%65%2e%67%6f%6f%67%6c%65%2e%63%6f%6d%2f%77%65%62%73%74%6f%72%65%2f%64%65%74%61%69%6c%2f%74%61%6d%70%65%72%6d%6f%6e%6b%65%79%2f%64%68%64%67%66%66%6b%6b%65%62%68%6d%6b%66%6a%6f%6a%65%6a%6d%70%62%6c%64%6d%70%6f%62%66%6b%66%6f%3f%68%6c%3d%7a%68%2d%43%4e&usg=AFQjCNGz6TBBSuW4e26RzTalotV4aygN5A
