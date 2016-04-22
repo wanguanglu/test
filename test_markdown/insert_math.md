@@ -85,7 +85,47 @@ $$x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$$
 这里进行了一些配置。不知是Greasemonkey的问题还是哪儿的问题，此处配置不稳定。
 
 &emsp;&emsp;然后继续查看，在<http://docs.mathjax.org/en/latest/configuration.html#inline-config>处介绍了另外一种配置方法。
-然后修改User script。
+然后修改User script，修改之后的脚本如下
+```javascript
+// ==UserScript==
+// @name           Run MathJax in Github
+// @namespace      http://www.mathjax.org/
+// @description    Runs MathJax on any page in github.com
+// @include        http://github.com/*
+// @include        https://github.com/*
+// @include        http://www.wanguanglu.com/*
+// @include        file:///*
+// @run-at        document-start;
+// ==/UserScript==
+
+/*****************************************************************/
+
+(function () {
+    var mathconfig = document.createElement("script");
+    mathconfig.type = "text/x-mathjax-config";
+    mathconfig.text = [
+        "MathJax.Hub.Config({",
+            "extensions: ['tex2jax.js'],",
+            "jax: ['input/TeX', 'output/HTML-CSS'],",
+            "tex2jax: {",
+                "inlineMath: [ ['$','$'], ['\\\\(','\\\\)'] ],",
+                "displayMath: [ ['$$','$$'], ['\\\\[','\\\\]'] ],",
+                "processEscapes: true",
+            "},",
+            "'HTML-CSS': { availableFonts: ['TeX'] }",
+        "});"
+    ].join("\n");
+    var mathparent = (document.head || document.body || document.documentElement);
+    mathparent.appendChild(mathconfig);
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    var parent = (document.head || document.body || document.documentElement);
+    parent.appendChild(script);
+})();
+```
+
+然后依然不生效，实在无能为力了，先用googlechart吧。以后有空再继续研究。
 
 
 $$
