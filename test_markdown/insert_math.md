@@ -133,6 +133,11 @@ x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}
 $$
 
 
+## latex math语法
+### 上标下标
+```x^y```显示为![x^y](http://www.forkosh.com/mathtex.cgi?x^y)
+
+
 
 ## 参考
 [1] <http://blog.csdn.net/xiahouzuoxin/article/details/26478179>
