@@ -50,6 +50,8 @@ http://www.forkosh.com/mathtex.cgi?\\Large x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}
 &emsp;&emsp;同时在[StackOverflow](http://stackoverflow.com/questions/11255900/mathjax-support-in-github-using-a-chrome-browser-plugin/11284227#11284227)上找到了这个问题的答案，同时也提供了可以运行的user script。
 
 &emsp;&emsp;然而遇到的问题是不work啊。
+我再我的个人网站中插入了一条公式，然后使用Greasemonkey脚本，显示正常，具体可以参考链接<www.wanguanglu.com/gossip>。
+然而同样的公式在github里依然不显示，需要继续研究
 
 
 
