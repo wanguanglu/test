@@ -42,14 +42,24 @@ http://www.forkosh.com/mathtex.cgi?\\Large x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}
 这种情况在管理自己的网站时非常容易解决，只需要在自己的网站的模本html中添加上javascript引用就可以。
 但是问题是在github网站上如何显示？还是无法解决。
 
+### 使用油猴子（Greasemonkey）插件
+&emsp;&emsp;既然在markdown文件中插入javascript脚本无法生效，那么剩下的办法就是只能是在外部加入javascript脚本。
+这时调研发现了[Greasemonkey][greasemonkey-website]，这是一个神奇的东东，主流浏览器都有相关插件，
+具体每个浏览器的安装方法可以参考[链接](http://meta.math.stackexchange.com/questions/4208/a-prototype-for-incremental-preview-updates)。
+
+&emsp;&emsp;同时在[StackOverflow](http://stackoverflow.com/questions/11255900/mathjax-support-in-github-using-a-chrome-browser-plugin/11284227#11284227)上找到了这个问题的答案，同时也提供了可以运行的user script。
+
+&emsp;&emsp;然而遇到的问题是不work啊。
 
 
 
 
 
-
-### 参考
+## 参考
 [1] <http://blog.csdn.net/xiahouzuoxin/article/details/26478179>
 
 [2] <https://www.mathjax.org>
 [mathjax-website]:https://www.mathjax.org
+
+[3] <www.greasespot.net>
+[greasemonkey-website]:www.greasespot.net
