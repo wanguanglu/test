@@ -139,7 +139,13 @@ $$
 
 下标&emsp;&emsp;```x_y```&emsp;&emsp;![x_y](http://www.forkosh.com/mathtex.cgi?x_y)
 
+### 分式根式
 
+分式&emsp;&emsp;```\\frac{y}{x}```&emsp;&emsp;![\frac{y}{x}](http://www.forkosh.com/mathtex.cgi?\\frac{y}{x})
+
+根式&emsp;&emsp;```\\sqrt{x}```&emsp;&emsp;![\\sqrt{x}](http://www.forkosh.com/mathtex.cgi?\\sqrt{x})
+
+高根式&emsp;&emsp;```\\sqrt[n]{x}```&emsp;&emsp;![\\sqrt[n]{x}](http://www.forkosh.com/mathtex.cgi?\\sqrt[n]{x})
 
 ## 参考
 [1] <http://blog.csdn.net/xiahouzuoxin/article/details/26478179>
