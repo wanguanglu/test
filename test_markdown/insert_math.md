@@ -79,7 +79,7 @@ http://www.forkosh.com/mathtex.cgi?\\Large x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}
 ```
 $$x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$$
 ```
-&emsp;&emsp;然后使用Greasemonkey脚本，显示正常，具体可以参考[链接](www.wanguanglu.com/gossip)。
+&emsp;&emsp;然后使用Greasemonkey脚本，显示正常，具体可以参考[链接](http://www.wanguanglu.com/gossip)。
 然而同样的公式在github里依然不显示，需要继续研究。
 又经过一番深究，发现问题处在```http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML```，
 这里进行了一些配置。不知是Greasemonkey的问题还是哪儿的问题，此处配置不稳定。
