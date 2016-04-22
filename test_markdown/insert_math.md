@@ -57,7 +57,7 @@ $$x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$$
 &emsp;&emsp;然后使用Greasemonkey脚本，显示正常，具体可以参考链接<www.wanguanglu.com/gossip>。
 然而同样的公式在github里依然不显示，需要继续研究。
 
-$$x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$$
+$$x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}$$
 
 
 
@@ -65,7 +65,8 @@ $$x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$$
 [1] <http://blog.csdn.net/xiahouzuoxin/article/details/26478179>
 
 [2] <https://www.mathjax.org>
-[mathjax-website]:https://www.mathjax.org
 
 [3] <www.greasespot.net>
+
+[mathjax-website]: https://www.mathjax.org
 [greasemonkey-website]:www.greasespot.net
