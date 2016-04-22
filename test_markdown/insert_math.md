@@ -136,7 +136,8 @@ $$
 ## latex math语法
 ### 上标下标
 上标&emsp;&emsp;```x^y```&emsp;&emsp;![x^y](http://www.forkosh.com/mathtex.cgi?x^y)
-下表&emsp;&emsp;```x_y```&emsp;&emsp;![x_y][http://www.forkosh.com/mathtex.cgi?x_y)
+
+下标&emsp;&emsp;```x_y```&emsp;&emsp;![x_y](http://www.forkosh.com/mathtex.cgi?x_y)
 
 
 
