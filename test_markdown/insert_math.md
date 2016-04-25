@@ -127,6 +127,7 @@ $$x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$$
 
 &emsp;&emsp;然后依然不生效
 
+## 安装chrome插件
 最后在山穷水复之际，在google中搜到了一个[GitHub with MathJax](https://chrome.google.com/webstore/detail/github-with-mathjax/ioemnmodlmafdkllaclgeombjnmnbima/related)插件，安装之后，竟然奇迹般的成功了。虽然我还不知道它的原理，但是下面的这一行数学公式确实显示正常了
 
 $$
