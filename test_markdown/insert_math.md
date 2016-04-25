@@ -127,18 +127,18 @@ $$x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$$
 
 &emsp;&emsp;然后依然不生效
 
-最后在山穷水复之际，在google中搜到了一个[GitHub with MathJax](https://chrome.google.com/webstore/detail/github-with-mathjax/ioemnmodlmafdkllaclgeombjnmnbima/related)插件，竟然奇迹般的成功了。虽然我还不知道它的原理，但是下面的这一行数学公式确实显示正常了
+最后在山穷水复之际，在google中搜到了一个[GitHub with MathJax](https://chrome.google.com/webstore/detail/github-with-mathjax/ioemnmodlmafdkllaclgeombjnmnbima/related)插件，安装之后，竟然奇迹般的成功了。虽然我还不知道它的原理，但是下面的这一行数学公式确实显示正常了
 
 $$
 x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}
 $$
 
-再测试一下行内公式$x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$
+再测试一下行内公式$x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$，也可以正常显示，搞定。
 
 ## latex math语法
 &emsp;&emsp;下面学习一下latex math的一些主要语法，详细得可以参考[wiki][latex-math-wiki]。
 ### 上标下标
-上标&emsp;&emsp;```x^y```&emsp;&emsp;![x^y](http://www.forkosh.com/mathtex.cgi?x^y)
+上标&emsp;&emsp;```x^y```&emsp;&emsp; $x^y$
 
 下标&emsp;&emsp;```x_y```&emsp;&emsp;![x_y](http://www.forkosh.com/mathtex.cgi?x_y)
 
