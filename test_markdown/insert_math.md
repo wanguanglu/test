@@ -141,19 +141,19 @@ $$
 ### 上标下标
 上标&emsp;&emsp;```x^y```&emsp;&emsp; $x^y$
 
-下标&emsp;&emsp;```x_y```&emsp;&emsp;![x_y](http://www.forkosh.com/mathtex.cgi?x_y)
+下标&emsp;&emsp;```x_y```&emsp;&emsp; $x_y
 
 ### 分式根式
 
-分式&emsp;&emsp;```\\frac{y}{x}```&emsp;&emsp;![\frac{y}{x}](http://www.forkosh.com/mathtex.cgi?\\frac{y}{x})
+分式&emsp;&emsp;```\frac{y}{x}```&emsp;&emsp; $\frac{y}{x}$
 
-根式&emsp;&emsp;```\\sqrt{x}```&emsp;&emsp;![\\sqrt{x}](http://www.forkosh.com/mathtex.cgi?\\sqrt{x})
+根式&emsp;&emsp;```\sqrt{x}```&emsp;&emsp; $\sqrt{x}$
 
-高根式&emsp;&emsp;```\\sqrt[n]{x}```&emsp;&emsp;![\\sqrt[n]{x}](http://www.forkosh.com/mathtex.cgi?\\sqrt[n]{x})
+高根式&emsp;&emsp;```\sqrt[n]{x}```&emsp;&emsp; $\sqrt[n]{x}$
 
 ### 上下划线
 
-&emsp;```\\hat{x}```&emsp;&emsp;![\\hat{x}](http://www.forkosh.com/mathtex.cgi?\\hat{x})
+&emsp;```\hat{x}```&emsp;&emsp; ![\\hat{x}](http://www.forkosh.com/mathtex.cgi?\\hat{x})
 
 &emsp;```\\bar{x}```&emsp;&emsp;![\\bar{x}](http://www.forkosh.com/mathtex.cgi?\\bar{x})
 
