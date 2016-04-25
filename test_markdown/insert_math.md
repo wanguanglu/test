@@ -141,7 +141,7 @@ $$
 ### 上标下标
 上标&emsp;&emsp;```x^y```&emsp;&emsp; $x^y$
 
-下标&emsp;&emsp;```x_y```&emsp;&emsp; $x_y
+下标&emsp;&emsp;```x_y```&emsp;&emsp; $x_y$
 
 ### 分式根式
 
@@ -153,13 +153,13 @@ $$
 
 ### 上下划线
 
-&emsp;```\hat{x}```&emsp;&emsp; ![\\hat{x}](http://www.forkosh.com/mathtex.cgi?\\hat{x})
+&emsp;```\hat{x}```&emsp;&emsp;  $\hat{x}$
 
-&emsp;```\\bar{x}```&emsp;&emsp;![\\bar{x}](http://www.forkosh.com/mathtex.cgi?\\bar{x})
+&emsp;```\bar{x}```&emsp;&emsp; $\bar{x}$
 
-&emsp;```\\overline{x}```&emsp;&emsp;![\\overline{x}](http://www.forkosh.com/mathtex.cgi?\\overline{x})
+&emsp;```\overline{x}```&emsp;&emsp; $\overline{x}$
 
-&emsp;```\\tilde{x}```&emsp;&emsp;![\\tilde{x}](http://www.forkosh.com/mathtex.cgi?\\tilde{x})
+&emsp;```\tilde{x}```&emsp;&emsp; $\tilde{x}$
 
 ## 参考
 [1] <http://blog.csdn.net/xiahouzuoxin/article/details/26478179>
