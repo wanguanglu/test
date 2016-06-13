@@ -2,12 +2,23 @@ import os
 import sys
 
 
-list1 = ['physics', 'chemistry', 1997, 2000]
-list2 = [1, 2, 3, 4, 5 ]
+if __name__ == '__main__':
+    list1 = ['physics', 'chemistry', 1997, 2000]
+    list2 = [1, 2, 3, 4, 5 ]
+    
+    print list1[0]
+    print list1[:2]
+    
+    list1.append('math')
+    print list1
 
-print list1[0]
-print list1[:2]
+    print 'length of list1 is %d'%len(list1)
 
+    if 'math' in list1:
+        print 'math is in list1'
+        print 'count of math in list1 is %d'%list1.count('math')
 
-list1.append('math')
-print list1
+    print
+    print 'items in list1'
+    for item in list1:
+        print item
