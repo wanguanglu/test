@@ -13,13 +13,13 @@
 #include <logging.h>
 
 int main(){
-    glorey::log::init_log("log", "test");
+    wangl::log::log_init("log", "test");
     
     std::string s = "Field 1,\"putting quotes around fields, allows commas\",Field 3";
     boost::tokenizer<boost::escaped_list_separator<char> > tok(s);
-    
-    NOTICE_LOG << "start simple sample 2";
+
+    log_info("start simple sample 2");
     for(boost::tokenizer<boost::escaped_list_separator<char> >::iterator beg=tok.begin(); beg!=tok.end();++beg){
-        NOTICE_LOG << *beg ;
+        log_info("%s.", (*beg).c_str());
     }
 }

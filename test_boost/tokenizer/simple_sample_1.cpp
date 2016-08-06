@@ -13,13 +13,13 @@
 #include <logging.h>
 
 int main() {
-    glorey::log::init_log("log", "test");
+    wangl::log::log_init("log", "test");
 
 
     std::string s = "This is,  a test";
     boost::tokenizer<> tok(s);
 
     for(boost::tokenizer<>::iterator beg=tok.begin(); beg!=tok.end();++beg){
-        NOTICE_LOG << *beg;
+        log_info("%s", (*beg).c_str());
     }
 }

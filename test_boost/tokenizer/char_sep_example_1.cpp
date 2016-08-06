@@ -13,7 +13,7 @@
 #include <logging.h>
 
 int main() {
-    glorey::log::init_log("log", "test");
+    wangl::log::log_init("log", "test");
 
     std::string str = ";;Hello|world||-foo--bar;yow;baz|";
     typedef boost::tokenizer<boost::char_separator<char> >  tokenizer;
@@ -22,7 +22,7 @@ int main() {
     tokenizer tokens(str, sep);
     for (tokenizer::iterator tok_iter = tokens.begin();
                 tok_iter != tokens.end(); ++tok_iter) {
-        NOTICE_LOG << "<" << *tok_iter << "> ";
+        log_info("<%s>", (*tok_iter).c_str());
     }
 
     return 0;
