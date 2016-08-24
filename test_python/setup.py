@@ -1,7 +1,7 @@
 from distutils.core import setup
 
-
-setup ( name = 'test',
-        version = '1.0',
-        py_modules=['mymodel'],
+setup ( name = 'wanguanglu',
+        version      = '1.0',
+        packages     = ['wanguanglu'],
+        package_data = {'wanguanglu' : ['test.conf'] },
       )
