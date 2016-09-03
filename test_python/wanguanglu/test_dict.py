@@ -4,13 +4,13 @@
 
 
 def traverse(dic):
-    for name, tel in dic.items():
+    for name, tel in tel_dic.items():
         print('name:%s\ttelephone:%s'%(name, tel))
     print('\n')
 
 
 tel_dic = {'wanguanglu':'13426128392',
-           'dongrunsha':'13426128396',
+           'dongrunsha':'13426128392',
            'zhouxian':'13426128391'}
 
 
@@ -63,13 +63,7 @@ print('\n')
 tel_dic.setdefault('zhangsan', 'NULL')
 print(tel_dic['zhangsan'])
 
-reverse = dict(zip(tel_dic.values(), tel_dic.keys()))
-print reverse
-print
-traverse(reverse)
-print
-
 #dict clear
-tel_dic.clear()
-traverse(tel_dic)
-print(tel_dic)
+clear(tel_dict)
+traverse(tel_dict)
+print(tel_dict)
