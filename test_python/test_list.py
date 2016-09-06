@@ -22,3 +22,8 @@ if __name__ == '__main__':
     print 'items in list1'
     for item in list1:
         print item
+    print
+
+    print("test enumerate")
+    for x,y in enumerate(list1):
+        print(x, y)
