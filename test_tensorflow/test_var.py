@@ -9,6 +9,7 @@ with tf.Session() as sess:
     init = tf.initialize_all_variables()
 
     sess.run(init)
+
     #tf.initialize_all_variables().run()
     print 'the value of var'
     print sess.run(var)
@@ -20,4 +21,5 @@ with tf.Session() as sess:
 
     print 'all vars'
     print sess.run(tf.all_variables())
+    print
 
