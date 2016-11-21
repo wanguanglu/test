@@ -18,7 +18,15 @@ print df
 print
 print
 
-df.to_csv("df.csv")
+#df.to_csv("df.csv")
 
-df2 = pd.read_csv("df.csv")
+df2 = pd.read_csv("df2.csv", skip_blank_lines=False)
+print df2
+print
+
+for i in range(len(df2)):
+    print df2[i:i+1]
+print
+
+df2[df2 == np.nan] = -1
 print df2

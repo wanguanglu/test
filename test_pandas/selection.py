@@ -1,5 +1,4 @@
-import pandas as pd
-import numpy  as np
+import pandas as pd import numpy  as np
 
 
 print "Create DataFrame Object."
@@ -108,7 +107,6 @@ print
 print df [df > 0]
 print
 print
-
 
 ## isin
 print "isin() filtering"
