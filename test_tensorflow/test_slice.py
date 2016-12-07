@@ -6,6 +6,8 @@ with tf.Session() as sess:
     s1 = tf.slice(x, [0, 0], [-1, 2])
     s2 = tf.slice(x, [0, 1], [-1, 2])
 
+    s3 = s1*5 + s2
+
     print "x is "
     print sess.run(x)
 
@@ -14,4 +16,7 @@ with tf.Session() as sess:
 
     print "slice2 is"
     print sess.run(s2)
+
+    print "s3 is"
+    print sess.run(s3)
 

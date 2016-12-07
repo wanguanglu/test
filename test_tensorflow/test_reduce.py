@@ -15,6 +15,9 @@ with tf.Session() as sess:
     rmax = tf.reduce_max(x)
     rmin = tf.reduce_min(x)
 
+    print "x"
+    print sess.run(x)
+
     print "reduce_sum"
     print sess.run(s)
 
