@@ -16,18 +16,23 @@ with tf.Session() as sess:
 
     tf.initialize_all_variables().run()
 
+    print "embedding matrix is"
     print sess.run(emb)
     print
 
+    print "embedding of [0, 2]"
     print sess.run(res)
     print
 
+    print "emedding of [[0, 2], [1, 2]]"
     print sess.run(res2)
     print
 
+    print "expand"
     print sess.run(res2_expanded)
     print
 
+    print "transpose"
     print sess.run(res3)
     print
 
