@@ -8,11 +8,15 @@ with tf.Session() as sess:
 
     x2   = tf.constant([[0, 2],
                       [1, 2]])
+
     res2 = tf.nn.embedding_lookup(emb, x2)
     res2_expanded = tf.expand_dims(res2, -1)
     res3 = tf.transpose(res2, [1, 0, 2])
     res3 = tf.reshape(res3, [-1, 10])
     res3 = tf.split(0, 2, res3)
+
+    res4 = res2[:, 0, :]
+    res5 = res2[:, 1, :]
 
     tf.initialize_all_variables().run()
 
@@ -36,3 +40,9 @@ with tf.Session() as sess:
     print sess.run(res3)
     print
 
+    print "select...res2[0]"
+    print sess.run(res4)
+    print
+    print "select ...res2[1]"
+    print sess.run(res5)
+    print
