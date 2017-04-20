@@ -20,6 +20,6 @@ with tf.Session() as sess:
     print
 
     print 'all vars'
-    print sess.run(tf.all_variables())
+    print sess.run(tf.global_variables())
     print
 
