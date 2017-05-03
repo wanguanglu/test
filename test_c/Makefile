@@ -2,7 +2,7 @@ INCLUDEDIR= \
 	-I ./
 
 LIBDIR= \
-	-lcrypto -lpthread -lm -lrt -lstdc++	
+	-lcrypto -lpthread -lm -lstdc++	
 
 GCC = g++
 CPPFLAGS       = -g -finline-functions -Wall -Winline -pipe -Wno-deprecated -Wunused-variable

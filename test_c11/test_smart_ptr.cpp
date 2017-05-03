@@ -8,15 +8,76 @@
 
 #include <iostream>
 #include <memory>
+#include <vector>
 
-int main(int argc, char* argv[]) {
-
+// primary test of unique ptr
+void test1() {
   std::unique_ptr<int> a = std::unique_ptr<int>(new int(5));
   std::cout<<"a = "<<*a<<std::endl;
 
   std::unique_ptr<int> b = std::move(a);
   std::cout<<"b = "<<*b<<std::endl;
   std::cout<<"a = "<<*a<<std::endl;
+}
 
+// test push unique ptr to vector
+void test2() {
+  std::unique_ptr<int> a = std::unique_ptr<int>(new int(1));
+  std::unique_ptr<int> b = std::unique_ptr<int>(new int(2));
+  std::unique_ptr<int> c = std::unique_ptr<int>(new int(3));
+
+  std::vector<std::unique_ptr<int>> vec;
+  vec.push_back(std::move(a));
+  vec.push_back(std::move(b));
+  vec.push_back(std::move(c));
+
+  for (const auto& ptr : vec) {
+    std::cout<<"current = "<<*ptr<<std::endl;
+  }
+}
+
+std::unique_ptr<int> ret_ptr() {
+  return std::unique_ptr<int>(new int(1));
+}
+
+void test3() {
+  std::unique_ptr<int> a = ret_ptr();
+  std::unique_ptr<int> b = ret_ptr();
+  std::unique_ptr<int> c = ret_ptr();
+
+  std::vector<std::unique_ptr<int>> vec;
+  vec.push_back(std::move(a));  // It's OK.
+  vec.push_back(std::move(b));
+  vec.push_back(std::move(c));
+
+  for (const auto& ptr : vec) {
+    std::cout<<"current = "<<*ptr<<std::endl;
+  }
+}
+
+void test4() {
+  std::vector<std::unique_ptr<int>> vec;
+  vec.push_back(ret_ptr());  // It's OK.
+  vec.push_back(ret_ptr());
+  vec.push_back(ret_ptr());
+
+  for (const auto& ptr : vec) {
+    std::cout<<"current = "<<*ptr<<std::endl;
+  }
+}
+
+void test5() {
+  std::vector<std::unique_ptr<int>> vec;
+  vec.push_back(std::move(ret_ptr()));  // Warning
+  vec.push_back(std::move(ret_ptr()));
+  vec.push_back(std::move(ret_ptr()));
+
+  for (const auto& ptr : vec) {
+    std::cout<<"current = "<<*ptr<<std::endl;
+  }
+}
+
+int main(int argc, char* argv[]) {
+  test5();
   return 0;
 }

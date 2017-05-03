@@ -13,7 +13,7 @@
 using namespace std;
 
 
-int main(int argc, int argv[]) {
+int main(int argc, char* argv[]) {
     LOG<<"test log"<<endl;    
     LOG<<"test log2"<<endl;
 }
