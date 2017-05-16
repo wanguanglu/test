@@ -79,5 +79,6 @@ void test5() {
 
 int main(int argc, char* argv[]) {
   test5();
+  std::unique_ptr<int> test = { nullptr };
   return 0;
 }
