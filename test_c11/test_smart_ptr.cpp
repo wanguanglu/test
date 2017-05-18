@@ -77,8 +77,16 @@ void test5() {
   }
 }
 
+void test6() {
+  std::unique_ptr<int> uni_ptr(new int(1));
+  std::cout<<uni_ptr.get()<<std::endl;
+
+  // Failed
+  // std::shared_ptr<int> sh_ptr = std::make_shared<int>(*uni_ptr);
+  // std::cout<<sh_ptr.get()<<std::endl;
+}
+
 int main(int argc, char* argv[]) {
-  test5();
-  std::unique_ptr<int> test = { nullptr };
+  test6();
   return 0;
 }
