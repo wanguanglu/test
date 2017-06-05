@@ -5,7 +5,7 @@ LIBDIR= \
 	-lpthread -lm -lstdc++	
 
 GCC = g++
-CPPFLAGS       = -g -finline-functions -Wall -Winline -pipe -Wno-deprecated -Wunused-variable -std=c++11
+CPPFLAGS       = -g -Wall -Winline -pipe -Wno-deprecated -Wunused-variable -std=c++11
 
 SRCWILD    = $(wildcard *.cpp)
 OBJS       = $(patsubst %.cpp, %_at.o, $(SRCWILD))
