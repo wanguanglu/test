@@ -8,6 +8,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <limits>
 
 void test_numlimits() {
   std::cout << std::numeric_limits<double>::max() << std::endl;

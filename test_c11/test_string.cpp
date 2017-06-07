@@ -6,8 +6,9 @@
 *  
 **/
 
-#include <iostream>
+#include <algorithm>
 #include <functional>
+#include <iostream>
 #include <string>
 
 // Trim from start (in place)
