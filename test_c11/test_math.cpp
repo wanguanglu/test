@@ -37,7 +37,12 @@ void test_const() {
   std::cout << "LN10 " << M_LN10 << std::endl;
 }
 
+void test_2() {
+  // std::sqrt(x*x + y*y)
+  std::cout << std::hypot(3.0, 4.0) << std::endl;
+}
+
 int main(int argc, char* argv[]) {
-  test_const();
+  test_2();
   return 0;
 }
