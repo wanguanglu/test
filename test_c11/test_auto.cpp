@@ -12,10 +12,17 @@
 
 void basic_test() {
   auto x = 5;   // type of x is int
-  std::cout << typeid(x).name() << std::endl;
+  std::cout << "type of x is " << typeid(x).name() << std::endl;
+
   auto pi = new auto(1);    // type of pi is int*
+  std::cout << "type of pi is " << typeid(pi).name() << std::endl;
+
   const auto *v = &x, u = 6;  // type if v is const int*, type of u is const int
+  std::cout << "type of v is " << typeid(v).name() << std::endl;
+  std::cout << "type of u is " << typeid(u).name() << std::endl;
+
   static auto y = 0.0;  // type of y is static double
+  std::cout << "type of y is " << typeid(y).name() << std::endl;
 
   // auto int r;  // error
   // auto s;  // error, 
