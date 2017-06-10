@@ -9,6 +9,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <typeinfo>
 
 void basic_test() {
   auto x = 5;   // type of x is int

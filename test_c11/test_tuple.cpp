@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
   std::cout<<"the firt value: "<<std::get<0>(tp)<<"\n";
   std::cout<<"the second value: "<<std::get<1>(tp)<<"\n";
 
-  tp = {x, y};
+  tp = std::make_tuple(x, y);
   std::cout<<"the firt value: "<<std::get<0>(tp)<<"\n";
   std::cout<<"the second value: "<<std::get<1>(tp)<<"\n";
 
