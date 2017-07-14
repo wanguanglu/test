@@ -1,1 +1,0 @@
-/usr/bin/c++    -rdynamic CMakeFiles/helloDemo.dir/demo.cpp.o  -o helloDemo ../Hello/libHello.a 
