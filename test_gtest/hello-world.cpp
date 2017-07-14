@@ -1,29 +1,22 @@
-/////////////////////////////
 // In the header file
 
 #include <sstream>
 
-using namespace std;
-
-class Salutation
-{
-  public:
-    static string greet(const string& name);
+class Salutation {
+public:
+  static std::string greet(const std::string& name);
 };
 
-///////////////////////////////////////
 // In the class implementation file
-
-string Salutation::greet(const string& name) {
-    ostringstream s;
-      s << "Hello " << name << "!";
-        return s.str();
+std::string Salutation::greet(const std::string& name) {
+  std::ostringstream s;
+  s << "Hello " << name << "!";
+  return s.str();
 }
 
-///////////////////////////////////////////
 // In the test file
 #include <gtest/gtest.h>
 
 TEST(SalutationTest, Static) {
-    EXPECT_EQ(string("Hello World!"), Salutation::greet("World"));
+  EXPECT_EQ(std::string("Hello World!"), Salutation::greet("World"));
 }
