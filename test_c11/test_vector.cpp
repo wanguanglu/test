@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <vector>
+#include <set>
 
 int main(int argc, char* argv[]) {
   std::vector<int> v = {0, 1, 2, 3, 4, 5};
@@ -42,4 +43,17 @@ int main(int argc, char* argv[]) {
     std::cout << 1 << ' '; // the loop variable need not be used
   }
   std::cout << '\n';
+
+  std::set<int> test_set;
+  test_set.insert(1);
+  test_set.insert(2);
+  test_set.insert(3);
+  test_set.insert(4);
+
+  std::vector<int> test_vec = {test_set.begin(), test_set.end()};
+  for (int n : test_vec) {
+    std::cout << n << " ";
+  }
+  std::cout << '\n';
+
 }
