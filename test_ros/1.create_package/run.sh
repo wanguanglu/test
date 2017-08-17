@@ -1,9 +1,9 @@
 #!/bin/bash
 
-ROOT=/home/wanguanglu/work/ros_study/1.create_package
+ROOT="$(cd `dirname $0`; pwd)"
+echo $ROOT
 
 # make source dir
-cd ${ROOT}
 mkdir src
 
 # create package
