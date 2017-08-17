@@ -1,0 +1,89 @@
+#!/bin/bash
+
+CURRENT_PATH=`dirname $(readlink -f $0)`
+
+PACKAGE_LIST=`find $CURRENT_PATH -name 'package.xml' \
+    | xargs grep "<name>" | awk '{print $2}' | sed 's/<name>\([a-z_]*\)<\/name>/\1/' | sort`
+
+# Do not use build.sh as build file name, since it is in didi voyager scmpf & op standard.
+build_file_name="build_package.sh"
+
+if [ $# -eq 0 ]; then
+    echo "Generated ${build_file_name}."
+    echo "Then you can build all packages by executing 'bash ${build_file_name}'."
+    echo ""
+
+    catkin_cmd="catkin_make --source "${CURRENT_PATH}
+    echo "#!/bin/bash" > ${build_file_name}
+    echo $catkin_cmd >> ${build_file_name}
+    chmod +x ${build_file_name}
+
+    exit
+fi
+
+if [ $1 == "--pkg" ] && [ $# -ge 2 ]; then
+    input_str=""
+    for var in $*
+    do
+        # Ignore the first argument.
+        if [ $var == "--pkg" ]; then 
+            continue
+        fi
+
+        is_in_list=false
+        for pkg_name in ${PACKAGE_LIST[@]}
+        do
+            if [ $var == $pkg_name ]; then
+                is_in_list=true
+                break
+            fi
+        done
+        if [ $is_in_list = false ]; then
+            echo -e "\033[31mError: Can not find package \
+'${var}' in current project.\033[0m"
+            echo "You can use --show_pkgs for more details."
+            echo ""
+            exit
+        fi
+
+        input_str=${input_str}" "${var};
+    done
+    pakages=${input_str:1}
+
+    echo "Generated ${build_file_name}."
+    echo "Then you can build packages '$pakages' by executing 'bash ${build_file_name}'."
+    echo ""
+
+    catkin_cmd="catkin_make --source "$CURRENT_PATH" --pkg "$pakages
+    echo "#!/bin/bash" > ${build_file_name}
+    echo $catkin_cmd >> ${build_file_name}
+    chmod +x ${build_file_name}
+
+    exit
+fi
+
+if [ $1 == "--show_pkgs" ]; then
+    for pkg in ${PACKAGE_LIST[@]}
+    do
+        echo $pkg
+    done
+    echo ""
+
+    exit
+fi
+
+echo -e "configure is a tool to generate the build script of voyager project."
+
+echo -e "By executing configure with no argument, \
+it will generate a script \033[33m${build_file_name}\033[0m \
+which can build all packages of voyager project."
+
+echo ""
+
+echo "Optional arguments:"
+echo "-h, --help             Show this message and exit."
+echo "--pkg PKG [PKG...]     Invoke 'build' on specific packages only."
+echo "--show_pkgs            Show package list of the current project."
+echo ""
+
+exit

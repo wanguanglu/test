@@ -1,0 +1,2 @@
+beginner_tutorials
+-DCATKIN_DEVEL_PREFIX=/home/wanguanglu/work/ros_study/create_msg_and_srv/devel -DCMAKE_INSTALL_PREFIX=/home/wanguanglu/work/ros_study/create_msg_and_srv/install -G Unix Makefiles

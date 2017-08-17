@@ -1,0 +1,2 @@
+beginner_tutorials
+-DCATKIN_DEVEL_PREFIX=/home/wanguanglu/work/ros_study/4.ros_bag/devel -DCMAKE_INSTALL_PREFIX=/home/wanguanglu/work/ros_study/4.ros_bag/install -G Unix Makefiles
