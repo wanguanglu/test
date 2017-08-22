@@ -1,6 +1,6 @@
 INCLUDEDIR= \
 	-I ./ \
-  -I /usr/local/include/eigen3
+  -I /usr/include/eigen3
 
 LIBDIR= \
 	-lpthread -lm -lstdc++
