@@ -38,12 +38,38 @@ void test_const() {
   std::cout << "LN10 " << M_LN10 << std::endl;
 }
 
-void test_2() {
+void test_hypot() {
   // std::sqrt(x*x + y*y)
   std::cout << std::hypot(3.0, 4.0) << std::endl;
 }
 
+void test_floor() {
+  float a = 0.5;
+  std::cout << a << "\t" << int(a) << std::endl;
+  std::cout << a << "\tfloor\t" << int(floor(a)) << std::endl;
+
+  a = 0.2;
+  std::cout << a << "\t" << int(a) << std::endl;
+  std::cout << a << "\tfloor\t" << int(floor(a)) << std::endl;
+
+  a = 0.8;
+  std::cout << a << "\t" << int(a) << std::endl;
+  std::cout << a << "\tfloor\t" << int(floor(a)) << std::endl;
+
+  a = -0.8;
+  std::cout << a << "\t" << int(a) << std::endl;
+  std::cout << a << "\tfloor\t" << int(floor(a)) << std::endl;
+
+  a = -0.2;
+  std::cout << a << "\t" << int(a) << std::endl;
+  std::cout << a << "\tfloor\t" << int(floor(a)) << std::endl;
+
+  a = -1.8;
+  std::cout << a << "\t" << int(a) << std::endl;
+  std::cout << a << "\tfloor\t" << int(floor(a)) << std::endl;
+}
+
 int main(int argc, char* argv[]) {
-  test_2();
+  test_floor();
   return 0;
 }
