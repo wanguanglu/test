@@ -47,22 +47,22 @@ void test3() {
 
   std::vector<std::unique_ptr<int>> vec;
   vec.push_back(std::move(a));  // It's OK.
-  vec.push_back(std::move(b));
-  vec.push_back(std::move(c));
+  vec.push_back(std::move(a));  // It's OK.
+  vec.push_back(std::move(a));  // It's OK.
 
   for (const auto& ptr : vec) {
-    std::cout<<"current = "<<*ptr<<std::endl;
+    std::cout << "current = " << *ptr << std::endl;
   }
 }
 
 void test4() {
   std::vector<std::unique_ptr<int>> vec;
   vec.push_back(ret_ptr());  // It's OK.
-  vec.push_back(ret_ptr());
-  vec.push_back(ret_ptr());
+  vec.push_back(ret_ptr());  // It's OK.
+  vec.push_back(ret_ptr());  // It's OK.
 
   for (const auto& ptr : vec) {
-    std::cout<<"current = "<<*ptr<<std::endl;
+    std::cout << "current = " << *ptr << std::endl;
   }
 }
 
@@ -73,13 +73,13 @@ void test5() {
   vec.push_back(std::move(ret_ptr()));
 
   for (const auto& ptr : vec) {
-    std::cout<<"current = "<<*ptr<<std::endl;
+    std::cout << "current = " << *ptr << std::endl;
   }
 }
 
 void test6() {
   std::unique_ptr<int> uni_ptr(new int(1));
-  std::cout<<uni_ptr.get()<<std::endl;
+  std::cout << uni_ptr.get() << std::endl;
 
   // Failed
   // std::shared_ptr<int> sh_ptr = std::make_shared<int>(*uni_ptr);
@@ -87,8 +87,6 @@ void test6() {
 }
 
 int main(int argc, char* argv[]) {
-  test2();
-  return 0;
   test6();
   return 0;
 }
