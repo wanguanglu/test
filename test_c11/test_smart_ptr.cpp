@@ -13,11 +13,11 @@
 // primary test of unique ptr
 void test1() {
   std::unique_ptr<int> a = std::unique_ptr<int>(new int(5));
-  std::cout<<"a = "<<*a<<std::endl;
+  std::cout << "a = " << *a <<std::endl;
 
   std::unique_ptr<int> b = std::move(a);
-  std::cout<<"b = "<<*b<<std::endl;
-  std::cout<<"a = "<<*a<<std::endl;
+  std::cout << "b = " << *b << std::endl;
+  std::cout << "a = " << *a << std::endl;  // It will core dump here.
 }
 
 // test push unique ptr to vector
@@ -32,7 +32,7 @@ void test2() {
   vec.push_back(std::move(c));
 
   for (const auto& ptr : vec) {
-    std::cout<<"current = "<<*ptr<<std::endl;
+    std::cout << "current = " << *ptr << std::endl;
   }
 }
 
@@ -87,6 +87,8 @@ void test6() {
 }
 
 int main(int argc, char* argv[]) {
+  test2();
+  return 0;
   test6();
   return 0;
 }
