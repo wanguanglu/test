@@ -86,6 +86,12 @@ void test6() {
   // std::cout<<sh_ptr.get()<<std::endl;
 }
 
+void test7() {
+  std::unique_ptr<int> uni_ptr(new int(1));
+
+  const std::unique_ptr<int>& uni_ptr_copy = uni_ptr;
+}
+
 int main(int argc, char* argv[]) {
   test6();
   return 0;
