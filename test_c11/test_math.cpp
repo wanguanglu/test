@@ -69,7 +69,25 @@ void test_floor() {
   std::cout << a << "\tfloor\t" << int(floor(a)) << std::endl;
 }
 
+void test_max_min() {
+  int x = 0;
+  int y = 10;
+  std::cout << "std::max(x, y): " << std::max(x, y) << std::endl;
+  std::cout << "std::min(x, y): " << std::min(x, y) << std::endl;
+}
+
+void test_pow() {
+  double x = 4.0;
+  std::cout << "std::pow(x, 0.5): " << std::pow(x, 0.5) << std::endl;
+}
+
+void test_abs() {
+  double x = -1.5;
+  std::cout << "std::abs(x): " << std::abs(x) << std::endl;
+  std::cout << "abs(x): " << abs(x) << std::endl;
+}
+
 int main(int argc, char* argv[]) {
-  test_floor();
+  test_abs();
   return 0;
 }
