@@ -17,9 +17,14 @@ void func4(int y, int z) {
   std::cout << "In func4 " << "y: " << y << " z: " << z << std::endl;
 }
 
-class B {
+class C {
 public:
-    void func1() {
+    virtual void func1() = 0;
+};
+
+class B : public C {
+public:
+    void func1() override {
         std::cout << "In class B func1." << std::endl;
     }
 };
