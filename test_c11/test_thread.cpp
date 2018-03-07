@@ -17,13 +17,20 @@ void func4(int y, int z) {
   std::cout << "In func4 " << "y: " << y << " z: " << z << std::endl;
 }
 
+class B {
+public:
+    void func1() {
+        std::cout << "In class B func1." << std::endl;
+    }
+};
+
 class A {
 public:
   void TestThread() {
-    std::thread t1(&A::func1,this);
+    std::thread t1(&A::func1, this);
     t1.join();
 
-    std::thread t2(&A::func2,this, 2, 3);
+    std::thread t2(&A::func2, this, 2, 3);
     t2.join();
 
     std::thread t3(&func3);
@@ -31,6 +38,10 @@ public:
 
     std::thread t4(&func4, 2, 3);
     t4.join();
+
+    B b;
+    std::thread t5(&B::func1, &b);
+    t5.join();
   }
 
   void func1(){
