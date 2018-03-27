@@ -1,7 +1,9 @@
 INCLUDEDIR= \
-	-I ./
+	-I ./ \
+  -I ../../lib2-64/baidugz/include
 
 LIBDIR= \
+  ../../lib2-64/baidugz/lib/libnz.a \
 	-lpthread -lm -lstdc++ -lz
 
 GCC = g++

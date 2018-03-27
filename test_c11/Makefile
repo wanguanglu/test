@@ -7,11 +7,11 @@ LIBDIR= \
 GCC = g++
 CPPFLAGS       = -g -Wall -Winline -pipe -Wno-deprecated -Wunused-variable -std=c++11
 
-SRCWILD    = $(wildcard *.cpp)
-OBJS       = $(patsubst %.cpp, %_at.o, $(SRCWILD))
+SRCWILD    = $(wildcard *.cc)
+OBJS       = $(patsubst %.cc, %_at.o, $(SRCWILD))
 
-BINS       = $(patsubst %.cpp, %.bin, $(SRCWILD))
-FINAL_BINS = $(patsubst %.cpp, %, $(SRCWILD))
+BINS       = $(patsubst %.cc, %.bin, $(SRCWILD))
+FINAL_BINS = $(patsubst %.cc, %, $(SRCWILD))
 
 all : clean makebin
 
@@ -22,7 +22,7 @@ clean:
 	rm -rf $(BINS)
 	rm -rf $(FINAL_BINS)
 
-%_at.o : %.cpp
+%_at.o : %.cc
 	$(GCC) $(CPPFLAGS) -c $< -o $@ $(INCLUDEDIR)
 
 %.bin  : %_at.o

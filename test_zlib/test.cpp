@@ -3,6 +3,8 @@
 #include <iostream>  
 #include <zlib.h>
 
+#include <baidugz.h>
+
 int main() {  
   int err = 0;  
   Byte compr[200], uncompr[200];  // big enough
@@ -28,6 +30,23 @@ int main() {
   }
   std::cout << "orignal size: " << len
             << " , uncompressed size : " << uncomprLen << '\n';
+
+  if (strcmp((char*)uncompr, hello)) {
+    std::cerr << "BAD uncompress!!!\n";
+    return -1;
+  } else {
+    std::cout << "uncompress() succeed: \n" << (char *)uncompr << std::endl;
+  }
+
+  std::cout << "Start test baidu unzip." << std::endl;
+  int out_len = sizeof(uncompr) / sizeof(uncompr[0]);
+  int ret = baidu_ungzip(compr, comprLen, uncompr, &out_len, 0);
+  if (ret != 0) {
+    std::cerr << "baidu uncompess error: " << ret << '\n';
+    return -1;
+  }
+  std::cout << "orignal size: " << len
+            << " , uncompressed size : " << out_len << '\n';
 
   if (strcmp((char*)uncompr, hello)) {
     std::cerr << "BAD uncompress!!!\n";
