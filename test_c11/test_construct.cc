@@ -1,29 +1,34 @@
 /**
 * @file   test_construct.cpp
 * @author wanguanglu(mail@wanguanglu.com)
-* @date   2018/01/10 14:22:53
+* @date   2017/10/30 21:49:30
 * @brief 
 *  
 **/
 
 #include <iostream>
 
-class A {
+class B {
 public:
-    A(int x, int y) {
-        std::cout << "In constructor." << std::endl;
-    }
+  virtual ~B() = default;
+};
 
-    A operator= (const A& a) {
-        std::cout << "In copy." << std::endl;
-    }
+class A : public B {
+public:
+  explicit A(int i) : x_(i) {}
+
+  void Print() {
+    std::cout << "x = " << x_ << std::endl;
+  }
+
+private:
+  const int x_;
 };
 
 int main(int argc, char* argv[]) {
-    A a = A(1, 2);
-
-    A b = A(2, 3);
-    a = b;
-
-    return 0;
+  A a(1);
+  A b(2);
+  // b = a;  // compile error.
+  b.Print();
+  return 0;
 }

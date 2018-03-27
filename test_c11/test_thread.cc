@@ -6,6 +6,8 @@
 *  
 **/
 
+#include <chrono>
+#include <future>
 #include <iostream>
 #include <thread>
 
@@ -17,13 +19,29 @@ void func4(int y, int z) {
   std::cout << "In func4 " << "y: " << y << " z: " << z << std::endl;
 }
 
+class C {
+public:
+    virtual void func1() = 0;
+};
+
+class B : public C {
+public:
+    void func1() override {
+        std::cout << "In class B func1." << std::endl;
+    }
+
+    int func2() {
+        return 0;
+    }
+};
+
 class A {
 public:
   void TestThread() {
-    std::thread t1(&A::func1,this);
+    std::thread t1(&A::func1, this);
     t1.join();
 
-    std::thread t2(&A::func2,this, 2, 3);
+    std::thread t2(&A::func2, this, 2, 3);
     t2.join();
 
     std::thread t3(&func3);
@@ -31,13 +49,23 @@ public:
 
     std::thread t4(&func4, 2, 3);
     t4.join();
+
+    B b;
+    std::thread t5(&B::func1, &b);
+    t5.join();
+
+    std::packaged_task<int()> task(&B::func2);
+    std::future<int> ret = task.get_future();
+    std::thread t6(std::move(task), &b);
+    int value = ret.get();
+    std::cout << "value: " << value << std::endl;
   }
 
   void func1(){
     std::cout << "In func1." << std::endl;
   }
 
-  void func2(int y, int z){
+  void func2(int y, int z) {
     std::cout << "In func2." << std::endl;
     std::cout << "x: " << x << " y: " << y << " z: " << z << std::endl;
   }
