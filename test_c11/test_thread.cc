@@ -54,11 +54,11 @@ public:
     std::thread t5(&B::func1, &b);
     t5.join();
 
-    std::packaged_task<int()> task(&B::func2);
-    std::future<int> ret = task.get_future();
-    std::thread t6(std::move(task), &b);
-    int value = ret.get();
-    std::cout << "value: " << value << std::endl;
+    // std::packaged_task<int()> task(&B::func2);
+    // std::future<int> ret = task.get_future();
+    // std::thread t6(std::move(task), &b);
+    // int value = ret.get();
+    // std::cout << "value: " << value << std::endl;
   }
 
   void func1(){

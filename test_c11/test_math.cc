@@ -88,6 +88,7 @@ void test_abs() {
 }
 
 int main(int argc, char* argv[]) {
+  test_numlimits();
   test_abs();
   return 0;
 }
