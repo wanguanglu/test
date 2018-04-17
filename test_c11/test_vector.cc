@@ -56,4 +56,10 @@ int main(int argc, char* argv[]) {
   }
   std::cout << '\n';
 
+  auto iter = test_vec.end();
+  test_vec.insert(iter, 100);
+  for (int n : test_vec) {
+    std::cout << n << " ";
+  }
+  std::cout << '\n';
 }
