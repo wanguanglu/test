@@ -9,3 +9,7 @@ project (HELLO)
 # the project's entire directory structure.
 add_subdirectory (Hello)
 add_subdirectory (Demo)
+
+Message("Print something.")
+Message("The cxx compiler is " ${CMAKE_CXX_COMPILER})
+Message("The c compiler is " ${CMAKE_C_COMPILER})
