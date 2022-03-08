@@ -7,11 +7,7 @@ with tf.Session() as sess:
 
     c = a + b
 
-    print sess.run(c,
-        feed_dict={b: [1., 1., 1.]})
+    print sess.run(c, feed_dict={b: [1., 1., 1.]})
 
     b_np = np.array([1., 1., 1.])
-    print sess.run(c,
-        feed_dict={b: b_np})
-
-
+    print sess.run(c, feed_dict={b: b_np})

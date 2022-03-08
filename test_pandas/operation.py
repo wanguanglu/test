@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy  as np
+import numpy as np
 
 print "Create DataFrame Object."
 dates = pd.date_range('20130101', periods=6)
@@ -7,7 +7,7 @@ print dates
 print
 print
 
-df = pd.DataFrame(np.random.randn(6,4), index=dates, columns=list('ABCD'))
+df = pd.DataFrame(np.random.randn(6, 4), index=dates, columns=list('ABCD'))
 print df
 print
 print
@@ -22,9 +22,8 @@ print df.mean(1)
 print
 print
 
-
 print "sub"
-s = pd.Series([1,3,5,np.nan,6,8], index=dates).shift(2)
+s = pd.Series([1, 3, 5, np.nan, 6, 8], index=dates).shift(2)
 print s
 print
 print
@@ -32,7 +31,6 @@ print
 print df.sub(s, axis="index")
 print
 print
-
 
 print "apply function"
 print df.apply(np.cumsum)
@@ -42,7 +40,6 @@ print
 print df.apply(lambda x: x.max() - x.min())
 print
 print
-
 
 print "histogramming"
 s = pd.Series(np.random.randint(0, 10, size=100))
@@ -55,7 +52,6 @@ s = pd.Series(['A', 'B', 'C', 'Aaba', 'Baca', np.nan, 'CABA', 'dog', 'cat'])
 print s.str.lower()
 print
 print
-
 
 print "concat"
 pieces = [df[:1], df[3:5], df[7:]]
@@ -85,10 +81,9 @@ print pd.merge(left, right, on='key')
 print
 print
 
-
 print "append"
-df = pd.DataFrame(np.random.randn(8, 4), columns=['A','B','C','D'])
-s  = pd.DataFrame(np.random.randn(1, 4), columns=['A','B','C','D'])
+df = pd.DataFrame(np.random.randn(8, 4), columns=['A', 'B', 'C', 'D'])
+s = pd.DataFrame(np.random.randn(1, 4), columns=['A', 'B', 'C', 'D'])
 print "df"
 print df
 print "s"
@@ -98,12 +93,12 @@ print
 print
 
 print "grouping"
-df = pd.DataFrame({'A' : ['foo', 'bar', 'foo', 'bar',
-                   'foo', 'bar', 'foo', 'foo'],
-                   'B' : ['one', 'one', 'two', 'three',
-                   'two', 'two', 'one', 'three'],
-                   'C' : np.random.randn(8),
-                   'D' : np.random.randn(8)})
+df = pd.DataFrame({
+    'A': ['foo', 'bar', 'foo', 'bar', 'foo', 'bar', 'foo', 'foo'],
+    'B': ['one', 'one', 'two', 'three', 'two', 'two', 'one', 'three'],
+    'C': np.random.randn(8),
+    'D': np.random.randn(8)
+})
 print "df"
 print df
 print "group by A"

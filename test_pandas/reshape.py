@@ -1,10 +1,9 @@
 import pandas as pd
-import numpy  as np
+import numpy as np
 
-tuples = list(zip(*[['bar', 'bar', 'baz', 'baz',
-                     'foo', 'foo', 'qux', 'qux'],
-                     ['one', 'two', 'one', 'two',
-                     'one', 'two', 'one', 'two']]))
+tuples = list(
+    zip(*[['bar', 'bar', 'baz', 'baz', 'foo', 'foo', 'qux', 'qux'],
+          ['one', 'two', 'one', 'two', 'one', 'two', 'one', 'two']]))
 print "tuples"
 print tuples
 
@@ -34,12 +33,13 @@ print stacked.unstack(1)
 print
 print
 
-
-df = pd.DataFrame({'A' : ['one', 'one', 'two', 'three'] * 3,
-                   'B' : ['A', 'B', 'C'] * 4,
-                   'C' : ['foo', 'foo', 'foo', 'bar', 'bar', 'bar'] * 2,
-                   'D' : np.random.randn(12),
-                   'E' : np.random.randn(12)})
+df = pd.DataFrame({
+    'A': ['one', 'one', 'two', 'three'] * 3,
+    'B': ['A', 'B', 'C'] * 4,
+    'C': ['foo', 'foo', 'foo', 'bar', 'bar', 'bar'] * 2,
+    'D': np.random.randn(12),
+    'E': np.random.randn(12)
+})
 print df
 
 print "pivot table"

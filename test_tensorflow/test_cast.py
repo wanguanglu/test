@@ -5,5 +5,3 @@ with tf.Session() as sess:
     y = tf.cast(x, tf.float32)
 
     print sess.run(y)
-
-

@@ -1,6 +1,5 @@
 import pandas as pd
-import numpy  as np
-
+import numpy as np
 
 print "Create DataFrame Object."
 dates = pd.date_range('20130101', periods=6)
@@ -8,11 +7,10 @@ print dates
 print
 print
 
-df = pd.DataFrame(np.random.randn(6,4), index=dates, columns=list('ABCD'))
+df = pd.DataFrame(np.random.randn(6, 4), index=dates, columns=list('ABCD'))
 print df
 print
 print
-
 
 print "head of df"
 print df.head(2)

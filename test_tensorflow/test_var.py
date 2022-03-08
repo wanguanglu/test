@@ -1,9 +1,10 @@
 import tensorflow as tf
 
 with tf.Session() as sess:
-    var = tf.get_variable("test", shape=[2, 3], 
-                initializer=tf.constant_initializer(1.0),
-                 dtype=tf.float32)
+    var = tf.get_variable("test",
+                          shape=[2, 3],
+                          initializer=tf.constant_initializer(1.0),
+                          dtype=tf.float32)
     var2 = tf.Variable(0, trainable=False)
 
     init = tf.initialize_all_variables()
@@ -22,4 +23,3 @@ with tf.Session() as sess:
     print 'all vars'
     print sess.run(tf.global_variables())
     print
-

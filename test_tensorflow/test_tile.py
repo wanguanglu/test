@@ -6,5 +6,3 @@ with tf.Session() as sess:
     y = tf.tile(x, [3, 1])
 
     print sess.run(y)
-
-

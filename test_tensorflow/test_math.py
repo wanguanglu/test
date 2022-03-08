@@ -1,6 +1,5 @@
 import tensorflow as tf
 
-
 with tf.Session() as sess:
     x = tf.constant([3., 4.])
     y = tf.square(x)
@@ -12,7 +11,7 @@ with tf.Session() as sess:
     print y.eval()
     print w.eval()
     print x_add.eval()
-    
+
     result = sess.run(y)
 
 print result

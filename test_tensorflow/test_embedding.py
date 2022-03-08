@@ -1,13 +1,11 @@
 import tensorflow as tf
 
-
 with tf.Session() as sess:
     emb = tf.Variable(tf.truncated_normal([4, 10], 0.0, 1.0, dtype=tf.float32))
-    x   = tf.constant([0, 2])
+    x = tf.constant([0, 2])
     res = tf.nn.embedding_lookup(emb, x)
 
-    x2   = tf.constant([[0, 2],
-                      [1, 2]])
+    x2 = tf.constant([[0, 2], [1, 2]])
 
     res2 = tf.nn.embedding_lookup(emb, x2)
     res2_expanded = tf.expand_dims(res2, -1)

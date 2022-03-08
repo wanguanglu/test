@@ -5,11 +5,6 @@ with tf.Session() as sess:
 
     y = tf.expand_dims(x, 0)
 
-
     print sess.run(x)
 
     print sess.run(y)
-
-
-
-

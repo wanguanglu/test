@@ -1,6 +1,5 @@
 import tensorflow as tf
 
-
 with tf.Session() as sess:
     a = tf.constant([[2, 3]])
     b = tf.shape(a)
@@ -14,4 +13,3 @@ with tf.Session() as sess:
 
     print sess.run(c)
     print sess.run(d)
-

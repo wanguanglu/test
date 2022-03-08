@@ -1,10 +1,7 @@
 import tensorflow as tf
 
 with tf.Session() as sess:
-    x = tf.constant([[1., 2., 3.],
-                    [2., 3., 4.],
-                    [1., 2., 3.],
-                    [2., 3., 4.]])
+    x = tf.constant([[1., 2., 3.], [2., 3., 4.], [1., 2., 3.], [2., 3., 4.]])
 
     y1 = tf.pad(x, paddings=[[1, 1], [2, 2]], mode='CONSTANT')
     print "y1 is"
@@ -18,12 +15,7 @@ with tf.Session() as sess:
     print
     print
 
-    x2 = tf.constant([
-                    [[1., 2., 3.],
-                    [2., 3., 4.],
-                    [1., 2., 3.],
-                    [2., 3., 4.]]
-                    ])
+    x2 = tf.constant([[[1., 2., 3.], [2., 3., 4.], [1., 2., 3.], [2., 3., 4.]]])
 
     y3 = tf.pad(x2, paddings=[[0, 0], [1, 1], [0, 0]], mode='CONSTANT')
     print "y3 is"

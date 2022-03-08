@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy  as np
+import numpy as np
 
 print "Create DataFrame Object."
 dates = pd.date_range('20130101', periods=6)
@@ -7,13 +7,13 @@ print dates
 print
 print
 
-df = pd.DataFrame(np.random.randn(6,4), index=dates, columns=list('ABCD'))
+df = pd.DataFrame(np.random.randn(6, 4), index=dates, columns=list('ABCD'))
 print df
 print
 print
 
 print "setting new column"
-s1 = pd.Series([1,2,3,4,5,6], index=pd.date_range('20130102', periods=6))
+s1 = pd.Series([1, 2, 3, 4, 5, 6], index=pd.date_range('20130102', periods=6))
 df["E"] = s1
 print df
 print
@@ -31,9 +31,8 @@ print df
 print
 print
 
-
 print "assign by numpy array"
-df.loc[:,"D"] = np.array([5] * len(df))
+df.loc[:, "D"] = np.array([5] * len(df))
 print df
 print
 print

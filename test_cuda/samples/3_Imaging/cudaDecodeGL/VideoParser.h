@@ -83,7 +83,7 @@ class VideoParser {
 
   VideoParserData oParserData_;  // instance of the user-data we have passed
                                  // into the parser-callbacks.
-  CUvideoparser hParser_;  // handle to the CUDA video-parser
+  CUvideoparser hParser_;        // handle to the CUDA video-parser
 
   friend class VideoSource;
 };

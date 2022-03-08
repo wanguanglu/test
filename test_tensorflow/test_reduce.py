@@ -1,8 +1,7 @@
 import tensorflow as tf
 
 with tf.Session() as sess:
-    x = tf.constant([[1., 2., 3.],
-                     [2., 3., 4.]])
+    x = tf.constant([[1., 2., 3.], [2., 3., 4.]])
 
     s = tf.reduce_sum(x)
     s2 = tf.reduce_sum(x, 0)

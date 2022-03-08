@@ -1,6 +1,5 @@
 import tensorflow as tf
 
-
 with tf.Session() as sess:
     x = tf.constant(10)
     y = tf.constant(11)

@@ -37,12 +37,11 @@ def FormatCharHex(d):
 
 
 args = sys.argv[1:]
-if not(len(sys.argv[1:]) == 2):
+if not (len(sys.argv[1:]) == 2):
     Usage()
 
 out_h = args[1] + "_ptxdump.h"
 out_c = args[1] + "_ptxdump.c"
-
 
 h_in = open(args[0], 'r')
 source_bytes = h_in.read()
@@ -51,7 +50,8 @@ source_bytes_len = len(source_bytes)
 h_out_c = open(out_c, 'w')
 h_out_c.writelines(g_Header)
 h_out_c.writelines("#include \"" + out_h + "\"\n\n")
-h_out_c.writelines("unsigned char " + args[1] + "_ptxdump[" + str(source_bytes_len+1) + "] = {\n")
+h_out_c.writelines("unsigned char " + args[1] + "_ptxdump[" +
+                   str(source_bytes_len + 1) + "] = {\n")
 
 h_out_h = open(out_h, 'w')
 macro_h = "__" + args[1] + "_ptxdump_h__"
@@ -59,7 +59,8 @@ h_out_h.writelines(g_Header)
 h_out_h.writelines("#ifndef " + macro_h + "\n")
 h_out_h.writelines("#define " + macro_h + "\n\n")
 h_out_h.writelines('#if defined __cplusplus\nextern "C" {\n#endif\n\n')
-h_out_h.writelines("extern unsigned char " + args[1] + "_ptxdump[" + str(source_bytes_len+1) + "];\n\n")
+h_out_h.writelines("extern unsigned char " + args[1] + "_ptxdump[" +
+                   str(source_bytes_len + 1) + "];\n\n")
 h_out_h.writelines("#if defined __cplusplus\n}\n#endif\n\n")
 h_out_h.writelines("#endif //" + macro_h + "\n")
 

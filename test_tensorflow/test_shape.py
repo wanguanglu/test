@@ -6,4 +6,3 @@ with tf.Session() as sess:
     s1 = tf.shape(matrix1)
 
     print sess.run(s1)
-   
