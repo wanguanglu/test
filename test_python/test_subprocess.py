@@ -1,11 +1,11 @@
-#/usr/bin/python
+#!/usr/bin/env python3
 
 import os
 import sys
 import subprocess
 
 #proc = subprocess.Popen("pwd")
-#command = [sys.executable, 
+#command = [sys.executable,
 #        os.path.dirname(os.path.abspath(__file__)) + os.sep + "test_var.py"]
 
 #proc = subprocess.Popen(command, stdout=subprocess.PIPE)
@@ -15,10 +15,12 @@ import subprocess
 
 pin, pout = os.pipe()
 
-command = [sys.executable, 
-        os.path.dirname(os.path.abspath(__file__)) + os.sep + "test_pipe.py", str(pin)]
+command = [
+    sys.executable,
+    os.path.dirname(os.path.abspath(__file__)) + os.sep + "test_pipe.py",
+    str(pin)
+]
 
 proc = subprocess.Popen(command)
 
 print os.read(pout, 30)
-

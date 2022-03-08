@@ -1,18 +1,21 @@
-#/usr/bin/python
+#!/usr/bin/env python3
+"""
+dict is an common struct in python to store key/value pair
 
-#dict is an common struct in python to store key/value pair
+"""
 
 
 def traverse(dic):
     for name, tel in dic.items():
-        print('name:%s\ttelephone:%s'%(name, tel))
+        print('name:%s\ttelephone:%s' % (name, tel))
     print('\n')
 
 
-tel_dic = {'wanguanglu':'13426128392',
-           'dongrunsha':'13426128396',
-           'zhouxian':'13426128391'}
-
+tel_dic = {
+    'wanguanglu': '13426128392',
+    'dongrunsha': '13426128396',
+    'zhouxian': '13426128391'
+}
 
 #traverse items
 print('traverse items')
@@ -27,7 +30,6 @@ traverse(tel_dic)
 print('del items')
 del tel_dic['zhangsan']
 traverse(tel_dic)
-
 
 #traverse keys
 print('traverse keys')
@@ -44,7 +46,6 @@ print('\n')
 print('copy dict')
 y = tel_dic.copy()
 traverse(y)
-
 
 #haskey
 print('test haskey')
@@ -64,10 +65,10 @@ tel_dic.setdefault('zhangsan', 'NULL')
 print(tel_dic['zhangsan'])
 
 reverse = dict(zip(tel_dic.values(), tel_dic.keys()))
-print reverse
-print
+print(reverse)
+print()
 traverse(reverse)
-print
+print()
 
 #dict clear
 tel_dic.clear()

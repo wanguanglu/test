@@ -4,7 +4,6 @@ import os
 import sys
 import configparser
 
-
 cf = configparser.ConfigParser()
 cf.read('test.conf')
 
@@ -14,4 +13,3 @@ for section in cf.sections():
     print('section:' + section)
     print(cf.options(section))
     print(cf.items(section))
-

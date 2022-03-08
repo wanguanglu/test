@@ -5,14 +5,15 @@
 
 def traverse(dic):
     for name, tel in tel_dic.items():
-        print('name:%s\ttelephone:%s'%(name, tel))
+        print('name:%s\ttelephone:%s' % (name, tel))
     print('\n')
 
 
-tel_dic = {'wanguanglu':'13426128392',
-           'dongrunsha':'13426128392',
-           'zhouxian':'13426128391'}
-
+tel_dic = {
+    'wanguanglu': '13426128392',
+    'dongrunsha': '13426128392',
+    'zhouxian': '13426128391'
+}
 
 #traverse items
 print('traverse items')
@@ -27,7 +28,6 @@ traverse(tel_dic)
 print('del items')
 del tel_dic['zhangsan']
 traverse(tel_dic)
-
 
 #traverse keys
 print('traverse keys')
@@ -44,7 +44,6 @@ print('\n')
 print('copy dict')
 y = tel_dic.copy()
 traverse(y)
-
 
 #haskey
 print('test haskey')

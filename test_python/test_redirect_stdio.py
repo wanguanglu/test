@@ -1,24 +1,23 @@
-#/usr/bin/python
-
+#!/usr/bin/env python3
 
 import os
 import sys
 
 testfile = open('test.txt', 'w')
 sys.stdout = testfile
-print 'test'
-print 'Jusr For Test'
+print('test')
+print('Jusr For Test')
 
 testfile.close()
 
 sys.stdout = sys.__stdout__
 
 #for line in sys.stdin:
-#    print line
+#    print(line)
 
 testfile = open('test.txt', 'r')
 sys.stdin = testfile
 for line in sys.stdin:
-    print line
+    print(line)
 
 testfile.close()

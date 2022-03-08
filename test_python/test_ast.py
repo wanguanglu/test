@@ -2,7 +2,9 @@
 
 import ast
 
+
 class CodeVisitor(ast.NodeVisitor):
+
     def generic_visit(self, node):
         print('Generic visit ' + type(node).__name__)
         ast.NodeVisitor.generic_visit(self, node)
@@ -19,6 +21,7 @@ class CodeVisitor(ast.NodeVisitor):
         print('Call ' + type(node).__name__)
         ast.NodeVisitor.generic_visit(self, node)
 
+
 #root_node = ast.parse('a + b')
 root_node = ast.parse('Prev(1, 2)')
 
@@ -34,4 +37,3 @@ print()
 
 visitor = CodeVisitor()
 visitor.visit(root_node)
-

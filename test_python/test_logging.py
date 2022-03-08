@@ -1,27 +1,29 @@
-#/usr/bin/python
-#encoding=gbk
+#!/usr/bin/env python3
 
 import logging
 
+
 def _init_log():
-    # Éú³Élog¶ÔÏó
+    # ç”Ÿæˆlogå¯¹è±¡
     logger = logging.getLogger("test_logging")
-    # ÈÕÖ¾´òÓ¡µ½´ÅÅÌ£»Ä¬ÈÏÊä³öÄ£Ê½Îª'a'(ÎÄ¼şÄ©Î²×·¼ÓĞ´)
-    # ³ıÁËFileHandler£¬»¹Ö§³ÖSocketHandler, SMTPHandlerµÈ
-    console=logging.StreamHandler()
-    # ÉèÖÃÈÕÖ¾¸ñÊ½
+    # æ—¥å¿—æ‰“å°åˆ°ç£ç›˜ï¼›é»˜è®¤è¾“å‡ºæ¨¡å¼ä¸º'a'(æ–‡ä»¶æœ«å°¾è¿½åŠ å†™)
+    # é™¤äº†FileHandlerï¼Œè¿˜æ”¯æŒSocketHandler, SMTPHandlerç­‰
+    console = logging.StreamHandler()
+    # è®¾ç½®æ—¥å¿—æ ¼å¼
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
     console.setFormatter(formatter)
     logger.addHandler(console)
     logger.setLevel(logging.DEBUG)
     return logger
 
-# ÏÂÃæÊÇÊ¹ÓÃlogger´òÓ¡ÈÕÖ¾
+
+# ä¸‹é¢æ˜¯ä½¿ç”¨loggeræ‰“å°æ—¥å¿—
 def run():
     logger = _init_log()
     logger.debug('debug info')
     logger.info("info message")
     print(__file__)
     print(__line__)
+
 
 run()

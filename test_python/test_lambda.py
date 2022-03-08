@@ -1,9 +1,10 @@
+#!/usr/bin/env python3
 
-g = lambda x: x*x
+g = lambda x: x * x
 
-print g(3.0)
+print(g(3.0))
 
 i = range(10)
 a = zip(i, map(g, i))
 
-print a
+print(a)

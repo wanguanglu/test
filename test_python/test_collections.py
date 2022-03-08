@@ -4,10 +4,12 @@ import sys
 import time
 import collections
 
+
 def test_counter():
     a = ['1', '1', '2', '2', '3', '3', '3']
-    counter=collections.Counter(a)
+    counter = collections.Counter(a)
     print(counter.most_common(2))
+
 
 def test_deque():
     test = collections.deque()
@@ -22,9 +24,8 @@ def test_deque():
     print(test.pop())
     print(test.popleft())
 
-    
     fancy_loading = collections.deque('>--------------------')
-    
+
     while True:
         print('\r%s' % ''.join(fancy_loading),)
         fancy_loading.rotate(1)
