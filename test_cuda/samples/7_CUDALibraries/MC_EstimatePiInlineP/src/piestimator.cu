@@ -23,7 +23,7 @@ using std::string;
 using std::vector;
 
 // RNG init kernel
-__global__ void initRNG(curandState *const rngStates, const unsigned int seed) {
+__global__ void initRNG(curandState* const rngStates, const unsigned int seed) {
   // Determine thread ID
   unsigned int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -53,19 +53,19 @@ __device__ unsigned int reduce_sum(unsigned int in) {
   return sdata[0];
 }
 
-__device__ inline void getPoint(float &x, float &y, curandState &state) {
+__device__ inline void getPoint(float& x, float& y, curandState& state) {
   x = curand_uniform(&state);
   y = curand_uniform(&state);
 }
-__device__ inline void getPoint(double &x, double &y, curandState &state) {
+__device__ inline void getPoint(double& x, double& y, curandState& state) {
   x = curand_uniform_double(&state);
   y = curand_uniform_double(&state);
 }
 
 // Estimator kernel
 template <typename Real>
-__global__ void computeValue(unsigned int *const results,
-                             curandState *const rngStates,
+__global__ void computeValue(unsigned int* const results,
+                             curandState* const rngStates,
                              const unsigned int numSims) {
   // Determine thread ID
   unsigned int bid = blockIdx.x;
@@ -101,10 +101,13 @@ __global__ void computeValue(unsigned int *const results,
 template <typename Real>
 PiEstimator<Real>::PiEstimator(unsigned int numSims, unsigned int device,
                                unsigned int threadBlockSize, unsigned int seed)
-    : m_numSims(numSims), m_device(device), m_threadBlockSize(threadBlockSize),
+    : m_numSims(numSims),
+      m_device(device),
+      m_threadBlockSize(threadBlockSize),
       m_seed(seed) {}
 
-template <typename Real> Real PiEstimator<Real>::operator()() {
+template <typename Real>
+Real PiEstimator<Real>::operator()() {
   cudaError_t cudaResult = cudaSuccess;
   struct cudaDeviceProp deviceProperties;
   struct cudaFuncAttributes funcAttributes;
@@ -187,9 +190,9 @@ template <typename Real> Real PiEstimator<Real>::operator()() {
   }
 
   // Allocate memory for RNG states
-  curandState *d_rngStates = 0;
+  curandState* d_rngStates = 0;
   cudaResult =
-      cudaMalloc((void **)&d_rngStates, grid.x * block.x * sizeof(curandState));
+      cudaMalloc((void**)&d_rngStates, grid.x * block.x * sizeof(curandState));
 
   if (cudaResult != cudaSuccess) {
     string msg("Could not allocate memory on device for RNG states: ");
@@ -199,8 +202,8 @@ template <typename Real> Real PiEstimator<Real>::operator()() {
 
   // Allocate memory for result
   // Each thread block will produce one result
-  unsigned int *d_results = 0;
-  cudaResult = cudaMalloc((void **)&d_results, grid.x * sizeof(unsigned int));
+  unsigned int* d_results = 0;
+  cudaResult = cudaMalloc((void**)&d_results, grid.x * sizeof(unsigned int));
 
   if (cudaResult != cudaSuccess) {
     string msg("Could not allocate memory on device for partial results: ");

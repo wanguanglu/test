@@ -13,9 +13,9 @@
 #define STRINGIFY(A) #A
 
 // particle vertex shader
-const char *particleVS = STRINGIFY(
-    uniform float pointRadius; // point size in world space    \n
-    uniform float pointScale;  // scale to calculate size in pixels \n
+const char* particleVS = STRINGIFY(
+    uniform float pointRadius;  // point size in world space    \n
+    uniform float pointScale;   // scale to calculate size in pixels \n
     uniform vec4 eyePos;                                        \n void
         main()                                                 \n {
           \n vec4 wpos = vec4(gl_Vertex.xyz, 1.0);
@@ -28,7 +28,7 @@ const char *particleVS = STRINGIFY(
           \n gl_PointSize = pointRadius * (pointScale / dist);
           \n
 
-              gl_TexCoord[0] = gl_MultiTexCoord0; // sprite texcoord  \n
+              gl_TexCoord[0] = gl_MultiTexCoord0;  // sprite texcoord  \n
           gl_TexCoord[1] = eyeSpacePos;
           \n
 
@@ -37,16 +37,16 @@ const char *particleVS = STRINGIFY(
         }                                                           \n);
 
 // motion blur shaders
-const char *mblurVS = STRINGIFY(
+const char* mblurVS = STRINGIFY(
     uniform float timestep;                                    \n void
         main()                                                \n {
           \n vec3 pos = gl_Vertex.xyz;
           \n vec3 vel = gl_MultiTexCoord0.xyz;
           \n vec3 pos2 = (pos - vel * timestep).xyz;
-          \n // previous position \n
+          \n  // previous position \n
 
               gl_Position = gl_ModelViewMatrix * vec4(pos, 1.0);
-          \n // eye space
+          \n  // eye space
               gl_TexCoord[0] = gl_ModelViewMatrix * vec4(pos2, 1.0);
           \n
 
@@ -54,7 +54,7 @@ const char *mblurVS = STRINGIFY(
               float lifetime = gl_MultiTexCoord0.w;
           \n float age = gl_Vertex.w;
           \n float phase = (lifetime > 0.0) ? (age / lifetime) : 1.0;
-          \n // [0, 1]
+          \n  // [0, 1]
 
               gl_TexCoord[1]
                   .x = phase;
@@ -69,10 +69,10 @@ const char *mblurVS = STRINGIFY(
 
 // motion blur geometry shader
 // - outputs stretched quad between previous and current positions
-const char *mblurGS =
+const char* mblurGS =
     "#version 120\n"
     "#extension GL_EXT_geometry_shader4 : enable\n" STRINGIFY(
-        uniform float pointRadius; // point size in world space       \n
+        uniform float pointRadius;  // point size in world space       \n
         void main()                                                    \n {
           \n
               // aging                                                   \n
@@ -133,14 +133,14 @@ const char *mblurGS =
           \n
         }                                                              \n);
 
-const char *simplePS = STRINGIFY(
+const char* simplePS = STRINGIFY(
     void main()                                                    \n {
       \n gl_FragColor = gl_Color;
       \n
     }                                                              \n);
 
 // render particle without shadows
-const char *particlePS = STRINGIFY(
+const char* particlePS = STRINGIFY(
     uniform float pointRadius;                                         \n void
         main()                                                        \n {
           \n
@@ -150,7 +150,7 @@ const char *particlePS = STRINGIFY(
           \n float r2 = dot(N.xy, N.xy);
           \n
 
-              if (r2 > 1.0) discard; // kill pixels outside circle         \n
+              if (r2 > 1.0) discard;  // kill pixels outside circle         \n
           N.z = sqrt(1.0 - r2);
           \n
 
@@ -164,7 +164,7 @@ const char *particlePS = STRINGIFY(
         }                                                                  \n);
 
 // render particle including shadows
-const char *particleShadowPS = STRINGIFY(
+const char* particleShadowPS = STRINGIFY(
     uniform float pointRadius;                                         \n uniform sampler2D shadowTex;                                       \n uniform sampler2D depthTex;                                        \n void
         main()                                                        \n {
           \n
@@ -175,12 +175,12 @@ const char *particleShadowPS = STRINGIFY(
           \n
 
               if (r2 > 1.0) discard;
-          \n // kill pixels outside circle
+          \n  // kill pixels outside circle
               N.z = sqrt(1.0 - r2);
           \n vec4 eyeSpacePos = gl_TexCoord[1];
           \n vec4 eyeSpaceSpherePos =
               vec4(eyeSpacePos.xyz + N * pointRadius, 1.0);
-          \n // point on sphere
+          \n  // point on sphere
               vec4 shadowPos = gl_TextureMatrix[0] * eyeSpaceSpherePos;
           \n vec3 shadow =
               vec3(1.0) - texture2DProj(shadowTex, shadowPos.xyw).xyz;
@@ -191,11 +191,11 @@ const char *particleShadowPS = STRINGIFY(
           \n
 
               gl_FragColor = vec4(gl_Color.xyz * shadow * alpha, alpha);
-          \n // premul alpha
+          \n  // premul alpha
         });
 
 // render particle as lit sphere
-const char *particleSpherePS = STRINGIFY(
+const char* particleSpherePS = STRINGIFY(
     uniform float pointRadius;                                         \n uniform vec3 lightDir = vec3(0.577, 0.577, 0.577);                 \n void
         main()                                                        \n {
           \n
@@ -205,14 +205,14 @@ const char *particleSpherePS = STRINGIFY(
           \n float r2 = dot(N.xy, N.xy);
           \n
 
-              if (r2 > 1.0) discard; // kill pixels outside circle         \n
+              if (r2 > 1.0) discard;  // kill pixels outside circle         \n
           N.z = sqrt(1.0 - r2);
           \n
 
               // calculate depth                                             \n
-              vec4 eyeSpacePos =
-                  vec4(gl_TexCoord[1].xyz + N * pointRadius,
-                       1.0); // position of this pixel on sphere in eye space \n
+              vec4 eyeSpacePos = vec4(
+                  gl_TexCoord[1].xyz + N * pointRadius,
+                  1.0);  // position of this pixel on sphere in eye space \n
           vec4 clipSpacePos = gl_ProjectionMatrix * eyeSpacePos;
           \n gl_FragDepth = (clipSpacePos.z / clipSpacePos.w) * 0.5 + 0.5;
           \n
@@ -224,7 +224,7 @@ const char *particleSpherePS = STRINGIFY(
           \n
         }                                                                  \n);
 
-const char *passThruVS = STRINGIFY(
+const char* passThruVS = STRINGIFY(
     void main()                                                        \n {
       \n gl_Position = gl_Vertex;
       \n gl_TexCoord[0] = gl_MultiTexCoord0;
@@ -232,7 +232,7 @@ const char *passThruVS = STRINGIFY(
       \n
     }                                                                  \n);
 
-const char *texture2DPS = STRINGIFY(
+const char* texture2DPS = STRINGIFY(
     uniform sampler2D tex;                                             \n void
         main()                                                        \n {
           \n gl_FragColor = texture2D(tex, gl_TexCoord[0].xy);
@@ -240,7 +240,7 @@ const char *texture2DPS = STRINGIFY(
         }                                                                  \n);
 
 // 4 tap 3x3 gaussian blur
-const char *blurPS = STRINGIFY(
+const char* blurPS = STRINGIFY(
     uniform sampler2D tex;                                                                \n uniform vec2 texelSize;                                                               \n uniform float blurRadius;                                                             \n void
         main()                                                                           \n {
           \n vec4 c;
@@ -248,8 +248,8 @@ const char *blurPS = STRINGIFY(
                                     vec2(-0.5, -0.5) * texelSize * blurRadius);
           \n c += texture2D(tex, gl_TexCoord[0].xy +
                                      vec2(0.5, -0.5) * texelSize * blurRadius);
-          \n c += texture2D(tex, gl_TexCoord[0].xy +
-                                     vec2(0.5, 0.5) * texelSize * blurRadius);
+          \n c += texture2D(
+              tex, gl_TexCoord[0].xy + vec2(0.5, 0.5) * texelSize * blurRadius);
           \n c += texture2D(tex, gl_TexCoord[0].xy +
                                      vec2(-0.5, 0.5) * texelSize * blurRadius);
           \n c *= 0.25;
@@ -260,8 +260,8 @@ const char *blurPS = STRINGIFY(
         }                                                                                     \n);
 
 // floor shader
-const char *floorVS = STRINGIFY(
-    varying vec4 vertexPosEye; // vertex position in eye space  \n
+const char* floorVS = STRINGIFY(
+    varying vec4 vertexPosEye;  // vertex position in eye space  \n
     varying vec3 normalEye;                                      \n void
         main()                                                  \n {
           \n gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
@@ -272,10 +272,10 @@ const char *floorVS = STRINGIFY(
           \n
         }                                                            \n);
 
-const char *floorPS = STRINGIFY(
-    uniform vec3 lightPosEye; // light position in eye space \n
+const char* floorPS = STRINGIFY(
+    uniform vec3 lightPosEye;  // light position in eye space \n
     uniform vec3 lightColor;                                                      \n uniform sampler2D tex;                                                        \n uniform sampler2D shadowTex;                                                  \n
-        varying vec4 vertexPosEye; // vertex position in eye space \n
+        varying vec4 vertexPosEye;  // vertex position in eye space \n
     varying vec3 normalEye;                                                       \n void
         main()                                                                   \n {
           \n vec4 shadowPos = gl_TextureMatrix[0] * vertexPosEye;
@@ -292,7 +292,7 @@ const char *floorPS = STRINGIFY(
           \n
 
               if (shadowPos.w < 0.0) shadow = lightColor;
-          \n // avoid back projections
+          \n  // avoid back projections
               gl_FragColor =
                   vec4(gl_Color.xyz * colorMap.xyz * diffuse * shadow, 1.0);
           \n

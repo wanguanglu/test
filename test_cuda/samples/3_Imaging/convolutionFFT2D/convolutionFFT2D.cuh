@@ -24,7 +24,7 @@ texture<float, 1, cudaReadModeElementType> texFloat;
 ////////////////////////////////////////////////////////////////////////////////
 /// Position convolution kernel center at (0, 0) in the image
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void padKernel_kernel(float *d_Dst, float *d_Src, int fftH, int fftW,
+__global__ void padKernel_kernel(float* d_Dst, float* d_Src, int fftH, int fftW,
                                  int kernelH, int kernelW, int kernelY,
                                  int kernelX) {
   const int y = blockDim.y * blockIdx.y + threadIdx.y;
@@ -50,7 +50,7 @@ __global__ void padKernel_kernel(float *d_Dst, float *d_Src, int fftH, int fftW,
 ////////////////////////////////////////////////////////////////////////////////
 // Prepare data for "pad to border" addressing mode
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void padDataClampToBorder_kernel(float *d_Dst, float *d_Src,
+__global__ void padDataClampToBorder_kernel(float* d_Dst, float* d_Src,
                                             int fftH, int fftW, int dataH,
                                             int dataW, int kernelH, int kernelW,
                                             int kernelY, int kernelX) {
@@ -94,13 +94,13 @@ __global__ void padDataClampToBorder_kernel(float *d_Dst, float *d_Src,
 // Modulate Fourier image of padded data by Fourier image of padded kernel
 // and normalize by FFT size
 ////////////////////////////////////////////////////////////////////////////////
-inline __device__ void mulAndScale(fComplex &a, const fComplex &b,
-                                   const float &c) {
+inline __device__ void mulAndScale(fComplex& a, const fComplex& b,
+                                   const float& c) {
   fComplex t = {c * (a.x * b.x - a.y * b.y), c * (a.y * b.x + a.x * b.y)};
   a = t;
 }
 
-__global__ void modulateAndNormalize_kernel(fComplex *d_Dst, fComplex *d_Src,
+__global__ void modulateAndNormalize_kernel(fComplex* d_Dst, fComplex* d_Src,
                                             int dataSize, float c) {
   const int i = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -126,11 +126,11 @@ texture<fComplex, 1, cudaReadModeElementType> texComplexB;
 #define LOAD_FCOMPLEX_A(i) tex1Dfetch(texComplexA, i)
 #define LOAD_FCOMPLEX_B(i) tex1Dfetch(texComplexB, i)
 
-#define SET_FCOMPLEX_BASE                                                      \
+#define SET_FCOMPLEX_BASE \
   checkCudaErrors(cudaBindTexture(0, texComplexA, d_Src))
-#define SET_FCOMPLEX_BASE_A                                                    \
+#define SET_FCOMPLEX_BASE_A \
   checkCudaErrors(cudaBindTexture(0, texComplexA, d_SrcA))
-#define SET_FCOMPLEX_BASE_B                                                    \
+#define SET_FCOMPLEX_BASE_B \
   checkCudaErrors(cudaBindTexture(0, texComplexB, d_SrcB))
 #else
 #define LOAD_FCOMPLEX(i) d_Src[i]
@@ -142,8 +142,8 @@ texture<fComplex, 1, cudaReadModeElementType> texComplexB;
 #define SET_FCOMPLEX_BASE_B
 #endif
 
-inline __device__ void spPostprocessC2C(fComplex &D1, fComplex &D2,
-                                        const fComplex &twiddle) {
+inline __device__ void spPostprocessC2C(fComplex& D1, fComplex& D2,
+                                        const fComplex& twiddle) {
   float A1 = 0.5f * (D1.x + D2.x);
   float B1 = 0.5f * (D1.y - D2.y);
   float A2 = 0.5f * (D1.y + D2.y);
@@ -156,8 +156,8 @@ inline __device__ void spPostprocessC2C(fComplex &D1, fComplex &D2,
 }
 
 // Premultiply by 2 to account for 1.0 / (DZ * DY * DX) normalization
-inline __device__ void spPreprocessC2C(fComplex &D1, fComplex &D2,
-                                       const fComplex &twiddle) {
+inline __device__ void spPreprocessC2C(fComplex& D1, fComplex& D2,
+                                       const fComplex& twiddle) {
   float A1 = /* 0.5f * */ (D1.x + D2.x);
   float B1 = /* 0.5f * */ (D1.y - D2.y);
   float A2 = /* 0.5f * */ (D1.y + D2.y);
@@ -169,7 +169,7 @@ inline __device__ void spPreprocessC2C(fComplex &D1, fComplex &D2,
   D2.y = (B2 * twiddle.x + A2 * twiddle.y) - B1;
 }
 
-inline __device__ void getTwiddle(fComplex &twiddle, float phase) {
+inline __device__ void getTwiddle(fComplex& twiddle, float phase) {
   __sincosf(phase, &twiddle.y, &twiddle.x);
 }
 
@@ -178,7 +178,7 @@ inline __device__ uint mod(uint a, uint DA) {
   return a ? (DA - a) : a;
 }
 
-static inline uint factorRadix2(uint &log2N, uint n) {
+static inline uint factorRadix2(uint& log2N, uint n) {
   if (!n) {
     log2N = 0;
     return 0;
@@ -190,7 +190,7 @@ static inline uint factorRadix2(uint &log2N, uint n) {
   }
 }
 
-inline __device__ void udivmod(uint &dividend, uint divisor, uint &rem) {
+inline __device__ void udivmod(uint& dividend, uint divisor, uint& rem) {
 #if (!POWER_OF_TWO)
   rem = dividend % divisor;
   dividend /= divisor;
@@ -200,7 +200,7 @@ inline __device__ void udivmod(uint &dividend, uint divisor, uint &rem) {
 #endif
 }
 
-__global__ void spPostprocess2D_kernel(fComplex *d_Dst, fComplex *d_Src,
+__global__ void spPostprocess2D_kernel(fComplex* d_Dst, fComplex* d_Src,
                                        uint DY, uint DX, uint threadCount,
                                        uint padding, float phaseBase) {
   const uint threadId = blockIdx.x * blockDim.x + threadIdx.x;
@@ -258,7 +258,7 @@ __global__ void spPostprocess2D_kernel(fComplex *d_Dst, fComplex *d_Src,
   }
 }
 
-__global__ void spPreprocess2D_kernel(fComplex *d_Dst, fComplex *d_Src, uint DY,
+__global__ void spPreprocess2D_kernel(fComplex* d_Dst, fComplex* d_Src, uint DY,
                                       uint DX, uint threadCount, uint padding,
                                       float phaseBase) {
   const uint threadId = blockIdx.x * blockDim.x + threadIdx.x;
@@ -320,8 +320,8 @@ __global__ void spPreprocess2D_kernel(fComplex *d_Dst, fComplex *d_Src, uint DY,
 ////////////////////////////////////////////////////////////////////////////////
 // Combined spPostprocess2D + modulateAndNormalize + spPreprocess2D
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void spProcess2D_kernel(fComplex *d_Dst, fComplex *d_SrcA,
-                                   fComplex *d_SrcB, uint DY, uint DX,
+__global__ void spProcess2D_kernel(fComplex* d_Dst, fComplex* d_SrcA,
+                                   fComplex* d_SrcB, uint DY, uint DX,
                                    uint threadCount, float phaseBase, float c) {
   const uint threadId = blockIdx.x * blockDim.x + threadIdx.x;
 

@@ -31,12 +31,12 @@ __global__ void testKernel(int val) {
          val);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   int devID;
   cudaDeviceProp props;
 
   // This will pick the best possible CUDA capable device
-  devID = findCudaDevice(argc, (const char **)argv);
+  devID = findCudaDevice(argc, (const char**)argv);
 
   // Get GPU information
   checkCudaErrors(cudaGetDevice(&devID));

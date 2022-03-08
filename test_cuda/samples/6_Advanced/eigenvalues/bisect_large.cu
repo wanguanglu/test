@@ -38,16 +38,15 @@
 //! @param  result handles to memory
 //! @param  matrix_size  size of the matrix
 ////////////////////////////////////////////////////////////////////////////////
-void initResultDataLargeMatrix(ResultDataLarge &result,
+void initResultDataLargeMatrix(ResultDataLarge& result,
                                const unsigned int mat_size) {
-
   // helper variables to initialize memory
   unsigned int zero = 0;
   unsigned int mat_size_f = sizeof(float) * mat_size;
   unsigned int mat_size_ui = sizeof(unsigned int) * mat_size;
 
-  float *tempf = (float *)malloc(mat_size_f);
-  unsigned int *tempui = (unsigned int *)malloc(mat_size_ui);
+  float* tempf = (float*)malloc(mat_size_f);
+  unsigned int* tempui = (unsigned int*)malloc(mat_size_ui);
 
   for (unsigned int i = 0; i < mat_size; ++i) {
     tempf[i] = 0.0f;
@@ -55,25 +54,25 @@ void initResultDataLargeMatrix(ResultDataLarge &result,
   }
 
   // number of intervals containing only one eigenvalue after the first step
-  checkCudaErrors(cudaMalloc((void **)&result.g_num_one, sizeof(unsigned int)));
+  checkCudaErrors(cudaMalloc((void**)&result.g_num_one, sizeof(unsigned int)));
   checkCudaErrors(cudaMemcpy(result.g_num_one, &zero, sizeof(unsigned int),
                              cudaMemcpyHostToDevice));
 
   // number of (thread) blocks of intervals with multiple eigenvalues after
   // the first iteration
   checkCudaErrors(
-      cudaMalloc((void **)&result.g_num_blocks_mult, sizeof(unsigned int)));
+      cudaMalloc((void**)&result.g_num_blocks_mult, sizeof(unsigned int)));
   checkCudaErrors(cudaMemcpy(result.g_num_blocks_mult, &zero,
                              sizeof(unsigned int), cudaMemcpyHostToDevice));
 
-  checkCudaErrors(cudaMalloc((void **)&result.g_left_one, mat_size_f));
-  checkCudaErrors(cudaMalloc((void **)&result.g_right_one, mat_size_f));
-  checkCudaErrors(cudaMalloc((void **)&result.g_pos_one, mat_size_ui));
+  checkCudaErrors(cudaMalloc((void**)&result.g_left_one, mat_size_f));
+  checkCudaErrors(cudaMalloc((void**)&result.g_right_one, mat_size_f));
+  checkCudaErrors(cudaMalloc((void**)&result.g_pos_one, mat_size_ui));
 
-  checkCudaErrors(cudaMalloc((void **)&result.g_left_mult, mat_size_f));
-  checkCudaErrors(cudaMalloc((void **)&result.g_right_mult, mat_size_f));
-  checkCudaErrors(cudaMalloc((void **)&result.g_left_count_mult, mat_size_ui));
-  checkCudaErrors(cudaMalloc((void **)&result.g_right_count_mult, mat_size_ui));
+  checkCudaErrors(cudaMalloc((void**)&result.g_left_mult, mat_size_f));
+  checkCudaErrors(cudaMalloc((void**)&result.g_right_mult, mat_size_f));
+  checkCudaErrors(cudaMalloc((void**)&result.g_left_count_mult, mat_size_ui));
+  checkCudaErrors(cudaMalloc((void**)&result.g_right_count_mult, mat_size_ui));
 
   checkCudaErrors(
       cudaMemcpy(result.g_left_one, tempf, mat_size_f, cudaMemcpyHostToDevice));
@@ -91,17 +90,17 @@ void initResultDataLargeMatrix(ResultDataLarge &result,
   checkCudaErrors(cudaMemcpy(result.g_right_count_mult, tempui, mat_size_ui,
                              cudaMemcpyHostToDevice));
 
-  checkCudaErrors(cudaMalloc((void **)&result.g_blocks_mult, mat_size_ui));
+  checkCudaErrors(cudaMalloc((void**)&result.g_blocks_mult, mat_size_ui));
   checkCudaErrors(cudaMemcpy(result.g_blocks_mult, tempui, mat_size_ui,
                              cudaMemcpyHostToDevice));
-  checkCudaErrors(cudaMalloc((void **)&result.g_blocks_mult_sum, mat_size_ui));
+  checkCudaErrors(cudaMalloc((void**)&result.g_blocks_mult_sum, mat_size_ui));
   checkCudaErrors(cudaMemcpy(result.g_blocks_mult_sum, tempui, mat_size_ui,
                              cudaMemcpyHostToDevice));
 
-  checkCudaErrors(cudaMalloc((void **)&result.g_lambda_mult, mat_size_f));
+  checkCudaErrors(cudaMalloc((void**)&result.g_lambda_mult, mat_size_f));
   checkCudaErrors(cudaMemcpy(result.g_lambda_mult, tempf, mat_size_f,
                              cudaMemcpyHostToDevice));
-  checkCudaErrors(cudaMalloc((void **)&result.g_pos_mult, mat_size_ui));
+  checkCudaErrors(cudaMalloc((void**)&result.g_pos_mult, mat_size_ui));
   checkCudaErrors(cudaMemcpy(result.g_pos_mult, tempf, mat_size_ui,
                              cudaMemcpyHostToDevice));
 }
@@ -110,8 +109,7 @@ void initResultDataLargeMatrix(ResultDataLarge &result,
 //! Cleanup result memory
 //! @param result  handles to memory
 ////////////////////////////////////////////////////////////////////////////////
-void cleanupResultDataLargeMatrix(ResultDataLarge &result) {
-
+void cleanupResultDataLargeMatrix(ResultDataLarge& result) {
   checkCudaErrors(cudaFree(result.g_num_one));
   checkCudaErrors(cudaFree(result.g_num_blocks_mult));
   checkCudaErrors(cudaFree(result.g_left_one));
@@ -137,8 +135,8 @@ void cleanupResultDataLargeMatrix(ResultDataLarge &result) {
 //! @param  ug  upper limit of Gerschgorin interval
 //! @param  iterations  number of iterations (for timing)
 ////////////////////////////////////////////////////////////////////////////////
-void computeEigenvaluesLargeMatrix(const InputData &input,
-                                   const ResultDataLarge &result,
+void computeEigenvaluesLargeMatrix(const InputData& input,
+                                   const ResultDataLarge& result,
                                    const unsigned int mat_size,
                                    const float precision, const float lg,
                                    const float ug,
@@ -146,10 +144,10 @@ void computeEigenvaluesLargeMatrix(const InputData &input,
   dim3 blocks(1, 1, 1);
   dim3 threads(MAX_THREADS_BLOCK, 1, 1);
 
-  StopWatchInterface *timer_step1 = NULL;
-  StopWatchInterface *timer_step2_one = NULL;
-  StopWatchInterface *timer_step2_mult = NULL;
-  StopWatchInterface *timer_total = NULL;
+  StopWatchInterface* timer_step1 = NULL;
+  StopWatchInterface* timer_step2_one = NULL;
+  StopWatchInterface* timer_step2_mult = NULL;
+  StopWatchInterface* timer_total = NULL;
   sdkCreateTimer(&timer_step1);
   sdkCreateTimer(&timer_step2_one);
   sdkCreateTimer(&timer_step2_mult);
@@ -159,7 +157,6 @@ void computeEigenvaluesLargeMatrix(const InputData &input,
 
   // do for multiple iterations to improve timing accuracy
   for (unsigned int iter = 0; iter < iterations; ++iter) {
-
     sdkStartTimer(&timer_step1);
     bisectKernelLarge<<<blocks, threads>>>(
         input.g_a, input.g_b, mat_size, lg, ug, 0, mat_size, precision,
@@ -251,29 +248,29 @@ void computeEigenvaluesLargeMatrix(const InputData &input,
 //! @param  mat_size  matrix size
 //! @param  filename  output filename
 ////////////////////////////////////////////////////////////////////////////////
-bool processResultDataLargeMatrix(const InputData &input,
-                                  const ResultDataLarge &result,
+bool processResultDataLargeMatrix(const InputData& input,
+                                  const ResultDataLarge& result,
                                   const unsigned int mat_size,
-                                  const char *filename,
+                                  const char* filename,
                                   const unsigned int user_defined,
-                                  char *exec_path) {
+                                  char* exec_path) {
   bool bCompareResult = false;
   const unsigned int mat_size_ui = sizeof(unsigned int) * mat_size;
   const unsigned int mat_size_f = sizeof(float) * mat_size;
 
   // copy data from intervals that contained more than one eigenvalue after
   // the first processing step
-  float *lambda_mult = (float *)malloc(sizeof(float) * mat_size);
+  float* lambda_mult = (float*)malloc(sizeof(float) * mat_size);
   checkCudaErrors(cudaMemcpy(lambda_mult, result.g_lambda_mult,
                              sizeof(float) * mat_size, cudaMemcpyDeviceToHost));
-  unsigned int *pos_mult =
-      (unsigned int *)malloc(sizeof(unsigned int) * mat_size);
+  unsigned int* pos_mult =
+      (unsigned int*)malloc(sizeof(unsigned int) * mat_size);
   checkCudaErrors(cudaMemcpy(pos_mult, result.g_pos_mult,
                              sizeof(unsigned int) * mat_size,
                              cudaMemcpyDeviceToHost));
 
-  unsigned int *blocks_mult_sum =
-      (unsigned int *)malloc(sizeof(unsigned int) * mat_size);
+  unsigned int* blocks_mult_sum =
+      (unsigned int*)malloc(sizeof(unsigned int) * mat_size);
   checkCudaErrors(cudaMemcpy(blocks_mult_sum, result.g_blocks_mult_sum,
                              sizeof(unsigned int) * mat_size,
                              cudaMemcpyDeviceToHost));
@@ -286,9 +283,9 @@ bool processResultDataLargeMatrix(const InputData &input,
 
   // copy data for intervals that contained one eigenvalue after the first
   // processing step
-  float *left_one = (float *)malloc(mat_size_f);
-  float *right_one = (float *)malloc(mat_size_f);
-  unsigned int *pos_one = (unsigned int *)malloc(mat_size_ui);
+  float* left_one = (float*)malloc(mat_size_f);
+  float* right_one = (float*)malloc(mat_size_f);
+  unsigned int* pos_one = (unsigned int*)malloc(mat_size_ui);
   checkCudaErrors(cudaMemcpy(left_one, result.g_left_one, mat_size_f,
                              cudaMemcpyDeviceToHost));
   checkCudaErrors(cudaMemcpy(right_one, result.g_right_one, mat_size_f,
@@ -297,11 +294,10 @@ bool processResultDataLargeMatrix(const InputData &input,
                              cudaMemcpyDeviceToHost));
 
   // extract eigenvalues
-  float *eigenvals = (float *)malloc(mat_size_f);
+  float* eigenvals = (float*)malloc(mat_size_f);
 
   // singleton intervals generated in the second step
   for (unsigned int i = 0; i < sum_blocks_mult; ++i) {
-
     eigenvals[pos_mult[i] - 1] = lambda_mult[i];
   }
 
@@ -309,7 +305,6 @@ bool processResultDataLargeMatrix(const InputData &input,
   unsigned int index = 0;
 
   for (unsigned int i = 0; i < num_one_intervals; ++i, ++index) {
-
     eigenvals[pos_one[i] - 1] = left_one[i];
   }
 
@@ -321,13 +316,12 @@ bool processResultDataLargeMatrix(const InputData &input,
     printf("User requests non-default argument(s), skipping self-check!\n");
     bCompareResult = true;
   } else {
-
     // compare with reference solution
 
-    float *reference = NULL;
+    float* reference = NULL;
     unsigned int input_data_size = 0;
 
-    char *ref_path = sdkFindFilePath("reference.dat", exec_path);
+    char* ref_path = sdkFindFilePath("reference.dat", exec_path);
     assert(NULL != ref_path);
     sdkReadFile(ref_path, &reference, &input_data_size, false);
     assert(input_data_size == mat_size);

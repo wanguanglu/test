@@ -16,7 +16,7 @@ DEFINE_int64(int64_value, 10001, "Integer value.");
 DEFINE_double(double_value, 1.01, "double value.");
 DEFINE_string(str_value, "", "String value.");
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
   std::cout << "bool_value: " << FLAGS_bool_value << std::endl;

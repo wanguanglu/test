@@ -23,26 +23,26 @@ namespace npp {
 
 template <typename D, class A>
 class SignalCPU : public npp::SignalTemplate<D, A> {
-public:
+ public:
   typedef typename npp::SignalTemplate<D, A>::tData tData;
 
   SignalCPU() { ; }
 
   SignalCPU(size_t nSize) : SignalTemplate<D, A>(nSize) { ; }
 
-  SignalCPU(const SignalCPU<D, A> &rSignal) : SignalTemplate<D, A>(rSignal) {
+  SignalCPU(const SignalCPU<D, A>& rSignal) : SignalTemplate<D, A>(rSignal) {
     ;
   }
 
   virtual ~SignalCPU() { ; }
 
-  SignalCPU &operator=(const SignalCPU<D, A> &rSignal) {
+  SignalCPU& operator=(const SignalCPU<D, A>& rSignal) {
     SignalTemplate<D, A>::operator=(rSignal);
 
     return *this;
   }
 
-  tData &operator[](unsigned int i) { return *SignalTemplate<D, A>::values(i); }
+  tData& operator[](unsigned int i) { return *SignalTemplate<D, A>::values(i); }
 
   tData operator[](unsigned int i) const {
     return *SignalTemplate<D, A>::values(i);
@@ -61,6 +61,6 @@ typedef SignalCPU<Npp64sc, npp::SignalAllocatorCPU<Npp64sc>> SignalCPU_64sc;
 typedef SignalCPU<Npp64f, npp::SignalAllocatorCPU<Npp64f>> SignalCPU_64f;
 typedef SignalCPU<Npp64fc, npp::SignalAllocatorCPU<Npp64fc>> SignalCPU_64fc;
 
-} // namespace npp
+}  // namespace npp
 
-#endif // NV_UTIL_NPP_SIGNALS_CPU_H
+#endif  // NV_UTIL_NPP_SIGNALS_CPU_H

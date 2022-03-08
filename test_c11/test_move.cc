@@ -9,21 +9,21 @@
 #include <iostream>
 
 class Test {
-public:
+ public:
   Test() { std::cout << "basic construct." << std::endl; }
 
-  Test(const Test &x) { std::cout << "copy construct." << std::endl; }
+  Test(const Test& x) { std::cout << "copy construct." << std::endl; }
 
-  Test(const Test &&x) {
+  Test(const Test&& x) {
     std::cout << "right value copy construct." << std::endl;
   }
 
-  Test &operator=(const Test &&x) {
+  Test& operator=(const Test&& x) {
     std::cout << "= assign of right value." << std::endl;
     return *this;
   }
 
-  Test &operator=(const Test &x) {
+  Test& operator=(const Test& x) {
     std::cout << "= assign of left value." << std::endl;
     return *this;
   }
@@ -34,7 +34,7 @@ Test func1() {
   return x;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   Test a;
   Test b = a;
   Test c = std::move(a);

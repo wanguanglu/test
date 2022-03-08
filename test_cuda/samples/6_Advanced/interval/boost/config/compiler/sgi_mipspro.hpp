@@ -7,7 +7,7 @@
 
 //  SGI C++ compiler setup:
 
-#define BOOST_COMPILER                                                         \
+#define BOOST_COMPILER \
   "SGI Irix compiler version " BOOST_STRINGIZE(_COMPILER_VERSION)
 
 #include "boost/config/compiler/common_edg.hpp"

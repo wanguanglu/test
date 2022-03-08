@@ -44,7 +44,7 @@ static int GeneratePolynomials(int buffer[QRNG_DIMENSIONS], bool primitive) {
              p2 = (buffer[i] << (e_p2 - e_b)) ^ p2) {
           for (; (p2 & (1 << e_p2)) == 0; --e_p2) {
           }
-        } // compute new degree of p2
+        }  // compute new degree of p2
 
         // division without remainder!!! p1 is not irreducible
         if (p2 == 0) {
@@ -69,8 +69,7 @@ static int GeneratePolynomials(int buffer[QRNG_DIMENSIONS], bool primitive) {
             i = (i & 0x07070707) + ((i >> 4) & 0x07070707);
             p2 |= (i % 255) & 1;
 
-            if ((p2 & j) == e_b)
-              break;
+            if ((p2 & j) == e_b) break;
           }
         }
 
@@ -100,7 +99,7 @@ static int GeneratePolynomials(int buffer[QRNG_DIMENSIONS], bool primitive) {
 
 static void GenerateCJ() {
   int buffer[QRNG_DIMENSIONS];
-  int *polynomials;
+  int* polynomials;
   int n, p1, l, e_p1;
 
   // Niederreiter (in contrast to Sobol) allows to use not primitive, but just
@@ -219,8 +218,7 @@ extern "C" double getQuasirandomValue63(INT64 i, int dim) {
   INT64 result = 0;
 
   for (int bit = 0; bit < 63; bit++, i >>= 1)
-    if (i & 1)
-      result ^= cjn[bit][dim];
+    if (i & 1) result ^= cjn[bit][dim];
 
   return (double)(result + 1) * INT63_SCALE;
 }
@@ -229,8 +227,8 @@ extern "C" double getQuasirandomValue63(INT64 i, int dim) {
 // Initialization (table setup)
 ////////////////////////////////////////////////////////////////////////////////
 
-extern "C" void
-initQuasirandomGenerator(unsigned int table[QRNG_DIMENSIONS][QRNG_RESOLUTION]) {
+extern "C" void initQuasirandomGenerator(
+    unsigned int table[QRNG_DIMENSIONS][QRNG_RESOLUTION]) {
   GenerateCJ();
 
   for (int dim = 0; dim < QRNG_DIMENSIONS; dim++)
@@ -241,14 +239,12 @@ initQuasirandomGenerator(unsigned int table[QRNG_DIMENSIONS][QRNG_RESOLUTION]) {
 ////////////////////////////////////////////////////////////////////////////////
 // Generate 31-bit quasirandom number for given index and dimension
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" float
-getQuasirandomValue(unsigned int table[QRNG_DIMENSIONS][QRNG_RESOLUTION], int i,
-                    int dim) {
+extern "C" float getQuasirandomValue(
+    unsigned int table[QRNG_DIMENSIONS][QRNG_RESOLUTION], int i, int dim) {
   int result = 0;
 
   for (int bit = 0; bit < QRNG_RESOLUTION; bit++, i >>= 1)
-    if (i & 1)
-      result ^= table[dim][bit];
+    if (i & 1) result ^= table[dim][bit];
 
   return (float)(result + 1) * INT_SCALE;
 }

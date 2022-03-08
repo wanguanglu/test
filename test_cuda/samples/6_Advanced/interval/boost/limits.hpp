@@ -19,8 +19,8 @@
 #include <limits>
 #endif
 
-#if (defined(BOOST_HAS_LONG_LONG) &&                                           \
-     defined(BOOST_NO_LONG_LONG_NUMERIC_LIMITS)) ||                            \
+#if (defined(BOOST_HAS_LONG_LONG) &&                \
+     defined(BOOST_NO_LONG_LONG_NUMERIC_LIMITS)) || \
     (defined(BOOST_HAS_MS_INT64) && defined(BOOST_NO_MS_INT64_NUMERIC_LIMITS))
 // Add missing specializations for numeric_limits:
 #ifdef BOOST_HAS_MS_INT64
@@ -31,11 +31,12 @@
 #define BOOST_ULLT ::boost::ulong_long_type
 #endif
 
-#include <climits> // for CHAR_BIT
+#include <climits>  // for CHAR_BIT
 
 namespace std {
-template <> class numeric_limits<BOOST_LLT> {
-public:
+template <>
+class numeric_limits<BOOST_LLT> {
+ public:
   BOOST_STATIC_CONSTANT(bool, is_specialized = true);
 #ifdef BOOST_HAS_MS_INT64
   static BOOST_LLT min BOOST_PREVENT_MACRO_SUBSTITUTION() {
@@ -94,8 +95,9 @@ public:
   BOOST_STATIC_CONSTANT(float_round_style, round_style = round_toward_zero);
 };
 
-template <> class numeric_limits<BOOST_ULLT> {
-public:
+template <>
+class numeric_limits<BOOST_ULLT> {
+ public:
   BOOST_STATIC_CONSTANT(bool, is_specialized = true);
 #ifdef BOOST_HAS_MS_INT64
   static BOOST_ULLT min BOOST_PREVENT_MACRO_SUBSTITUTION() { return 0ui64; }
@@ -153,7 +155,7 @@ public:
   BOOST_STATIC_CONSTANT(bool, tinyness_before = false);
   BOOST_STATIC_CONSTANT(float_round_style, round_style = round_toward_zero);
 };
-} // namespace std
+}  // namespace std
 #endif
 
 #endif

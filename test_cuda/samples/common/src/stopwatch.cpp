@@ -24,23 +24,22 @@
 
 //! global index for all stop watches
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-/*static*/ std::vector<StopWatchC *> StopWatchC::swatches;
+/*static*/ std::vector<StopWatchC*> StopWatchC::swatches;
 #else
 template <class OSPolicy>
-/*static*/ std::vector<StopWatchBase<OSPolicy> *>
+/*static*/ std::vector<StopWatchBase<OSPolicy>*>
     StopWatchBase<OSPolicy>::swatches;
 #endif
 
 // namespace, unnamed
 namespace {
 // convenience typedef
-typedef std::vector<StopWatchC *>::size_type swatches_size_type;
+typedef std::vector<StopWatchC*>::size_type swatches_size_type;
 
 //////////////////////////////////////////////////////////////////////////////
 //! Translate stop watch name to index
 //////////////////////////////////////////////////////////////////////////////
-swatches_size_type nameToIndex(const unsigned int &name) {
-
+swatches_size_type nameToIndex(const unsigned int& name) {
 #ifdef _DEBUG
   const swatches_size_type pos = name - 1;
 
@@ -55,7 +54,7 @@ swatches_size_type nameToIndex(const unsigned int &name) {
 #endif
 }
 
-} // namespace
+}  // namespace
 
 // Stop watch
 namespace StopWatch {
@@ -64,7 +63,7 @@ namespace StopWatch {
 //////////////////////////////////////////////////////////////////////////////
 const unsigned int create() {
   // create new stopwatch
-  StopWatchC *swatch = new StopWatchC();
+  StopWatchC* swatch = new StopWatchC();
 
   if (NULL == swatch) {
     return 0;
@@ -80,14 +79,14 @@ const unsigned int create() {
 //////////////////////////////////////////////////////////////////////////////
 // Get a handle to the stop watch with the name \a name
 //////////////////////////////////////////////////////////////////////////////
-StopWatchC &get(const unsigned int &name) {
+StopWatchC& get(const unsigned int& name) {
   return *(StopWatchC::swatches[nameToIndex(name)]);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // Delete the stop watch with the name \a name
 //////////////////////////////////////////////////////////////////////////////
-void destroy(const unsigned int &name) {
+void destroy(const unsigned int& name) {
   // get index into global memory
   swatches_size_type pos = nameToIndex(name);
   // delete stop watch
@@ -96,4 +95,4 @@ void destroy(const unsigned int &name) {
   StopWatchC::swatches[pos] = NULL;
 }
 
-} // namespace StopWatch
+}  // namespace StopWatch

@@ -23,14 +23,19 @@
 #endif
 
 ParticleRenderer::ParticleRenderer()
-    : m_pos(0), m_numParticles(0), m_pointSize(1.0f),
-      m_particleRadius(0.125f * 0.5f), m_program(0), m_vbo(0), m_colorVBO(0) {
+    : m_pos(0),
+      m_numParticles(0),
+      m_pointSize(1.0f),
+      m_particleRadius(0.125f * 0.5f),
+      m_program(0),
+      m_vbo(0),
+      m_colorVBO(0) {
   _initGL();
 }
 
 ParticleRenderer::~ParticleRenderer() { m_pos = 0; }
 
-void ParticleRenderer::setPositions(float *pos, int numParticles) {
+void ParticleRenderer::setPositions(float* pos, int numParticles) {
   m_pos = pos;
   m_numParticles = numParticles;
 }
@@ -73,37 +78,37 @@ void ParticleRenderer::_drawPoints() {
 
 void ParticleRenderer::display(DisplayMode mode /* = PARTICLE_POINTS */) {
   switch (mode) {
-  case PARTICLE_POINTS:
-    glColor3f(1, 1, 1);
-    glPointSize(m_pointSize);
-    _drawPoints();
-    break;
+    case PARTICLE_POINTS:
+      glColor3f(1, 1, 1);
+      glPointSize(m_pointSize);
+      _drawPoints();
+      break;
 
-  default:
-  case PARTICLE_SPHERES:
-    glEnable(GL_POINT_SPRITE_ARB);
-    glTexEnvi(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
-    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE_NV);
-    glDepthMask(GL_TRUE);
-    glEnable(GL_DEPTH_TEST);
+    default:
+    case PARTICLE_SPHERES:
+      glEnable(GL_POINT_SPRITE_ARB);
+      glTexEnvi(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
+      glEnable(GL_VERTEX_PROGRAM_POINT_SIZE_NV);
+      glDepthMask(GL_TRUE);
+      glEnable(GL_DEPTH_TEST);
 
-    glUseProgram(m_program);
-    glUniform1f(glGetUniformLocation(m_program, "pointScale"),
-                m_window_h / tanf(m_fov * 0.5f * (float)M_PI / 180.0f));
-    glUniform1f(glGetUniformLocation(m_program, "pointRadius"),
-                m_particleRadius);
+      glUseProgram(m_program);
+      glUniform1f(glGetUniformLocation(m_program, "pointScale"),
+                  m_window_h / tanf(m_fov * 0.5f * (float)M_PI / 180.0f));
+      glUniform1f(glGetUniformLocation(m_program, "pointRadius"),
+                  m_particleRadius);
 
-    glColor3f(1, 1, 1);
-    _drawPoints();
+      glColor3f(1, 1, 1);
+      _drawPoints();
 
-    glUseProgram(0);
-    glDisable(GL_POINT_SPRITE_ARB);
-    break;
+      glUseProgram(0);
+      glDisable(GL_POINT_SPRITE_ARB);
+      break;
   }
 }
 
-GLuint ParticleRenderer::_compileProgram(const char *vsource,
-                                         const char *fsource) {
+GLuint ParticleRenderer::_compileProgram(const char* vsource,
+                                         const char* fsource) {
   GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
   GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 

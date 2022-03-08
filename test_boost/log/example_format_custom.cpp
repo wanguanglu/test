@@ -28,9 +28,8 @@ namespace expr = boost::log::expressions;
 namespace sinks = boost::log::sinks;
 
 //[ example_tutorial_formatters_custom
-void my_formatter(logging::record_view const &rec,
-                  logging::formatting_ostream &strm) {
-
+void my_formatter(logging::record_view const& rec,
+                  logging::formatting_ostream& strm) {
   // Get the LineID attribute value and put it into the stream
   strm << logging::extract<unsigned int>("LineID", rec) << ": ";
 
@@ -53,7 +52,7 @@ void init() {
 }
 //]
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   init();
   logging::add_common_attributes();
 

@@ -29,12 +29,12 @@ typedef uint4 data_t;
 // Main computation pass: compute gridDim.x partial histograms
 ////////////////////////////////////////////////////////////////////////////////
 // Count a byte into shared-memory storage
-inline __device__ void addByte(uchar *s_ThreadBase, uint data) {
+inline __device__ void addByte(uchar* s_ThreadBase, uint data) {
   s_ThreadBase[UMUL(data, HISTOGRAM64_THREADBLOCK_SIZE)]++;
 }
 
 // Count four bytes of a word
-inline __device__ void addWord(uchar *s_ThreadBase, uint data) {
+inline __device__ void addWord(uchar* s_ThreadBase, uint data) {
   // Only higher 6 bits of each byte matter, as this is a 64-bin histogram
   addByte(s_ThreadBase, (data >> 2) & 0x3FU);
   addByte(s_ThreadBase, (data >> 10) & 0x3FU);
@@ -42,7 +42,7 @@ inline __device__ void addWord(uchar *s_ThreadBase, uint data) {
   addByte(s_ThreadBase, (data >> 26) & 0x3FU);
 }
 
-__global__ void histogram64Kernel(uint *d_PartialHistograms, data_t *d_Data,
+__global__ void histogram64Kernel(uint* d_PartialHistograms, data_t* d_Data,
                                   uint dataCount) {
   // Encode thread index in order to avoid bank conflicts in s_Hist[] access:
   // each group of SHARED_MEMORY_BANKS threads accesses consecutive shared
@@ -54,13 +54,13 @@ __global__ void histogram64Kernel(uint *d_PartialHistograms, data_t *d_Data,
 
   // Per-thread histogram storage
   __shared__ uchar s_Hist[HISTOGRAM64_THREADBLOCK_SIZE * HISTOGRAM64_BIN_COUNT];
-  uchar *s_ThreadBase = s_Hist + threadPos;
+  uchar* s_ThreadBase = s_Hist + threadPos;
 
   // Initialize shared memory (writing 32-bit words)
 #pragma unroll
 
   for (uint i = 0; i < (HISTOGRAM64_BIN_COUNT / 4); i++) {
-    ((uint *)s_Hist)[threadIdx.x + i * HISTOGRAM64_THREADBLOCK_SIZE] = 0;
+    ((uint*)s_Hist)[threadIdx.x + i * HISTOGRAM64_THREADBLOCK_SIZE] = 0;
   }
 
   // Read data from global memory and submit to the shared-memory histogram
@@ -81,7 +81,7 @@ __global__ void histogram64Kernel(uint *d_PartialHistograms, data_t *d_Data,
   __syncthreads();
 
   if (threadIdx.x < HISTOGRAM64_BIN_COUNT) {
-    uchar *s_HistBase =
+    uchar* s_HistBase =
         s_Hist + UMUL(threadIdx.x, HISTOGRAM64_THREADBLOCK_SIZE);
 
     uint sum = 0;
@@ -107,8 +107,8 @@ __global__ void histogram64Kernel(uint *d_PartialHistograms, data_t *d_Data,
 ////////////////////////////////////////////////////////////////////////////////
 #define MERGE_THREADBLOCK_SIZE 256
 
-__global__ void mergeHistogram64Kernel(uint *d_Histogram,
-                                       uint *d_PartialHistograms,
+__global__ void mergeHistogram64Kernel(uint* d_Histogram,
+                                       uint* d_PartialHistograms,
                                        uint histogramCount) {
   __shared__ uint data[MERGE_THREADBLOCK_SIZE];
 
@@ -140,14 +140,14 @@ __global__ void mergeHistogram64Kernel(uint *d_Histogram,
 // MAX_PARTIAL_HISTOGRAM64_COUNT == 32768 and HISTOGRAM64_THREADBLOCK_SIZE == 64
 // amounts to max. 480MB of input data
 static const uint MAX_PARTIAL_HISTOGRAM64_COUNT = 32768;
-static uint *d_PartialHistograms;
+static uint* d_PartialHistograms;
 
 // Internal memory allocation
 extern "C" void initHistogram64(void) {
   assert(HISTOGRAM64_THREADBLOCK_SIZE % (4 * SHARED_MEMORY_BANKS) == 0);
-  checkCudaErrors(cudaMalloc((void **)&d_PartialHistograms,
-                             MAX_PARTIAL_HISTOGRAM64_COUNT *
-                                 HISTOGRAM64_BIN_COUNT * sizeof(uint)));
+  checkCudaErrors(cudaMalloc(
+      (void**)&d_PartialHistograms,
+      MAX_PARTIAL_HISTOGRAM64_COUNT * HISTOGRAM64_BIN_COUNT * sizeof(uint)));
 }
 
 // Internal memory deallocation
@@ -163,7 +163,7 @@ inline uint iDivUp(uint a, uint b) {
 // Snap a to nearest lower multiple of b
 inline uint iSnapDown(uint a, uint b) { return a - a % b; }
 
-extern "C" void histogram64(uint *d_Histogram, void *d_Data, uint byteCount) {
+extern "C" void histogram64(uint* d_Histogram, void* d_Data, uint byteCount) {
   const uint histogramCount = iDivUp(
       byteCount, HISTOGRAM64_THREADBLOCK_SIZE * iSnapDown(255, sizeof(data_t)));
 
@@ -171,7 +171,7 @@ extern "C" void histogram64(uint *d_Histogram, void *d_Data, uint byteCount) {
   assert(histogramCount <= MAX_PARTIAL_HISTOGRAM64_COUNT);
 
   histogram64Kernel<<<histogramCount, HISTOGRAM64_THREADBLOCK_SIZE>>>(
-      d_PartialHistograms, (data_t *)d_Data, byteCount / sizeof(data_t));
+      d_PartialHistograms, (data_t*)d_Data, byteCount / sizeof(data_t));
   getLastCudaError("histogram64Kernel() execution failed\n");
 
   mergeHistogram64Kernel<<<HISTOGRAM64_BIN_COUNT, MERGE_THREADBLOCK_SIZE>>>(

@@ -78,13 +78,13 @@ typedef vec4<float> vec4f;
 typedef matrix4<float> matrix4f;
 typedef quaternion<float> quaternionf;
 
-inline void applyRotation(const quaternionf &r) {
+inline void applyRotation(const quaternionf& r) {
   float angle;
   vec3f axis;
   r.get_value(axis, angle);
   glRotatef(angle / 3.1415926f * 180.0f, axis[0], axis[1], axis[2]);
 }
 
-}; // namespace nv
+};  // namespace nv
 
 #endif

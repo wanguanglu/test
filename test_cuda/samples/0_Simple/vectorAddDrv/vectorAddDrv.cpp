@@ -40,9 +40,9 @@ CUdevice cuDevice;
 CUcontext cuContext;
 CUmodule cuModule;
 CUfunction vecAdd_kernel;
-float *h_A;
-float *h_B;
-float *h_C;
+float* h_A;
+float* h_B;
+float* h_C;
 CUdeviceptr d_A;
 CUdeviceptr d_B;
 CUdeviceptr d_C;
@@ -51,12 +51,12 @@ bool noprompt = false;
 // Functions
 void Cleanup(bool);
 CUresult CleanupNoFailure();
-void RandomInit(float *, int);
-bool findModulePath(const char *, string &, char **, string &);
-void ParseArguments(int, char **);
+void RandomInit(float*, int);
+bool findModulePath(const char*, string&, char**, string&);
+void ParseArguments(int, char**);
 
-int *pArgc = NULL;
-char **pArgv = NULL;
+int* pArgc = NULL;
+char** pArgv = NULL;
 
 // define input ptx file for different platforms
 #if defined(_WIN64) || defined(__LP64__)
@@ -73,7 +73,7 @@ char **pArgv = NULL;
 #define checkCudaErrors(err) __checkCudaErrors(err, __FILE__, __LINE__)
 
 // These are the inline versions for all of the SDK helper functions
-inline void __checkCudaErrors(CUresult err, const char *file, const int line) {
+inline void __checkCudaErrors(CUresult err, const char* file, const int line) {
   if (CUDA_SUCCESS != err) {
     fprintf(stderr,
             "checkCudaErrors() Driver API error = %04d \"%s\" from file <%s>, "
@@ -83,7 +83,7 @@ inline void __checkCudaErrors(CUresult err, const char *file, const int line) {
   }
 }
 
-inline int cudaDeviceInit(int ARGC, char **ARGV) {
+inline int cudaDeviceInit(int ARGC, char** ARGV) {
   int cuDevice = 0;
   int deviceCount = 0;
   CUresult err = cuInit(0);
@@ -98,7 +98,7 @@ inline int cudaDeviceInit(int ARGC, char **ARGV) {
   }
 
   int dev = 0;
-  dev = getCmdLineArgumentInt(ARGC, (const char **)ARGV, "device=");
+  dev = getCmdLineArgumentInt(ARGC, (const char**)ARGV, "device=");
 
   if (dev < 0) {
     dev = 0;
@@ -119,7 +119,7 @@ inline int cudaDeviceInit(int ARGC, char **ARGV) {
   char name[100];
   cuDeviceGetName(name, 100, cuDevice);
 
-  if (checkCmdLineFlag(ARGC, (const char **)ARGV, "quiet") == false) {
+  if (checkCmdLineFlag(ARGC, (const char**)ARGV, "quiet") == false) {
     printf("> Using CUDA Device [%d]: %s\n", dev, name);
   }
 
@@ -187,12 +187,12 @@ inline int getMaxGflopsDeviceId() {
 }
 
 // General initialization call to pick the best CUDA Device
-inline CUdevice findCudaDevice(int argc, char **argv, int *p_devID) {
+inline CUdevice findCudaDevice(int argc, char** argv, int* p_devID) {
   CUdevice cuDevice;
   int devID = 0;
 
   // If the command-line has a device number specified, use it
-  if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
     devID = cudaDeviceInit(argc, argv);
 
     if (devID < 0) {
@@ -219,7 +219,7 @@ inline CUdevice findCudaDevice(int argc, char **argv, int *p_devID) {
 // end of CUDA Helper Functions
 
 // Host code
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   pArgc = &argc;
   pArgv = argv;
 
@@ -245,7 +245,7 @@ int main(int argc, char **argv) {
         string_start++;
       }
 
-      char *string_argv = &argv[param][string_start];
+      char* string_argv = &argv[param][string_start];
 
       if (!strncmp(string_argv, "device", 6)) {
         int len = (int)strlen(string_argv);
@@ -328,26 +328,26 @@ int main(int argc, char **argv) {
   if (module_path.rfind("ptx") != string::npos) {
     // in this branch we use compilation with parameters
     const unsigned int jitNumOptions = 3;
-    CUjit_option *jitOptions = new CUjit_option[jitNumOptions];
-    void **jitOptVals = new void *[jitNumOptions];
+    CUjit_option* jitOptions = new CUjit_option[jitNumOptions];
+    void** jitOptVals = new void*[jitNumOptions];
 
     // set up size of compilation log buffer
     jitOptions[0] = CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES;
     int jitLogBufferSize = 1024;
-    jitOptVals[0] = (void *)(size_t)jitLogBufferSize;
+    jitOptVals[0] = (void*)(size_t)jitLogBufferSize;
 
     // set up pointer to the compilation log buffer
     jitOptions[1] = CU_JIT_INFO_LOG_BUFFER;
-    char *jitLogBuffer = new char[jitLogBufferSize];
+    char* jitLogBuffer = new char[jitLogBufferSize];
     jitOptVals[1] = jitLogBuffer;
 
     // set up pointer to set the Maximum # of registers for a particular kernel
     jitOptions[2] = CU_JIT_MAX_REGISTERS;
     int jitRegCount = 32;
-    jitOptVals[2] = (void *)(size_t)jitRegCount;
+    jitOptVals[2] = (void*)(size_t)jitRegCount;
 
     error = cuModuleLoadDataEx(&cuModule, ptx_source.c_str(), jitNumOptions,
-                               jitOptions, (void **)jitOptVals);
+                               jitOptions, (void**)jitOptVals);
 
     printf("> PTX JIT log:\n%s\n", jitLogBuffer);
   } else {
@@ -366,19 +366,19 @@ int main(int argc, char **argv) {
   }
 
   // Allocate input vectors h_A and h_B in host memory
-  h_A = (float *)malloc(size);
+  h_A = (float*)malloc(size);
 
   if (h_A == 0) {
     Cleanup(false);
   }
 
-  h_B = (float *)malloc(size);
+  h_B = (float*)malloc(size);
 
   if (h_B == 0) {
     Cleanup(false);
   }
 
-  h_C = (float *)malloc(size);
+  h_C = (float*)malloc(size);
 
   if (h_C == 0) {
     Cleanup(false);
@@ -430,7 +430,7 @@ int main(int argc, char **argv) {
     int threadsPerBlock = 256;
     int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;
 
-    void *args[] = {&d_A, &d_B, &d_C, &N};
+    void* args[] = {&d_A, &d_B, &d_C, &N};
 
     // Launch the CUDA kernel
     error = cuLaunchKernel(vecAdd_kernel, blocksPerGrid, 1, 1, threadsPerBlock,
@@ -443,14 +443,14 @@ int main(int argc, char **argv) {
     // This is the new CUDA 4.0 API for Kernel Parameter Passing and Kernel
     // Launch (advanced method)
     int offset = 0;
-    void *argBuffer[16];
-    *((CUdeviceptr *)&argBuffer[offset]) = d_A;
+    void* argBuffer[16];
+    *((CUdeviceptr*)&argBuffer[offset]) = d_A;
     offset += sizeof(d_A);
-    *((CUdeviceptr *)&argBuffer[offset]) = d_B;
+    *((CUdeviceptr*)&argBuffer[offset]) = d_B;
     offset += sizeof(d_B);
-    *((CUdeviceptr *)&argBuffer[offset]) = d_C;
+    *((CUdeviceptr*)&argBuffer[offset]) = d_C;
     offset += sizeof(d_C);
-    *((int *)&argBuffer[offset]) = N;
+    *((int*)&argBuffer[offset]) = N;
     offset += sizeof(N);
 
     // Grid/Block configuration
@@ -472,16 +472,16 @@ int main(int argc, char **argv) {
 
     // pass in launch parameters (not actually de-referencing CUdeviceptr).
     // CUdeviceptr is storing the value of the parameters
-    *((CUdeviceptr *)&argBuffer[offset]) = d_A;
+    *((CUdeviceptr*)&argBuffer[offset]) = d_A;
     offset += sizeof(d_A);
-    *((CUdeviceptr *)&argBuffer[offset]) = d_B;
+    *((CUdeviceptr*)&argBuffer[offset]) = d_B;
     offset += sizeof(d_B);
-    *((CUdeviceptr *)&argBuffer[offset]) = d_C;
+    *((CUdeviceptr*)&argBuffer[offset]) = d_C;
     offset += sizeof(d_C);
-    *((int *)&argBuffer[offset]) = N;
+    *((int*)&argBuffer[offset]) = N;
     offset += sizeof(N);
 
-    void *kernel_launch_config[5] = {CU_LAUNCH_PARAM_BUFFER_POINTER, argBuffer,
+    void* kernel_launch_config[5] = {CU_LAUNCH_PARAM_BUFFER_POINTER, argBuffer,
                                      CU_LAUNCH_PARAM_BUFFER_SIZE, &offset,
                                      CU_LAUNCH_PARAM_END};
 
@@ -491,7 +491,7 @@ int main(int argc, char **argv) {
 
     // Launch the CUDA kernel
     error = cuLaunchKernel(vecAdd_kernel, blocksPerGrid, 1, 1, threadsPerBlock,
-                           1, 1, 0, 0, NULL, (void **)&kernel_launch_config);
+                           1, 1, 0, 0, NULL, (void**)&kernel_launch_config);
 
     if (error != CUDA_SUCCESS) {
       Cleanup(false);
@@ -586,15 +586,15 @@ void Cleanup(bool noError) {
 }
 
 // Allocates an array with random float entries.
-void RandomInit(float *data, int n) {
+void RandomInit(float* data, int n) {
   for (int i = 0; i < n; ++i) {
     data[i] = rand() / (float)RAND_MAX;
   }
 }
 
-bool inline findModulePath(const char *module_file, string &module_path,
-                           char **argv, string &ptx_source) {
-  char *actual_path = sdkFindFilePath(module_file, argv[0]);
+bool inline findModulePath(const char* module_file, string& module_path,
+                           char** argv, string& ptx_source) {
+  char* actual_path = sdkFindFilePath(module_file, argv[0]);
 
   if (actual_path) {
     module_path = actual_path;
@@ -610,10 +610,10 @@ bool inline findModulePath(const char *module_file, string &module_path,
     printf("> findModulePath found file at <%s>\n", module_path.c_str());
 
     if (module_path.rfind(".ptx") != string::npos) {
-      FILE *fp = fopen(module_path.c_str(), "rb");
+      FILE* fp = fopen(module_path.c_str(), "rb");
       fseek(fp, 0, SEEK_END);
       int file_size = ftell(fp);
-      char *buf = new char[file_size + 1];
+      char* buf = new char[file_size + 1];
       fseek(fp, 0, SEEK_SET);
       fread(buf, sizeof(char), file_size, fp);
       fclose(fp);
@@ -627,7 +627,7 @@ bool inline findModulePath(const char *module_file, string &module_path,
 }
 
 // Parse program arguments
-void ParseArguments(int argc, char **argv) {
+void ParseArguments(int argc, char** argv) {
   for (int i = 0; i < argc; ++i) {
     if (strcmp(argv[i], "--noprompt") == 0 ||
         strcmp(argv[i], "-noprompt") == 0) {

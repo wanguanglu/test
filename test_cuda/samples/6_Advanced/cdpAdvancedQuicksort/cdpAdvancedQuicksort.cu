@@ -51,7 +51,8 @@ static __device__ __forceinline__ unsigned int __qsflo(unsigned int word) {
 //  to complete.
 //
 ////////////////////////////////////////////////////////////////////////////////
-template <typename T> static __device__ T *ringbufAlloc(qsortRingbuf *ringbuf) {
+template <typename T>
+static __device__ T* ringbufAlloc(qsortRingbuf* ringbuf) {
   // Wait for there to be space in the ring buffer. We'll retry only a fixed
   // number of times and then fail, to avoid an out-of-memory deadlock.
   unsigned int loop = 10000;
@@ -60,13 +61,12 @@ template <typename T> static __device__ T *ringbufAlloc(qsortRingbuf *ringbuf) {
          (loop-- > 0))
     ;
 
-  if (loop == 0)
-    return NULL;
+  if (loop == 0) return NULL;
 
   // Note that the element includes a little index book-keeping, for freeing
   // later.
-  unsigned int index = atomicAdd((unsigned int *)&ringbuf->head, 1);
-  T *ret = (T *)(ringbuf->stackbase) + (index & (ringbuf->stacksize - 1));
+  unsigned int index = atomicAdd((unsigned int*)&ringbuf->head, 1);
+  T* ret = (T*)(ringbuf->stackbase) + (index & (ringbuf->stacksize - 1));
   ret->index = index;
 
   return ret;
@@ -82,18 +82,16 @@ template <typename T> static __device__ T *ringbufAlloc(qsortRingbuf *ringbuf) {
 //
 ////////////////////////////////////////////////////////////////////////////////
 template <typename T>
-static __device__ void ringbufFree(qsortRingbuf *ringbuf, T *data) {
-  unsigned int index = data->index; // Non-wrapped index to free
-  unsigned int count = atomicAdd((unsigned int *)&(ringbuf->count), 1) + 1;
-  unsigned int max = atomicMax((unsigned int *)&(ringbuf->max), index + 1);
+static __device__ void ringbufFree(qsortRingbuf* ringbuf, T* data) {
+  unsigned int index = data->index;  // Non-wrapped index to free
+  unsigned int count = atomicAdd((unsigned int*)&(ringbuf->count), 1) + 1;
+  unsigned int max = atomicMax((unsigned int*)&(ringbuf->max), index + 1);
 
   // Update the tail if need be. Note we update "max" to be the new value in
   // ringbuf->max
-  if (max < (index + 1))
-    max = index + 1;
+  if (max < (index + 1)) max = index + 1;
 
-  if (max == count)
-    atomicMax((unsigned int *)&(ringbuf->tail), count);
+  if (max == count) atomicMax((unsigned int*)&(ringbuf->tail), count);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -112,10 +110,10 @@ static __device__ void ringbufFree(qsortRingbuf *ringbuf, T *data) {
 //  loads and cover the instruction overhead.
 //
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void qsort_warp(unsigned *indata, unsigned *outdata,
+__global__ void qsort_warp(unsigned* indata, unsigned* outdata,
                            unsigned int offset, unsigned int len,
-                           qsortAtomicData *atomicData,
-                           qsortRingbuf *atomicDataStack,
+                           qsortAtomicData* atomicData,
+                           qsortRingbuf* atomicDataStack,
                            unsigned int source_is_indata, unsigned int depth) {
   // Find my data offset, based on warp ID
   unsigned int thread_id = threadIdx.x + (blockIdx.x << QSORT_BLOCKSIZE_SHIFT);
@@ -123,8 +121,7 @@ __global__ void qsort_warp(unsigned *indata, unsigned *outdata,
   unsigned int lane_id = threadIdx.x & (warpSize - 1);
 
   // Exit if I'm outside the range of sort to be done
-  if (thread_id >= len)
-    return;
+  if (thread_id >= len) return;
 
   //
   // First part of the algorithm. Each warp counts the number of elements that
@@ -146,7 +143,7 @@ __global__ void qsort_warp(unsigned *indata, unsigned *outdata,
 
   if (gt_mask == 0) {
     greater = (data >= pivot);
-    gt_mask = __ballot(greater); // Must re-ballot for adjusted comparator
+    gt_mask = __ballot(greater);  // Must re-ballot for adjusted comparator
   }
 
   unsigned int lt_mask = __ballot(!greater);
@@ -159,16 +156,16 @@ __global__ void qsort_warp(unsigned *indata, unsigned *outdata,
 
   if (lane_id == 0) {
     if (lt_count > 0)
-      lt_offset = atomicAdd((unsigned int *)&atomicData->lt_offset, lt_count);
+      lt_offset = atomicAdd((unsigned int*)&atomicData->lt_offset, lt_count);
 
     if (gt_count > 0)
       gt_offset =
-          len - (atomicAdd((unsigned int *)&atomicData->gt_offset, gt_count) +
+          len - (atomicAdd((unsigned int*)&atomicData->gt_offset, gt_count) +
                  gt_count);
   }
 
   lt_offset =
-      __shfl((int)lt_offset, 0); // Everyone pulls the offsets from lane 0
+      __shfl((int)lt_offset, 0);  // Everyone pulls the offsets from lane 0
   gt_offset = __shfl((int)gt_offset, 0);
 
   __syncthreads();
@@ -193,7 +190,7 @@ __global__ void qsort_warp(unsigned *indata, unsigned *outdata,
     // qsorts
     unsigned int mycount = lt_count + gt_count;
 
-    if (atomicAdd((unsigned int *)&atomicData->sorted_count, mycount) +
+    if (atomicAdd((unsigned int*)&atomicData->sorted_count, mycount) +
             mycount ==
         len) {
       // We're the last warp to do any sorting. Therefore it's up to us to
@@ -320,23 +317,23 @@ __global__ void qsort_warp(unsigned *indata, unsigned *outdata,
 //  Returns the time elapsed for the sort.
 //
 ////////////////////////////////////////////////////////////////////////////////
-float run_quicksort_cdp(unsigned *gpudata, unsigned *scratchdata,
+float run_quicksort_cdp(unsigned* gpudata, unsigned* scratchdata,
                         unsigned int count, cudaStream_t stream) {
   unsigned int stacksize = QSORT_STACK_ELEMS;
 
   // This is the stack, for atomic tracking of each sort's status
-  qsortAtomicData *gpustack;
+  qsortAtomicData* gpustack;
   checkCudaErrors(
-      cudaMalloc((void **)&gpustack, stacksize * sizeof(qsortAtomicData)));
+      cudaMalloc((void**)&gpustack, stacksize * sizeof(qsortAtomicData)));
   checkCudaErrors(cudaMemset(
-      gpustack, 0, sizeof(qsortAtomicData))); // Only need set first entry to 0
+      gpustack, 0, sizeof(qsortAtomicData)));  // Only need set first entry to 0
 
   // Create the memory ringbuffer used for handling the stack.
   // Initialise everything to where it needs to be.
   qsortRingbuf buf;
-  qsortRingbuf *ringbuf;
-  checkCudaErrors(cudaMalloc((void **)&ringbuf, sizeof(qsortRingbuf)));
-  buf.head = 1; // We start with one allocation
+  qsortRingbuf* ringbuf;
+  checkCudaErrors(cudaMalloc((void**)&ringbuf, sizeof(qsortRingbuf)));
+  buf.head = 1;  // We start with one allocation
   buf.tail = 0;
   buf.count = 0;
   buf.max = 0;
@@ -394,28 +391,26 @@ float run_quicksort_cdp(unsigned *gpudata, unsigned *scratchdata,
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 int run_qsort(unsigned int size, int seed, int debug, int loop, int verbose) {
-  if (seed > 0)
-    srand(seed);
+  if (seed > 0) srand(seed);
 
   // Create and set up our test
   unsigned *gpudata, *scratchdata;
-  checkCudaErrors(cudaMalloc((void **)&gpudata, size * sizeof(unsigned)));
-  checkCudaErrors(cudaMalloc((void **)&scratchdata, size * sizeof(unsigned)));
+  checkCudaErrors(cudaMalloc((void**)&gpudata, size * sizeof(unsigned)));
+  checkCudaErrors(cudaMalloc((void**)&scratchdata, size * sizeof(unsigned)));
 
   // Create CPU data.
-  unsigned *data = new unsigned[size];
+  unsigned* data = new unsigned[size];
   unsigned int min = loop ? loop : size;
   unsigned int max = size;
   loop = (loop == 0) ? 1 : loop;
 
   for (size = min; size <= max; size += loop) {
-    if (verbose)
-      printf(" Input: ");
+    if (verbose) printf(" Input: ");
 
     for (unsigned int i = 0; i < size; i++) {
       // Build data 8 bits at a time
       data[i] = 0;
-      char *ptr = (char *)&(data[i]);
+      char* ptr = (char*)&(data[i]);
 
       for (unsigned j = 0; j < sizeof(unsigned); j++) {
         // Easy-to-read data in debug mode
@@ -428,15 +423,13 @@ int run_qsort(unsigned int size, int seed, int debug, int loop, int verbose) {
       }
 
       if (verbose) {
-        if (i && !(i % 32))
-          printf("\n        ");
+        if (i && !(i % 32)) printf("\n        ");
 
         printf("%u ", data[i]);
       }
     }
 
-    if (verbose)
-      printf("\n");
+    if (verbose) printf("\n");
 
     checkCudaErrors(cudaMemcpy(gpudata, data, size * sizeof(unsigned),
                                cudaMemcpyHostToDevice));
@@ -458,8 +451,7 @@ int run_qsort(unsigned int size, int seed, int debug, int loop, int verbose) {
       printf("Output: ");
 
       for (unsigned int i = 0; i < size; i++) {
-        if (i && !(i % 32))
-          printf("\n        ");
+        if (i && !(i % 32)) printf("\n        ");
 
         printf("%u ", data[i]);
       }
@@ -496,49 +488,51 @@ int run_qsort(unsigned int size, int seed, int debug, int loop, int verbose) {
 }
 
 static void usage() {
-  printf("Syntax: qsort [-size=<num>] [-seed=<num>] [-debug] "
-         "[-loop-step=<num>] [-verbose]\n");
-  printf("If loop_step is non-zero, will run from 1->array_len in steps of "
-         "loop_step\n");
+  printf(
+      "Syntax: qsort [-size=<num>] [-seed=<num>] [-debug] "
+      "[-loop-step=<num>] [-verbose]\n");
+  printf(
+      "If loop_step is non-zero, will run from 1->array_len in steps of "
+      "loop_step\n");
 }
 
 // Host side entry
-int main(int argc, char *argv[]) {
-  int size = 5000;         // TODO: make this 1e6
-  unsigned int seed = 100; // TODO: make this 0
+int main(int argc, char* argv[]) {
+  int size = 5000;          // TODO: make this 1e6
+  unsigned int seed = 100;  // TODO: make this 0
   int debug = 0;
   int loop = 0;
   int verbose = 0;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "help") ||
-      checkCmdLineFlag(argc, (const char **)argv, "h")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "help") ||
+      checkCmdLineFlag(argc, (const char**)argv, "h")) {
     usage();
     printf("&&&& cdpAdvancedQuicksort WAIVED\n");
     exit(EXIT_WAIVED);
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "size")) {
-    size = getCmdLineArgumentInt(argc, (const char **)argv, "size");
+  if (checkCmdLineFlag(argc, (const char**)argv, "size")) {
+    size = getCmdLineArgumentInt(argc, (const char**)argv, "size");
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "seed")) {
-    seed = getCmdLineArgumentInt(argc, (const char **)argv, "seed");
+  if (checkCmdLineFlag(argc, (const char**)argv, "seed")) {
+    seed = getCmdLineArgumentInt(argc, (const char**)argv, "seed");
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "loop-step")) {
-    loop = getCmdLineArgumentInt(argc, (const char **)argv, "loop-step");
+  if (checkCmdLineFlag(argc, (const char**)argv, "loop-step")) {
+    loop = getCmdLineArgumentInt(argc, (const char**)argv, "loop-step");
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "debug")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "debug")) {
     debug = 1;
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "verbose")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "verbose")) {
     verbose = 1;
   }
 
   // Get device properties
-  int cuda_device = findCudaDevice(argc, (const char **)argv);
+  int cuda_device = findCudaDevice(argc, (const char**)argv);
   cudaDeviceProp properties;
   checkCudaErrors(cudaGetDeviceProperties(&properties, cuda_device));
   int cdpCapable =
@@ -548,8 +542,9 @@ int main(int argc, char *argv[]) {
          properties.major, properties.minor);
 
   if (!cdpCapable) {
-    printf("cdpAdvancedQuicksort requires SM 3.5 or higher to use CUDA Dynamic "
-           "Parallelism.  Exiting...\n");
+    printf(
+        "cdpAdvancedQuicksort requires SM 3.5 or higher to use CUDA Dynamic "
+        "Parallelism.  Exiting...\n");
     exit(EXIT_WAIVED);
   }
 

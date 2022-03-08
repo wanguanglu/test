@@ -14,17 +14,17 @@
 
 using namespace std;
 
-const char *sSampleName = "P2P (Peer-to-Peer) GPU Bandwidth Latency Test";
+const char* sSampleName = "P2P (Peer-to-Peer) GPU Bandwidth Latency Test";
 
 // Macro for checking cuda errors following a cuda launch or api call
-#define cudaCheckError()                                                       \
-  {                                                                            \
-    cudaError_t e = cudaGetLastError();                                        \
-    if (e != cudaSuccess) {                                                    \
-      printf("Cuda failure %s:%d: '%s'\n", __FILE__, __LINE__,                 \
-             cudaGetErrorString(e));                                           \
-      exit(EXIT_FAILURE);                                                      \
-    }                                                                          \
+#define cudaCheckError()                                       \
+  {                                                            \
+    cudaError_t e = cudaGetLastError();                        \
+    if (e != cudaSuccess) {                                    \
+      printf("Cuda failure %s:%d: '%s'\n", __FILE__, __LINE__, \
+             cudaGetErrorString(e));                           \
+      exit(EXIT_FAILURE);                                      \
+    }                                                          \
   }
 
 void checkP2Paccess(int numGPUs) {
@@ -40,9 +40,10 @@ void checkP2Paccess(int numGPUs) {
       }
     }
   }
-  printf("\n***NOTE: In case a device doesn't have P2P access to other one, it "
-         "falls back to normal memcopy procedure.\nSo you can see lesser "
-         "Bandwidth (GB/s) in those cases.\n\n");
+  printf(
+      "\n***NOTE: In case a device doesn't have P2P access to other one, it "
+      "falls back to normal memcopy procedure.\nSo you can see lesser "
+      "Bandwidth (GB/s) in those cases.\n\n");
 }
 
 void enableP2P(int numGPUs) {
@@ -79,7 +80,7 @@ void disableP2P(int numGPUs) {
 void outputBandwidthMatrix(int numGPUs) {
   int numElems = 10000000;
   int repeat = 5;
-  vector<int *> buffers(numGPUs);
+  vector<int*> buffers(numGPUs);
   vector<cudaEvent_t> start(numGPUs);
   vector<cudaEvent_t> stop(numGPUs);
 
@@ -99,7 +100,6 @@ void outputBandwidthMatrix(int numGPUs) {
     cudaSetDevice(i);
 
     for (int j = 0; j < numGPUs; j++) {
-
       cudaDeviceSynchronize();
       cudaCheckError();
       cudaEventRecord(start[i]);
@@ -154,7 +154,7 @@ void outputBandwidthMatrix(int numGPUs) {
 void outputBidirectionalBandwidthMatrix(int numGPUs) {
   int numElems = 10000000;
   int repeat = 5;
-  vector<int *> buffers(numGPUs);
+  vector<int*> buffers(numGPUs);
   vector<cudaEvent_t> start(numGPUs);
   vector<cudaEvent_t> stop(numGPUs);
   vector<cudaStream_t> stream0(numGPUs);
@@ -180,7 +180,6 @@ void outputBidirectionalBandwidthMatrix(int numGPUs) {
     cudaSetDevice(i);
 
     for (int j = 0; j < numGPUs; j++) {
-
       cudaDeviceSynchronize();
       cudaCheckError();
       cudaEventRecord(start[i]);
@@ -240,7 +239,7 @@ void outputBidirectionalBandwidthMatrix(int numGPUs) {
 
 void outputLatencyMatrix(int numGPUs) {
   int repeat = 10000;
-  vector<int *> buffers(numGPUs);
+  vector<int*> buffers(numGPUs);
   vector<cudaEvent_t> start(numGPUs);
   vector<cudaEvent_t> stop(numGPUs);
 
@@ -260,7 +259,6 @@ void outputLatencyMatrix(int numGPUs) {
     cudaSetDevice(i);
 
     for (int j = 0; j < numGPUs; j++) {
-
       cudaDeviceSynchronize();
       cudaCheckError();
       cudaEventRecord(start[i]);
@@ -309,8 +307,7 @@ void outputLatencyMatrix(int numGPUs) {
   }
 }
 
-int main(int argc, char **argv) {
-
+int main(int argc, char** argv) {
   int numGPUs;
   cudaGetDeviceCount(&numGPUs);
 
@@ -332,8 +329,7 @@ int main(int argc, char **argv) {
   vector<bool> added(numGPUs, false);
 
   for (int i = 0; i < numGPUs; i++) {
-    if (added[i] == true)
-      continue; // already processed
+    if (added[i] == true) continue;  // already processed
 
     // create new clique with i
     vector<int> clique;
@@ -391,8 +387,9 @@ int main(int argc, char **argv) {
   // flushed before the application exits
   cudaDeviceReset();
 
-  printf("\nNOTE: The CUDA Samples are not meant for performance measurements. "
-         "Results may vary when GPU Boost is enabled.\n");
+  printf(
+      "\nNOTE: The CUDA Samples are not meant for performance measurements. "
+      "Results may vary when GPU Boost is enabled.\n");
 
   exit(EXIT_SUCCESS);
 }

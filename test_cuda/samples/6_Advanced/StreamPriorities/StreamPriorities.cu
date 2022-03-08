@@ -44,7 +44,7 @@
   } while (0)
 
 // copy from source -> destination arrays
-__global__ void memcpy_kernel(int *dst, int *src, size_t n) {
+__global__ void memcpy_kernel(int* dst, int* src, size_t n) {
   int num = gridDim.x * blockDim.x;
   int id = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -54,20 +54,20 @@ __global__ void memcpy_kernel(int *dst, int *src, size_t n) {
 }
 
 // initialise memory
-void mem_init(int *buf, size_t n) {
+void mem_init(int* buf, size_t n) {
   for (int i = 0; i < n / sizeof(int); i++) {
     buf[i] = i;
   }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   cudaDeviceProp device_prop;
   int dev_id;
 
   printf("Starting [%s]...\n", argv[0]);
 
   // set device
-  dev_id = findCudaDevice(argc, (const char **)argv);
+  dev_id = findCudaDevice(argc, (const char**)argv);
   checkCudaErrors(cudaGetDeviceProperties(&device_prop, dev_id));
 
   if ((device_prop.major << 4) + device_prop.minor < 0x35) {
@@ -107,24 +107,24 @@ int main(int argc, char **argv) {
   size = TOTAL_SIZE;
 
   // initialise host data
-  int *h_src_low;
-  int *h_src_hi;
-  ERR_EQ(h_src_low = (int *)malloc(size), NULL);
-  ERR_EQ(h_src_hi = (int *)malloc(size), NULL);
+  int* h_src_low;
+  int* h_src_hi;
+  ERR_EQ(h_src_low = (int*)malloc(size), NULL);
+  ERR_EQ(h_src_hi = (int*)malloc(size), NULL);
   mem_init(h_src_low, size);
   mem_init(h_src_hi, size);
 
   // initialise device data
-  int *h_dst_low;
-  int *h_dst_hi;
-  ERR_EQ(h_dst_low = (int *)malloc(size), NULL);
-  ERR_EQ(h_dst_hi = (int *)malloc(size), NULL);
+  int* h_dst_low;
+  int* h_dst_hi;
+  ERR_EQ(h_dst_low = (int*)malloc(size), NULL);
+  ERR_EQ(h_dst_hi = (int*)malloc(size), NULL);
   memset(h_dst_low, 0, size);
   memset(h_dst_hi, 0, size);
 
   // copy source data -> device
-  int *d_src_low;
-  int *d_src_hi;
+  int* d_src_low;
+  int* d_src_hi;
   checkCudaErrors(cudaMalloc(&d_src_low, size));
   checkCudaErrors(cudaMalloc(&d_src_hi, size));
   checkCudaErrors(
@@ -132,8 +132,8 @@ int main(int argc, char **argv) {
   checkCudaErrors(cudaMemcpy(d_src_hi, h_src_hi, size, cudaMemcpyHostToDevice));
 
   // allocate memory for memcopy destination
-  int *d_dst_low;
-  int *d_dst_hi;
+  int* d_dst_low;
+  int* d_dst_hi;
   checkCudaErrors(cudaMalloc(&d_dst_low, size));
   checkCudaErrors(cudaMalloc(&d_dst_hi, size));
 

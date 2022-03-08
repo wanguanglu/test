@@ -38,8 +38,8 @@
 //! @param  precision  desired precision of eigenvalues
 ////////////////////////////////////////////////////////////////////////////////
 __global__ void bisectKernelLarge_OneIntervals(
-    float *g_d, float *g_s, const unsigned int n, unsigned int num_intervals,
-    float *g_left, float *g_right, unsigned int *g_pos, float precision) {
+    float* g_d, float* g_s, const unsigned int n, unsigned int num_intervals,
+    float* g_left, float* g_right, unsigned int* g_pos, float precision) {
   const unsigned int gtid = (blockDim.x * blockIdx.x) + threadIdx.x;
 
   __shared__ float s_left_scratch[MAX_THREADS_BLOCK];
@@ -78,12 +78,10 @@ __global__ void bisectKernelLarge_OneIntervals(
   // process until all threads converged to an eigenvalue
   // while( 0 == converged_all_threads) {
   while (true) {
-
     converged_all_threads = 1;
 
     // update midpoint for all active threads
     if ((gtid < num_intervals) && (0 == converged)) {
-
       mid = computeMidpoint(left, right);
     }
 
@@ -96,7 +94,6 @@ __global__ void bisectKernelLarge_OneIntervals(
 
     // for all active threads
     if ((gtid < num_intervals) && (0 == converged)) {
-
       // udpate intervals -- always one child interval survives
       if (right_count == mid_count) {
         right = mid;
@@ -109,7 +106,6 @@ __global__ void bisectKernelLarge_OneIntervals(
       float t1 = max(abs(right), abs(left)) * precision;
 
       if (t0 < min(precision, t1)) {
-
         float lambda = computeMidpoint(left, right);
         left = lambda;
         right = lambda;
@@ -139,4 +135,4 @@ __global__ void bisectKernelLarge_OneIntervals(
   }
 }
 
-#endif // #ifndef _BISECT_KERNEL_LARGE_ONEI_H_
+#endif  // #ifndef _BISECT_KERNEL_LARGE_ONEI_H_

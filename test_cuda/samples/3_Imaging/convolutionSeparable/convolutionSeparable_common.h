@@ -18,22 +18,22 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Reference CPU convolution
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void convolutionRowCPU(float *h_Dst, float *h_Src, float *h_Kernel,
+extern "C" void convolutionRowCPU(float* h_Dst, float* h_Src, float* h_Kernel,
                                   int imageW, int imageH, int kernelR);
 
-extern "C" void convolutionColumnCPU(float *h_Dst, float *h_Src,
-                                     float *h_Kernel, int imageW, int imageH,
+extern "C" void convolutionColumnCPU(float* h_Dst, float* h_Src,
+                                     float* h_Kernel, int imageW, int imageH,
                                      int kernelR);
 
 ////////////////////////////////////////////////////////////////////////////////
 // GPU convolution
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void setConvolutionKernel(float *h_Kernel);
+extern "C" void setConvolutionKernel(float* h_Kernel);
 
-extern "C" void convolutionRowsGPU(float *d_Dst, float *d_Src, int imageW,
+extern "C" void convolutionRowsGPU(float* d_Dst, float* d_Src, int imageW,
                                    int imageH);
 
-extern "C" void convolutionColumnsGPU(float *d_Dst, float *d_Src, int imageW,
+extern "C" void convolutionColumnsGPU(float* d_Dst, float* d_Src, int imageW,
                                       int imageH);
 
 #endif

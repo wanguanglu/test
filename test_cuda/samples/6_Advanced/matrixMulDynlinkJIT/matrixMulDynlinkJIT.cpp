@@ -40,7 +40,7 @@
 #include "matrixMul_kernel_32_ptxdump.h"
 #include "matrixMul_kernel_64_ptxdump.h"
 
-extern "C" void computeGold(float *, const float *, const float *, unsigned int,
+extern "C" void computeGold(float*, const float*, const float*, unsigned int,
                             unsigned int, unsigned int);
 
 #if defined _MSC_VER
@@ -53,12 +53,12 @@ extern "C" void computeGold(float *, const float *, const float *, unsigned int,
 CUcontext g_cuContext;
 bool noprompt = false;
 
-static const char *sSDKsample = "matrixMulDynlinkJIT (CUDA dynamic linking)";
+static const char* sSDKsample = "matrixMulDynlinkJIT (CUDA dynamic linking)";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Allocates a matrix with random float entries
 ////////////////////////////////////////////////////////////////////////////////
-void randomInit(float *data, size_t size) {
+void randomInit(float* data, size_t size) {
   for (size_t i = 0; i < size; ++i) {
     data[i] = rand() / (float)RAND_MAX;
   }
@@ -67,8 +67,8 @@ void randomInit(float *data, size_t size) {
 ////////////////////////////////////////////////////////////////////////////////
 // CUDA driver runtime linking and initialization
 ////////////////////////////////////////////////////////////////////////////////
-CUresult initCUDA(int argc, char **argv, CUfunction *pMatrixMul,
-                  int *block_size_out) {
+CUresult initCUDA(int argc, char** argv, CUfunction* pMatrixMul,
+                  int* block_size_out) {
   CUresult status;
   CUdevice cuDevice;
   CUmodule cuModule;
@@ -103,8 +103,7 @@ CUresult initCUDA(int argc, char **argv, CUfunction *pMatrixMul,
         bFound = true;
       }
 
-      if (bFound)
-        break;
+      if (bFound) break;
     }
   }
 
@@ -117,8 +116,7 @@ CUresult initCUDA(int argc, char **argv, CUfunction *pMatrixMul,
     exit(EXIT_SUCCESS);
   }
 
-  if (devID < 0)
-    devID = 0;
+  if (devID < 0) devID = 0;
 
   if (devID > deviceCount - 1) {
     fprintf(stderr,
@@ -156,33 +154,33 @@ CUresult initCUDA(int argc, char **argv, CUfunction *pMatrixMul,
   {
     // in this branch we use compilation with parameters
     const unsigned int jitNumOptions = 3;
-    CUjit_option *jitOptions = new CUjit_option[jitNumOptions];
-    void **jitOptVals = new void *[jitNumOptions];
+    CUjit_option* jitOptions = new CUjit_option[jitNumOptions];
+    void** jitOptVals = new void*[jitNumOptions];
 
     // set up size of compilation log buffer
     jitOptions[0] = CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES;
     int jitLogBufferSize = 1024;
-    jitOptVals[0] = (void *)(size_t)jitLogBufferSize;
+    jitOptVals[0] = (void*)(size_t)jitLogBufferSize;
 
     // set up pointer to the compilation log buffer
     jitOptions[1] = CU_JIT_INFO_LOG_BUFFER;
-    char *jitLogBuffer = new char[jitLogBufferSize];
+    char* jitLogBuffer = new char[jitLogBufferSize];
     jitOptVals[1] = jitLogBuffer;
 
     // set up pointer to set the Maximum # of registers for a particular kernel
     jitOptions[2] = CU_JIT_MAX_REGISTERS;
     int jitRegCount = 32;
-    jitOptVals[2] = (void *)(size_t)jitRegCount;
+    jitOptVals[2] = (void*)(size_t)jitRegCount;
 
     // compile with set parameters
     printf("> Compiling CUDA module\n");
 
 #if defined(_WIN64) || defined(__LP64__)
     status = cuModuleLoadDataEx(&cuModule, matrixMul_kernel_64_ptxdump,
-                                jitNumOptions, jitOptions, (void **)jitOptVals);
+                                jitNumOptions, jitOptions, (void**)jitOptVals);
 #else
     status = cuModuleLoadDataEx(&cuModule, matrixMul_kernel_32_ptxdump,
-                                jitNumOptions, jitOptions, (void **)jitOptVals);
+                                jitNumOptions, jitOptions, (void**)jitOptVals);
 #endif
 
     printf("> PTX JIT log:\n%s\n", jitLogBuffer);
@@ -199,9 +197,9 @@ CUresult initCUDA(int argc, char **argv, CUfunction *pMatrixMul,
   }
 
   // retrieve CUDA function from the compiled module
-  status = cuModuleGetFunction(&cuFunction, cuModule,
-                               (block_size == 16) ? "matrixMul_bs16_32bit"
-                                                  : "matrixMul_bs32_32bit");
+  status = cuModuleGetFunction(
+      &cuFunction, cuModule,
+      (block_size == 16) ? "matrixMul_bs16_32bit" : "matrixMul_bs32_32bit");
 
   if (CUDA_SUCCESS != status) {
     cuCtxDestroy(g_cuContext);
@@ -215,7 +213,7 @@ CUresult initCUDA(int argc, char **argv, CUfunction *pMatrixMul,
 ////////////////////////////////////////////////////////////////////////////////
 // Entry point
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   printf("[ %s ]\n", sSDKsample);
 
   // initialize CUDA
@@ -232,8 +230,8 @@ int main(int argc, char **argv) {
   size_t size_B = WB * HB;
   size_t mem_size_B = sizeof(float) * size_B;
 
-  float *h_A = (float *)malloc(mem_size_A);
-  float *h_B = (float *)malloc(mem_size_B);
+  float* h_A = (float*)malloc(mem_size_A);
+  float* h_B = (float*)malloc(mem_size_B);
 
   // initialize host memory
   randomInit(h_A, size_A);
@@ -257,7 +255,7 @@ int main(int argc, char **argv) {
   checkCudaErrors(cuMemAlloc(&d_C, mem_size_C));
 
   // allocate mem for the result on host side
-  float *h_C = (float *)malloc(mem_size_C);
+  float* h_C = (float*)malloc(mem_size_C);
 
 #if __CUDA_API_VERSION >= 4000
   {
@@ -265,13 +263,13 @@ int main(int argc, char **argv) {
     // Launching (simpler method)
     int Matrix_Width_A = WA;
     int Matrix_Width_B = WB;
-    void *args[5] = {&d_C, &d_A, &d_B, &Matrix_Width_A, &Matrix_Width_B};
+    void* args[5] = {&d_C, &d_A, &d_B, &Matrix_Width_A, &Matrix_Width_B};
 
     checkCudaErrors(cuLaunchKernel(matrixMul, (WC / block_size),
                                    (HC / block_size), 1, block_size, block_size,
                                    1, 0, NULL, args, NULL));
   }
-#else // __CUDA_API_VERSION <= 3020
+#else  // __CUDA_API_VERSION <= 3020
   {
     // This is the older CUDA Driver API for Kernel Parameter passing and Kernel
     // Launching
@@ -299,8 +297,8 @@ int main(int argc, char **argv) {
 
     checkCudaErrors(cuParamSetSize(matrixMul, offset));
     checkCudaErrors(cuFuncSetBlockShape(matrixMul, block_size, block_size, 1));
-    checkCudaErrors(cuFuncSetSharedSize(matrixMul, 2 * block_size * block_size *
-                                                       sizeof(float)));
+    checkCudaErrors(cuFuncSetSharedSize(
+        matrixMul, 2 * block_size * block_size * sizeof(float)));
 
     // set execution configuration for the CUDA kernel
     checkCudaErrors(cuLaunchGrid(matrixMul, WC / block_size, HC / block_size));
@@ -310,10 +308,10 @@ int main(int argc, char **argv) {
   checkCudaErrors(cuCtxSynchronize());
 
   // copy result from device to host
-  checkCudaErrors(cuMemcpyDtoH((void *)h_C, d_C, mem_size_C));
+  checkCudaErrors(cuMemcpyDtoH((void*)h_C, d_C, mem_size_C));
 
   // compute reference solution
-  float *reference = (float *)malloc(mem_size_C);
+  float* reference = (float*)malloc(mem_size_C);
   computeGold(reference, h_A, h_B, HA, WA, WB);
 
   // check result

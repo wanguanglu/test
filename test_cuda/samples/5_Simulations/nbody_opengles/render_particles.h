@@ -22,7 +22,7 @@ typedef float matrix4[4][4];
 typedef float vector3[3];
 
 // check for OpenGL errors
-inline void checkGLErrors(const char *s) {
+inline void checkGLErrors(const char* s) {
   EGLenum error;
 
   while ((error = glGetError()) != GL_NO_ERROR) {
@@ -31,15 +31,15 @@ inline void checkGLErrors(const char *s) {
 }
 
 class ParticleRenderer {
-public:
+ public:
   ParticleRenderer(unsigned int windowWidth = 720,
                    unsigned int windowHeight = 480);
   ~ParticleRenderer();
 
-  void setPositions(float *pos, int numParticles);
-  void setPositions(double *pos, int numParticles);
+  void setPositions(float* pos, int numParticles);
+  void setPositions(double* pos, int numParticles);
   void setBaseColor(float color[4]);
-  void setColors(float *color, int numParticles);
+  void setColors(float* color, int numParticles);
   void setPBO(unsigned int pbo, int numParticles, bool fp64);
 
   enum DisplayMode {
@@ -62,13 +62,13 @@ public:
 
   void resetPBO();
 
-protected: // methods
+ protected:  // methods
   void _initGL();
   void _createTexture(int resolution);
 
-protected: // data
-  float *m_pos;
-  double *m_pos_fp64;
+ protected:  // data
+  float* m_pos;
+  double* m_pos_fp64;
   int m_numParticles;
 
   float m_pointSize;
@@ -91,4 +91,4 @@ protected: // data
   bool m_bFp64Positions;
 };
 
-#endif //__ RENDER_PARTICLES__
+#endif  //__ RENDER_PARTICLES__

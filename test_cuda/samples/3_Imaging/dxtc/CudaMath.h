@@ -33,7 +33,7 @@ inline __device__ __host__ float3 firstEigenVector(float matrix[6]) {
   return v;
 }
 
-inline __device__ void colorSums(const float3 *colors, float3 *sums) {
+inline __device__ void colorSums(const float3* colors, float3* sums) {
   const int idx = threadIdx.x;
 
   sums[idx] = colors[idx];
@@ -43,7 +43,7 @@ inline __device__ void colorSums(const float3 *colors, float3 *sums) {
   sums[idx] += sums[idx ^ 1];
 }
 
-inline __device__ float3 bestFitLine(const float3 *colors, float3 color_sum) {
+inline __device__ float3 bestFitLine(const float3* colors, float3 color_sum) {
   // Compute covariance matrix of the given colors.
   const int idx = threadIdx.x;
 
@@ -53,7 +53,7 @@ inline __device__ float3 bestFitLine(const float3 *colors, float3 color_sum) {
   // @@ It seems that doing that and unrolling the reduction doesn't help...
   __shared__ float covariance[16 * 6];
 
-  covariance[6 * idx + 0] = diff.x * diff.x; // 0, 6, 12, 2, 8, 14, 4, 10, 0
+  covariance[6 * idx + 0] = diff.x * diff.x;  // 0, 6, 12, 2, 8, 14, 4, 10, 0
   covariance[6 * idx + 1] = diff.x * diff.y;
   covariance[6 * idx + 2] = diff.x * diff.z;
   covariance[6 * idx + 3] = diff.y * diff.y;
@@ -75,4 +75,4 @@ inline __device__ float3 bestFitLine(const float3 *colors, float3 color_sum) {
   return firstEigenVector(covariance);
 }
 
-#endif // CUDAMATH_H
+#endif  // CUDAMATH_H

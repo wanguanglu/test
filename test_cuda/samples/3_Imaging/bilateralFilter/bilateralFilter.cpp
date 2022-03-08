@@ -50,68 +50,68 @@
 #include <cuda_gl_interop.h>
 #include <cuda_runtime.h>
 
-#include <helper_cuda.h>    // CUDA device initialization helper functions
-#include <helper_cuda_gl.h> // CUDA device + OpenGL initialization functions
+#include <helper_cuda.h>     // CUDA device initialization helper functions
+#include <helper_cuda_gl.h>  // CUDA device + OpenGL initialization functions
 
 // Shared Library Test Functions
-#include <helper_functions.h> // CUDA SDK Helper functions
+#include <helper_functions.h>  // CUDA SDK Helper functions
 
 #define MAX_EPSILON_ERROR 5.0f
-#define REFRESH_DELAY 10 // ms
+#define REFRESH_DELAY 10  // ms
 #define MIN_EUCLIDEAN_D 0.01f
 #define MAX_EUCLIDEAN_D 5.f
 #define MAX_FILTER_RADIUS 25
 #define MIN_RUNTIME_VERSION 1000
 #define MIN_COMPUTE_VERSION 0x10
 
-const static char *sSDKsample = "CUDA Bilateral Filter";
+const static char* sSDKsample = "CUDA Bilateral Filter";
 
-const char *image_filename = "nature_monte.bmp";
+const char* image_filename = "nature_monte.bmp";
 int iterations = 1;
 float gaussian_delta = 4;
 float euclidean_delta = 0.1f;
 int filter_radius = 5;
 
 unsigned int width, height;
-unsigned int *hImage = NULL;
+unsigned int* hImage = NULL;
 
-GLuint pbo;                                     // OpenGL pixel buffer object
-struct cudaGraphicsResource *cuda_pbo_resource; // handles OpenGL-CUDA exchange
-GLuint texid;                                   // texture
+GLuint pbo;                                      // OpenGL pixel buffer object
+struct cudaGraphicsResource* cuda_pbo_resource;  // handles OpenGL-CUDA exchange
+GLuint texid;                                    // texture
 GLuint shader;
 
-int *pArgc = NULL;
-char **pArgv = NULL;
+int* pArgc = NULL;
+char** pArgv = NULL;
 
-StopWatchInterface *timer = NULL;
-StopWatchInterface *kernel_timer = NULL;
+StopWatchInterface* timer = NULL;
+StopWatchInterface* kernel_timer = NULL;
 
 // Auto-Verification Code
 const int frameCheckNumber = 4;
-int fpsCount = 0; // FPS count for averaging
-int fpsLimit = 1; // FPS limit for sampling
+int fpsCount = 0;  // FPS count for averaging
+int fpsLimit = 1;  // FPS limit for sampling
 unsigned int g_TotalErrors = 0;
 bool g_bInteractive = false;
 
 //#define GL_TEXTURE_TYPE GL_TEXTURE_RECTANGLE_ARB
 #define GL_TEXTURE_TYPE GL_TEXTURE_2D
 
-extern "C" void loadImageData(int argc, char **argv);
+extern "C" void loadImageData(int argc, char** argv);
 
 // These are CUDA functions to handle allocation and launching the kernels
-extern "C" void initTexture(int width, int height, void *pImage);
+extern "C" void initTexture(int width, int height, void* pImage);
 extern "C" void freeTextures();
 
-extern "C" double bilateralFilterRGBA(unsigned int *d_dest, int width,
+extern "C" double bilateralFilterRGBA(unsigned int* d_dest, int width,
                                       int height, float e_d, int radius,
                                       int iterations,
-                                      StopWatchInterface *timer);
+                                      StopWatchInterface* timer);
 extern "C" void updateGaussian(float delta, int radius);
 extern "C" void updateGaussianGold(float delta, int radius);
-extern "C" void bilateralFilterGold(unsigned int *pSrc, unsigned int *pDest,
+extern "C" void bilateralFilterGold(unsigned int* pSrc, unsigned int* pDest,
                                     float e_d, int w, int h, int r);
-extern "C" void LoadBMPFile(uchar4 **dst, unsigned int *width,
-                            unsigned int *height, const char *name);
+extern "C" void LoadBMPFile(uchar4** dst, unsigned int* width,
+                            unsigned int* height, const char* name);
 
 void varyEuclidean() {
   static float factor = 1.02f;
@@ -156,14 +156,14 @@ void display() {
   sdkStartTimer(&timer);
 
   // execute filter, writing results to pbo
-  unsigned int *dResult;
+  unsigned int* dResult;
 
   // DEPRECATED: checkCudaErrors( cudaGLMapBufferObject((void**)&d_result, pbo)
   // );
   checkCudaErrors(cudaGraphicsMapResources(1, &cuda_pbo_resource, 0));
   size_t num_bytes;
   checkCudaErrors(cudaGraphicsResourceGetMappedPointer(
-      (void **)&dResult, &num_bytes, cuda_pbo_resource));
+      (void**)&dResult, &num_bytes, cuda_pbo_resource));
   bilateralFilterRGBA(dResult, width, height, euclidean_delta, filter_radius,
                       iterations, kernel_timer);
 
@@ -218,85 +218,86 @@ void display() {
 */
 void keyboard(unsigned char key, int /*x*/, int /*y*/) {
   switch (key) {
-  case 27:
+    case 27:
 #if defined(__APPLE__) || defined(MACOSX)
-    exit(EXIT_SUCCESS);
+      exit(EXIT_SUCCESS);
 #else
-    glutDestroyWindow(glutGetWindow());
-    return;
+      glutDestroyWindow(glutGetWindow());
+      return;
 #endif
-    break;
+      break;
 
-  case 'a':
-  case 'A':
-    g_bInteractive = !g_bInteractive;
-    printf("> Animation is %s\n", !g_bInteractive ? "ON" : "OFF");
-    break;
+    case 'a':
+    case 'A':
+      g_bInteractive = !g_bInteractive;
+      printf("> Animation is %s\n", !g_bInteractive ? "ON" : "OFF");
+      break;
 
-  case ']':
-    iterations++;
-    break;
+    case ']':
+      iterations++;
+      break;
 
-  case '[':
-    iterations--;
+    case '[':
+      iterations--;
 
-    if (iterations < 1) {
-      iterations = 1;
-    }
+      if (iterations < 1) {
+        iterations = 1;
+      }
 
-    break;
+      break;
 
-  case '=':
-  case '+':
-    filter_radius++;
+    case '=':
+    case '+':
+      filter_radius++;
 
-    if (filter_radius > MAX_FILTER_RADIUS) {
-      filter_radius = MAX_FILTER_RADIUS;
-    }
+      if (filter_radius > MAX_FILTER_RADIUS) {
+        filter_radius = MAX_FILTER_RADIUS;
+      }
 
-    updateGaussian(gaussian_delta, filter_radius);
-    break;
+      updateGaussian(gaussian_delta, filter_radius);
+      break;
 
-  case '-':
-    filter_radius--;
+    case '-':
+      filter_radius--;
 
-    if (filter_radius < 1) {
-      filter_radius = 1;
-    }
+      if (filter_radius < 1) {
+        filter_radius = 1;
+      }
 
-    updateGaussian(gaussian_delta, filter_radius);
-    break;
+      updateGaussian(gaussian_delta, filter_radius);
+      break;
 
-  case 'E':
-    euclidean_delta *= 1.5;
-    break;
+    case 'E':
+      euclidean_delta *= 1.5;
+      break;
 
-  case 'e':
-    euclidean_delta /= 1.5;
-    break;
+    case 'e':
+      euclidean_delta /= 1.5;
+      break;
 
-  case 'g':
-    if (gaussian_delta > 0.1) {
-      gaussian_delta /= 2;
-    }
+    case 'g':
+      if (gaussian_delta > 0.1) {
+        gaussian_delta /= 2;
+      }
 
-    // updateGaussianGold(gaussian_delta, filter_radius);
-    updateGaussian(gaussian_delta, filter_radius);
-    break;
+      // updateGaussianGold(gaussian_delta, filter_radius);
+      updateGaussian(gaussian_delta, filter_radius);
+      break;
 
-  case 'G':
-    gaussian_delta *= 2;
-    // updateGaussianGold(gaussian_delta, filter_radius);
-    updateGaussian(gaussian_delta, filter_radius);
-    break;
+    case 'G':
+      gaussian_delta *= 2;
+      // updateGaussianGold(gaussian_delta, filter_radius);
+      updateGaussian(gaussian_delta, filter_radius);
+      break;
 
-  default:
-    break;
+    default:
+      break;
   }
 
-  printf("filter radius = %d, iterations = %d, gaussian delta = %.2f, "
-         "euclidean delta = %.2f\n",
-         filter_radius, iterations, gaussian_delta, euclidean_delta);
+  printf(
+      "filter radius = %d, iterations = %d, gaussian delta = %.2f, "
+      "euclidean delta = %.2f\n",
+      filter_radius, iterations, gaussian_delta, euclidean_delta);
   glutPostRedisplay();
 }
 
@@ -353,23 +354,23 @@ void cleanup() {
 }
 
 // shader for displaying floating-point texture
-static const char *shader_code =
+static const char* shader_code =
     "!!ARBfp1.0\n"
     "TEX result.color, fragment.texcoord, texture[0], 2D; \n"
     "END";
 
-GLuint compileASMShader(GLenum program_type, const char *code) {
+GLuint compileASMShader(GLenum program_type, const char* code) {
   GLuint program_id;
   glGenProgramsARB(1, &program_id);
   glBindProgramARB(program_type, program_id);
   glProgramStringARB(program_type, GL_PROGRAM_FORMAT_ASCII_ARB,
-                     (GLsizei)strlen(code), (GLubyte *)code);
+                     (GLsizei)strlen(code), (GLubyte*)code);
 
   GLint error_pos;
   glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &error_pos);
 
   if (error_pos != -1) {
-    const GLubyte *error_string;
+    const GLubyte* error_string;
     error_string = glGetString(GL_PROGRAM_ERROR_STRING_ARB);
     printf("Program error at position: %d\n%s\n", (int)error_pos, error_string);
     return 0;
@@ -407,15 +408,15 @@ void initGLResources() {
 ////////////////////////////////////////////////////////////////////////////////
 //! Run a simple benchmark test for CUDA
 ////////////////////////////////////////////////////////////////////////////////
-int runBenchmark(int argc, char **argv) {
+int runBenchmark(int argc, char** argv) {
   printf("[runBenchmark]: [%s]\n", sSDKsample);
 
   loadImageData(argc, argv);
   initCuda();
 
-  unsigned int *dResult;
+  unsigned int* dResult;
   size_t pitch;
-  checkCudaErrors(cudaMallocPitch((void **)&dResult, &pitch,
+  checkCudaErrors(cudaMallocPitch((void**)&dResult, &pitch,
                                   width * sizeof(unsigned int), height));
   sdkStartTimer(&kernel_timer);
 
@@ -425,7 +426,7 @@ int runBenchmark(int argc, char **argv) {
   checkCudaErrors(cudaDeviceSynchronize());
 
   // Start round-trip timer and process iCycles loops on the GPU
-  iterations = 1; // standard 1-pass filtering
+  iterations = 1;  // standard 1-pass filtering
   const int iCycles = 150;
   double dProcessingTime = 0.0;
   printf("\nRunning BilateralFilterGPU for %d cycles...\n\n", iCycles);
@@ -445,16 +446,17 @@ int runBenchmark(int argc, char **argv) {
   dProcessingTime /= (double)iCycles;
 
   // log testname, throughput, timing and config info to sample and master logs
-  printf("bilateralFilter-texture, Throughput = %.4f M RGBA Pixels/s, Time = "
-         "%.5f s, Size = %u RGBA Pixels, NumDevsUsed = %u\n",
-         (1.0e-6 * width * height) / dProcessingTime, dProcessingTime,
-         (width * height), 1);
+  printf(
+      "bilateralFilter-texture, Throughput = %.4f M RGBA Pixels/s, Time = "
+      "%.5f s, Size = %u RGBA Pixels, NumDevsUsed = %u\n",
+      (1.0e-6 * width * height) / dProcessingTime, dProcessingTime,
+      (width * height), 1);
   printf("\n");
 
   return 0;
 }
 
-void initGL(int argc, char **argv) {
+void initGL(int argc, char** argv) {
   // initialize GLUT
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
@@ -483,7 +485,7 @@ void initGL(int argc, char **argv) {
 
 // This test specifies a single test (where you specify radius and/or
 // iterations)
-int runSingleTest(char *ref_file, char *exec_path) {
+int runSingleTest(char* ref_file, char* exec_path) {
   int nTotalErrors = 0;
   char dump_file[256];
 
@@ -491,11 +493,11 @@ int runSingleTest(char *ref_file, char *exec_path) {
 
   initCuda();
 
-  unsigned int *dResult;
-  unsigned int *hResult =
-      (unsigned int *)malloc(width * height * sizeof(unsigned int));
+  unsigned int* dResult;
+  unsigned int* hResult =
+      (unsigned int*)malloc(width * height * sizeof(unsigned int));
   size_t pitch;
-  checkCudaErrors(cudaMallocPitch((void **)&dResult, &pitch,
+  checkCudaErrors(cudaMallocPitch((void**)&dResult, &pitch,
                                   width * sizeof(unsigned int), height));
 
   // run the sample radius
@@ -515,7 +517,7 @@ int runSingleTest(char *ref_file, char *exec_path) {
 
     sprintf(dump_file, "nature_%02d.ppm", filter_radius);
 
-    sdkSavePPM4ub((const char *)dump_file, (unsigned char *)hResult, width,
+    sdkSavePPM4ub((const char*)dump_file, (unsigned char*)hResult, width,
                   height);
 
     if (!sdkComparePPM(dump_file, sdkFindFilePath(ref_file, exec_path),
@@ -536,10 +538,10 @@ int runSingleTest(char *ref_file, char *exec_path) {
   return nTotalErrors;
 }
 
-void loadImageData(int argc, char **argv) {
+void loadImageData(int argc, char** argv) {
   // load image (needed so we can get the width and height before we create the
   // window
-  char *image_path = NULL;
+  char* image_path = NULL;
 
   if (argc >= 1) {
     image_path = sdkFindFilePath(image_filename, argv[0]);
@@ -550,7 +552,7 @@ void loadImageData(int argc, char **argv) {
     exit(EXIT_FAILURE);
   }
 
-  LoadBMPFile((uchar4 **)&hImage, &width, &height, image_path);
+  LoadBMPFile((uchar4**)&hImage, &width, &height, image_path);
 
   if (!hImage) {
     fprintf(stderr, "Error opening file '%s'\n", image_path);
@@ -581,7 +583,7 @@ bool checkCUDAProfile(int dev, int min_runtime, int min_compute) {
   }
 }
 
-int findCapableDevice(int argc, char **argv) {
+int findCapableDevice(int argc, char** argv) {
   int dev;
   int bestDev = -1;
 
@@ -617,8 +619,9 @@ int findCapableDevice(int argc, char **argv) {
   }
 
   if (bestDev == -1) {
-    fprintf(stderr, "\nNo configuration with available capabilities was found. "
-                    " Test has been waived.\n");
+    fprintf(stderr,
+            "\nNo configuration with available capabilities was found. "
+            " Test has been waived.\n");
     fprintf(stderr, "The CUDA Sample minimum requirements:\n");
     fprintf(stderr, "\tCUDA Compute Capability >= %d.%d is required\n",
             MIN_COMPUTE_VERSION / 16, MIN_COMPUTE_VERSION % 16);
@@ -640,10 +643,10 @@ void printHelp() {
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   // start logs
   int devID;
-  char *ref_file = NULL;
+  char* ref_file = NULL;
   printf("%s Starting...\n\n", argv[0]);
 
 #if defined(__linux__)
@@ -653,28 +656,27 @@ int main(int argc, char **argv) {
   // use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
   if (argc > 1) {
-    if (checkCmdLineFlag(argc, (const char **)argv, "radius")) {
-      filter_radius =
-          getCmdLineArgumentInt(argc, (const char **)argv, "radius");
+    if (checkCmdLineFlag(argc, (const char**)argv, "radius")) {
+      filter_radius = getCmdLineArgumentInt(argc, (const char**)argv, "radius");
     }
 
-    if (checkCmdLineFlag(argc, (const char **)argv, "passes")) {
-      iterations = getCmdLineArgumentInt(argc, (const char **)argv, "passes");
+    if (checkCmdLineFlag(argc, (const char**)argv, "passes")) {
+      iterations = getCmdLineArgumentInt(argc, (const char**)argv, "passes");
     }
 
-    if (checkCmdLineFlag(argc, (const char **)argv, "file")) {
-      getCmdLineArgumentString(argc, (const char **)argv, "file",
-                               (char **)&ref_file);
+    if (checkCmdLineFlag(argc, (const char**)argv, "file")) {
+      getCmdLineArgumentString(argc, (const char**)argv, "file",
+                               (char**)&ref_file);
     }
   }
 
   // load image to process
   loadImageData(argc, argv);
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "benchmark")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "benchmark")) {
     // This is a separate mode of the sample, where we are benchmark the kernels
     // for performance
-    devID = findCudaDevice(argc, (const char **)argv);
+    devID = findCudaDevice(argc, (const char**)argv);
 
     // Running CUDA kernels (bilateralfilter) in Benchmarking mode
     g_TotalErrors += runBenchmark(argc, argv);
@@ -686,11 +688,11 @@ int main(int argc, char **argv) {
     // flushed before the application exits
     cudaDeviceReset();
     exit(g_TotalErrors == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
-  } else if (checkCmdLineFlag(argc, (const char **)argv, "radius") ||
-             checkCmdLineFlag(argc, (const char **)argv, "passes")) {
+  } else if (checkCmdLineFlag(argc, (const char**)argv, "radius") ||
+             checkCmdLineFlag(argc, (const char**)argv, "passes")) {
     // This overrides the default mode.  Users can specify the radius used by
     // the filter kernel
-    devID = findCudaDevice(argc, (const char **)argv);
+    devID = findCudaDevice(argc, (const char**)argv);
     g_TotalErrors += runSingleTest(ref_file, argv[0]);
 
     // cudaDeviceReset causes the driver to clean up all state. While
@@ -708,11 +710,11 @@ int main(int argc, char **argv) {
     // First initialize OpenGL context, so we can properly set the GL for CUDA.
     // This is necessary in order to achieve optimal performance with
     // OpenGL/CUDA interop.
-    initGL(argc, (char **)argv);
+    initGL(argc, (char**)argv);
     int dev = findCapableDevice(argc, argv);
 
     if (dev != -1) {
-      dev = gpuGLDeviceInit(argc, (const char **)argv);
+      dev = gpuGLDeviceInit(argc, (const char**)argv);
 
       if (dev == -1) {
         exit(EXIT_FAILURE);
@@ -739,11 +741,12 @@ int main(int argc, char **argv) {
 #endif
 
     printf("Running Standard Demonstration with GLUT loop...\n\n");
-    printf("Press '+' and '-' to change filter width\n"
-           "Press ']' and '[' to change number of iterations\n"
-           "Press 'e' and 'E' to change Euclidean delta\n"
-           "Press 'g' and 'G' to change Gaussian delta\n"
-           "Press 'a' or  'A' to change Animation mode ON/OFF\n\n");
+    printf(
+        "Press '+' and '-' to change filter width\n"
+        "Press ']' and '[' to change number of iterations\n"
+        "Press 'e' and 'E' to change Euclidean delta\n"
+        "Press 'g' and 'G' to change Gaussian delta\n"
+        "Press 'a' or  'A' to change Animation mode ON/OFF\n\n");
 
     // Main OpenGL loop that will run visualization for every vsync
     glutMainLoop();

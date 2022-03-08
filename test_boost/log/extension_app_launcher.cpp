@@ -38,17 +38,17 @@ class app_launcher
                                          application instances we require
                                          records to be processed serial >*/
           > {
-public:
+ public:
   // The function consumes the log records that come from the frontend
-  void consume(logging::record_view const &rec,
-               string_type const &command_line);
+  void consume(logging::record_view const& rec,
+               string_type const& command_line);
 };
 //]
 
 //[ example_extension_app_launcher_consume
 // The function consumes the log records that come from the frontend
-void app_launcher::consume(logging::record_view const &rec,
-                           string_type const &command_line) {
+void app_launcher::consume(logging::record_view const& rec,
+                           string_type const& command_line) {
   std::system(command_line.c_str());
 }
 //]
@@ -60,9 +60,8 @@ BOOST_LOG_ATTRIBUTE_KEYWORD(caption, "Caption", std::string)
 // Custom severity level formatting function
 std::string severity_level_as_urgency(
     logging::value_ref<logging::trivial::severity_level,
-                       logging::trivial::tag::severity> const &level) {
-  if (!level || level.get() == logging::trivial::info)
-    return "normal";
+                       logging::trivial::tag::severity> const& level) {
+  if (!level || level.get() == logging::trivial::info) return "normal";
   logging::trivial::severity_level lvl = level.get();
   if (lvl < logging::trivial::info)
     return "low";
@@ -77,10 +76,10 @@ void init_logging() {
   typedef sinks::synchronous_sink<app_launcher> sink_t;
   boost::shared_ptr<sink_t> sink(new sink_t());
 
-  const std::pair<const char *, const char *> shell_decorations[] = {
-      std::pair<const char *, const char *>("\"", "\\\""),
-      std::pair<const char *, const char *>("$", "\\$"),
-      std::pair<const char *, const char *>("!", "\\!")};
+  const std::pair<const char*, const char*> shell_decorations[] = {
+      std::pair<const char*, const char*>("\"", "\\\""),
+      std::pair<const char*, const char*>("$", "\\$"),
+      std::pair<const char*, const char*>("!", "\\!")};
 
   // Make the formatter generate the command line for notify-send
   sink->set_formatter(
@@ -115,7 +114,7 @@ void test_notifications() {
 }
 //]
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   init_logging();
   test_notifications();
 

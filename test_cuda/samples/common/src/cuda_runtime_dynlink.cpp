@@ -11,71 +11,71 @@
 
 #include <dynlink/cuda_runtime_dynlink.h>
 
-tcudaMalloc3D *cudaMalloc3D;
-tcudaMalloc3DArray *cudaMalloc3DArray;
-tcudaMemset3D *cudaMemset3D;
-tcudaMemcpy3D *cudaMemcpy3D;
-tcudaMemcpy3DAsync *cudaMemcpy3DAsync;
-tcudaMalloc *cudaMalloc;
-tcudaMallocHost *cudaMallocHost;
-tcudaMallocPitch *cudaMallocPitch;
-tcudaMallocArray *cudaMallocArray;
-tcudaFree *cudaFree;
-tcudaFreeHost *cudaFreeHost;
-tcudaFreeArray *cudaFreeArray;
-tcudaMemcpy *cudaMemcpy;
-tcudaMemcpyToArray *cudaMemcpyToArray;
-tcudaMemcpyFromArray *cudaMemcpyFromArray;
-tcudaMemcpyArrayToArray *cudaMemcpyArrayToArray;
-tcudaMemcpy2D *cudaMemcpy2D;
-tcudaMemcpy2DToArray *cudaMemcpy2DToArray;
-tcudaMemcpy2DFromArray *cudaMemcpy2DFromArray;
-tcudaMemcpy2DArrayToArray *cudaMemcpy2DArrayToArray;
-tcudaMemcpyToSymbol *cudaMemcpyToSymbol;
-tcudaMemcpyFromSymbol *cudaMemcpyFromSymbol;
-tcudaMemcpyAsync *cudaMemcpyAsync;
-tcudaMemcpyToArrayAsync *cudaMemcpyToArrayAsync;
-tcudaMemcpyFromArrayAsync *cudaMemcpyFromArrayAsync;
-tcudaMemcpy2DAsync *cudaMemcpy2DAsync;
-tcudaMemcpy2DToArrayAsync *cudaMemcpy2DToArrayAsync;
-tcudaMemcpy2DFromArrayAsync *cudaMemcpy2DFromArrayAsync;
-tcudaMemcpyToSymbolAsync *cudaMemcpyToSymbolAsync;
-tcudaMemcpyFromSymbolAsync *cudaMemcpyFromSymbolAsync;
-tcudaMemset *cudaMemset;
-tcudaMemset2D *cudaMemset2D;
-tcudaGetSymbolAddress *cudaGetSymbolAddress;
-tcudaGetSymbolSize *cudaGetSymbolSize;
-tcudaGetDeviceCount *cudaGetDeviceCount;
-tcudaGetDeviceProperties *cudaGetDeviceProperties;
-tcudaChooseDevice *cudaChooseDevice;
-tcudaSetDevice *cudaSetDevice;
-tcudaGetDevice *cudaGetDevice;
-tcudaBindTexture *cudaBindTexture;
-tcudaBindTextureToArray *cudaBindTextureToArray;
-tcudaUnbindTexture *cudaUnbindTexture;
-tcudaGetTextureAlignmentOffset *cudaGetTextureAlignmentOffset;
-tcudaGetTextureReference *cudaGetTextureReference;
-tcudaGetChannelDesc *cudaGetChannelDesc;
-tcudaCreateChannelDesc *cudaCreateChannelDesc;
-tcudaGetLastError *cudaGetLastError;
-tcudaGetErrorString *cudaGetErrorString;
-tcudaConfigureCall *cudaConfigureCall;
-tcudaSetupArgument *cudaSetupArgument;
-tcudaLaunch *cudaLaunch;
-tcudaStreamCreate *cudaStreamCreate;
-tcudaStreamDestroy *cudaStreamDestroy;
-tcudaStreamSynchronize *cudaStreamSynchronize;
-tcudaStreamQuery *cudaStreamQuery;
-tcudaEventCreate *cudaEventCreate;
-tcudaEventRecord *cudaEventRecord;
-tcudaEventQuery *cudaEventQuery;
-tcudaEventSynchronize *cudaEventSynchronize;
-tcudaEventDestroy *cudaEventDestroy;
-tcudaEventElapsedTime *cudaEventElapsedTime;
-tcudaSetDoubleForDevice *cudaSetDoubleForDevice;
-tcudaSetDoubleForHost *cudaSetDoubleForHost;
-tcudaDeviceReset *cudaDeviceReset;
-tcudaDeviceSynchronize *cudaDeviceSynchronize;
+tcudaMalloc3D* cudaMalloc3D;
+tcudaMalloc3DArray* cudaMalloc3DArray;
+tcudaMemset3D* cudaMemset3D;
+tcudaMemcpy3D* cudaMemcpy3D;
+tcudaMemcpy3DAsync* cudaMemcpy3DAsync;
+tcudaMalloc* cudaMalloc;
+tcudaMallocHost* cudaMallocHost;
+tcudaMallocPitch* cudaMallocPitch;
+tcudaMallocArray* cudaMallocArray;
+tcudaFree* cudaFree;
+tcudaFreeHost* cudaFreeHost;
+tcudaFreeArray* cudaFreeArray;
+tcudaMemcpy* cudaMemcpy;
+tcudaMemcpyToArray* cudaMemcpyToArray;
+tcudaMemcpyFromArray* cudaMemcpyFromArray;
+tcudaMemcpyArrayToArray* cudaMemcpyArrayToArray;
+tcudaMemcpy2D* cudaMemcpy2D;
+tcudaMemcpy2DToArray* cudaMemcpy2DToArray;
+tcudaMemcpy2DFromArray* cudaMemcpy2DFromArray;
+tcudaMemcpy2DArrayToArray* cudaMemcpy2DArrayToArray;
+tcudaMemcpyToSymbol* cudaMemcpyToSymbol;
+tcudaMemcpyFromSymbol* cudaMemcpyFromSymbol;
+tcudaMemcpyAsync* cudaMemcpyAsync;
+tcudaMemcpyToArrayAsync* cudaMemcpyToArrayAsync;
+tcudaMemcpyFromArrayAsync* cudaMemcpyFromArrayAsync;
+tcudaMemcpy2DAsync* cudaMemcpy2DAsync;
+tcudaMemcpy2DToArrayAsync* cudaMemcpy2DToArrayAsync;
+tcudaMemcpy2DFromArrayAsync* cudaMemcpy2DFromArrayAsync;
+tcudaMemcpyToSymbolAsync* cudaMemcpyToSymbolAsync;
+tcudaMemcpyFromSymbolAsync* cudaMemcpyFromSymbolAsync;
+tcudaMemset* cudaMemset;
+tcudaMemset2D* cudaMemset2D;
+tcudaGetSymbolAddress* cudaGetSymbolAddress;
+tcudaGetSymbolSize* cudaGetSymbolSize;
+tcudaGetDeviceCount* cudaGetDeviceCount;
+tcudaGetDeviceProperties* cudaGetDeviceProperties;
+tcudaChooseDevice* cudaChooseDevice;
+tcudaSetDevice* cudaSetDevice;
+tcudaGetDevice* cudaGetDevice;
+tcudaBindTexture* cudaBindTexture;
+tcudaBindTextureToArray* cudaBindTextureToArray;
+tcudaUnbindTexture* cudaUnbindTexture;
+tcudaGetTextureAlignmentOffset* cudaGetTextureAlignmentOffset;
+tcudaGetTextureReference* cudaGetTextureReference;
+tcudaGetChannelDesc* cudaGetChannelDesc;
+tcudaCreateChannelDesc* cudaCreateChannelDesc;
+tcudaGetLastError* cudaGetLastError;
+tcudaGetErrorString* cudaGetErrorString;
+tcudaConfigureCall* cudaConfigureCall;
+tcudaSetupArgument* cudaSetupArgument;
+tcudaLaunch* cudaLaunch;
+tcudaStreamCreate* cudaStreamCreate;
+tcudaStreamDestroy* cudaStreamDestroy;
+tcudaStreamSynchronize* cudaStreamSynchronize;
+tcudaStreamQuery* cudaStreamQuery;
+tcudaEventCreate* cudaEventCreate;
+tcudaEventRecord* cudaEventRecord;
+tcudaEventQuery* cudaEventQuery;
+tcudaEventSynchronize* cudaEventSynchronize;
+tcudaEventDestroy* cudaEventDestroy;
+tcudaEventElapsedTime* cudaEventElapsedTime;
+tcudaSetDoubleForDevice* cudaSetDoubleForDevice;
+tcudaSetDoubleForHost* cudaSetDoubleForHost;
+tcudaDeviceReset* cudaDeviceReset;
+tcudaDeviceSynchronize* cudaDeviceSynchronize;
 
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
 #define _WIN 1
@@ -90,12 +90,10 @@ tcudaDeviceSynchronize *cudaDeviceSynchronize;
 #include <Windows.h>
 
 __host__ cudaError_t CUDARTAPI cudaRuntimeDynload(void) {
-
 #define QUOTE(x) #x
-#define GET_PROC(name)                                                         \
-  name = (t##name *)GetProcAddress(CudaRtLib, QUOTE(name));                    \
-  if (name == NULL)                                                            \
-  return cudaErrorUnknown
+#define GET_PROC(name)                                     \
+  name = (t##name*)GetProcAddress(CudaRtLib, QUOTE(name)); \
+  if (name == NULL) return cudaErrorUnknown
 
   HMODULE CudaRtLib = LoadLibrary(L"cudart.dll");
 
@@ -195,12 +193,11 @@ __host__ cudaError_t CUDARTAPI cudaRuntimeDynload(void) {
 
 __host__ cudaError_t CUDARTAPI cudaRuntimeDynload(void) {
 #define QUOTE(x) #x
-#define GET_PROC(name)                                                         \
-  name = (t##name *)dlsym(CudaRtLib, QUOTE(name));                             \
-  if (name == NULL)                                                            \
-  return cudaErrorUnknown
+#define GET_PROC(name)                            \
+  name = (t##name*)dlsym(CudaRtLib, QUOTE(name)); \
+  if (name == NULL) return cudaErrorUnknown
 
-  void *CudaRtLib = dlopen("libcudart.so", RTLD_LAZY);
+  void* CudaRtLib = dlopen("libcudart.so", RTLD_LAZY);
 
   if (CudaRtLib == NULL) {
     return cudaErrorUnknown;

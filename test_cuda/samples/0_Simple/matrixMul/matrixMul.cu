@@ -40,7 +40,7 @@
  * wA is A's width and wB is B's width
  */
 template <int BLOCK_SIZE>
-__global__ void matrixMulCUDA(float *C, float *A, float *B, int wA, int wB) {
+__global__ void matrixMulCUDA(float* C, float* A, float* B, int wA, int wB) {
   // Block index
   int bx = blockIdx.x;
   int by = blockIdx.y;
@@ -71,7 +71,6 @@ __global__ void matrixMulCUDA(float *C, float *A, float *B, int wA, int wB) {
   // Loop over all the sub-matrices of A and B
   // required to compute the block sub-matrix
   for (int a = aBegin, b = bBegin; a <= aEnd; a += aStep, b += bStep) {
-
     // Declaration of the shared memory array As used to
     // store the sub-matrix of A
     __shared__ float As[BLOCK_SIZE][BLOCK_SIZE];
@@ -110,7 +109,7 @@ __global__ void matrixMulCUDA(float *C, float *A, float *B, int wA, int wB) {
   C[c + wB * ty + tx] = Csub;
 }
 
-void constantInit(float *data, int size, float val) {
+void constantInit(float* data, int size, float val) {
   for (int i = 0; i < size; ++i) {
     data[i] = val;
   }
@@ -119,15 +118,15 @@ void constantInit(float *data, int size, float val) {
 /**
  * Run a simple test of matrix multiplication using CUDA
  */
-int matrixMultiply(int argc, char **argv, int block_size, dim3 &dimsA,
-                   dim3 &dimsB) {
+int matrixMultiply(int argc, char** argv, int block_size, dim3& dimsA,
+                   dim3& dimsB) {
   // Allocate host memory for matrices A and B
   unsigned int size_A = dimsA.x * dimsA.y;
   unsigned int mem_size_A = sizeof(float) * size_A;
-  float *h_A = (float *)malloc(mem_size_A);
+  float* h_A = (float*)malloc(mem_size_A);
   unsigned int size_B = dimsB.x * dimsB.y;
   unsigned int mem_size_B = sizeof(float) * size_B;
-  float *h_B = (float *)malloc(mem_size_B);
+  float* h_B = (float*)malloc(mem_size_B);
 
   // Initialize host memory
   const float valB = 0.01f;
@@ -140,7 +139,7 @@ int matrixMultiply(int argc, char **argv, int block_size, dim3 &dimsA,
   // Allocate host matrix C
   dim3 dimsC(dimsB.x, dimsA.y, 1);
   unsigned int mem_size_C = dimsC.x * dimsC.y * sizeof(float);
-  float *h_C = (float *)malloc(mem_size_C);
+  float* h_C = (float*)malloc(mem_size_C);
 
   if (h_C == NULL) {
     fprintf(stderr, "Failed to allocate host matrix C!\n");
@@ -149,7 +148,7 @@ int matrixMultiply(int argc, char **argv, int block_size, dim3 &dimsA,
 
   cudaError_t error;
 
-  error = cudaMalloc((void **)&d_A, mem_size_A);
+  error = cudaMalloc((void**)&d_A, mem_size_A);
 
   if (error != cudaSuccess) {
     printf("cudaMalloc d_A returned error %s (code %d), line(%d)\n",
@@ -157,7 +156,7 @@ int matrixMultiply(int argc, char **argv, int block_size, dim3 &dimsA,
     exit(EXIT_FAILURE);
   }
 
-  error = cudaMalloc((void **)&d_B, mem_size_B);
+  error = cudaMalloc((void**)&d_B, mem_size_B);
 
   if (error != cudaSuccess) {
     printf("cudaMalloc d_B returned error %s (code %d), line(%d)\n",
@@ -165,7 +164,7 @@ int matrixMultiply(int argc, char **argv, int block_size, dim3 &dimsA,
     exit(EXIT_FAILURE);
   }
 
-  error = cudaMalloc((void **)&d_C, mem_size_C);
+  error = cudaMalloc((void**)&d_C, mem_size_C);
 
   if (error != cudaSuccess) {
     printf("cudaMalloc d_C returned error %s (code %d), line(%d)\n",
@@ -282,9 +281,10 @@ int matrixMultiply(int argc, char **argv, int block_size, dim3 &dimsA,
       2.0 * (double)dimsA.x * (double)dimsA.y * (double)dimsB.x;
   double gigaFlops =
       (flopsPerMatrixMul * 1.0e-9f) / (msecPerMatrixMul / 1000.0f);
-  printf("Performance= %.2f GFlop/s, Time= %.3f msec, Size= %.0f Ops, "
-         "WorkgroupSize= %u threads/block\n",
-         gigaFlops, msecPerMatrixMul, flopsPerMatrixMul, threads.x * threads.y);
+  printf(
+      "Performance= %.2f GFlop/s, Time= %.3f msec, Size= %.0f Ops, "
+      "WorkgroupSize= %u threads/block\n",
+      gigaFlops, msecPerMatrixMul, flopsPerMatrixMul, threads.x * threads.y);
 
   // Copy result from device to host
   error = cudaMemcpy(h_C, d_C, mem_size_C, cudaMemcpyDeviceToHost);
@@ -300,7 +300,7 @@ int matrixMultiply(int argc, char **argv, int block_size, dim3 &dimsA,
 
   // test relative error by the formula
   //     |<x, y>_cpu - <x,y>_gpu|/<|x|, |y|>  < eps
-  double eps = 1.e-6; // machine zero
+  double eps = 1.e-6;  // machine zero
 
   for (int i = 0; i < (int)(dimsC.x * dimsC.y); i++) {
     double abs_err = fabs(h_C[i] - (dimsA.x * valB));
@@ -325,8 +325,9 @@ int matrixMultiply(int argc, char **argv, int block_size, dim3 &dimsA,
   cudaFree(d_B);
   cudaFree(d_C);
 
-  printf("\nNOTE: The CUDA Samples are not meant for performance measurements. "
-         "Results may vary when GPU Boost is enabled.\n");
+  printf(
+      "\nNOTE: The CUDA Samples are not meant for performance measurements. "
+      "Results may vary when GPU Boost is enabled.\n");
 
   // cudaDeviceReset causes the driver to clean up all state. While
   // not mandatory in normal operation, it is good practice.  It is also
@@ -345,11 +346,11 @@ int matrixMultiply(int argc, char **argv, int block_size, dim3 &dimsA,
 /**
  * Program main
  */
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   printf("[Matrix Multiply Using CUDA] - Starting...\n");
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "help") ||
-      checkCmdLineFlag(argc, (const char **)argv, "?")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "help") ||
+      checkCmdLineFlag(argc, (const char**)argv, "?")) {
     printf("Usage -device=n (n >= 0 for deviceID)\n");
     printf("      -wA=WidthA -hA=HeightA (Width x Height of Matrix A)\n");
     printf("      -wB=WidthB -hB=HeightB (Width x Height of Matrix B)\n");
@@ -363,8 +364,8 @@ int main(int argc, char **argv) {
   // what is provided at the command line
   int devID = 0;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
-    devID = getCmdLineArgumentInt(argc, (const char **)argv, "device");
+  if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
+    devID = getCmdLineArgumentInt(argc, (const char**)argv, "device");
     cudaSetDevice(devID);
   }
 
@@ -380,8 +381,9 @@ int main(int argc, char **argv) {
   error = cudaGetDeviceProperties(&deviceProp, devID);
 
   if (deviceProp.computeMode == cudaComputeModeProhibited) {
-    fprintf(stderr, "Error: device is running in <Compute Mode Prohibited>, no "
-                    "threads can use ::cudaSetDevice().\n");
+    fprintf(stderr,
+            "Error: device is running in <Compute Mode Prohibited>, no "
+            "threads can use ::cudaSetDevice().\n");
     exit(EXIT_SUCCESS);
   }
 
@@ -400,23 +402,23 @@ int main(int argc, char **argv) {
   dim3 dimsB(5 * 4 * block_size, 5 * 2 * block_size, 1);
 
   // width of Matrix A
-  if (checkCmdLineFlag(argc, (const char **)argv, "wA")) {
-    dimsA.x = getCmdLineArgumentInt(argc, (const char **)argv, "wA");
+  if (checkCmdLineFlag(argc, (const char**)argv, "wA")) {
+    dimsA.x = getCmdLineArgumentInt(argc, (const char**)argv, "wA");
   }
 
   // height of Matrix A
-  if (checkCmdLineFlag(argc, (const char **)argv, "hA")) {
-    dimsA.y = getCmdLineArgumentInt(argc, (const char **)argv, "hA");
+  if (checkCmdLineFlag(argc, (const char**)argv, "hA")) {
+    dimsA.y = getCmdLineArgumentInt(argc, (const char**)argv, "hA");
   }
 
   // width of Matrix B
-  if (checkCmdLineFlag(argc, (const char **)argv, "wB")) {
-    dimsB.x = getCmdLineArgumentInt(argc, (const char **)argv, "wB");
+  if (checkCmdLineFlag(argc, (const char**)argv, "wB")) {
+    dimsB.x = getCmdLineArgumentInt(argc, (const char**)argv, "wB");
   }
 
   // height of Matrix B
-  if (checkCmdLineFlag(argc, (const char **)argv, "hB")) {
-    dimsB.y = getCmdLineArgumentInt(argc, (const char **)argv, "hB");
+  if (checkCmdLineFlag(argc, (const char**)argv, "hB")) {
+    dimsB.y = getCmdLineArgumentInt(argc, (const char**)argv, "hB");
   }
 
   if (dimsA.x != dimsB.y) {

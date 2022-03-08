@@ -36,39 +36,45 @@ inline int iAlignUp(int a, int b) { return (a % b != 0) ? (a - a % b + b) : a; }
 ////////////////////////////////////////////////////////////////////////////////
 __constant__ float c_Kernel[KERNEL_LENGTH];
 
-extern "C" void setConvolutionKernel(float *h_Kernel) {
+extern "C" void setConvolutionKernel(float* h_Kernel) {
   cudaMemcpyToSymbol(c_Kernel, h_Kernel, KERNEL_LENGTH * sizeof(float));
 }
 
 texture<float, 2, cudaReadModeElementType> texSrc;
 
-extern "C" void setInputArray(cudaArray *a_Src) {}
+extern "C" void setInputArray(cudaArray* a_Src) {}
 
 extern "C" void detachInputArray(void) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Loop unrolling templates, needed for best performance
 ////////////////////////////////////////////////////////////////////////////////
-template <int i> __device__ float convolutionRow(float x, float y) {
+template <int i>
+__device__ float convolutionRow(float x, float y) {
   return tex2D(texSrc, x + (float)(KERNEL_RADIUS - i), y) * c_Kernel[i] +
          convolutionRow<i - 1>(x, y);
 }
 
-template <> __device__ float convolutionRow<-1>(float x, float y) { return 0; }
+template <>
+__device__ float convolutionRow<-1>(float x, float y) {
+  return 0;
+}
 
-template <int i> __device__ float convolutionColumn(float x, float y) {
+template <int i>
+__device__ float convolutionColumn(float x, float y) {
   return tex2D(texSrc, x, y + (float)(KERNEL_RADIUS - i)) * c_Kernel[i] +
          convolutionColumn<i - 1>(x, y);
 }
 
-template <> __device__ float convolutionColumn<-1>(float x, float y) {
+template <>
+__device__ float convolutionColumn<-1>(float x, float y) {
   return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Row convolution filter
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void convolutionRowsKernel(float *d_Dst, int imageW, int imageH) {
+__global__ void convolutionRowsKernel(float* d_Dst, int imageW, int imageH) {
   const int ix = IMAD(blockDim.x, blockIdx.x, threadIdx.x);
   const int iy = IMAD(blockDim.y, blockIdx.y, threadIdx.y);
   const float x = (float)ix + 0.5f;
@@ -93,7 +99,7 @@ __global__ void convolutionRowsKernel(float *d_Dst, int imageW, int imageH) {
   d_Dst[IMAD(iy, imageW, ix)] = sum;
 }
 
-extern "C" void convolutionRowsGPU(float *d_Dst, cudaArray *a_Src, int imageW,
+extern "C" void convolutionRowsGPU(float* d_Dst, cudaArray* a_Src, int imageW,
                                    int imageH) {
   dim3 threads(16, 12);
   dim3 blocks(iDivUp(imageW, threads.x), iDivUp(imageH, threads.y));
@@ -108,7 +114,7 @@ extern "C" void convolutionRowsGPU(float *d_Dst, cudaArray *a_Src, int imageW,
 ////////////////////////////////////////////////////////////////////////////////
 // Column convolution filter
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void convolutionColumnsKernel(float *d_Dst, int imageW, int imageH) {
+__global__ void convolutionColumnsKernel(float* d_Dst, int imageW, int imageH) {
   const int ix = IMAD(blockDim.x, blockIdx.x, threadIdx.x);
   const int iy = IMAD(blockDim.y, blockIdx.y, threadIdx.y);
   const float x = (float)ix + 0.5f;
@@ -133,7 +139,7 @@ __global__ void convolutionColumnsKernel(float *d_Dst, int imageW, int imageH) {
   d_Dst[IMAD(iy, imageW, ix)] = sum;
 }
 
-extern "C" void convolutionColumnsGPU(float *d_Dst, cudaArray *a_Src,
+extern "C" void convolutionColumnsGPU(float* d_Dst, cudaArray* a_Src,
                                       int imageW, int imageH) {
   dim3 threads(16, 12);
   dim3 blocks(iDivUp(imageW, threads.x), iDivUp(imageH, threads.y));

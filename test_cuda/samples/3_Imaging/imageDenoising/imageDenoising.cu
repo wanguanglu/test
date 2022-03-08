@@ -53,7 +53,7 @@ texture<uchar4, 2, cudaReadModeNormalizedFloat> texImage;
 cudaChannelFormatDesc uchar4tex = cudaCreateChannelDesc<uchar4>();
 
 // CUDA array descriptor
-cudaArray *a_Src;
+cudaArray* a_Src;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Filtering kernels
@@ -71,7 +71,7 @@ extern "C" cudaError_t CUDA_UnbindTexture() {
   return cudaUnbindTexture(texImage);
 }
 
-extern "C" cudaError_t CUDA_MallocArray(uchar4 **h_Src, int imageW,
+extern "C" cudaError_t CUDA_MallocArray(uchar4** h_Src, int imageW,
                                         int imageH) {
   cudaError_t error;
 

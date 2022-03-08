@@ -30,9 +30,9 @@
 
 // includes, project
 #include <helper_cuda.h>
-#include <helper_functions.h> // helper for shared that are common to CUDA Samples
+#include <helper_functions.h>  // helper for shared that are common to CUDA Samples
 
-static const char *sSDKname = "simpleLayeredTexture";
+static const char* sSDKname = "simpleLayeredTexture";
 
 // includes, kernels
 // declare texture reference for layered 2D float texture
@@ -45,7 +45,7 @@ texture<float, cudaTextureType2DLayered> tex;
 //! Transform a layer of a layered 2D texture using texture lookups
 //! @param g_odata  output data in global memory
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void transformKernel(float *g_odata, int width, int height,
+__global__ void transformKernel(float* g_odata, int width, int height,
                                 int layer) {
   // calculate this thread's data point
   unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -65,12 +65,12 @@ __global__ void transformKernel(float *g_odata, int width, int height,
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   printf("[%s] - Starting...\n", sSDKname);
 
   // use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  int devID = findCudaDevice(argc, (const char **)argv);
+  int devID = findCudaDevice(argc, (const char**)argv);
 
   bool bResult = true;
 
@@ -83,9 +83,10 @@ int main(int argc, char **argv) {
   printf("SM %d.%d\n", deviceProps.major, deviceProps.minor);
 
   if (deviceProps.major < 2) {
-    printf("%s requires SM >= 2.0 to support Texture Arrays.  Test will be "
-           "waived... \n",
-           sSDKname);
+    printf(
+        "%s requires SM >= 2.0 to support Texture Arrays.  Test will be "
+        "waived... \n",
+        sSDKname);
 
     // cudaDeviceReset causes the driver to clean up all state. While
     // not mandatory in normal operation, it is good practice.  It is also
@@ -99,7 +100,7 @@ int main(int argc, char **argv) {
   // generate input data for layered texture
   unsigned int width = 512, height = 512, num_layers = 5;
   unsigned int size = width * height * num_layers * sizeof(float);
-  float *h_data = (float *)malloc(size);
+  float* h_data = (float*)malloc(size);
 
   for (unsigned int layer = 0; layer < num_layers; layer++)
     for (int i = 0; i < (int)(width * height); i++) {
@@ -107,7 +108,7 @@ int main(int argc, char **argv) {
     }
 
   // this is the expected transformation of the input data (the expected output)
-  float *h_data_ref = (float *)malloc(size);
+  float* h_data_ref = (float*)malloc(size);
 
   for (unsigned int layer = 0; layer < num_layers; layer++)
     for (int i = 0; i < (int)(width * height); i++) {
@@ -116,13 +117,13 @@ int main(int argc, char **argv) {
     }
 
   // allocate device memory for result
-  float *d_data = NULL;
-  checkCudaErrors(cudaMalloc((void **)&d_data, size));
+  float* d_data = NULL;
+  checkCudaErrors(cudaMalloc((void**)&d_data, size));
 
   // allocate array and copy image data
   cudaChannelFormatDesc channelDesc =
       cudaCreateChannelDesc(32, 0, 0, 0, cudaChannelFormatKindFloat);
-  cudaArray *cu_3darray;
+  cudaArray* cu_3darray;
   checkCudaErrors(cudaMalloc3DArray(&cu_3darray, &channelDesc,
                                     make_cudaExtent(width, height, num_layers),
                                     cudaArrayLayered));
@@ -140,7 +141,7 @@ int main(int argc, char **argv) {
   tex.addressMode[0] = cudaAddressModeWrap;
   tex.addressMode[1] = cudaAddressModeWrap;
   tex.filterMode = cudaFilterModeLinear;
-  tex.normalized = true; // access with normalized texture coordinates
+  tex.normalized = true;  // access with normalized texture coordinates
 
   // Bind the array to the texture
   checkCudaErrors(cudaBindTextureToArray(tex, cu_3darray, channelDesc));
@@ -148,19 +149,20 @@ int main(int argc, char **argv) {
   dim3 dimBlock(8, 8, 1);
   dim3 dimGrid(width / dimBlock.x, height / dimBlock.y, 1);
 
-  printf("Covering 2D data array of %d x %d: Grid size is %d x %d, each block "
-         "has 8 x 8 threads\n",
-         width, height, dimGrid.x, dimGrid.y);
+  printf(
+      "Covering 2D data array of %d x %d: Grid size is %d x %d, each block "
+      "has 8 x 8 threads\n",
+      width, height, dimGrid.x, dimGrid.y);
 
   transformKernel<<<dimGrid, dimBlock>>>(d_data, width, height,
-                                         0); // warmup (for better timing)
+                                         0);  // warmup (for better timing)
 
   // check if kernel execution generated an error
   getLastCudaError("warmup Kernel execution failed");
 
   checkCudaErrors(cudaDeviceSynchronize());
 
-  StopWatchInterface *timer = NULL;
+  StopWatchInterface* timer = NULL;
   sdkCreateTimer(&timer);
   sdkStartTimer(&timer);
 
@@ -180,12 +182,12 @@ int main(int argc, char **argv) {
   sdkDeleteTimer(&timer);
 
   // allocate mem for the result on host side
-  float *h_odata = (float *)malloc(size);
+  float* h_odata = (float*)malloc(size);
   // copy result from device to host
   checkCudaErrors(cudaMemcpy(h_odata, d_data, size, cudaMemcpyDeviceToHost));
 
   // write regression file if necessary
-  if (checkCmdLineFlag(argc, (const char **)argv, "regression")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "regression")) {
     // write file for regression test
     sdkWriteFile<float>("./data/regression.dat", h_odata, width * height, 0.0f,
                         false);

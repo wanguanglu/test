@@ -22,14 +22,14 @@
 #include <string.h>
 
 // includes, project
-#include <helper_cuda.h> // helper functions (cuda error checking and initialization)
-#include <helper_functions.h> // Helper functions (utilities, parsing, timing)
+#include <helper_cuda.h>  // helper functions (cuda error checking and initialization)
+#include <helper_functions.h>  // Helper functions (utilities, parsing, timing)
 #include <multithreading.h>
 
 #include "MonteCarlo_common.h"
 
-int *pArgc = NULL;
-char **pArgv = NULL;
+int* pArgc = NULL;
+char** pArgv = NULL;
 
 #ifdef WIN32
 #define strcasecmp _strcmpi
@@ -72,19 +72,19 @@ int adjustGridSize(int GPUIndex, int defaultGridSize) {
 ///////////////////////////////////////////////////////////////////////////////
 // CPU reference functions
 ///////////////////////////////////////////////////////////////////////////////
-extern "C" void MonteCarloCPU(TOptionValue &callValue, TOptionData optionData,
-                              float *h_Random, int pathN);
+extern "C" void MonteCarloCPU(TOptionValue& callValue, TOptionData optionData,
+                              float* h_Random, int pathN);
 
 // Black-Scholes formula for call options
-extern "C" void BlackScholesCall(float &CallResult, TOptionData optionData);
+extern "C" void BlackScholesCall(float& CallResult, TOptionData optionData);
 
 ////////////////////////////////////////////////////////////////////////////////
 // GPU-driving host thread
 ////////////////////////////////////////////////////////////////////////////////
 // Timer
-StopWatchInterface **hTimer = NULL;
+StopWatchInterface** hTimer = NULL;
 
-static CUT_THREADPROC solverThread(TOptionPlan *plan) {
+static CUT_THREADPROC solverThread(TOptionPlan* plan) {
   // Init GPU
   checkCudaErrors(cudaSetDevice(plan->device));
 
@@ -123,11 +123,10 @@ static CUT_THREADPROC solverThread(TOptionPlan *plan) {
   CUT_THREADEND;
 }
 
-static void multiSolver(TOptionPlan *plan, int nPlans) {
-
+static void multiSolver(TOptionPlan* plan, int nPlans) {
   // allocate and initialize an array of stream handles
-  cudaStream_t *streams = (cudaStream_t *)malloc(nPlans * sizeof(cudaStream_t));
-  cudaEvent_t *events = (cudaEvent_t *)malloc(nPlans * sizeof(cudaEvent_t));
+  cudaStream_t* streams = (cudaStream_t*)malloc(nPlans * sizeof(cudaStream_t));
+  cudaEvent_t* events = (cudaEvent_t*)malloc(nPlans * sizeof(cudaEvent_t));
 
   for (int i = 0; i < nPlans; i++) {
     checkCudaErrors(cudaSetDevice(plan[i].device));
@@ -197,16 +196,18 @@ static void multiSolver(TOptionPlan *plan, int nPlans) {
 void usage() {
   printf("--method=[threaded,streamed] --scaling=[strong,weak] [--help]\n");
   printf("Method=threaded: 1 CPU thread for each GPU     [default]\n");
-  printf("       streamed: 1 CPU thread handles all GPUs (requires CUDA 4.0 or "
-         "newer)\n");
+  printf(
+      "       streamed: 1 CPU thread handles all GPUs (requires CUDA 4.0 or "
+      "newer)\n");
   printf("Scaling=strong : constant problem size\n");
-  printf("        weak   : problem size scales with number of available GPUs "
-         "[default]\n");
+  printf(
+      "        weak   : problem size scales with number of available GPUs "
+      "[default]\n");
 }
 
-int main(int argc, char **argv) {
-  char *multiMethodChoice = NULL;
-  char *scalingChoice = NULL;
+int main(int argc, char** argv) {
+  char* multiMethodChoice = NULL;
+  char* scalingChoice = NULL;
   bool use_threads = true;
   bool bqatest = false;
   bool strongScaling = false;
@@ -216,17 +217,16 @@ int main(int argc, char **argv) {
 
   printf("%s Starting...\n\n", argv[0]);
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "qatest")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "qatest")) {
     bqatest = true;
   }
 
-  getCmdLineArgumentString(argc, (const char **)argv, "method",
+  getCmdLineArgumentString(argc, (const char**)argv, "method",
                            &multiMethodChoice);
-  getCmdLineArgumentString(argc, (const char **)argv, "scaling",
-                           &scalingChoice);
+  getCmdLineArgumentString(argc, (const char**)argv, "scaling", &scalingChoice);
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "h") ||
-      checkCmdLineFlag(argc, (const char **)argv, "help")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "h") ||
+      checkCmdLineFlag(argc, (const char**)argv, "help")) {
     usage();
     exit(EXIT_SUCCESS);
   }
@@ -268,7 +268,7 @@ int main(int argc, char **argv) {
   int PATH_N = 262144;
 
   // initialize the timers
-  hTimer = new StopWatchInterface *[GPU_N];
+  hTimer = new StopWatchInterface*[GPU_N];
 
   for (int i = 0; i < GPU_N; i++) {
     sdkCreateTimer(&hTimer[i]);
@@ -276,15 +276,15 @@ int main(int argc, char **argv) {
   }
 
   // Input data array
-  TOptionData *optionData = new TOptionData[OPT_N];
+  TOptionData* optionData = new TOptionData[OPT_N];
   // Final GPU MC results
-  TOptionValue *callValueGPU = new TOptionValue[OPT_N];
+  TOptionValue* callValueGPU = new TOptionValue[OPT_N];
   //"Theoretical" call values by Black-Scholes formula
-  float *callValueBS = new float[OPT_N];
+  float* callValueBS = new float[OPT_N];
   // Solver config
-  TOptionPlan *optionSolver = new TOptionPlan[GPU_N];
+  TOptionPlan* optionSolver = new TOptionPlan[GPU_N];
   // OS thread ID
-  CUTThread *threadID = new CUTThread[GPU_N];
+  CUTThread* threadID = new CUTThread[GPU_N];
 
   int gpuBase, gpuIndex;
   int i;
@@ -475,8 +475,9 @@ int main(int argc, char **argv) {
   printf("Test Summary...\n");
   printf("L1 norm        : %E\n", sumDelta / sumRef);
   printf("Average reserve: %f\n", sumReserve);
-  printf("\nNOTE: The CUDA Samples are not meant for performance measurements. "
-         "Results may vary when GPU Boost is enabled.\n\n");
+  printf(
+      "\nNOTE: The CUDA Samples are not meant for performance measurements. "
+      "Results may vary when GPU Boost is enabled.\n\n");
   printf(sumReserve > 1.0f ? "Test passed\n" : "Test failed!\n");
   exit(sumReserve > 1.0f ? EXIT_SUCCESS : EXIT_FAILURE);
 }

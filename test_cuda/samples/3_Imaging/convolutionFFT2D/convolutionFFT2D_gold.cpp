@@ -15,8 +15,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Reference straightforward CPU convolution
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void convolutionClampToBorderCPU(float *h_Result, float *h_Data,
-                                            float *h_Kernel, int dataH,
+extern "C" void convolutionClampToBorderCPU(float* h_Result, float* h_Data,
+                                            float* h_Kernel, int dataH,
                                             int dataW, int kernelH, int kernelW,
                                             int kernelY, int kernelX) {
   for (int y = 0; y < dataH; y++)
@@ -28,17 +28,13 @@ extern "C" void convolutionClampToBorderCPU(float *h_Result, float *h_Data,
           int dy = y + ky;
           int dx = x + kx;
 
-          if (dy < 0)
-            dy = 0;
+          if (dy < 0) dy = 0;
 
-          if (dx < 0)
-            dx = 0;
+          if (dx < 0) dx = 0;
 
-          if (dy >= dataH)
-            dy = dataH - 1;
+          if (dy >= dataH) dy = dataH - 1;
 
-          if (dx >= dataW)
-            dx = dataW - 1;
+          if (dx >= dataW) dx = dataW - 1;
 
           sum += h_Data[dy * dataW + dx] *
                  h_Kernel[(kernelY - ky) * kernelW + (kernelX - kx)];

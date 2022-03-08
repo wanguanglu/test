@@ -13,7 +13,7 @@
 // Calculate scalar products of VectorN vectors of ElementN elements on CPU.
 // Straight accumulation in double precision.
 ////////////////////////////////////////////////////////////////////////////
-extern "C" void scalarProdCPU(float *h_C, float *h_A, float *h_B, int vectorN,
+extern "C" void scalarProdCPU(float* h_C, float* h_A, float* h_B, int vectorN,
                               int elementN) {
   for (int vec = 0; vec < vectorN; vec++) {
     int vectorBase = elementN * vec;

@@ -23,11 +23,11 @@
 typedef unsigned int uint;
 typedef unsigned char uchar;
 
-texture<uchar, 3, cudaReadModeNormalizedFloat> tex; // 3D texture
+texture<uchar, 3, cudaReadModeNormalizedFloat> tex;  // 3D texture
 
-cudaArray *d_volumeArray = 0;
+cudaArray* d_volumeArray = 0;
 
-__global__ void d_render(uint *d_output, uint imageW, uint imageH, float w) {
+__global__ void d_render(uint* d_output, uint imageW, uint imageH, float w) {
   uint x = __umul24(blockIdx.x, blockDim.x) + threadIdx.x;
   uint y = __umul24(blockIdx.y, blockDim.y) + threadIdx.y;
 
@@ -47,7 +47,7 @@ extern "C" void setTextureFilterMode(bool bLinearFilter) {
   tex.filterMode = bLinearFilter ? cudaFilterModeLinear : cudaFilterModePoint;
 }
 
-extern "C" void initCuda(const uchar *h_volume, cudaExtent volumeSize) {
+extern "C" void initCuda(const uchar* h_volume, cudaExtent volumeSize) {
   // create 3D array
   cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<uchar>();
   checkCudaErrors(cudaMalloc3DArray(&d_volumeArray, &channelDesc, volumeSize));
@@ -55,7 +55,7 @@ extern "C" void initCuda(const uchar *h_volume, cudaExtent volumeSize) {
   // copy data to 3D array
   cudaMemcpy3DParms copyParams = {0};
   copyParams.srcPtr =
-      make_cudaPitchedPtr((void *)h_volume, volumeSize.width * sizeof(uchar),
+      make_cudaPitchedPtr((void*)h_volume, volumeSize.width * sizeof(uchar),
                           volumeSize.width, volumeSize.height);
   copyParams.dstArray = d_volumeArray;
   copyParams.extent = volumeSize;
@@ -63,9 +63,9 @@ extern "C" void initCuda(const uchar *h_volume, cudaExtent volumeSize) {
   checkCudaErrors(cudaMemcpy3D(&copyParams));
 
   // set texture parameters
-  tex.normalized = true; // access with normalized texture coordinates
-  tex.filterMode = cudaFilterModeLinear;    // linear interpolation
-  tex.addressMode[0] = cudaAddressModeWrap; // wrap texture coordinates
+  tex.normalized = true;  // access with normalized texture coordinates
+  tex.filterMode = cudaFilterModeLinear;     // linear interpolation
+  tex.addressMode[0] = cudaAddressModeWrap;  // wrap texture coordinates
   tex.addressMode[1] = cudaAddressModeWrap;
   tex.addressMode[2] = cudaAddressModeWrap;
 
@@ -73,9 +73,9 @@ extern "C" void initCuda(const uchar *h_volume, cudaExtent volumeSize) {
   checkCudaErrors(cudaBindTextureToArray(tex, d_volumeArray, channelDesc));
 }
 
-extern "C" void render_kernel(dim3 gridSize, dim3 blockSize, uint *d_output,
+extern "C" void render_kernel(dim3 gridSize, dim3 blockSize, uint* d_output,
                               uint imageW, uint imageH, float w) {
   d_render<<<gridSize, blockSize>>>(d_output, imageW, imageH, w);
 }
 
-#endif // #ifndef _SIMPLETEXTURE3D_KERNEL_CU_
+#endif  // #ifndef _SIMPLETEXTURE3D_KERNEL_CU_

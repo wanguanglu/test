@@ -27,8 +27,8 @@
 #endif
 /* XXX This is from Win32's <winnt.h> */
 #ifndef CALLBACK
-#if (defined(_M_MRX000) || defined(_M_IX86) || defined(_M_ALPHA) ||            \
-     defined(_M_PPC)) &&                                                       \
+#if (defined(_M_MRX000) || defined(_M_IX86) || defined(_M_ALPHA) || \
+     defined(_M_PPC)) &&                                            \
     !defined(MIDL_PASS)
 #define CALLBACK __stdcall
 #else
@@ -216,36 +216,36 @@ signal handling.
 
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
 /* Stroke font constants (use these in GLUT program). */
-#define GLUT_STROKE_ROMAN ((void *)0)
-#define GLUT_STROKE_MONO_ROMAN ((void *)1)
+#define GLUT_STROKE_ROMAN ((void*)0)
+#define GLUT_STROKE_MONO_ROMAN ((void*)1)
 
 /* Bitmap font constants (use these in GLUT program). */
-#define GLUT_BITMAP_9_BY_15 ((void *)2)
-#define GLUT_BITMAP_8_BY_13 ((void *)3)
-#define GLUT_BITMAP_TIMES_ROMAN_10 ((void *)4)
-#define GLUT_BITMAP_TIMES_ROMAN_24 ((void *)5)
+#define GLUT_BITMAP_9_BY_15 ((void*)2)
+#define GLUT_BITMAP_8_BY_13 ((void*)3)
+#define GLUT_BITMAP_TIMES_ROMAN_10 ((void*)4)
+#define GLUT_BITMAP_TIMES_ROMAN_24 ((void*)5)
 #if (GLUT_API_VERSION >= 3)
-#define GLUT_BITMAP_HELVETICA_10 ((void *)6)
-#define GLUT_BITMAP_HELVETICA_12 ((void *)7)
-#define GLUT_BITMAP_HELVETICA_18 ((void *)8)
+#define GLUT_BITMAP_HELVETICA_10 ((void*)6)
+#define GLUT_BITMAP_HELVETICA_12 ((void*)7)
+#define GLUT_BITMAP_HELVETICA_18 ((void*)8)
 #endif
 #else
 /* Stroke font opaque addresses (use constants instead in source code). */
-extern void *glutStrokeRoman;
-extern void *glutStrokeMonoRoman;
+extern void* glutStrokeRoman;
+extern void* glutStrokeMonoRoman;
 
 /* Stroke font constants (use these in GLUT program). */
 #define GLUT_STROKE_ROMAN (&glutStrokeRoman)
 #define GLUT_STROKE_MONO_ROMAN (&glutStrokeMonoRoman)
 
 /* Bitmap font opaque addresses (use constants instead in source code). */
-extern void *glutBitmap9By15;
-extern void *glutBitmap8By13;
-extern void *glutBitmapTimesRoman10;
-extern void *glutBitmapTimesRoman24;
-extern void *glutBitmapHelvetica10;
-extern void *glutBitmapHelvetica12;
-extern void *glutBitmapHelvetica18;
+extern void* glutBitmap9By15;
+extern void* glutBitmap8By13;
+extern void* glutBitmapTimesRoman10;
+extern void* glutBitmapTimesRoman24;
+extern void* glutBitmapHelvetica10;
+extern void* glutBitmapHelvetica12;
+extern void* glutBitmapHelvetica18;
 
 /* Bitmap font constants (use these in GLUT program). */
 #define GLUT_BITMAP_9_BY_15 (&glutBitmap9By15)
@@ -394,17 +394,17 @@ extern void *glutBitmapHelvetica18;
 #endif
 
 /* GLUT initialization sub-API. */
-extern void APIENTRY glutInit(int *argcp, char **argv);
+extern void APIENTRY glutInit(int* argcp, char** argv);
 extern void APIENTRY glutInitDisplayMode(unsigned int mode);
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
-extern void APIENTRY glutInitDisplayString(const char *string);
+extern void APIENTRY glutInitDisplayString(const char* string);
 #endif
 extern void APIENTRY glutInitWindowPosition(int x, int y);
 extern void APIENTRY glutInitWindowSize(int width, int height);
 extern void APIENTRY glutMainLoop(void);
 
 /* GLUT window sub-API. */
-extern int APIENTRY glutCreateWindow(const char *title);
+extern int APIENTRY glutCreateWindow(const char* title);
 extern int APIENTRY glutCreateSubWindow(int win, int x, int y, int width,
                                         int height);
 extern void APIENTRY glutDestroyWindow(int win);
@@ -415,8 +415,8 @@ extern void APIENTRY glutPostWindowRedisplay(int win);
 extern void APIENTRY glutSwapBuffers(void);
 extern int APIENTRY glutGetWindow(void);
 extern void APIENTRY glutSetWindow(int win);
-extern void APIENTRY glutSetWindowTitle(const char *title);
-extern void APIENTRY glutSetIconTitle(const char *title);
+extern void APIENTRY glutSetWindowTitle(const char* title);
+extern void APIENTRY glutSetIconTitle(const char* title);
 extern void APIENTRY glutPositionWindow(int x, int y);
 extern void APIENTRY glutReshapeWindow(int width, int height);
 extern void APIENTRY glutPopWindow(void);
@@ -448,11 +448,11 @@ extern int APIENTRY glutCreateMenu(void (*)(int));
 extern void APIENTRY glutDestroyMenu(int menu);
 extern int APIENTRY glutGetMenu(void);
 extern void APIENTRY glutSetMenu(int menu);
-extern void APIENTRY glutAddMenuEntry(const char *label, int value);
-extern void APIENTRY glutAddSubMenu(const char *label, int submenu);
-extern void APIENTRY glutChangeToMenuEntry(int item, const char *label,
+extern void APIENTRY glutAddMenuEntry(const char* label, int value);
+extern void APIENTRY glutAddSubMenu(const char* label, int submenu);
+extern void APIENTRY glutChangeToMenuEntry(int item, const char* label,
                                            int value);
-extern void APIENTRY glutChangeToSubMenu(int item, const char *label,
+extern void APIENTRY glutChangeToSubMenu(int item, const char* label,
                                          int submenu);
 extern void APIENTRY glutRemoveMenuItem(int item);
 extern void APIENTRY glutAttachMenu(int button);
@@ -512,7 +512,7 @@ extern int APIENTRY glutGet(GLenum type);
 extern int APIENTRY glutDeviceGet(GLenum type);
 #if (GLUT_API_VERSION >= 2)
 /* GLUT extension support sub-API */
-extern int APIENTRY glutExtensionSupported(const char *name);
+extern int APIENTRY glutExtensionSupported(const char* name);
 #endif
 #if (GLUT_API_VERSION >= 3)
 extern int APIENTRY glutGetModifiers(void);
@@ -520,13 +520,13 @@ extern int APIENTRY glutLayerGet(GLenum type);
 #endif
 
 /* GLUT font sub-API */
-extern void APIENTRY glutBitmapCharacter(void *font, int character);
-extern int APIENTRY glutBitmapWidth(void *font, int character);
-extern void APIENTRY glutStrokeCharacter(void *font, int character);
-extern int APIENTRY glutStrokeWidth(void *font, int character);
+extern void APIENTRY glutBitmapCharacter(void* font, int character);
+extern int APIENTRY glutBitmapWidth(void* font, int character);
+extern void APIENTRY glutStrokeCharacter(void* font, int character);
+extern int APIENTRY glutStrokeWidth(void* font, int character);
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
-extern int APIENTRY glutBitmapLength(void *font, const unsigned char *string);
-extern int APIENTRY glutStrokeLength(void *font, const unsigned char *string);
+extern int APIENTRY glutBitmapLength(void* font, const unsigned char* string);
+extern int APIENTRY glutStrokeLength(void* font, const unsigned char* string);
 #endif
 
 /* GLUT pre-built models sub-API */
@@ -594,7 +594,7 @@ extern void APIENTRY glutForceJoystickFunc(void);
 #define GLUT_GAME_MODE_REFRESH_RATE 5
 #define GLUT_GAME_MODE_DISPLAY_CHANGED 6
 
-extern void APIENTRY glutGameModeString(const char *string);
+extern void APIENTRY glutGameModeString(const char* string);
 extern int APIENTRY glutEnterGameMode(void);
 extern void APIENTRY glutLeaveGameMode(void);
 extern int APIENTRY glutGameModeGet(GLenum mode);

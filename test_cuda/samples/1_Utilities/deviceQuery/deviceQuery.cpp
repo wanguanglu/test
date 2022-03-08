@@ -20,8 +20,8 @@
 #include <cuda_runtime.h>
 #include <helper_cuda.h>
 
-int *pArgc = NULL;
-char **pArgv = NULL;
+int* pArgc = NULL;
+char** pArgv = NULL;
 
 #if CUDART_VERSION < 5000
 
@@ -30,7 +30,7 @@ char **pArgv = NULL;
 
 // This function wraps the CUDA Driver API into a template function
 template <class T>
-inline void getCudaAttribute(T *attribute, CUdevice_attribute device_attribute,
+inline void getCudaAttribute(T* attribute, CUdevice_attribute device_attribute,
                              int device) {
   CUresult error = cuDeviceGetAttribute(attribute, device_attribute, device);
 
@@ -55,7 +55,7 @@ inline void getCudaAttribute(T *attribute, CUdevice_attribute device_attribute,
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   pArgc = &argc;
   pArgv = argv;
 
@@ -111,9 +111,10 @@ int main(int argc, char **argv) {
            _ConvertSMVer2Cores(deviceProp.major, deviceProp.minor),
            _ConvertSMVer2Cores(deviceProp.major, deviceProp.minor) *
                deviceProp.multiProcessorCount);
-    printf("  GPU Max Clock rate:                            %.0f MHz (%0.2f "
-           "GHz)\n",
-           deviceProp.clockRate * 1e-3f, deviceProp.clockRate * 1e-6f);
+    printf(
+        "  GPU Max Clock rate:                            %.0f MHz (%0.2f "
+        "GHz)\n",
+        deviceProp.clockRate * 1e-3f, deviceProp.clockRate * 1e-6f);
 
 #if CUDART_VERSION >= 5000
     // This is supported in CUDA 5.0 (runtime API device properties)
@@ -150,18 +151,20 @@ int main(int argc, char **argv) {
 
 #endif
 
-    printf("  Maximum Texture Dimension Size (x,y,z)         1D=(%d), 2D=(%d, "
-           "%d), 3D=(%d, %d, %d)\n",
-           deviceProp.maxTexture1D, deviceProp.maxTexture2D[0],
-           deviceProp.maxTexture2D[1], deviceProp.maxTexture3D[0],
-           deviceProp.maxTexture3D[1], deviceProp.maxTexture3D[2]);
+    printf(
+        "  Maximum Texture Dimension Size (x,y,z)         1D=(%d), 2D=(%d, "
+        "%d), 3D=(%d, %d, %d)\n",
+        deviceProp.maxTexture1D, deviceProp.maxTexture2D[0],
+        deviceProp.maxTexture2D[1], deviceProp.maxTexture3D[0],
+        deviceProp.maxTexture3D[1], deviceProp.maxTexture3D[2]);
     printf(
         "  Maximum Layered 1D Texture Size, (num) layers  1D=(%d), %d layers\n",
         deviceProp.maxTexture1DLayered[0], deviceProp.maxTexture1DLayered[1]);
-    printf("  Maximum Layered 2D Texture Size, (num) layers  2D=(%d, %d), %d "
-           "layers\n",
-           deviceProp.maxTexture2DLayered[0], deviceProp.maxTexture2DLayered[1],
-           deviceProp.maxTexture2DLayered[2]);
+    printf(
+        "  Maximum Layered 2D Texture Size, (num) layers  2D=(%d, %d), %d "
+        "layers\n",
+        deviceProp.maxTexture2DLayered[0], deviceProp.maxTexture2DLayered[1],
+        deviceProp.maxTexture2DLayered[2]);
 
     printf("  Total amount of constant memory:               %lu bytes\n",
            deviceProp.totalConstMem);
@@ -185,10 +188,10 @@ int main(int argc, char **argv) {
            deviceProp.memPitch);
     printf("  Texture alignment:                             %lu bytes\n",
            deviceProp.textureAlignment);
-    printf("  Concurrent copy and kernel execution:          %s with %d copy "
-           "engine(s)\n",
-           (deviceProp.deviceOverlap ? "Yes" : "No"),
-           deviceProp.asyncEngineCount);
+    printf(
+        "  Concurrent copy and kernel execution:          %s with %d copy "
+        "engine(s)\n",
+        (deviceProp.deviceOverlap ? "Yes" : "No"), deviceProp.asyncEngineCount);
     printf("  Run time limit on kernels:                     %s\n",
            deviceProp.kernelExecTimeoutEnabled ? "Yes" : "No");
     printf("  Integrated GPU sharing Host Memory:            %s\n",
@@ -209,7 +212,7 @@ int main(int argc, char **argv) {
     printf("  Device PCI Domain ID / Bus ID / location ID:   %d / %d / %d\n",
            deviceProp.pciDomainID, deviceProp.pciBusID, deviceProp.pciDeviceID);
 
-    const char *sComputeMode[] = {
+    const char* sComputeMode[] = {
         "Default (multiple host threads can use ::cudaSetDevice() with device "
         "simultaneously)",
         "Exclusive (only one host thread in one process is able to use "
@@ -227,7 +230,7 @@ int main(int argc, char **argv) {
   // If there are 2 or more GPUs, query to determine whether RDMA is supported
   if (deviceCount >= 2) {
     cudaDeviceProp prop[64];
-    int gpuid[64]; // we want to find the first two GPUs that can support P2P
+    int gpuid[64];  // we want to find the first two GPUs that can support P2P
     int gpu_p2p_count = 0;
 
     for (int i = 0; i < deviceCount; i++) {

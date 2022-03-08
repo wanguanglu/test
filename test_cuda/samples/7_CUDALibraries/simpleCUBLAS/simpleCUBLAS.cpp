@@ -53,8 +53,8 @@
 #define N (275)
 
 /* Host implementation of a simple version of sgemm */
-static void simple_sgemm(int n, float alpha, const float *A, const float *B,
-                         float beta, float *C) {
+static void simple_sgemm(int n, float alpha, const float* A, const float* B,
+                         float beta, float* C) {
   int i;
   int j;
   int k;
@@ -73,15 +73,15 @@ static void simple_sgemm(int n, float alpha, const float *A, const float *B,
 }
 
 /* Main */
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   cublasStatus_t status;
-  float *h_A;
-  float *h_B;
-  float *h_C;
-  float *h_C_ref;
-  float *d_A = 0;
-  float *d_B = 0;
-  float *d_C = 0;
+  float* h_A;
+  float* h_B;
+  float* h_C;
+  float* h_C_ref;
+  float* d_A = 0;
+  float* d_B = 0;
+  float* d_C = 0;
   float alpha = 1.0f;
   float beta = 0.0f;
   int n2 = N * N;
@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
   float diff;
   cublasHandle_t handle;
 
-  int dev = findCudaDevice(argc, (const char **)argv);
+  int dev = findCudaDevice(argc, (const char**)argv);
 
   if (dev == -1) {
     return EXIT_FAILURE;
@@ -108,21 +108,21 @@ int main(int argc, char **argv) {
   }
 
   /* Allocate host memory for the matrices */
-  h_A = (float *)malloc(n2 * sizeof(h_A[0]));
+  h_A = (float*)malloc(n2 * sizeof(h_A[0]));
 
   if (h_A == 0) {
     fprintf(stderr, "!!!! host memory allocation error (A)\n");
     return EXIT_FAILURE;
   }
 
-  h_B = (float *)malloc(n2 * sizeof(h_B[0]));
+  h_B = (float*)malloc(n2 * sizeof(h_B[0]));
 
   if (h_B == 0) {
     fprintf(stderr, "!!!! host memory allocation error (B)\n");
     return EXIT_FAILURE;
   }
 
-  h_C = (float *)malloc(n2 * sizeof(h_C[0]));
+  h_C = (float*)malloc(n2 * sizeof(h_C[0]));
 
   if (h_C == 0) {
     fprintf(stderr, "!!!! host memory allocation error (C)\n");
@@ -137,17 +137,17 @@ int main(int argc, char **argv) {
   }
 
   /* Allocate device memory for the matrices */
-  if (cudaMalloc((void **)&d_A, n2 * sizeof(d_A[0])) != cudaSuccess) {
+  if (cudaMalloc((void**)&d_A, n2 * sizeof(d_A[0])) != cudaSuccess) {
     fprintf(stderr, "!!!! device memory allocation error (allocate A)\n");
     return EXIT_FAILURE;
   }
 
-  if (cudaMalloc((void **)&d_B, n2 * sizeof(d_B[0])) != cudaSuccess) {
+  if (cudaMalloc((void**)&d_B, n2 * sizeof(d_B[0])) != cudaSuccess) {
     fprintf(stderr, "!!!! device memory allocation error (allocate B)\n");
     return EXIT_FAILURE;
   }
 
-  if (cudaMalloc((void **)&d_C, n2 * sizeof(d_C[0])) != cudaSuccess) {
+  if (cudaMalloc((void**)&d_C, n2 * sizeof(d_C[0])) != cudaSuccess) {
     fprintf(stderr, "!!!! device memory allocation error (allocate C)\n");
     return EXIT_FAILURE;
   }
@@ -188,7 +188,7 @@ int main(int argc, char **argv) {
   }
 
   /* Allocate host memory for reading back the result from device memory */
-  h_C = (float *)malloc(n2 * sizeof(h_C[0]));
+  h_C = (float*)malloc(n2 * sizeof(h_C[0]));
 
   if (h_C == 0) {
     fprintf(stderr, "!!!! host memory allocation error (C)\n");

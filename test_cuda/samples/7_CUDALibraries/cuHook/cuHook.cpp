@@ -56,7 +56,7 @@ static int allocation_cb = 0;
 static int free_cb = 0;
 static int destroy_ctx_cb = 0;
 
-CUresult device_allocation_callback(CUdeviceptr *dptr, size_t bytesize) {
+CUresult device_allocation_callback(CUdeviceptr* dptr, size_t bytesize) {
   fprintf(stdout, "Received memory allocation callback!\n");
   allocation_cb++;
   return CUDA_SUCCESS;
@@ -96,10 +96,10 @@ int main() {
     // - cudaDeviceReset() will trigger a context change and you would need to
     // intercept cuCtxGetCurrent/cuCtxSetCurrent
     cuHook(CU_HOOK_MEM_ALLOC, POST_CALL_HOOK,
-           (void *)device_allocation_callback);
-    cuHook(CU_HOOK_MEM_FREE, PRE_CALL_HOOK, (void *)device_free_callback);
+           (void*)device_allocation_callback);
+    cuHook(CU_HOOK_MEM_FREE, PRE_CALL_HOOK, (void*)device_free_callback);
     cuHook(CU_HOOK_CTX_DESTROY, POST_CALL_HOOK,
-           (void *)destroy_context_callback);
+           (void*)destroy_context_callback);
   }
 
   cuCtxCreate(&ctx, 0, 0);

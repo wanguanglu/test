@@ -30,22 +30,22 @@ typedef enum { ITU601 = 1, ITU709 = 2 } eColorSpace;
 
 // The NV12ToARGB helper functions and CUDA kernel launchers that get called
 extern "C" {
-CUresult InitCudaModule(char *filename_cubin, char *exec_path,
-                        CUmodule *cuModule);
-CUresult InitCudaFunction(char *func_name, CUmodule *pModule,
-                          CUfunction *pCudaFunction);
+CUresult InitCudaModule(char* filename_cubin, char* exec_path,
+                        CUmodule* cuModule);
+CUresult InitCudaFunction(char* func_name, CUmodule* pModule,
+                          CUfunction* pCudaFunction);
 
-CUresult updateConstantMemory(float *hueCSC);
+CUresult updateConstantMemory(float* hueCSC);
 CUresult updateConstantMemory_drvapi(CUmodule cuModule,
-                                     float *hueColorSpaceMat);
-void setColorSpaceMatrix(eColorSpace CSC, float *hueColorSpaceMat, float hue);
+                                     float* hueColorSpaceMat);
+void setColorSpaceMatrix(eColorSpace CSC, float* hueColorSpaceMat, float hue);
 
-CUresult cudaLaunchNV12toARGB(uint32 *d_srcNV12, size_t nSourcePitch,
-                              uint32 *d_dstARGB, size_t nDestPitch,
+CUresult cudaLaunchNV12toARGB(uint32* d_srcNV12, size_t nSourcePitch,
+                              uint32* d_dstARGB, size_t nDestPitch,
                               uint32 width, uint32 height);
 
-CUresult cudaLaunchNV12toARGB_4pix(uint32 *d_srcNV12, size_t nSourcePitch,
-                                   uint32 *d_dstARGB, size_t nDestPitch,
+CUresult cudaLaunchNV12toARGB_4pix(uint32* d_srcNV12, size_t nSourcePitch,
+                                   uint32* d_dstARGB, size_t nDestPitch,
                                    uint32 width, uint32 height);
 
 CUresult cudaLaunchNV12toARGBDrv(CUdeviceptr d_srcNV12, size_t nSourcePitch,

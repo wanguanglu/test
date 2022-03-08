@@ -39,9 +39,9 @@
 
 #include <iostream>
 
-#include <cuda_runtime.h> // CUDA Runtime Functions
-#include <helper_cuda.h> // helper functions for CUDA error checking and initialization
-#include <helper_functions.h> // helper functions
+#include <cuda_runtime.h>  // CUDA Runtime Functions
+#include <helper_cuda.h>  // helper functions for CUDA error checking and initialization
+#include <helper_functions.h>  // helper functions
 
 #include <math.h>
 #include <stdexcept>
@@ -52,9 +52,9 @@
 
 #define L1ERROR_TOLERANCE (1e-6)
 
-const char *sSDKsample = "Sobol Quasi-Random Number Generator";
+const char* sSDKsample = "Sobol Quasi-Random Number Generator";
 
-void printHelp(int argc, char *argv[]) {
+void printHelp(int argc, char* argv[]) {
   if (argc > 0) {
     std::cout << "\nUsage: " << argv[0] << " <options>\n\n";
   } else {
@@ -68,7 +68,7 @@ void printHelp(int argc, char *argv[]) {
   std::cout << std::endl;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   bool ok = true;
 
   // We will generate n_vectors vectors of n_dimensions numbers
@@ -78,19 +78,19 @@ int main(int argc, char *argv[]) {
   printf("%s Starting...\n\n", sSDKsample);
 
   // Print help if requested
-  if (checkCmdLineFlag(argc, (const char **)argv, "help")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "help")) {
     printHelp(argc, argv);
     return 0;
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "qatest")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "qatest")) {
     // For QA testing set a default number of vectors and dimensions
     n_vectors = 100000;
     n_dimensions = 100;
   } else {
     // Parse the command line to determine the required number of vectors
-    if (checkCmdLineFlag(argc, (const char **)argv, "vectors")) {
-      n_vectors = getCmdLineArgumentInt(argc, (const char **)argv, "vectors");
+    if (checkCmdLineFlag(argc, (const char**)argv, "vectors")) {
+      n_vectors = getCmdLineArgumentInt(argc, (const char**)argv, "vectors");
 
       if (n_vectors < 1) {
         std::cerr << "Illegal argument: number of vectors must be positive "
@@ -104,9 +104,9 @@ int main(int argc, char *argv[]) {
 
     // Parse the command line to determine the number of dimensions in each
     // vector
-    if (checkCmdLineFlag(argc, (const char **)argv, "dimensions")) {
+    if (checkCmdLineFlag(argc, (const char**)argv, "dimensions")) {
       n_dimensions =
-          getCmdLineArgumentInt(argc, (const char **)argv, "dimensions");
+          getCmdLineArgumentInt(argc, (const char**)argv, "dimensions");
 
       if (n_dimensions < 1) {
         std::cerr << "Illegal argument: number of dimensions must be positive "
@@ -126,18 +126,18 @@ int main(int argc, char *argv[]) {
 
   // Use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  findCudaDevice(argc, (const char **)argv);
+  findCudaDevice(argc, (const char**)argv);
 
   // Create a timer to measure performance
-  StopWatchInterface *hTimer = NULL;
+  StopWatchInterface* hTimer = NULL;
   double time;
   sdkCreateTimer(&hTimer);
 
   // Allocate memory for the arrays
   std::cout << "Allocating CPU memory..." << std::endl;
-  unsigned int *h_directions = 0;
-  float *h_outputCPU = 0;
-  float *h_outputGPU = 0;
+  unsigned int* h_directions = 0;
+  float* h_outputCPU = 0;
+  float* h_outputGPU = 0;
 
   try {
     h_directions = new unsigned int[n_dimensions * n_directions];
@@ -152,20 +152,20 @@ int main(int argc, char *argv[]) {
   }
 
   std::cout << "Allocating GPU memory..." << std::endl;
-  unsigned int *d_directions;
-  float *d_output;
+  unsigned int* d_directions;
+  float* d_output;
 
   try {
     cudaError_t cudaResult;
-    cudaResult = cudaMalloc((void **)&d_directions,
+    cudaResult = cudaMalloc((void**)&d_directions,
                             n_dimensions * n_directions * sizeof(unsigned int));
 
     if (cudaResult != cudaSuccess) {
       throw std::runtime_error(cudaGetErrorString(cudaResult));
     }
 
-    cudaResult = cudaMalloc((void **)&d_output,
-                            n_vectors * n_dimensions * sizeof(float));
+    cudaResult =
+        cudaMalloc((void**)&d_output, n_vectors * n_dimensions * sizeof(float));
 
     if (cudaResult != cudaSuccess) {
       throw std::runtime_error(cudaGetErrorString(cudaResult));

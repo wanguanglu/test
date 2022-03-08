@@ -12,7 +12,8 @@
 #ifndef TEST_H
 #define TEST_H
 
-template <typename Real> struct Test {
+template <typename Real>
+struct Test {
   Test() : pass(false){};
 
   int device;

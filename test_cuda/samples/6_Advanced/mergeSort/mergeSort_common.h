@@ -20,13 +20,13 @@ typedef unsigned int uint;
 ////////////////////////////////////////////////////////////////////////////////
 // Extensive sort validation routine
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" uint validateSortedKeys(uint *resKey, uint *srcKey, uint batchSize,
+extern "C" uint validateSortedKeys(uint* resKey, uint* srcKey, uint batchSize,
                                    uint arrayLength, uint numValues,
                                    uint sortDir);
 
-extern "C" void fillValues(uint *val, uint N);
+extern "C" void fillValues(uint* val, uint N);
 
-extern "C" int validateSortedValues(uint *resKey, uint *resVal, uint *srcKey,
+extern "C" int validateSortedValues(uint* resKey, uint* resVal, uint* srcKey,
                                     uint batchSize, uint arrayLength);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -36,13 +36,13 @@ extern "C" void initMergeSort(void);
 
 extern "C" void closeMergeSort(void);
 
-extern "C" void mergeSort(uint *dstKey, uint *dstVal, uint *bufKey,
-                          uint *bufVal, uint *srcKey, uint *srcVal, uint N,
+extern "C" void mergeSort(uint* dstKey, uint* dstVal, uint* bufKey,
+                          uint* bufVal, uint* srcKey, uint* srcVal, uint N,
                           uint sortDir);
 
 ////////////////////////////////////////////////////////////////////////////////
 // CPU "emulation"
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void mergeSortHost(uint *dstKey, uint *dstVal, uint *bufKey,
-                              uint *bufVal, uint *srcKey, uint *srcVal, uint N,
+extern "C" void mergeSortHost(uint* dstKey, uint* dstVal, uint* bufKey,
+                              uint* bufVal, uint* srcKey, uint* srcVal, uint N,
                               uint sortDir);

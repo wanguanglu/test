@@ -35,12 +35,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // declaration, forward
-bool runTest(int argc, char **argv);
+bool runTest(int argc, char** argv);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   bool bQAResults = false;
 
   printf("Starting eigenvalues\n");
@@ -59,15 +59,14 @@ int main(int argc, char **argv) {
 //! @param user_defined  1 if the matrix size has been requested by the user,
 //!                      0 if the default size
 ////////////////////////////////////////////////////////////////////////////////
-void initInputData(InputData &input, char *exec_path,
+void initInputData(InputData& input, char* exec_path,
                    const unsigned int mat_size,
                    const unsigned int user_defined) {
   // allocate memory
-  input.a = (float *)malloc(sizeof(float) * mat_size);
-  input.b = (float *)malloc(sizeof(float) * mat_size);
+  input.a = (float*)malloc(sizeof(float) * mat_size);
+  input.b = (float*)malloc(sizeof(float) * mat_size);
 
   if (1 == user_defined) {
-
     // initialize diagonal and superdiagonal entries with random values
     srand(278217421);
 
@@ -82,14 +81,13 @@ void initInputData(InputData &input, char *exec_path,
     // with (s+1) as start address
     input.b[0] = 0.0f;
   } else {
-
     // read default matrix
     unsigned int input_data_size = mat_size;
-    char *diag_path = sdkFindFilePath("diagonal.dat", exec_path);
+    char* diag_path = sdkFindFilePath("diagonal.dat", exec_path);
     assert(NULL != diag_path);
     sdkReadFile(diag_path, &(input.a), &input_data_size, false);
 
-    char *sdiag_path = sdkFindFilePath("superdiagonal.dat", exec_path);
+    char* sdiag_path = sdkFindFilePath("superdiagonal.dat", exec_path);
     assert(NULL != sdiag_path);
     sdkReadFile(sdiag_path, &(input.b), &input_data_size, false);
 
@@ -98,9 +96,9 @@ void initInputData(InputData &input, char *exec_path,
   }
 
   // allocate device memory for input
-  checkCudaErrors(cudaMalloc((void **)&(input.g_a), sizeof(float) * mat_size));
+  checkCudaErrors(cudaMalloc((void**)&(input.g_a), sizeof(float) * mat_size));
   checkCudaErrors(
-      cudaMalloc((void **)&(input.g_b_raw), sizeof(float) * mat_size));
+      cudaMalloc((void**)&(input.g_b_raw), sizeof(float) * mat_size));
 
   // copy data to device
   checkCudaErrors(cudaMemcpy(input.g_a, input.a, sizeof(float) * mat_size,
@@ -115,8 +113,7 @@ void initInputData(InputData &input, char *exec_path,
 //! Clean up input data, in particular allocated memory
 //! @param input  handles to the input data
 ////////////////////////////////////////////////////////////////////////////////
-void cleanupInputData(InputData &input) {
-
+void cleanupInputData(InputData& input) {
   freePtr(input.a);
   freePtr(input.b);
 
@@ -134,16 +131,15 @@ void cleanupInputData(InputData &input) {
 //! @param matrix_size  size of matrix, updated if specific size specified on
 //!                     command line
 ////////////////////////////////////////////////////////////////////////////////
-void getMatrixSize(int argc, char **argv, unsigned int &mat_size,
-                   unsigned int &user_defined) {
+void getMatrixSize(int argc, char** argv, unsigned int& mat_size,
+                   unsigned int& user_defined) {
   int temp = -1;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "matrix-size")) {
-    temp = getCmdLineArgumentInt(argc, (const char **)argv, "matrix-size");
+  if (checkCmdLineFlag(argc, (const char**)argv, "matrix-size")) {
+    temp = getCmdLineArgumentInt(argc, (const char**)argv, "matrix-size");
   }
 
   if (temp > 0) {
-
     mat_size = (unsigned int)temp;
     // data type short is used in the kernel
     assert(mat_size < (1 << 16));
@@ -166,13 +162,12 @@ void getMatrixSize(int argc, char **argv, unsigned int &mat_size,
 //! @param user_defined  1 if the precision has been requested by the user,
 //!                      0 if the default size
 ////////////////////////////////////////////////////////////////////////////////
-void getPrecision(int argc, char **argv, float &precision,
-                  unsigned int &user_defined) {
-
+void getPrecision(int argc, char** argv, float& precision,
+                  unsigned int& user_defined) {
   float temp = -1.0f;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "precision")) {
-    temp = getCmdLineArgumentFloat(argc, (const char **)argv, "precision");
+  if (checkCmdLineFlag(argc, (const char**)argv, "precision")) {
+    temp = getCmdLineArgumentFloat(argc, (const char**)argv, "precision");
     printf("Precision is between [0.001, 0.000001]\n");
   }
 
@@ -191,12 +186,11 @@ void getPrecision(int argc, char **argv, float &precision,
 //! @param  iters_timing  number of timing iterations, updated if user
 //!                       specific value
 ////////////////////////////////////////////////////////////////////////////////
-void getItersTiming(int argc, char **argv, unsigned int &iters_timing) {
-
+void getItersTiming(int argc, char** argv, unsigned int& iters_timing) {
   int temp = -1;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "iters-timing")) {
-    temp = getCmdLineArgumentInt(argc, (const char **)argv, "iters-timing");
+  if (checkCmdLineFlag(argc, (const char**)argv, "iters-timing")) {
+    temp = getCmdLineArgumentInt(argc, (const char**)argv, "iters-timing");
   }
 
   if (temp > 0) {
@@ -214,14 +208,12 @@ void getItersTiming(int argc, char **argv, unsigned int &iters_timing) {
 //! @param  filename  filename of result file, updated if user specified
 //!                   filename
 ////////////////////////////////////////////////////////////////////////////////
-void getResultFilename(int argc, char **argv, char *&filename) {
-
-  char *temp = NULL;
-  getCmdLineArgumentString(argc, (const char **)argv, "filename-result", &temp);
+void getResultFilename(int argc, char** argv, char*& filename) {
+  char* temp = NULL;
+  getCmdLineArgumentString(argc, (const char**)argv, "filename-result", &temp);
 
   if (NULL != temp) {
-
-    filename = (char *)malloc(sizeof(char) * strlen(temp));
+    filename = (char*)malloc(sizeof(char) * strlen(temp));
     strcpy(filename, temp);
 
     free(temp);
@@ -233,13 +225,13 @@ void getResultFilename(int argc, char **argv, char *&filename) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Run a simple test for CUDA
 ////////////////////////////////////////////////////////////////////////////////
-bool runTest(int argc, char **argv) {
+bool runTest(int argc, char** argv) {
   bool bCompareResult = false;
 
-  findCudaDevice(argc, (const char **)argv);
+  findCudaDevice(argc, (const char**)argv);
 
-  StopWatchInterface *timer = NULL;
-  StopWatchInterface *timer_total = NULL;
+  StopWatchInterface* timer = NULL;
+  StopWatchInterface* timer_total = NULL;
   sdkCreateTimer(&timer);
   sdkCreateTimer(&timer_total);
 
@@ -250,7 +242,7 @@ bool runTest(int argc, char **argv) {
   // desired precision of eigenvalues
   float precision = 0.00001f;
   unsigned int iters_timing = 100;
-  char *result_file = (char *)"eigenvalues.dat";
+  char* result_file = (char*)"eigenvalues.dat";
 
   // check if there is a command line request for the matrix size
   getMatrixSize(argc, argv, mat_size, user_defined);
@@ -276,7 +268,6 @@ bool runTest(int argc, char **argv) {
 
   // two kernels, for small matrices a lot of overhead can be avoided
   if (mat_size <= MAX_SMALL_MATRIX) {
-
     // initialize memory for result
     ResultDataSmall result;
     initResultSmallMatrix(result, mat_size);
@@ -295,7 +286,6 @@ bool runTest(int argc, char **argv) {
     printf("User requests non-default argument(s), skipping self-check!\n");
     bCompareResult = true;
   } else {
-
     // initialize memory for result
     ResultDataLarge result;
     initResultDataLargeMatrix(result, mat_size);

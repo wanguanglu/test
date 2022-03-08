@@ -11,7 +11,7 @@
 #include <list>
 #include <string>
 
-void Print(const std::list<int> &int_list) {
+void Print(const std::list<int>& int_list) {
   std::cout << "================" << std::endl;
   for (const int item : int_list) {
     std::cout << item << std::endl;
@@ -19,9 +19,9 @@ void Print(const std::list<int> &int_list) {
   std::cout << "- - - - - - - - " << std::endl;
 }
 
-void Print(const std::list<std::string> &int_list) {
+void Print(const std::list<std::string>& int_list) {
   std::cout << "================" << std::endl;
-  for (const auto &item : int_list) {
+  for (const auto& item : int_list) {
     std::cout << item << std::endl;
   }
   std::cout << "- - - - - - - - " << std::endl;
@@ -33,11 +33,11 @@ int main() {
 
   // set some initial values:
   for (int i = 1; i <= 4; i++) {
-    mylist1.push_back(i); // mylist1: 1 2 3 4
+    mylist1.push_back(i);  // mylist1: 1 2 3 4
   }
 
   for (int i = 1; i <= 3; i++) {
-    mylist2.push_back(i * 10); // mylist2: 10 20 30
+    mylist2.push_back(i * 10);  // mylist2: 10 20 30
   }
   std::cout << "mylist1:" << std::endl;
   Print(mylist1);
@@ -46,10 +46,10 @@ int main() {
   Print(mylist2);
 
   it = mylist1.begin();
-  ++it;                        // points to 2
-  mylist1.splice(it, mylist2); // mylist1: 1 10 20 30 2 3 4
-                               // mylist2 (empty)
-                               // "it" still points to 2 (the 5th element)
+  ++it;                         // points to 2
+  mylist1.splice(it, mylist2);  // mylist1: 1 10 20 30 2 3 4
+                                // mylist2 (empty)
+                                // "it" still points to 2 (the 5th element)
   std::cout << "mylist1:" << std::endl;
   Print(mylist1);
   std::cout << "mylist2:" << std::endl;
@@ -65,7 +65,7 @@ int main() {
   Print(mylist2);
 
   it = mylist1.begin();
-  std::advance(it, 3); // "it" points now to 30
+  std::advance(it, 3);  // "it" points now to 30
   mylist1.splice(mylist1.begin(), mylist1, it, mylist1.end());
   // mylist1: 30 3 4 1 10 20
   std::cout << "mylist1:" << std::endl;

@@ -19,12 +19,12 @@
 #include "StopWatchWin.h"
 namespace npp {
 typedef StopWatchBase<StopWatchWin> StopWatch;
-} // namespace npp
+}  // namespace npp
 #else
 #include "StopWatchLinux.h"
 namespace npp {
 typedef StopWatchBase<StopWatchLinux> StopWatch;
-} // namespace npp
+}  // namespace npp
 #endif
 
-#endif // NV_STOPWATCH_H
+#endif  // NV_STOPWATCH_H

@@ -25,7 +25,7 @@
 #define MAX(a, b) (a > b ? a : b)
 #endif
 
-static const char *sSDKsample = "[simpleVoteIntrinsics_nvrtc]\0";
+static const char* sSDKsample = "[simpleVoteIntrinsics_nvrtc]\0";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Global types and parameters
@@ -38,7 +38,7 @@ static const char *sSDKsample = "[simpleVoteIntrinsics_nvrtc]\0";
 ////////////////////////////////////////////////////////////////////////////////
 
 // Generate the test pattern for Tests 1 and 2
-void genVoteTestPattern(unsigned int *VOTE_PATTERN, int size) {
+void genVoteTestPattern(unsigned int* VOTE_PATTERN, int size) {
   // For testing VOTE.Any (all of these threads will return 0)
   for (int i = 0; i < size / 4; i++) {
     VOTE_PATTERN[i] = 0x00000000;
@@ -60,8 +60,8 @@ void genVoteTestPattern(unsigned int *VOTE_PATTERN, int size) {
   }
 }
 
-int checkErrors1(unsigned int *h_result, int start, int end, int warp_size,
-                 const char *voteType) {
+int checkErrors1(unsigned int* h_result, int start, int end, int warp_size,
+                 const char* voteType) {
   int i, sum = 0;
 
   for (sum = 0, i = start; i < end; i++) {
@@ -81,8 +81,8 @@ int checkErrors1(unsigned int *h_result, int start, int end, int warp_size,
   return (sum > 0);
 }
 
-int checkErrors2(unsigned int *h_result, int start, int end, int warp_size,
-                 const char *voteType) {
+int checkErrors2(unsigned int* h_result, int start, int end, int warp_size,
+                 const char* voteType) {
   int i, sum = 0;
 
   for (sum = 0, i = start; i < end; i++) {
@@ -103,7 +103,7 @@ int checkErrors2(unsigned int *h_result, int start, int end, int warp_size,
 }
 
 // Verification code for Kernel #1
-int checkResultsVoteAnyKernel1(unsigned int *h_result, int size,
+int checkResultsVoteAnyKernel1(unsigned int* h_result, int size,
                                int warp_size) {
   int error_count = 0;
 
@@ -125,7 +125,7 @@ int checkResultsVoteAnyKernel1(unsigned int *h_result, int size,
 }
 
 // Verification code for Kernel #2
-int checkResultsVoteAllKernel2(unsigned int *h_result, int size,
+int checkResultsVoteAllKernel2(unsigned int* h_result, int size,
                                int warp_size) {
   int error_count = 0;
 
@@ -147,31 +147,31 @@ int checkResultsVoteAllKernel2(unsigned int *h_result, int size,
 }
 
 // Verification code for Kernel #3
-int checkResultsVoteAnyKernel3(bool *hinfo, int size) {
+int checkResultsVoteAnyKernel3(bool* hinfo, int size) {
   int i, error_count = 0;
 
   for (i = 0; i < size * 3; i++) {
     switch (i % 3) {
-    case 0:
-      // First warp should be all zeros.
-      if (hinfo[i] != (i >= size * 1)) {
-        error_count++;
-      }
-      break;
+      case 0:
+        // First warp should be all zeros.
+        if (hinfo[i] != (i >= size * 1)) {
+          error_count++;
+        }
+        break;
 
-    case 1:
-      // First warp and half of second should be all zeros.
-      if (hinfo[i] != (i >= size * 3 / 2)) {
-        error_count++;
-      }
-      break;
+      case 1:
+        // First warp and half of second should be all zeros.
+        if (hinfo[i] != (i >= size * 3 / 2)) {
+          error_count++;
+        }
+        break;
 
-    case 2:
-      // First two warps should be all zeros.
-      if (hinfo[i] != (i >= size * 2)) {
-        error_count++;
-      }
-      break;
+      case 2:
+        // First two warps should be all zeros.
+        if (hinfo[i] != (i >= size * 2)) {
+          error_count++;
+        }
+        break;
     }
   }
 
@@ -180,7 +180,7 @@ int checkResultsVoteAnyKernel3(bool *hinfo, int size) {
   return error_count;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   unsigned int *h_input, *h_result;
   CUdeviceptr d_input, d_result;
 
@@ -190,7 +190,7 @@ int main(int argc, char **argv) {
   compileFileToPTX(kernel_file, 0, NULL, &ptx, &ptxSize);
   CUmodule module = loadPTX(ptx, argc, argv);
 
-  bool *hinfo = NULL;
+  bool* hinfo = NULL;
   CUdeviceptr dinfo;
 
   int error_count[3] = {0, 0, 0};
@@ -198,15 +198,15 @@ int main(int argc, char **argv) {
 
   printf("%s\n", sSDKsample);
 
-  h_input = (unsigned int *)malloc(VOTE_DATA_GROUP * warp_size *
-                                   sizeof(unsigned int));
-  h_result = (unsigned int *)malloc(VOTE_DATA_GROUP * warp_size *
-                                    sizeof(unsigned int));
+  h_input =
+      (unsigned int*)malloc(VOTE_DATA_GROUP * warp_size * sizeof(unsigned int));
+  h_result =
+      (unsigned int*)malloc(VOTE_DATA_GROUP * warp_size * sizeof(unsigned int));
 
   checkCudaErrors(
       cuMemAlloc(&d_input, VOTE_DATA_GROUP * warp_size * sizeof(unsigned int)));
-  checkCudaErrors(cuMemAlloc(&d_result, VOTE_DATA_GROUP * warp_size *
-                                            sizeof(unsigned int)));
+  checkCudaErrors(cuMemAlloc(
+      &d_result, VOTE_DATA_GROUP * warp_size * sizeof(unsigned int)));
 
   genVoteTestPattern(h_input, VOTE_DATA_GROUP * warp_size);
 
@@ -224,7 +224,7 @@ int main(int argc, char **argv) {
         cuModuleGetFunction(&kernel_addr, module, "VoteAnyKernel1"));
 
     int size = VOTE_DATA_GROUP * warp_size;
-    void *arr[] = {(void *)&d_input, (void *)&d_result, (void *)&size};
+    void* arr[] = {(void*)&d_input, (void*)&d_result, (void*)&size};
 
     checkCudaErrors(cuLaunchKernel(
         kernel_addr, gridBlock.x, gridBlock.y, gridBlock.z, /* grid dim */
@@ -256,7 +256,7 @@ int main(int argc, char **argv) {
         cuModuleGetFunction(&kernel_addr, module, "VoteAllKernel2"));
 
     int size = VOTE_DATA_GROUP * warp_size;
-    void *arr[] = {(void *)&d_input, (void *)&d_result, (void *)&size};
+    void* arr[] = {(void*)&d_input, (void*)&d_result, (void*)&size};
 
     checkCudaErrors(cuLaunchKernel(
         kernel_addr, gridBlock.x, gridBlock.y, gridBlock.z, /* grid dim */
@@ -275,7 +275,7 @@ int main(int argc, char **argv) {
       h_result, VOTE_DATA_GROUP * warp_size, warp_size);
 
   // Second Vote Kernel Test #3 (both Any/All)
-  hinfo = (bool *)calloc(warp_size * 3 * 3, sizeof(bool));
+  hinfo = (bool*)calloc(warp_size * 3 * 3, sizeof(bool));
 
   checkCudaErrors(cuMemAlloc(&dinfo, warp_size * 3 * 3 * sizeof(bool)));
   checkCudaErrors(cuMemcpyHtoD(dinfo, hinfo, warp_size * 3 * 3 * sizeof(bool)));
@@ -292,7 +292,7 @@ int main(int argc, char **argv) {
         cuModuleGetFunction(&kernel_addr, module, "VoteAnyKernel3"));
 
     int size = warp_size;
-    void *arr[] = {(void *)&dinfo, (void *)&size};
+    void* arr[] = {(void*)&dinfo, (void*)&size};
 
     checkCudaErrors(cuLaunchKernel(
         kernel_addr, gridBlock.x, gridBlock.y, gridBlock.z, /* grid dim */

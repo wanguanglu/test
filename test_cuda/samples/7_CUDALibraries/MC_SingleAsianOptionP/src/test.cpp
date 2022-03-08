@@ -27,12 +27,13 @@
 #include "../inc/asianoption.h"
 #include "../inc/pricingengine.h"
 
-template <typename Real> bool Test<Real>::operator()() {
+template <typename Real>
+bool Test<Real>::operator()() {
   using std::endl;
   using std::setw;
   using std::stringstream;
 
-  StopWatchInterface *timer = NULL;
+  StopWatchInterface* timer = NULL;
   sdkCreateTimer(&timer);
 
   // Get device properties
@@ -107,9 +108,10 @@ template <typename Real> bool Test<Real>::operator()() {
   }
 
   // Print results
-  printf("MonteCarloSingleAsianOptionP, Performance = %.2f sims/s, Time = "
-         "%.2f(ms), NumDevsUsed = %u, Blocksize = %u\n",
-         numSims / elapsedTime, elapsedTime * 1000.0f, 1, threadBlockSize);
+  printf(
+      "MonteCarloSingleAsianOptionP, Performance = %.2f sims/s, Time = "
+      "%.2f(ms), NumDevsUsed = %u, Blocksize = %u\n",
+      numSims / elapsedTime, elapsedTime * 1000.0f, 1, threadBlockSize);
 
   sdkDeleteTimer(&timer);
 

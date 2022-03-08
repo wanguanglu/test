@@ -73,10 +73,20 @@ void mat_perspective(matrix4 m, GLfloat fovy, GLfloat aspect, GLfloat znear,
 
 ParticleRenderer::ParticleRenderer(unsigned int windowWidth,
                                    unsigned int windowHeight)
-    : m_pos(0), m_numParticles(0), m_pointSize(1.0f), m_spriteSize(2.0f),
-      m_vertexShader(0), m_vertexShaderPoints(0), m_fragmentShader(0),
-      m_programPoints(0), m_programSprites(0), m_texture(0), m_pbo(0),
-      m_vboColor(0), m_windowWidth(windowWidth), m_windowHeight(windowHeight),
+    : m_pos(0),
+      m_numParticles(0),
+      m_pointSize(1.0f),
+      m_spriteSize(2.0f),
+      m_vertexShader(0),
+      m_vertexShaderPoints(0),
+      m_fragmentShader(0),
+      m_programPoints(0),
+      m_programSprites(0),
+      m_texture(0),
+      m_pbo(0),
+      m_vboColor(0),
+      m_windowWidth(windowWidth),
+      m_windowHeight(windowHeight),
       m_bFp64Positions(false) {
   m_camera[0] = 0;
   m_camera[1] = 0;
@@ -86,14 +96,14 @@ ParticleRenderer::ParticleRenderer(unsigned int windowWidth,
 
 ParticleRenderer::~ParticleRenderer() { m_pos = 0; }
 
-void ParticleRenderer::resetPBO() { glDeleteBuffers(1, (GLuint *)&m_pbo); }
+void ParticleRenderer::resetPBO() { glDeleteBuffers(1, (GLuint*)&m_pbo); }
 
-void ParticleRenderer::setPositions(float *pos, int numParticles) {
+void ParticleRenderer::setPositions(float* pos, int numParticles) {
   m_pos = pos;
   m_numParticles = numParticles;
 
   if (!m_pbo) {
-    glGenBuffers(1, (GLuint *)&m_pbo);
+    glGenBuffers(1, (GLuint*)&m_pbo);
   }
 
   glBindBuffer(GL_ARRAY_BUFFER, m_pbo);
@@ -103,13 +113,13 @@ void ParticleRenderer::setPositions(float *pos, int numParticles) {
   checkGLErrors("Setting particle float position");
 }
 
-void ParticleRenderer::setPositions(double *pos, int numParticles) {
+void ParticleRenderer::setPositions(double* pos, int numParticles) {
   m_bFp64Positions = true;
   m_pos_fp64 = pos;
   m_numParticles = numParticles;
 
   if (!m_pbo) {
-    glGenBuffers(1, (GLuint *)&m_pbo);
+    glGenBuffers(1, (GLuint*)&m_pbo);
   }
 
   glBindBuffer(GL_ARRAY_BUFFER, m_pbo);
@@ -119,7 +129,7 @@ void ParticleRenderer::setPositions(double *pos, int numParticles) {
   checkGLErrors("Setting particle double position");
 }
 
-void ParticleRenderer::setColors(float *color, int numParticles) {
+void ParticleRenderer::setColors(float* color, int numParticles) {
   glBindBuffer(GL_ARRAY_BUFFER, m_vboColor);
   glBufferData(GL_ARRAY_BUFFER, numParticles * 4 * sizeof(float), color,
                GL_STATIC_DRAW);
@@ -127,16 +137,14 @@ void ParticleRenderer::setColors(float *color, int numParticles) {
 }
 
 void ParticleRenderer::setBaseColor(float color[4]) {
-  for (int i = 0; i < 4; i++)
-    m_baseColor[i] = color[i];
+  for (int i = 0; i < 4; i++) m_baseColor[i] = color[i];
 }
 
 void ParticleRenderer::setPBO(unsigned int pbo, int numParticles, bool fp64) {
   m_pbo = pbo;
   m_numParticles = numParticles;
 
-  if (fp64)
-    m_bFp64Positions = true;
+  if (fp64) m_bFp64Positions = true;
 }
 
 void ParticleRenderer::display() {
@@ -157,8 +165,8 @@ void ParticleRenderer::display() {
   mat_translate(modelview, m_camera);
   mat_perspective(projection, 60, (float)m_windowWidth / (float)m_windowHeight,
                   0.1, 1000.0);
-  glUniformMatrix4fv(h_ModelViewMatrix, 1, GL_FALSE, (GLfloat *)modelview);
-  glUniformMatrix4fv(h_ProjectionMatrix, 1, GL_FALSE, (GLfloat *)projection);
+  glUniformMatrix4fv(h_ModelViewMatrix, 1, GL_FALSE, (GLfloat*)modelview);
+  glUniformMatrix4fv(h_ProjectionMatrix, 1, GL_FALSE, (GLfloat*)projection);
 
   // Set point size
   GLint h_PointSize = glGetUniformLocation(m_programSprites, "size");
@@ -232,7 +240,7 @@ static int CheckCompiled(GLuint shader) {
     glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
 
     if (infoLen > 1) {
-      char *infoLog = (char *)malloc(sizeof(char) * infoLen);
+      char* infoLog = (char*)malloc(sizeof(char) * infoLen);
 
       glGetShaderInfoLog(shader, infoLen, NULL, infoLog);
       printf("Error compiling program:\n%s\n", infoLog);
@@ -249,8 +257,8 @@ void ParticleRenderer::_initGL() {
   m_vertexShader = glCreateShader(GL_VERTEX_SHADER);
   m_fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-  const char *v = vertexShader;
-  const char *f = fragmentShader;
+  const char* v = vertexShader;
+  const char* f = fragmentShader;
   glShaderSource(m_vertexShader, 1, &v, 0);
   glShaderSource(m_fragmentShader, 1, &f, 0);
 
@@ -286,7 +294,7 @@ void ParticleRenderer::_initGL() {
 
   _createTexture(32);
 
-  glGenBuffers(1, (GLuint *)&m_vboColor);
+  glGenBuffers(1, (GLuint*)&m_vboColor);
   glBindBuffer(GL_ARRAY_BUFFER, m_vboColor);
   glBufferData(GL_ARRAY_BUFFER, m_numParticles * 4 * sizeof(float), 0,
                GL_STATIC_DRAW);
@@ -310,9 +318,9 @@ inline float evalHermite(float pA, float pB, float vA, float vB, float u) {
   return (B0 * pA + B1 * pB + B2 * vA + B3 * vB);
 }
 
-unsigned char *createGaussianMap(int N) {
-  float *M = new float[2 * N * N];
-  unsigned char *B = new unsigned char[4 * N * N];
+unsigned char* createGaussianMap(int N) {
+  float* M = new float[2 * N * N];
+  unsigned char* B = new unsigned char[4 * N * N];
   float X, Y, Y2, Dist;
   float Incr = 2.0f / N;
   int i = 0;
@@ -327,8 +335,7 @@ unsigned char *createGaussianMap(int N) {
     for (int x = 0; x < N; x++, X += Incr, i += 2, j += 4) {
       Dist = (float)sqrtf(X * X + Y2);
 
-      if (Dist > 1)
-        Dist = 1;
+      if (Dist > 1) Dist = 1;
 
       M[i + 1] = M[i] = evalHermite(1.0f, 0, 0, 0, Dist);
       B[j + 3] = B[j + 2] = B[j + 1] = B[j] = (unsigned char)(M[i] * 255);
@@ -340,11 +347,11 @@ unsigned char *createGaussianMap(int N) {
 }
 
 void ParticleRenderer::_createTexture(int resolution) {
-  unsigned char *data = createGaussianMap(resolution);
-  glGenTextures(1, (GLuint *)&m_texture);
+  unsigned char* data = createGaussianMap(resolution);
+  glGenTextures(1, (GLuint*)&m_texture);
   glBindTexture(GL_TEXTURE_2D, m_texture);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                  GL_LINEAR); //_MIPMAP_LINEAR);
+                  GL_LINEAR);  //_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, resolution, resolution, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, data);

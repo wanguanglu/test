@@ -20,16 +20,16 @@ typedef enum HookSymbolsEnum {
 // You need to dlsym this symbol in your application and call it to register
 // callbacks
 typedef void (*fnCuHookRegisterCallback)(HookSymbols symbol, HookTypes type,
-                                         void *callback);
+                                         void* callback);
 extern "C" {
-void cuHookRegisterCallback(HookSymbols symbol, HookTypes type, void *callback);
+void cuHookRegisterCallback(HookSymbols symbol, HookTypes type, void* callback);
 }
 
 // In case you want to intercept, the callbacks need the same type/parameters as
 // the real functions
-typedef CUresult CUDAAPI (*fnMemAlloc)(CUdeviceptr *dptr, size_t bytesize);
+typedef CUresult CUDAAPI (*fnMemAlloc)(CUdeviceptr* dptr, size_t bytesize);
 typedef CUresult CUDAAPI (*fnMemFree)(CUdeviceptr dptr);
-typedef CUresult CUDAAPI (*fnCtxGetCurrent)(CUcontext *pctx);
+typedef CUresult CUDAAPI (*fnCtxGetCurrent)(CUcontext* pctx);
 typedef CUresult CUDAAPI (*fnCtxSetCurrent)(CUcontext ctx);
 typedef CUresult CUDAAPI (*fnCtxDestroy)(CUcontext ctx);
 

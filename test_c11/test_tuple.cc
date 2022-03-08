@@ -9,7 +9,7 @@
 #include <iostream>
 #include <tuple>
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   int x = 0;
   int y = 1;
   std::tuple<int, int> tp = std::make_tuple(x, y);

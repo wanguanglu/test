@@ -63,9 +63,12 @@
 
 namespace nv {
 
-template <class T> class vec2;
-template <class T> class vec3;
-template <class T> class vec4;
+template <class T>
+class vec2;
+template <class T>
+class vec3;
+template <class T>
+class vec4;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -73,37 +76,38 @@ template <class T> class vec4;
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-template <class T> class quaternion {
-public:
+template <class T>
+class quaternion {
+ public:
   quaternion() : x(0.0), y(0.0), z(0.0), w(0.0) {}
 
   quaternion(const T v[4]) { set_value(v); }
 
   quaternion(T q0, T q1, T q2, T q3) { set_value(q0, q1, q2, q3); }
 
-  quaternion(const matrix4<T> &m) { set_value(m); }
+  quaternion(const matrix4<T>& m) { set_value(m); }
 
-  quaternion(const vec3<T> &axis, T radians) { set_value(axis, radians); }
+  quaternion(const vec3<T>& axis, T radians) { set_value(axis, radians); }
 
-  quaternion(const vec3<T> &rotateFrom, const vec3<T> &rotateTo) {
+  quaternion(const vec3<T>& rotateFrom, const vec3<T>& rotateTo) {
     set_value(rotateFrom, rotateTo);
   }
 
-  quaternion(const vec3<T> &from_look, const vec3<T> &from_up,
-             const vec3<T> &to_look, const vec3<T> &to_up) {
+  quaternion(const vec3<T>& from_look, const vec3<T>& from_up,
+             const vec3<T>& to_look, const vec3<T>& to_up) {
     set_value(from_look, from_up, to_look, to_up);
   }
 
-  const T *get_value() const { return &_array[0]; }
+  const T* get_value() const { return &_array[0]; }
 
-  void get_value(T &q0, T &q1, T &q2, T &q3) const {
+  void get_value(T& q0, T& q1, T& q2, T& q3) const {
     q0 = _array[0];
     q1 = _array[1];
     q2 = _array[2];
     q3 = _array[3];
   }
 
-  quaternion &set_value(T q0, T q1, T q2, T q3) {
+  quaternion& set_value(T q0, T q1, T q2, T q3) {
     _array[0] = q0;
     _array[1] = q1;
     _array[2] = q2;
@@ -111,7 +115,7 @@ public:
     return *this;
   }
 
-  void get_value(vec3<T> &axis, T &radians) const {
+  void get_value(vec3<T>& axis, T& radians) const {
     radians = T(acos(_array[3]) * T(2.0));
 
     if (radians == T(0.0)) {
@@ -124,7 +128,7 @@ public:
     }
   }
 
-  void get_value(matrix4<T> &m) const {
+  void get_value(matrix4<T>& m) const {
     T s, xs, ys, zs, wx, wy, wz, xx, xy, xz, yy, yz, zz;
 
     T norm = _array[0] * _array[0] + _array[1] * _array[1] +
@@ -164,7 +168,7 @@ public:
     m(3, 3) = T(1.0);
   }
 
-  quaternion &set_value(const T *qp) {
+  quaternion& set_value(const T* qp) {
     for (int i = 0; i < 4; i++) {
       _array[i] = qp[i];
     }
@@ -172,7 +176,7 @@ public:
     return *this;
   }
 
-  quaternion &set_value(const matrix4<T> &m) {
+  quaternion& set_value(const matrix4<T>& m) {
     T tr, s;
     int i, j, k;
     const int nxt[3] = {1, 2, 0};
@@ -214,7 +218,7 @@ public:
     return *this;
   }
 
-  quaternion &set_value(const vec3<T> &axis, T theta) {
+  quaternion& set_value(const vec3<T>& axis, T theta) {
     T sqnorm = square_norm(axis);
 
     if (sqnorm == T(0.0)) {
@@ -238,7 +242,7 @@ public:
     return *this;
   }
 
-  quaternion &set_value(const vec3<T> &rotateFrom, const vec3<T> &rotateTo) {
+  quaternion& set_value(const vec3<T>& rotateFrom, const vec3<T>& rotateTo) {
     vec3<T> p1, p2;
     T alpha;
 
@@ -276,8 +280,8 @@ public:
     return *this;
   }
 
-  quaternion &set_value(const vec3<T> &from_look, const vec3<T> &from_up,
-                        const vec3<T> &to_look, const vec3<T> &to_up) {
+  quaternion& set_value(const vec3<T>& from_look, const vec3<T>& from_up,
+                        const vec3<T>& to_look, const vec3<T>& to_up) {
     quaternion r_look = quaternion(from_look, to_look);
 
     vec3<T> rotated_from_up(from_up);
@@ -290,7 +294,7 @@ public:
     return *this;
   }
 
-  quaternion &operator*=(const quaternion<T> &qr) {
+  quaternion& operator*=(const quaternion<T>& qr) {
     quaternion ql(*this);
 
     w = ql.w * qr.w - ql.x * qr.x - ql.y * qr.y - ql.z * qr.z;
@@ -301,7 +305,7 @@ public:
     return *this;
   }
 
-  friend quaternion normalize(const quaternion<T> &q) {
+  friend quaternion normalize(const quaternion<T>& q) {
     quaternion r(q);
     T rnorm = T(1.0) / T(sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z));
 
@@ -311,7 +315,7 @@ public:
     r.w *= rnorm;
   }
 
-  friend quaternion<T> conjugate(const quaternion<T> &q) {
+  friend quaternion<T> conjugate(const quaternion<T>& q) {
     quaternion<T> r(q);
     r._array[0] *= T(-1.0);
     r._array[1] *= T(-1.0);
@@ -319,13 +323,13 @@ public:
     return r;
   }
 
-  friend quaternion<T> inverse(const quaternion<T> &q) { return conjugate(q); }
+  friend quaternion<T> inverse(const quaternion<T>& q) { return conjugate(q); }
 
   //
   // Quaternion multiplication with cartesian vector
   // v' = q*v*q(star)
   //
-  void mult_vec(const vec3<T> &src, vec3<T> &dst) const {
+  void mult_vec(const vec3<T>& src, vec3<T>& dst) const {
     T v_coef = w * w - x * x - y * y - z * z;
     T u_coef = T(2.0) * (src[0] * x + src[1] * y + src[2] * z);
     T c_coef = T(2.0) * w;
@@ -338,7 +342,7 @@ public:
         v_coef * src.v[2] + u_coef * z + c_coef * (x * src.v[1] - y * src.v[0]);
   }
 
-  void mult_vec(vec3<T> &src_and_dst) const {
+  void mult_vec(vec3<T>& src_and_dst) const {
     mult_vec(vec3<T>(src_and_dst), src_and_dst);
   }
 
@@ -351,7 +355,7 @@ public:
     set_value(axis, radians);
   }
 
-  friend quaternion<T> slerp(const quaternion<T> &p, const quaternion<T> &q,
+  friend quaternion<T> slerp(const quaternion<T>& p, const quaternion<T>& q,
                              T alpha) {
     quaternion r;
 
@@ -388,11 +392,11 @@ public:
     return r;
   }
 
-  T &operator[](int i) { return _array[i]; }
+  T& operator[](int i) { return _array[i]; }
 
-  const T &operator[](int i) const { return _array[i]; }
+  const T& operator[](int i) const { return _array[i]; }
 
-  friend bool operator==(const quaternion<T> &lhs, const quaternion<T> &rhs) {
+  friend bool operator==(const quaternion<T>& lhs, const quaternion<T>& rhs) {
     bool r = true;
 
     for (int i = 0; i < 4; i++) {
@@ -402,7 +406,7 @@ public:
     return r;
   }
 
-  friend bool operator!=(const quaternion<T> &lhs, const quaternion<T> &rhs) {
+  friend bool operator!=(const quaternion<T>& lhs, const quaternion<T>& rhs) {
     bool r = true;
 
     for (int i = 0; i < 4; i++) {
@@ -412,8 +416,8 @@ public:
     return r;
   }
 
-  friend quaternion<T> operator*(const quaternion<T> &lhs,
-                                 const quaternion<T> &rhs) {
+  friend quaternion<T> operator*(const quaternion<T>& lhs,
+                                 const quaternion<T>& rhs) {
     quaternion r(lhs);
     r *= rhs;
     return r;
@@ -430,6 +434,6 @@ public:
   };
 };
 
-}; // namespace nv
+};  // namespace nv
 
 #endif

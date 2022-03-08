@@ -45,7 +45,7 @@
 #define k_2powneg32 2.3283064E-10F
 
 __global__ void sobolGPU_kernel(unsigned n_vectors, unsigned n_dimensions,
-                                unsigned *d_directions, float *d_output) {
+                                unsigned* d_directions, float* d_output) {
   __shared__ unsigned int v[n_directions];
 
   // Offset into the correct dimension as specified by the
@@ -134,7 +134,7 @@ __global__ void sobolGPU_kernel(unsigned n_vectors, unsigned n_dimensions,
 }
 
 extern "C" void sobolGPU(int n_vectors, int n_dimensions,
-                         unsigned int *d_directions, float *d_output) {
+                         unsigned int* d_directions, float* d_output) {
   const int threadsperblock = 64;
 
   // Set up the execution configuration

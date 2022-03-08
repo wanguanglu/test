@@ -70,7 +70,7 @@ class Num(genpy.Message):
             end = 0
             start = end
             end += 8
-            (self.num, ) = _struct_q.unpack(str[start:end])
+            (self.num,) = _struct_q.unpack(str[start:end])
             return self
         except struct.error as e:
             raise genpy.DeserializationError(e)  #most likely buffer underfill
@@ -103,7 +103,7 @@ class Num(genpy.Message):
             end = 0
             start = end
             end += 8
-            (self.num, ) = _struct_q.unpack(str[start:end])
+            (self.num,) = _struct_q.unpack(str[start:end])
             return self
         except struct.error as e:
             raise genpy.DeserializationError(e)  #most likely buffer underfill

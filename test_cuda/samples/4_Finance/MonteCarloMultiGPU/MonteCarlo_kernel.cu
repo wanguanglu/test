@@ -59,11 +59,10 @@ __device__ inline double endCallValue(double S, double X, double r,
 // per option. It is fastest when the number of thread blocks times the work per
 // block is high enough to keep the GPU busy.
 ////////////////////////////////////////////////////////////////////////////////
-static __global__ void
-MonteCarloOneBlockPerOption(curandState *__restrict rngStates,
-                            const __TOptionData *__restrict d_OptionData,
-                            __TOptionValue *__restrict d_CallValue, int pathN,
-                            int optionN) {
+static __global__ void MonteCarloOneBlockPerOption(
+    curandState* __restrict rngStates,
+    const __TOptionData* __restrict d_OptionData,
+    __TOptionValue* __restrict d_CallValue, int pathN, int optionN) {
   const int SUM_N = THREAD_N;
   __shared__ real s_SumCall[SUM_N];
   __shared__ real s_Sum2Call[SUM_N];
@@ -109,7 +108,7 @@ MonteCarloOneBlockPerOption(curandState *__restrict rngStates,
   }
 }
 
-static __global__ void rngSetupStates(curandState *rngState, int device_id) {
+static __global__ void rngSetupStates(curandState* rngState, int device_id) {
   // determine global thread id
   int tid = threadIdx.x + blockIdx.x * blockDim.x;
   // Each threadblock gets different seed,
@@ -122,7 +121,7 @@ static __global__ void rngSetupStates(curandState *rngState, int device_id) {
 // Host-side interface to GPU Monte Carlo
 ////////////////////////////////////////////////////////////////////////////////
 
-extern "C" void initMonteCarloGPU(TOptionPlan *plan) {
+extern "C" void initMonteCarloGPU(TOptionPlan* plan) {
   checkCudaErrors(cudaMalloc(&plan->d_OptionData,
                              sizeof(__TOptionData) * (plan->optionCount)));
   checkCudaErrors(cudaMalloc(&plan->d_CallValue,
@@ -133,7 +132,7 @@ extern "C" void initMonteCarloGPU(TOptionPlan *plan) {
   checkCudaErrors(cudaMallocHost(&plan->h_CallValue,
                                  sizeof(__TOptionValue) * (plan->optionCount)));
   // Allocate states for pseudo random number generators
-  checkCudaErrors(cudaMalloc((void **)&plan->rngStates,
+  checkCudaErrors(cudaMalloc((void**)&plan->rngStates,
                              plan->gridSize * THREAD_N * sizeof(curandState)));
 
   // place each device pathN random numbers apart on the random number sequence
@@ -142,7 +141,7 @@ extern "C" void initMonteCarloGPU(TOptionPlan *plan) {
 }
 
 // Compute statistics and deallocate internal device memory
-extern "C" void closeMonteCarloGPU(TOptionPlan *plan) {
+extern "C" void closeMonteCarloGPU(TOptionPlan* plan) {
   for (int i = 0; i < plan->optionCount; i++) {
     const double RT = plan->optionData[i].R * plan->optionData[i].T;
     const double sum = plan->h_CallValue[i].Expected;
@@ -166,15 +165,15 @@ extern "C" void closeMonteCarloGPU(TOptionPlan *plan) {
 }
 
 // Main computations
-extern "C" void MonteCarloGPU(TOptionPlan *plan, cudaStream_t stream) {
-  __TOptionValue *h_CallValue = plan->h_CallValue;
+extern "C" void MonteCarloGPU(TOptionPlan* plan, cudaStream_t stream) {
+  __TOptionValue* h_CallValue = plan->h_CallValue;
 
   if (plan->optionCount <= 0 || plan->optionCount > MAX_OPTIONS) {
     printf("MonteCarloGPU(): bad option count.\n");
     return;
   }
 
-  __TOptionData *h_OptionData = (__TOptionData *)plan->h_OptionData;
+  __TOptionData* h_OptionData = (__TOptionData*)plan->h_OptionData;
 
   for (int i = 0; i < plan->optionCount; i++) {
     const double T = plan->optionData[i].T;
@@ -193,8 +192,8 @@ extern "C" void MonteCarloGPU(TOptionPlan *plan, cudaStream_t stream) {
                                   cudaMemcpyHostToDevice, stream));
 
   MonteCarloOneBlockPerOption<<<plan->gridSize, THREAD_N, 0, stream>>>(
-      plan->rngStates, (__TOptionData *)(plan->d_OptionData),
-      (__TOptionValue *)(plan->d_CallValue), plan->pathN, plan->optionCount);
+      plan->rngStates, (__TOptionData*)(plan->d_OptionData),
+      (__TOptionValue*)(plan->d_CallValue), plan->pathN, plan->optionCount);
   getLastCudaError("MonteCarloOneBlockPerOption() execution failed\n");
 
   checkCudaErrors(cudaMemcpyAsync(h_CallValue, plan->d_CallValue,

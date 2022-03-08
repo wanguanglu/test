@@ -26,7 +26,7 @@
 #define CLAMP_TO_EDGE 1
 
 // Transpose kernel (see transpose CUDA Sample for details)
-__global__ void d_transpose(uint *odata, uint *idata, int width, int height) {
+__global__ void d_transpose(uint* odata, uint* idata, int width, int height) {
   __shared__ uint block[BLOCK_DIM][BLOCK_DIM + 1];
 
   // read the matrix tile into shared memory
@@ -55,7 +55,7 @@ __global__ void d_transpose(uint *odata, uint *idata, int width, int height) {
 
 // convert floating point rgba color to 32-bit integer
 __device__ uint rgbaFloatToInt(float4 rgba) {
-  rgba.x = __saturatef(rgba.x); // clamp to [0.0, 1.0]
+  rgba.x = __saturatef(rgba.x);  // clamp to [0.0, 1.0]
   rgba.y = __saturatef(rgba.y);
   rgba.z = __saturatef(rgba.z);
   rgba.w = __saturatef(rgba.w);
@@ -85,26 +85,25 @@ __device__ float4 rgbaIntToFloat(uint c) {
     a  - blur parameter
 */
 
-__global__ void d_simpleRecursive_rgba(uint *id, uint *od, int w, int h,
+__global__ void d_simpleRecursive_rgba(uint* id, uint* od, int w, int h,
                                        float a) {
   unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
 
-  if (x >= w)
-    return;
+  if (x >= w) return;
 
-  id += x; // advance pointers to correct column
+  id += x;  // advance pointers to correct column
   od += x;
 
   // forward pass
-  float4 yp = rgbaIntToFloat(*id); // previous output
+  float4 yp = rgbaIntToFloat(*id);  // previous output
 
   for (int y = 0; y < h; y++) {
     float4 xc = rgbaIntToFloat(*id);
     float4 yc =
-        xc + a * (yp - xc); // simple lerp between current and previous value
+        xc + a * (yp - xc);  // simple lerp between current and previous value
     *od = rgbaFloatToInt(yc);
     id += w;
-    od += w; // move to next row
+    od += w;  // move to next row
     yp = yc;
   }
 
@@ -121,7 +120,7 @@ __global__ void d_simpleRecursive_rgba(uint *id, uint *od, int w, int h,
     float4 yc = xc + a * (yp - xc);
     *od = rgbaFloatToInt((rgbaIntToFloat(*od) + yc) * 0.5f);
     id -= w;
-    od -= w; // move to previous row
+    od -= w;  // move to previous row
     yp = yc;
   }
 }
@@ -137,22 +136,21 @@ __global__ void d_simpleRecursive_rgba(uint *id, uint *od, int w, int h,
     a0-a3, b1, b2, coefp, coefn - filter parameters
 */
 
-__global__ void d_recursiveGaussian_rgba(uint *id, uint *od, int w, int h,
+__global__ void d_recursiveGaussian_rgba(uint* id, uint* od, int w, int h,
                                          float a0, float a1, float a2, float a3,
                                          float b1, float b2, float coefp,
                                          float coefn) {
   unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
 
-  if (x >= w)
-    return;
+  if (x >= w) return;
 
-  id += x; // advance pointers to correct column
+  id += x;  // advance pointers to correct column
   od += x;
 
   // forward pass
-  float4 xp = make_float4(0.0f); // previous input
-  float4 yp = make_float4(0.0f); // previous output
-  float4 yb = make_float4(0.0f); // previous output by 2
+  float4 xp = make_float4(0.0f);  // previous input
+  float4 yp = make_float4(0.0f);  // previous output
+  float4 yb = make_float4(0.0f);  // previous output by 2
 #if CLAMP_TO_EDGE
   xp = rgbaIntToFloat(*id);
   yb = coefp * xp;
@@ -164,7 +162,7 @@ __global__ void d_recursiveGaussian_rgba(uint *id, uint *od, int w, int h,
     float4 yc = a0 * xc + a1 * xp - b1 * yp - b2 * yb;
     *od = rgbaFloatToInt(yc);
     id += w;
-    od += w; // move to next row
+    od += w;  // move to next row
     xp = xc;
     yb = yp;
     yp = yc;
@@ -195,8 +193,8 @@ __global__ void d_recursiveGaussian_rgba(uint *id, uint *od, int w, int h,
     yn = yc;
     *od = rgbaFloatToInt(rgbaIntToFloat(*od) + yc);
     id -= w;
-    od -= w; // move to previous row
+    od -= w;  // move to previous row
   }
 }
 
-#endif // #ifndef _GAUSSIAN_KERNEL_H_
+#endif  // #ifndef _GAUSSIAN_KERNEL_H_

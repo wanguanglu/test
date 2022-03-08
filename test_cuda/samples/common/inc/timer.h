@@ -57,4 +57,4 @@ double GetTimer() {
   return timerElapsed.tv_sec * 1000.0 + timerElapsed.tv_usec / 1000.0;
 #endif
 }
-#endif // TIMER_H
+#endif  // TIMER_H

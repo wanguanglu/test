@@ -20,11 +20,12 @@
 
 namespace npp {
 // forward declaration
-template <typename D, unsigned int N, class A> class ImageCPU;
+template <typename D, unsigned int N, class A>
+class ImageCPU;
 
 template <typename D, unsigned int N>
 class ImageNPP : public npp::ImagePacked<D, N, npp::ImageAllocator<D, N>> {
-public:
+ public:
   ImageNPP() { ; }
 
   ImageNPP(unsigned int nWidth, unsigned int nHeight, bool bTight = false)
@@ -32,15 +33,15 @@ public:
     ;
   }
 
-  ImageNPP(const npp::Image::Size &rSize)
+  ImageNPP(const npp::Image::Size& rSize)
       : ImagePacked<D, N, npp::ImageAllocator<D, N>>(rSize) {
     ;
   }
 
-  ImageNPP(const ImageNPP<D, N> &rImage) : Image(rImage) { ; }
+  ImageNPP(const ImageNPP<D, N>& rImage) : Image(rImage) { ; }
 
   template <class X>
-  explicit ImageNPP(const ImageCPU<D, N, X> &rImage, bool bTight = false)
+  explicit ImageNPP(const ImageCPU<D, N, X>& rImage, bool bTight = false)
       : ImagePacked<D, N, npp::ImageAllocator<D, N>>(rImage.width(),
                                                      rImage.height(), bTight) {
     npp::ImageAllocator<D, N>::HostToDeviceCopy2D(
@@ -52,13 +53,13 @@ public:
 
   virtual ~ImageNPP() { ; }
 
-  ImageNPP &operator=(const ImageNPP<D, N> &rImage) {
+  ImageNPP& operator=(const ImageNPP<D, N>& rImage) {
     ImagePacked<D, N, npp::ImageAllocator<D, N>>::operator=(rImage);
 
     return *this;
   }
 
-  void copyTo(D *pData, unsigned int nPitch) const {
+  void copyTo(D* pData, unsigned int nPitch) const {
     NPP_ASSERT((ImagePacked<D, N, npp::ImageAllocator<D, N>>::width() *
                     sizeof(npp::Pixel<D, N>) <=
                 nPitch));
@@ -69,7 +70,7 @@ public:
         ImagePacked<D, N, npp::ImageAllocator<D, N>>::height());
   }
 
-  void copyFrom(D *pData, unsigned int nPitch) {
+  void copyFrom(D* pData, unsigned int nPitch) {
     NPP_ASSERT((ImagePacked<D, N, npp::ImageAllocator<D, N>>::width() *
                     sizeof(npp::Pixel<D, N>) <=
                 nPitch));
@@ -109,6 +110,6 @@ typedef ImageNPP<Npp64f, 2> ImageNPP_64f_C2;
 typedef ImageNPP<Npp64f, 3> ImageNPP_64f_C3;
 typedef ImageNPP<Npp64f, 4> ImageNPP_64f_C4;
 
-} // namespace npp
+}  // namespace npp
 
-#endif // NV_UTIL_NPP_IMAGES_NPP_H
+#endif  // NV_UTIL_NPP_IMAGES_NPP_H

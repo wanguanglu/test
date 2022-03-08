@@ -26,7 +26,7 @@ typedef unsigned char uchar;
 
 #pragma pack(push, 4)
 struct Image {
-  void *h_data;
+  void* h_data;
   cudaExtent size;
   cudaResourceType type;
   cudaArray_t dataArray;
@@ -37,8 +37,8 @@ struct Image {
 };
 #pragma pack(pop)
 
-inline void _checkHost(bool test, const char *condition, const char *file,
-                       int line, const char *func) {
+inline void _checkHost(bool test, const char* condition, const char* file,
+                       int line, const char* func) {
   if (!test) {
     fprintf(stderr, "HOST error at %s:%d (%s) \"%s\" \n", file, line, condition,
             func);
@@ -46,7 +46,7 @@ inline void _checkHost(bool test, const char *condition, const char *file,
   }
 }
 
-#define checkHost(condition)                                                   \
+#define checkHost(condition) \
   _checkHost(condition, #condition, __FILE__, __LINE__, __FUNCTION__)
 
 #endif

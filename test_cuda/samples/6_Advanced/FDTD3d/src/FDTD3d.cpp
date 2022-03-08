@@ -30,31 +30,30 @@
 // const char *printfFile = "FDTD3d.txt";
 
 // Forward declarations
-bool runTest(int argc, const char **argv);
-void showHelp(const int argc, const char **argv);
+bool runTest(int argc, const char** argv);
+void showHelp(const int argc, const char** argv);
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   bool bTestResult = false;
   // Start the log
   printf("%s Starting...\n\n", argv[0]);
 
   // Check help flag
-  if (checkCmdLineFlag(argc, (const char **)argv, "help")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "help")) {
     printf("Displaying help on console\n");
-    showHelp(argc, (const char **)argv);
+    showHelp(argc, (const char**)argv);
     bTestResult = true;
   } else {
     // Execute
-    bTestResult = runTest(argc, (const char **)argv);
+    bTestResult = runTest(argc, (const char**)argv);
   }
 
   // Finish
   exit(bTestResult ? EXIT_SUCCESS : EXIT_FAILURE);
 }
 
-void showHelp(const int argc, const char **argv) {
-  if (argc > 0)
-    std::cout << std::endl << argv[0] << std::endl;
+void showHelp(const int argc, const char** argv) {
+  if (argc > 0) std::cout << std::endl << argv[0] << std::endl;
 
   std::cout << std::endl << "Syntax:" << std::endl;
   std::cout << std::left;
@@ -81,11 +80,11 @@ void showHelp(const int argc, const char **argv) {
   std::cout << std::endl;
 }
 
-bool runTest(int argc, const char **argv) {
-  float *host_output;
-  float *device_output;
-  float *input;
-  float *coeff;
+bool runTest(int argc, const char** argv) {
+  float* host_output;
+  float* device_output;
+  float* input;
+  float* coeff;
 
   int defaultDim;
   int dimx;
@@ -126,9 +125,10 @@ bool runTest(int argc, const char **argv) {
 
   // Check dimension is valid
   if (defaultDim < k_dim_min) {
-    printf("insufficient device memory (maximum volume on device is %d, must "
-           "be between %d and %d).\n",
-           defaultDim, k_dim_min, k_dim_max);
+    printf(
+        "insufficient device memory (maximum volume on device is %d, must "
+        "be between %d and %d).\n",
+        defaultDim, k_dim_min, k_dim_max);
     exit(EXIT_FAILURE);
   } else if (defaultDim > k_dim_max) {
     defaultDim = k_dim_max;
@@ -179,9 +179,9 @@ bool runTest(int argc, const char **argv) {
   volumeSize = outerDimx * outerDimy * outerDimz;
 
   // Allocate memory
-  host_output = (float *)calloc(volumeSize, sizeof(float));
-  input = (float *)malloc(volumeSize * sizeof(float));
-  coeff = (float *)malloc((radius + 1) * sizeof(float));
+  host_output = (float*)calloc(volumeSize, sizeof(float));
+  input = (float*)malloc(volumeSize * sizeof(float));
+  coeff = (float*)malloc((radius + 1) * sizeof(float));
 
   // Create coefficients
   for (int i = 0; i <= radius; i++) {
@@ -192,9 +192,10 @@ bool runTest(int argc, const char **argv) {
   printf(" generateRandomData\n\n");
   generateRandomData(input, outerDimx, outerDimy, outerDimz, lowerBound,
                      upperBound);
-  printf("FDTD on %d x %d x %d volume with symmetric filter radius %d for %d "
-         "timesteps...\n\n",
-         dimx, dimy, dimz, radius, timesteps);
+  printf(
+      "FDTD on %d x %d x %d volume with symmetric filter radius %d for %d "
+      "timesteps...\n\n",
+      dimx, dimy, dimz, radius, timesteps);
 
   // Execute on the host
   printf("fdtdReference...\n");
@@ -202,7 +203,7 @@ bool runTest(int argc, const char **argv) {
   printf("fdtdReference complete\n");
 
   // Allocate memory
-  device_output = (float *)calloc(volumeSize, sizeof(float));
+  device_output = (float*)calloc(volumeSize, sizeof(float));
 
   // Execute on the device
   printf("fdtdGPU...\n");

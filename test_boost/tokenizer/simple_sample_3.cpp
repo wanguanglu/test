@@ -13,7 +13,6 @@
 #include <logging.h>
 
 int main() {
-
   wangl::log::log_init("log", "test");
 
   std::string s = "12252001";

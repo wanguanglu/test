@@ -30,18 +30,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Black-Scholes formula for binomial tree results validation
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void BlackScholesCall(real &callResult, TOptionData optionData);
+extern "C" void BlackScholesCall(real& callResult, TOptionData optionData);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Process single option on CPU
 // Note that CPU code is for correctness testing only and not for benchmarking.
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void binomialOptionsCPU(real &callResult, TOptionData optionData);
+extern "C" void binomialOptionsCPU(real& callResult, TOptionData optionData);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Process an array of OptN options on GPU
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void binomialOptionsGPU(real *callValue, TOptionData *optionData,
+extern "C" void binomialOptionsGPU(real* callValue, TOptionData* optionData,
                                    int optN);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,16 +56,17 @@ real randData(real low, real high) {
 ////////////////////////////////////////////////////////////////////////////////
 // Main program
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   printf("[%s] - Starting...\n", argv[0]);
 
   cudaDeviceProp deviceProp;
-  int devID = findCudaDevice(argc, (const char **)argv);
+  int devID = findCudaDevice(argc, (const char**)argv);
   checkCudaErrors(cudaGetDeviceProperties(&deviceProp, devID));
 
   if (((deviceProp.major << 4) + deviceProp.minor) < 0x20) {
-    fprintf(stderr, "binomialOptions requires Compute Capability of SM 2.0 or "
-                    "higher to run.\n");
+    fprintf(stderr,
+            "binomialOptions requires Compute Capability of SM 2.0 or "
+            "higher to run.\n");
     cudaDeviceReset();
     exit(EXIT_WAIVED);
   }
@@ -78,7 +79,7 @@ int main(int argc, char **argv) {
 
   real sumDelta, sumRef, gpuTime, errorVal;
 
-  StopWatchInterface *hTimer = NULL;
+  StopWatchInterface* hTimer = NULL;
   int i;
 
   sdkCreateTimer(&hTimer);
@@ -174,8 +175,9 @@ int main(int argc, char **argv) {
   // flushed before the application exits
   cudaDeviceReset();
 
-  printf("\nNOTE: The CUDA Samples are not meant for performance measurements. "
-         "Results may vary when GPU Boost is enabled.\n\n");
+  printf(
+      "\nNOTE: The CUDA Samples are not meant for performance measurements. "
+      "Results may vary when GPU Boost is enabled.\n\n");
 
   if (errorVal > 5e-4) {
     printf("Test failed!\n");

@@ -43,7 +43,6 @@ BOOST_LOG_ATTRIBUTE_KEYWORD(scope, "Scope", attrs::named_scope::value_type)
 BOOST_LOG_ATTRIBUTE_KEYWORD(timeline, "Timeline", attrs::timer::value_type)
 
 void logging_function() {
-
   // The logger implicitly adds a source-specific attribute 'Severity'
   // of type 'severity_level' on construction
 
@@ -64,7 +63,6 @@ void logging_function() {
 }
 
 void add_common_attributes() {
-
   boost::shared_ptr<logging::core> core = logging::core::get();
   core->add_global_attribute("LineID", attrs::counter<unsigned int>(1));
   core->add_global_attribute("TimeStamp", attrs::local_clock());
@@ -72,21 +70,18 @@ void add_common_attributes() {
 }
 
 void named_scope_logging() {
-
   BOOST_LOG_NAMED_SCOPE("named_scope_logging");
   src::severity_logger<severity_level> slg;
   BOOST_LOG_SEV(slg, info) << "Hello from the function named_scope_logging!";
 }
 
 void tagged_logging() {
-
   src::severity_logger<severity_level> slg;
   slg.add_attribute("Tag", attrs::constant<std::string>("My tag value"));
   BOOST_LOG_SEV(slg, info) << "Here goes the tagged record";
 }
 
 void timed_logging() {
-
   BOOST_LOG_SCOPED_THREAD_ATTR("Timeline", attrs::timer());
   src::severity_logger<severity_level> slg;
   BOOST_LOG_SEV(slg, info) << "Starting to time nested functions";
@@ -94,9 +89,8 @@ void timed_logging() {
   BOOST_LOG_SEV(slg, info) << "Stopping to time nested functions";
 }
 
-std::ostream &operator<<(std::ostream &strm, severity_level level) {
-
-  static const char *strings[] = {"debug",   "trace", "info",
+std::ostream& operator<<(std::ostream& strm, severity_level level) {
+  static const char* strings[] = {"debug",   "trace", "info",
                                   "warning", "error", "fatal"};
 
   if (static_cast<std::size_t>(level) < sizeof(strings) / sizeof(*strings)) {
@@ -109,7 +103,6 @@ std::ostream &operator<<(std::ostream &strm, severity_level level) {
 }
 
 void init() {
-
   typedef sinks::synchronous_sink<sinks::text_ostream_backend> text_sink;
 
   boost::shared_ptr<text_sink> sink = boost::make_shared<text_sink>();

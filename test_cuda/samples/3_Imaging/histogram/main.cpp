@@ -19,20 +19,20 @@
 
 // Utility and system includes
 #include <helper_cuda.h>
-#include <helper_functions.h> // helper for shared that are common to CUDA Samples
+#include <helper_functions.h>  // helper for shared that are common to CUDA Samples
 
 // project include
 #include "histogram_common.h"
 
 const int numRuns = 16;
-const static char *sSDKsample = "[histogram]\0";
+const static char* sSDKsample = "[histogram]\0";
 
-int main(int argc, char **argv) {
-  uchar *h_Data;
+int main(int argc, char** argv) {
+  uchar* h_Data;
   uint *h_HistogramCPU, *h_HistogramGPU;
-  uchar *d_Data;
-  uint *d_Histogram;
-  StopWatchInterface *hTimer = NULL;
+  uchar* d_Data;
+  uint* d_Histogram;
+  StopWatchInterface* hTimer = NULL;
   int PassFailFlag = 1;
   uint byteCount = 64 * 1048576;
   uint uiSizeMult = 1;
@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
 
   // Use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  int dev = findCudaDevice(argc, (const char **)argv);
+  int dev = findCudaDevice(argc, (const char**)argv);
 
   checkCudaErrors(cudaGetDeviceProperties(&deviceProp, dev));
 
@@ -57,17 +57,17 @@ int main(int argc, char **argv) {
   sdkCreateTimer(&hTimer);
 
   // Optional Command-line multiplier to increase size of array to histogram
-  if (checkCmdLineFlag(argc, (const char **)argv, "sizemult")) {
-    uiSizeMult = getCmdLineArgumentInt(argc, (const char **)argv, "sizemult");
+  if (checkCmdLineFlag(argc, (const char**)argv, "sizemult")) {
+    uiSizeMult = getCmdLineArgumentInt(argc, (const char**)argv, "sizemult");
     uiSizeMult = MAX(1, MIN(uiSizeMult, 10));
     byteCount *= uiSizeMult;
   }
 
   printf("Initializing data...\n");
   printf("...allocating CPU memory.\n");
-  h_Data = (uchar *)malloc(byteCount);
-  h_HistogramCPU = (uint *)malloc(HISTOGRAM256_BIN_COUNT * sizeof(uint));
-  h_HistogramGPU = (uint *)malloc(HISTOGRAM256_BIN_COUNT * sizeof(uint));
+  h_Data = (uchar*)malloc(byteCount);
+  h_HistogramCPU = (uint*)malloc(HISTOGRAM256_BIN_COUNT * sizeof(uint));
+  h_HistogramGPU = (uint*)malloc(HISTOGRAM256_BIN_COUNT * sizeof(uint));
 
   printf("...generating input data\n");
   srand(2009);
@@ -77,9 +77,9 @@ int main(int argc, char **argv) {
   }
 
   printf("...allocating GPU memory and copying input data\n\n");
-  checkCudaErrors(cudaMalloc((void **)&d_Data, byteCount));
+  checkCudaErrors(cudaMalloc((void**)&d_Data, byteCount));
   checkCudaErrors(
-      cudaMalloc((void **)&d_Histogram, HISTOGRAM256_BIN_COUNT * sizeof(uint)));
+      cudaMalloc((void**)&d_Histogram, HISTOGRAM256_BIN_COUNT * sizeof(uint)));
   checkCudaErrors(
       cudaMemcpy(d_Data, h_Data, byteCount, cudaMemcpyHostToDevice));
 
@@ -107,10 +107,11 @@ int main(int argc, char **argv) {
         1.0e-3 * (double)sdkGetTimerValue(&hTimer) / (double)numRuns;
     printf("histogram64() time (average) : %.5f sec, %.4f MB/sec\n\n", dAvgSecs,
            ((double)byteCount * 1.0e-6) / dAvgSecs);
-    printf("histogram64, Throughput = %.4f MB/s, Time = %.5f s, Size = %u "
-           "Bytes, NumDevsUsed = %u, Workgroup = %u\n",
-           (1.0e-6 * (double)byteCount / dAvgSecs), dAvgSecs, byteCount, 1,
-           HISTOGRAM64_THREADBLOCK_SIZE);
+    printf(
+        "histogram64, Throughput = %.4f MB/s, Time = %.5f s, Size = %u "
+        "Bytes, NumDevsUsed = %u, Workgroup = %u\n",
+        (1.0e-6 * (double)byteCount / dAvgSecs), dAvgSecs, byteCount, 1,
+        HISTOGRAM64_THREADBLOCK_SIZE);
 
     printf("\nValidating GPU results...\n");
     printf(" ...reading back GPU results\n");
@@ -159,10 +160,11 @@ int main(int argc, char **argv) {
         1.0e-3 * (double)sdkGetTimerValue(&hTimer) / (double)numRuns;
     printf("histogram256() time (average) : %.5f sec, %.4f MB/sec\n\n",
            dAvgSecs, ((double)byteCount * 1.0e-6) / dAvgSecs);
-    printf("histogram256, Throughput = %.4f MB/s, Time = %.5f s, Size = %u "
-           "Bytes, NumDevsUsed = %u, Workgroup = %u\n",
-           (1.0e-6 * (double)byteCount / dAvgSecs), dAvgSecs, byteCount, 1,
-           HISTOGRAM256_THREADBLOCK_SIZE);
+    printf(
+        "histogram256, Throughput = %.4f MB/s, Time = %.5f s, Size = %u "
+        "Bytes, NumDevsUsed = %u, Workgroup = %u\n",
+        (1.0e-6 * (double)byteCount / dAvgSecs), dAvgSecs, byteCount, 1,
+        HISTOGRAM256_THREADBLOCK_SIZE);
 
     printf("\nValidating GPU results...\n");
     printf(" ...reading back GPU results\n");
@@ -202,8 +204,9 @@ int main(int argc, char **argv) {
   // flushed before the application exits
   cudaDeviceReset();
 
-  printf("\nNOTE: The CUDA Samples are not meant for performance measurements. "
-         "Results may vary when GPU Boost is enabled.\n\n");
+  printf(
+      "\nNOTE: The CUDA Samples are not meant for performance measurements. "
+      "Results may vary when GPU Boost is enabled.\n\n");
 
   printf("%s - Test Summary\n", sSDKsample);
 

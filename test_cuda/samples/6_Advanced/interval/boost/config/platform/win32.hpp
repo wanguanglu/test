@@ -25,8 +25,8 @@
 #define BOOST_HAS_DECLSPEC
 #endif
 
-#if defined(__MINGW32__) &&                                                    \
-    ((__MINGW32_MAJOR_VERSION > 2) ||                                          \
+#if defined(__MINGW32__) &&           \
+    ((__MINGW32_MAJOR_VERSION > 2) || \
      ((__MINGW32_MAJOR_VERSION == 2) && (__MINGW32_MINOR_VERSION >= 0)))
 #define BOOST_HAS_STDINT_H
 #define __STDC_LIMIT_MACROS

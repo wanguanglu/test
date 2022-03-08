@@ -61,9 +61,9 @@
 #include <cuda_runtime.h>
 
 // Helper functions
-#include <helper_cuda.h>      // CUDA device initialization helper functions
-#include <helper_cuda_gl.h>   // CUDA device + OpenGL initialization functions
-#include <helper_functions.h> // CUDA SDK Helper functions
+#include <helper_cuda.h>       // CUDA device initialization helper functions
+#include <helper_cuda_gl.h>    // CUDA device + OpenGL initialization functions
+#include <helper_functions.h>  // CUDA SDK Helper functions
 
 typedef unsigned int uint;
 typedef unsigned char uchar;
@@ -75,36 +75,36 @@ typedef unsigned char uchar;
 
 // Auto-Verification Code
 const int frameCheckNumber = 4;
-int fpsCount = 0; // FPS count for averaging
-int fpsLimit = 4; // FPS limit for sampling
+int fpsCount = 0;  // FPS count for averaging
+int fpsLimit = 4;  // FPS limit for sampling
 int g_Index = 0;
 unsigned int frameCount = 0;
 unsigned int g_TotalErrors = 0;
-StopWatchInterface *timer = 0;
+StopWatchInterface* timer = 0;
 bool g_Verify = false;
 
-int *pArgc = NULL;
-char **pArgv = NULL;
+int* pArgc = NULL;
+char** pArgv = NULL;
 
 #define MAX_EPSILON_ERROR 5.0f
-#define REFRESH_DELAY 10 // ms
+#define REFRESH_DELAY 10  // ms
 
-static const char *sSDKsample = "CUDA BicubicTexture";
+static const char* sSDKsample = "CUDA BicubicTexture";
 
 // Define the files that are to be save and the reference images for validation
-const char *sFilterMode[] = {"Nearest",      "Bilinear",    "Bicubic",
+const char* sFilterMode[] = {"Nearest",      "Bilinear",    "Bicubic",
                              "Fast Bicubic", "Catmull-Rom", NULL};
 
-const char *sOriginal[] = {"0_nearest.ppm",     "1_bilinear.ppm",
+const char* sOriginal[] = {"0_nearest.ppm",     "1_bilinear.ppm",
                            "2_bicubic.ppm",     "3_fastbicubic.ppm",
                            "4_catmull-rom.ppm", NULL};
 
-const char *sReference[] = {"0_nearest.ppm",     "1_bilinear.ppm",
+const char* sReference[] = {"0_nearest.ppm",     "1_bilinear.ppm",
                             "2_bicubic.ppm",     "3_fastbicubic.ppm",
                             "4_catmull-rom.ppm", NULL};
 
-const char *srcImageFilename = "lena_bw.pgm";
-char *dumpFilename = NULL;
+const char* srcImageFilename = "lena_bw.pgm";
+char* dumpFilename = NULL;
 
 uint width = 512, height = 512;
 uint imageWidth, imageHeight;
@@ -124,15 +124,15 @@ eFilterMode g_FilterMode = MODE_FAST_BICUBIC;
 
 bool drawCurves = false;
 
-GLuint pbo = 0;                                 // OpenGL pixel buffer object
-struct cudaGraphicsResource *cuda_pbo_resource; // handles OpenGL-CUDA exchange
+GLuint pbo = 0;                                  // OpenGL pixel buffer object
+struct cudaGraphicsResource* cuda_pbo_resource;  // handles OpenGL-CUDA exchange
 GLuint displayTex = 0;
 GLuint bufferTex = 0;
-GLuint fprog; // fragment program (shader)
+GLuint fprog;  // fragment program (shader)
 
-float tx = 9.0f, ty = 10.0f; // image translation
-float scale = 1.0f / 16.0f;  // image scale
-float cx, cy;                // image centre
+float tx = 9.0f, ty = 10.0f;  // image translation
+float scale = 1.0f / 16.0f;   // image scale
+float cx, cy;                 // image centre
 
 void display();
 void initGLBuffers();
@@ -142,14 +142,14 @@ void cleanup();
 #define GL_TEXTURE_TYPE GL_TEXTURE_RECTANGLE_ARB
 //#define GL_TEXTURE_TYPE GL_TEXTURE_2D
 
-extern "C" void initGL(int *argc, char **argv);
-extern "C" void loadImageData(int argc, char **argv);
+extern "C" void initGL(int* argc, char** argv);
+extern "C" void loadImageData(int argc, char** argv);
 
-extern "C" void initTexture(int imageWidth, int imageHeight, uchar *h_data);
+extern "C" void initTexture(int imageWidth, int imageHeight, uchar* h_data);
 extern "C" void freeTexture();
 extern "C" void render(int width, int height, float tx, float ty, float scale,
                        float cx, float cy, dim3 blockSize, dim3 gridSize,
-                       eFilterMode filter_mode, uchar4 *output);
+                       eFilterMode filter_mode, uchar4* output);
 
 // w0, w1, w2, and w3 are the four cubic B-spline basis functions
 float bspline_w0(float a) {
@@ -206,11 +206,11 @@ void display() {
   sdkStartTimer(&timer);
 
   // map PBO to get CUDA device pointer
-  uchar4 *d_output;
+  uchar4* d_output;
   checkCudaErrors(cudaGraphicsMapResources(1, &cuda_pbo_resource, 0));
   size_t num_bytes;
   checkCudaErrors(cudaGraphicsResourceGetMappedPointer(
-      (void **)&d_output, &num_bytes, cuda_pbo_resource));
+      (void**)&d_output, &num_bytes, cuda_pbo_resource));
   render(imageWidth, imageHeight, tx, ty, scale, cx, cy, blockSize, gridSize,
          g_FilterMode, d_output);
 
@@ -298,62 +298,62 @@ void timerEvent(int value) {
 
 void keyboard(unsigned char key, int /*x*/, int /*y*/) {
   switch (key) {
-  case 27:
+    case 27:
 #if defined(__APPLE__) || defined(MACOSX)
-    exit(EXIT_SUCCESS);
+      exit(EXIT_SUCCESS);
 #else
-    glutDestroyWindow(glutGetWindow());
-    return;
+      glutDestroyWindow(glutGetWindow());
+      return;
 #endif
 
-  case '1':
-    g_FilterMode = MODE_NEAREST;
-    break;
+    case '1':
+      g_FilterMode = MODE_NEAREST;
+      break;
 
-  case '2':
-    g_FilterMode = MODE_BILINEAR;
-    break;
+    case '2':
+      g_FilterMode = MODE_BILINEAR;
+      break;
 
-  case '3':
-    g_FilterMode = MODE_BICUBIC;
-    break;
+    case '3':
+      g_FilterMode = MODE_BICUBIC;
+      break;
 
-  case '4':
-    g_FilterMode = MODE_FAST_BICUBIC;
-    break;
+    case '4':
+      g_FilterMode = MODE_FAST_BICUBIC;
+      break;
 
-  case '5':
-    g_FilterMode = MODE_CATMULL_ROM;
-    break;
+    case '5':
+      g_FilterMode = MODE_CATMULL_ROM;
+      break;
 
-  case '=':
-  case '+':
-    scale *= 0.5f;
-    break;
+    case '=':
+    case '+':
+      scale *= 0.5f;
+      break;
 
-  case '-':
-    scale *= 2.0f;
-    break;
+    case '-':
+      scale *= 2.0f;
+      break;
 
-  case 'r':
-    scale = 1.0f;
-    tx = ty = 0.0f;
-    break;
+    case 'r':
+      scale = 1.0f;
+      tx = ty = 0.0f;
+      break;
 
-  case 'd':
-    printf("%f, %f, %f\n", tx, ty, scale);
-    break;
+    case 'd':
+      printf("%f, %f, %f\n", tx, ty, scale);
+      break;
 
-  case 'b':
-    runBenchmark(500);
-    break;
+    case 'b':
+      runBenchmark(500);
+      break;
 
-  case 'c':
-    drawCurves ^= 1;
-    break;
+    case 'c':
+      drawCurves ^= 1;
+      break;
 
-  default:
-    break;
+    default:
+      break;
   }
 
   if (key >= '1' && key <= '5') {
@@ -507,11 +507,11 @@ void runBenchmark(int iterations) {
 
   sdkCreateTimer(&timer);
 
-  uchar4 *d_output;
+  uchar4* d_output;
   checkCudaErrors(cudaGraphicsMapResources(1, &cuda_pbo_resource, 0));
   size_t num_bytes;
   checkCudaErrors(cudaGraphicsResourceGetMappedPointer(
-      (void **)&d_output, &num_bytes, cuda_pbo_resource));
+      (void**)&d_output, &num_bytes, cuda_pbo_resource));
 
   sdkStartTimer(&timer);
 
@@ -530,11 +530,11 @@ void runBenchmark(int iterations) {
          (width * height / (time * 0.001f)) / 1e6);
 }
 
-void runAutoTest(int argc, char **argv, const char *dump_filename,
+void runAutoTest(int argc, char** argv, const char* dump_filename,
                  eFilterMode filter_mode) {
   cudaDeviceProp deviceProps;
 
-  int devID = findCudaDevice(argc, (const char **)argv);
+  int devID = findCudaDevice(argc, (const char**)argv);
 
   checkCudaErrors(cudaGetDeviceProperties(&deviceProps, devID));
 
@@ -544,10 +544,10 @@ void runAutoTest(int argc, char **argv, const char *dump_filename,
 
   loadImageData(argc, argv);
 
-  uchar4 *d_output;
-  checkCudaErrors(cudaMalloc((void **)&d_output, imageWidth * imageHeight * 4));
-  unsigned int *h_result =
-      (unsigned int *)malloc(width * height * sizeof(unsigned int));
+  uchar4* d_output;
+  checkCudaErrors(cudaMalloc((void**)&d_output, imageWidth * imageHeight * 4));
+  unsigned int* h_result =
+      (unsigned int*)malloc(width * height * sizeof(unsigned int));
 
   printf("AutoTest: %s Filter Mode: <%s>\n", sSDKsample,
          sFilterMode[g_FilterMode]);
@@ -562,7 +562,7 @@ void runAutoTest(int argc, char **argv, const char *dump_filename,
   cudaMemcpy(h_result, d_output, imageWidth * imageHeight * 4,
              cudaMemcpyDeviceToHost);
 
-  sdkSavePPM4ub(dump_filename, (unsigned char *)h_result, imageWidth,
+  sdkSavePPM4ub(dump_filename, (unsigned char*)h_result, imageWidth,
                 imageHeight);
 
   checkCudaErrors(cudaFree(d_output));
@@ -578,29 +578,29 @@ void runAutoTest(int argc, char **argv, const char *dump_filename,
 
 #if USE_BUFFER_TEX
 // fragment program for reading from buffer texture
-static const char *shaderCode =
+static const char* shaderCode =
     "!!NVfp4.0\n"
     "INT PARAM width = program.local[0];\n"
     "INT TEMP index;\n"
     "FLR.S index, fragment.texcoord;\n"
-    "MAD.S index.x, index.y, width, index.x;\n" // compute 1D index from 2D
-                                                // coords
+    "MAD.S index.x, index.y, width, index.x;\n"  // compute 1D index from 2D
+                                                 // coords
     "TXF result.color, index.x, texture[0], BUFFER;\n"
     "END";
 #endif
 
-GLuint compileASMShader(GLenum program_type, const char *code) {
+GLuint compileASMShader(GLenum program_type, const char* code) {
   GLuint program_id;
   glGenProgramsARB(1, &program_id);
   glBindProgramARB(program_type, program_id);
   glProgramStringARB(program_type, GL_PROGRAM_FORMAT_ASCII_ARB,
-                     (GLsizei)strlen(code), (GLubyte *)code);
+                     (GLsizei)strlen(code), (GLubyte*)code);
 
   GLint error_pos;
   glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &error_pos);
 
   if (error_pos != -1) {
-    const GLubyte *error_string;
+    const GLubyte* error_string;
     error_string = glGetString(GL_PROGRAM_ERROR_STRING_ARB);
     fprintf(stderr, "Program error at position: %d\n%s\n", (int)error_pos,
             error_string);
@@ -610,7 +610,7 @@ GLuint compileASMShader(GLenum program_type, const char *code) {
   return program_id;
 }
 
-void initialize(int argc, char **argv) {
+void initialize(int argc, char** argv) {
   printf("[%s] (OpenGL Mode)\n", sSDKsample);
 
   // First initialize OpenGL context, so we can properly set the GL for CUDA.
@@ -621,8 +621,8 @@ void initialize(int argc, char **argv) {
   int devID;
   cudaDeviceProp deviceProps;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
-    devID = gpuGLDeviceInit(argc, (const char **)argv);
+  if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
+    devID = gpuGLDeviceInit(argc, (const char**)argv);
 
     if (devID < 0) {
       printf("exiting...\n");
@@ -644,19 +644,20 @@ void initialize(int argc, char **argv) {
   // load image from disk
   loadImageData(argc, argv);
 
-  printf("\n"
-         "\tControls\n"
-         "\t=/- : Zoom in/out\n"
-         "\tb   : Run Benchmark g_FilterMode\n"
-         "\tc   : Draw Bicubic Spline Curve\n"
-         "\t[esc] - Quit\n\n"
+  printf(
+      "\n"
+      "\tControls\n"
+      "\t=/- : Zoom in/out\n"
+      "\tb   : Run Benchmark g_FilterMode\n"
+      "\tc   : Draw Bicubic Spline Curve\n"
+      "\t[esc] - Quit\n\n"
 
-         "\tPress number keys to change filtering g_FilterMode:\n\n"
-         "\t1 : nearest filtering\n"
-         "\t2 : bilinear filtering\n"
-         "\t3 : bicubic filtering\n"
-         "\t4 : fast bicubic filtering\n"
-         "\t5 : Catmull-Rom filtering\n\n");
+      "\tPress number keys to change filtering g_FilterMode:\n\n"
+      "\t1 : nearest filtering\n"
+      "\t2 : bilinear filtering\n"
+      "\t3 : bicubic filtering\n"
+      "\t4 : fast bicubic filtering\n"
+      "\t5 : Catmull-Rom filtering\n\n");
 
   initGLBuffers();
 
@@ -670,7 +671,7 @@ void initialize(int argc, char **argv) {
 #endif
 }
 
-void initGL(int *argc, char **argv) {
+void initGL(int* argc, char** argv) {
   // initialize GLUT callback functions
   glutInit(argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_ALPHA | GLUT_DOUBLE | GLUT_DEPTH);
@@ -715,10 +716,10 @@ void initGL(int *argc, char **argv) {
 #endif
 }
 
-void loadImageData(int argc, char **argv) {
+void loadImageData(int argc, char** argv) {
   // load image from disk
-  uchar *h_data = NULL;
-  char *srcImagePath = NULL;
+  uchar* h_data = NULL;
+  char* srcImagePath = NULL;
 
   if ((srcImagePath = sdkFindFilePath(srcImageFilename, argv[0])) == NULL) {
     printf("bicubicTexture loadImageData() could not find <%s>\nExiting...\n",
@@ -741,19 +742,20 @@ void loadImageData(int argc, char **argv) {
 void printHelp() {
   printf("bicubicTexture Usage:\n");
   printf("\t-file=output.ppm (output file to save to disk)\n");
-  printf("\t-mode=n (0=Nearest, 1=Bilinear, 2=Bicubic, 3=Fast-Bicubic, "
-         "4=Catmull-Rom\n");
+  printf(
+      "\t-mode=n (0=Nearest, 1=Bilinear, 2=Bicubic, 3=Fast-Bicubic, "
+      "4=Catmull-Rom\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   pArgc = &argc;
   pArgv = argv;
 
   // parse arguments
-  char *filename;
+  char* filename;
 
 #if defined(__linux__)
   setenv("DISPLAY", ":0", 0);
@@ -761,14 +763,14 @@ int main(int argc, char **argv) {
 
   printf("Starting bicubicTexture\n");
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "help")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "help")) {
     printHelp();
     exit(EXIT_SUCCESS);
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "mode")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "mode")) {
     g_FilterMode =
-        (eFilterMode)getCmdLineArgumentInt(argc, (const char **)argv, "mode");
+        (eFilterMode)getCmdLineArgumentInt(argc, (const char**)argv, "mode");
 
     if (g_FilterMode < 0 || g_FilterMode >= NUM_MODES) {
       printf("Invalid Mode setting %d\n", g_FilterMode);
@@ -776,13 +778,13 @@ int main(int argc, char **argv) {
     }
   }
 
-  if (getCmdLineArgumentString(argc, (const char **)argv, "file", &filename)) {
+  if (getCmdLineArgumentString(argc, (const char**)argv, "file", &filename)) {
     dumpFilename = filename;
     fpsLimit = frameCheckNumber;
 
     // Running CUDA kernel (bicubicFiltering) without visualization (QA
     // Testing/Verification)
-    runAutoTest(argc, argv, (const char *)dumpFilename, g_FilterMode);
+    runAutoTest(argc, argv, (const char*)dumpFilename, g_FilterMode);
   } else {
     // This runs the CUDA kernel (bicubicFiltering) + OpenGL visualization
     initialize(argc, argv);

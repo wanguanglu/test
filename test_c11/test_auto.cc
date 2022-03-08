@@ -12,17 +12,17 @@
 #include <typeinfo>
 
 void basic_test() {
-  auto x = 5; // type of x is int
+  auto x = 5;  // type of x is int
   std::cout << "type of x is " << typeid(x).name() << std::endl;
 
-  auto pi = new auto(1); // type of pi is int*
+  auto pi = new auto(1);  // type of pi is int*
   std::cout << "type of pi is " << typeid(pi).name() << std::endl;
 
-  const auto *v = &x, u = 6; // type if v is const int*, type of u is const int
+  const auto *v = &x, u = 6;  // type if v is const int*, type of u is const int
   std::cout << "type of v is " << typeid(v).name() << std::endl;
   std::cout << "type of u is " << typeid(u).name() << std::endl;
 
-  static auto y = 0.0; // type of y is static double
+  static auto y = 0.0;  // type of y is static double
   std::cout << "type of y is " << typeid(y).name() << std::endl;
 
   // auto int r;  // error
@@ -68,16 +68,17 @@ void unordered_multimap_iterator() {
 */
 
 class A {
-public:
+ public:
   static int Get() { return 1; }
 };
 
 class B {
-public:
+ public:
   static std::string Get() { return "class B"; }
 };
 
-template <typename T> void Get() {
+template <typename T>
+void Get() {
   auto info = T::Get();
   std::cout << info << std::endl;
 }
@@ -87,7 +88,7 @@ void TestGet() {
   Get<B>();
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   //  TestGet();
   basic_test();
   return 0;

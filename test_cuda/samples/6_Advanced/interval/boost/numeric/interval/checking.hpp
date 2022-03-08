@@ -31,7 +31,8 @@ struct exception_invalid_number {
   }
 };
 
-template <class T> struct checking_base {
+template <class T>
+struct checking_base {
   static T pos_inf() {
     assert(std::numeric_limits<T>::has_infinity);
     return std::numeric_limits<T>::infinity();
@@ -44,7 +45,7 @@ template <class T> struct checking_base {
     assert(std::numeric_limits<T>::has_quiet_NaN);
     return std::numeric_limits<T>::quiet_NaN();
   }
-  static bool is_nan(const T &x) {
+  static bool is_nan(const T& x) {
     return std::numeric_limits<T>::has_quiet_NaN && (x != x);
   }
   static T empty_lower() {
@@ -57,8 +58,8 @@ template <class T> struct checking_base {
                 ? std::numeric_limits<T>::quiet_NaN()
                 : static_cast<T>(0));
   }
-  static bool is_empty(const T &l, const T &u) {
-    return !(l <= u); // safety for partial orders
+  static bool is_empty(const T& l, const T& u) {
+    return !(l <= u);  // safety for partial orders
   }
 };
 
@@ -77,20 +78,19 @@ struct checking_no_empty : Checking {
     Exception()();
     return Checking::empty_upper();
   }
-  static bool is_empty(const T &, const T &) { return false; }
+  static bool is_empty(const T&, const T&) { return false; }
 };
 
 template <class T, class Checking = checking_base<T>>
 struct checking_no_nan : Checking {
-  static bool is_nan(const T &) { return false; }
+  static bool is_nan(const T&) { return false; }
 };
 
 template <class T, class Checking = checking_base<T>,
           class Exception = exception_invalid_number>
 struct checking_catch_nan : Checking {
-  static bool is_nan(const T &x) {
-    if (Checking::is_nan(x))
-      Exception()();
+  static bool is_nan(const T& x) {
+    if (Checking::is_nan(x)) Exception()();
     return false;
   }
 };
@@ -98,8 +98,8 @@ struct checking_catch_nan : Checking {
 template <class T>
 struct checking_strict : checking_no_nan<T, checking_no_empty<T>> {};
 
-} // namespace interval_lib
-} // namespace numeric
-} // namespace boost
+}  // namespace interval_lib
+}  // namespace numeric
+}  // namespace boost
 
-#endif // BOOST_NUMERIC_INTERVAL_CHECKING_HPP
+#endif  // BOOST_NUMERIC_INTERVAL_CHECKING_HPP

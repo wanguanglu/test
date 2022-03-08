@@ -28,7 +28,6 @@ namespace attrs = boost::log::attributes;
 namespace keywords = boost::log::keywords;
 
 int main() {
-
   // Construct the sink
   typedef boost::log::sinks::synchronous_sink<
       boost::log::sinks::text_ostream_backend>

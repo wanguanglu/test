@@ -13,7 +13,7 @@
 
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
 // Create thread
-CUTThread cutStartThread(CUT_THREADROUTINE func, void *data) {
+CUTThread cutStartThread(CUT_THREADROUTINE func, void* data) {
   return CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)func, data, 0, NULL);
 }
 
@@ -24,7 +24,7 @@ void cutEndThread(CUTThread thread) {
 }
 
 // Wait for multiple threads
-void cutWaitForThreads(const CUTThread *threads, int num) {
+void cutWaitForThreads(const CUTThread* threads, int num) {
   WaitForMultipleObjects(num, threads, true, INFINITE);
 
   for (int i = 0; i < num; i++) {
@@ -45,7 +45,7 @@ CUTBarrier cutCreateBarrier(int releaseCount) {
 }
 
 // Increment barrier. (execution continues)
-void cutIncrementBarrier(CUTBarrier *barrier) {
+void cutIncrementBarrier(CUTBarrier* barrier) {
   int myBarrierCount;
   EnterCriticalSection(&barrier->criticalSection);
   myBarrierCount = ++barrier->count;
@@ -57,16 +57,16 @@ void cutIncrementBarrier(CUTBarrier *barrier) {
 }
 
 // Wait for barrier release.
-void cutWaitForBarrier(CUTBarrier *barrier) {
+void cutWaitForBarrier(CUTBarrier* barrier) {
   WaitForSingleObject(barrier->barrierEvent, INFINITE);
 }
 
 // Destroy barrier
-void cutDestroyBarrier(CUTBarrier *barrier) {}
+void cutDestroyBarrier(CUTBarrier* barrier) {}
 
 #else
 // Create thread
-CUTThread cutStartThread(CUT_THREADROUTINE func, void *data) {
+CUTThread cutStartThread(CUT_THREADROUTINE func, void* data) {
   pthread_t thread;
   pthread_create(&thread, NULL, func, data);
   return thread;
@@ -76,7 +76,7 @@ CUTThread cutStartThread(CUT_THREADROUTINE func, void *data) {
 void cutEndThread(CUTThread thread) { pthread_join(thread, NULL); }
 
 // Wait for multiple threads
-void cutWaitForThreads(const CUTThread *threads, int num) {
+void cutWaitForThreads(const CUTThread* threads, int num) {
   for (int i = 0; i < num; i++) {
     cutEndThread(threads[i]);
   }
@@ -96,7 +96,7 @@ CUTBarrier cutCreateBarrier(int releaseCount) {
 }
 
 // Increment barrier. (execution continues)
-void cutIncrementBarrier(CUTBarrier *barrier) {
+void cutIncrementBarrier(CUTBarrier* barrier) {
   int myBarrierCount;
   pthread_mutex_lock(&barrier->mutex);
   myBarrierCount = ++barrier->count;
@@ -108,7 +108,7 @@ void cutIncrementBarrier(CUTBarrier *barrier) {
 }
 
 // Wait for barrier release.
-void cutWaitForBarrier(CUTBarrier *barrier) {
+void cutWaitForBarrier(CUTBarrier* barrier) {
   pthread_mutex_lock(&barrier->mutex);
 
   while (barrier->count < barrier->releaseCount) {
@@ -119,7 +119,7 @@ void cutWaitForBarrier(CUTBarrier *barrier) {
 }
 
 // Destroy barrier
-void cutDestroyBarrier(CUTBarrier *barrier) {
+void cutDestroyBarrier(CUTBarrier* barrier) {
   pthread_mutex_destroy(&barrier->mutex);
   pthread_cond_destroy(&barrier->conditionVariable);
 }

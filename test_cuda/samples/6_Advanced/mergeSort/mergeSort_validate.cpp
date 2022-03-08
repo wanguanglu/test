@@ -18,11 +18,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Validate sorted keys array (check for integrity and proper order)
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" uint validateSortedKeys(uint *resKey, uint *srcKey, uint batchSize,
+extern "C" uint validateSortedKeys(uint* resKey, uint* srcKey, uint batchSize,
                                    uint arrayLength, uint numValues,
                                    uint sortDir) {
-  uint *srcHist;
-  uint *resHist;
+  uint* srcHist;
+  uint* resHist;
 
   if (arrayLength < 2) {
     printf("validateSortedKeys(): arrays too short, exiting...\n");
@@ -30,8 +30,8 @@ extern "C" uint validateSortedKeys(uint *resKey, uint *srcKey, uint batchSize,
   }
 
   printf("...inspecting keys array: ");
-  srcHist = (uint *)malloc(numValues * sizeof(uint));
-  resHist = (uint *)malloc(numValues * sizeof(uint));
+  srcHist = (uint*)malloc(numValues * sizeof(uint));
+  resHist = (uint*)malloc(numValues * sizeof(uint));
 
   int flag = 1;
 
@@ -79,8 +79,7 @@ brk:
   free(resHist);
   free(srcHist);
 
-  if (flag)
-    printf("OK\n");
+  if (flag) printf("OK\n");
 
   return flag;
 }
@@ -88,12 +87,11 @@ brk:
 ////////////////////////////////////////////////////////////////////////////////
 // Value validation / stability check routines
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void fillValues(uint *val, uint N) {
-  for (uint i = 0; i < N; i++)
-    val[i] = i;
+extern "C" void fillValues(uint* val, uint N) {
+  for (uint i = 0; i < N; i++) val[i] = i;
 }
 
-extern "C" int validateSortedValues(uint *resKey, uint *resVal, uint *srcKey,
+extern "C" int validateSortedValues(uint* resKey, uint* resVal, uint* srcKey,
                                     uint batchSize, uint arrayLength) {
   int correctFlag = 1, stableFlag = 1;
 
@@ -102,8 +100,7 @@ extern "C" int validateSortedValues(uint *resKey, uint *resVal, uint *srcKey,
   for (uint i = 0; i < batchSize;
        i++, resKey += arrayLength, resVal += arrayLength) {
     for (uint j = 0; j < arrayLength; j++) {
-      if (resKey[j] != srcKey[resVal[j]])
-        correctFlag = 0;
+      if (resKey[j] != srcKey[resVal[j]]) correctFlag = 0;
 
       if ((j < arrayLength - 1) && (resKey[j] == resKey[j + 1]) &&
           (resVal[j] > resVal[j + 1]))

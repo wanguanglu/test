@@ -34,15 +34,15 @@
 #include <cuda_runtime.h>
 
 // Utilities and timing functions
-#include <helper_functions.h> // includes cuda.h and cuda_runtime_api.h
+#include <helper_functions.h>  // includes cuda.h and cuda_runtime_api.h
 
 // CUDA helper functions
-#include <helper_cuda.h> // helper functions for CUDA error check
+#include <helper_cuda.h>  // helper functions for CUDA error check
 
-#define NUM_REPS 100 // number of repetitions performed
-#define TILE_DIM 16  // tile/block size
+#define NUM_REPS 100  // number of repetitions performed
+#define TILE_DIM 16   // tile/block size
 
-const char *sSDKsample = "simplePitchLinearTexture";
+const char* sSDKsample = "simplePitchLinearTexture";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Texture references
@@ -59,7 +59,7 @@ bool bTestResult = true;
 //! Shifts matrix elements using pitch linear array
 //! @param odata  output data in global memory
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void shiftPitchLinear(float *odata, int pitch, int width, int height,
+__global__ void shiftPitchLinear(float* odata, int pitch, int width, int height,
                                  int shiftX, int shiftY) {
   int xid = blockIdx.x * blockDim.x + threadIdx.x;
   int yid = blockIdx.y * blockDim.y + threadIdx.y;
@@ -72,7 +72,7 @@ __global__ void shiftPitchLinear(float *odata, int pitch, int width, int height,
 //! Shifts matrix elements using regular array
 //! @param odata  output data in global memory
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void shiftArray(float *odata, int pitch, int width, int height,
+__global__ void shiftArray(float* odata, int pitch, int width, int height,
                            int shiftX, int shiftY) {
   int xid = blockIdx.x * blockDim.x + threadIdx.x;
   int yid = blockIdx.y * blockDim.y + threadIdx.y;
@@ -83,12 +83,12 @@ __global__ void shiftArray(float *odata, int pitch, int width, int height,
 
 ////////////////////////////////////////////////////////////////////////////////
 // Declaration, forward
-void runTest(int argc, char **argv);
+void runTest(int argc, char** argv);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   printf("%s starting...\n\n", sSDKsample);
 
   runTest(argc, argv);
@@ -107,7 +107,7 @@ int main(int argc, char **argv) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Run a simple test for CUDA
 ////////////////////////////////////////////////////////////////////////////////
-void runTest(int argc, char **argv) {
+void runTest(int argc, char** argv) {
   // Set array size
   const int nx = 2048;
   const int ny = 2048;
@@ -125,7 +125,7 @@ void runTest(int argc, char **argv) {
   dim3 dimGrid(nx / TILE_DIM, ny / TILE_DIM), dimBlock(TILE_DIM, TILE_DIM);
 
   // This will pick the best possible CUDA capable device
-  int devID = findCudaDevice(argc, (const char **)argv);
+  int devID = findCudaDevice(argc, (const char**)argv);
 
   // CUDA events for timing
   cudaEvent_t start, stop;
@@ -133,9 +133,9 @@ void runTest(int argc, char **argv) {
   cudaEventCreate(&stop);
 
   // Host allocation and initialization
-  float *h_idata = (float *)malloc(sizeof(float) * nx * ny);
-  float *h_odata = (float *)malloc(sizeof(float) * nx * ny);
-  float *gold = (float *)malloc(sizeof(float) * nx * ny);
+  float* h_idata = (float*)malloc(sizeof(float) * nx * ny);
+  float* h_odata = (float*)malloc(sizeof(float) * nx * ny);
+  float* gold = (float*)malloc(sizeof(float) * nx * ny);
 
   for (int i = 0; i < nx * ny; ++i) {
     h_idata[i] = (float)i;
@@ -143,22 +143,22 @@ void runTest(int argc, char **argv) {
 
   // Device memory allocation
   // Pitch linear input data
-  float *d_idataPL;
+  float* d_idataPL;
   size_t d_pitchBytes;
 
-  checkCudaErrors(cudaMallocPitch((void **)&d_idataPL, &d_pitchBytes,
+  checkCudaErrors(cudaMallocPitch((void**)&d_idataPL, &d_pitchBytes,
                                   nx * sizeof(float), ny));
 
   // Array input data
-  cudaArray *d_idataArray;
+  cudaArray* d_idataArray;
   cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<float>();
 
   checkCudaErrors(cudaMallocArray(&d_idataArray, &channelDesc, nx, ny));
 
   // Pitch linear output data
-  float *d_odata;
-  checkCudaErrors(cudaMallocPitch((void **)&d_odata, &d_pitchBytes,
-                                  nx * sizeof(float), ny));
+  float* d_odata;
+  checkCudaErrors(
+      cudaMallocPitch((void**)&d_odata, &d_pitchBytes, nx * sizeof(float), ny));
 
   // Copy host data to device
   // Pitch linear
@@ -266,9 +266,10 @@ void runTest(int argc, char **argv) {
   float fetchRatePL = nx * ny / 1.e+6f / (timePL / (1000.0f * NUM_REPS));
   float fetchRateArray = nx * ny / 1.e+6f / (timeArray / (1000.0f * NUM_REPS));
 
-  printf("\nTexture fetch rate (Mpix/s) for pitch linear: "
-         "%.2e; for array: %.2e\n\n",
-         fetchRatePL, fetchRateArray);
+  printf(
+      "\nTexture fetch rate (Mpix/s) for pitch linear: "
+      "%.2e; for array: %.2e\n\n",
+      fetchRatePL, fetchRateArray);
 
   // Cleanup
   free(h_idata);

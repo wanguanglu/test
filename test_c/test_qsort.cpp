@@ -5,13 +5,13 @@
 
 using namespace std;
 
-int qsort(std::vector<char *> &str_vec, int start, int end) {
+int qsort(std::vector<char*>& str_vec, int start, int end) {
   printf("start:%d end:%d.\n", start, end);
   if (start >= end) {
     return 0;
   }
 
-  char *pivot = str_vec[start];
+  char* pivot = str_vec[start];
   int i = start;
   int j = end;
 
@@ -37,7 +37,7 @@ int qsort(std::vector<char *> &str_vec, int start, int end) {
   return 0;
 }
 
-int sort(std::vector<char *> &str_vec) {
+int sort(std::vector<char*>& str_vec) {
   int size = str_vec.size();
   qsort(str_vec, 0, size - 1);
 
@@ -50,8 +50,8 @@ int sort(std::vector<char *> &str_vec) {
   return 0;
 }
 
-int main(int argc, char *argv[]) {
-  std::vector<char *> str_vec;
+int main(int argc, char* argv[]) {
+  std::vector<char*> str_vec;
   str_vec.push_back("4");
   str_vec.push_back("3");
   str_vec.push_back("2");

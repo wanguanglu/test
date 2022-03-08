@@ -26,7 +26,7 @@
 #define BOOST_INTEL_CXX_VERSION __ECC
 #endif
 
-#define BOOST_COMPILER                                                         \
+#define BOOST_COMPILER \
   "Intel C++ version " BOOST_STRINGIZE(BOOST_INTEL_CXX_VERSION)
 #define BOOST_INTEL BOOST_INTEL_CXX_VERSION
 
@@ -43,8 +43,8 @@
 
 #if (BOOST_INTEL_CXX_VERSION <= 600)
 
-#if defined(_MSC_VER) &&                                                       \
-    (_MSC_VER <= 1300) // added check for <= VC 7 (Peter Dimov)
+#if defined(_MSC_VER) && \
+    (_MSC_VER <= 1300)  // added check for <= VC 7 (Peter Dimov)
 
 // Boost libraries assume strong standard conformance unless otherwise
 // indicated by a config macro. As configured by Intel, the EDG front-end
@@ -90,7 +90,7 @@
 #endif
 #endif
 
-#if defined(__GNUC__) &&                                                       \
+#if defined(__GNUC__) && \
     !defined(BOOST_FUNCTION_SCOPE_USING_DECLARATION_BREAKS_ADL)
 //
 // Figure out when Intel is emulating this gcc bug
@@ -98,12 +98,12 @@
 // later than that if they are set up to emulate gcc 3.2
 // or earlier):
 //
-#if ((__GNUC__ == 3) && (__GNUC_MINOR__ <= 2)) || (BOOST_INTEL < 900) ||       \
+#if ((__GNUC__ == 3) && (__GNUC_MINOR__ <= 2)) || (BOOST_INTEL < 900) || \
     (__INTEL_COMPILER_BUILD_DATE < 20050912)
 #define BOOST_FUNCTION_SCOPE_USING_DECLARATION_BREAKS_ADL
 #endif
 #endif
-#if (defined(__GNUC__) && (__GNUC__ < 4)) || defined(_WIN32) ||                \
+#if (defined(__GNUC__) && (__GNUC__ < 4)) || defined(_WIN32) || \
     (BOOST_INTEL_CXX_VERSION <= 1110)
 // GCC or VC emulation:
 #define BOOST_NO_TWO_PHASE_NAME_LOOKUP
@@ -116,18 +116,25 @@
 //
 #if defined(BOOST_NO_INTRINSIC_WCHAR_T)
 #include <cwchar>
-template <typename T> struct assert_no_intrinsic_wchar_t;
-template <> struct assert_no_intrinsic_wchar_t<wchar_t> { typedef void type; };
+template <typename T>
+struct assert_no_intrinsic_wchar_t;
+template <>
+struct assert_no_intrinsic_wchar_t<wchar_t> {
+  typedef void type;
+};
 // if you see an error here then you need to unset BOOST_NO_INTRINSIC_WCHAR_T
 // where it is defined above:
 typedef assert_no_intrinsic_wchar_t<unsigned short>::type
     assert_no_intrinsic_wchar_t_;
 #else
-template <typename T> struct assert_intrinsic_wchar_t;
-template <> struct assert_intrinsic_wchar_t<wchar_t> {};
+template <typename T>
+struct assert_intrinsic_wchar_t;
+template <>
+struct assert_intrinsic_wchar_t<wchar_t> {};
 // if you see an error here then define BOOST_NO_INTRINSIC_WCHAR_T on the
 // command line:
-template <> struct assert_intrinsic_wchar_t<unsigned short> {};
+template <>
+struct assert_intrinsic_wchar_t<unsigned short> {};
 #endif
 
 #if _MSC_VER + 0 >= 1000
@@ -168,7 +175,7 @@ template <> struct assert_intrinsic_wchar_t<unsigned short> {};
 // last known and checked version:
 #if (BOOST_INTEL_CXX_VERSION > 1110)
 #if defined(BOOST_ASSERT_CONFIG)
-#error                                                                         \
+#error \
     "Unknown compiler version - please run the configure tests and report the results"
 #elif defined(_MSC_VER)
 //
@@ -176,6 +183,6 @@ template <> struct assert_intrinsic_wchar_t<unsigned short> {};
 //      defect macros set anyway (just the one).
 //
 //#     pragma message("Unknown compiler version - please run the configure
-//tests and report the results")
+// tests and report the results")
 #endif
 #endif

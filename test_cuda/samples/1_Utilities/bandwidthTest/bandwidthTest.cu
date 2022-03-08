@@ -23,8 +23,8 @@
 #include <cuda_runtime.h>
 
 // includes
-#include <helper_cuda.h> // helper functions for CUDA error checking and initialization
-#include <helper_functions.h> // helper for shared functions common to CUDA Samples
+#include <helper_cuda.h>  // helper functions for CUDA error checking and initialization
+#include <helper_functions.h>  // helper for shared functions common to CUDA Samples
 
 #include <cuda.h>
 
@@ -32,30 +32,30 @@
 #include <iostream>
 #include <memory>
 
-static const char *sSDKsample = "CUDA Bandwidth Test";
+static const char* sSDKsample = "CUDA Bandwidth Test";
 
 // defines, project
 #define MEMCOPY_ITERATIONS 10
-#define DEFAULT_SIZE (32 * (1 << 20)) // 32 M
-#define DEFAULT_INCREMENT (1 << 22)   // 4 M
-#define CACHE_CLEAR_SIZE (1 << 24)    // 16 M
+#define DEFAULT_SIZE (32 * (1 << 20))  // 32 M
+#define DEFAULT_INCREMENT (1 << 22)    // 4 M
+#define CACHE_CLEAR_SIZE (1 << 24)     // 16 M
 
 // shmoo mode defines
-#define SHMOO_MEMSIZE_MAX (1 << 26)             // 64 M
-#define SHMOO_MEMSIZE_START (1 << 10)           // 1 KB
-#define SHMOO_INCREMENT_1KB (1 << 10)           // 1 KB
-#define SHMOO_INCREMENT_2KB (1 << 11)           // 2 KB
-#define SHMOO_INCREMENT_10KB (10 * (1 << 10))   // 10KB
-#define SHMOO_INCREMENT_100KB (100 * (1 << 10)) // 100 KB
-#define SHMOO_INCREMENT_1MB (1 << 20)           // 1 MB
-#define SHMOO_INCREMENT_2MB (1 << 21)           // 2 MB
-#define SHMOO_INCREMENT_4MB (1 << 22)           // 4 MB
-#define SHMOO_LIMIT_20KB (20 * (1 << 10))       // 20 KB
-#define SHMOO_LIMIT_50KB (50 * (1 << 10))       // 50 KB
-#define SHMOO_LIMIT_100KB (100 * (1 << 10))     // 100 KB
-#define SHMOO_LIMIT_1MB (1 << 20)               // 1 MB
-#define SHMOO_LIMIT_16MB (1 << 24)              // 16 MB
-#define SHMOO_LIMIT_32MB (1 << 25)              // 32 MB
+#define SHMOO_MEMSIZE_MAX (1 << 26)              // 64 M
+#define SHMOO_MEMSIZE_START (1 << 10)            // 1 KB
+#define SHMOO_INCREMENT_1KB (1 << 10)            // 1 KB
+#define SHMOO_INCREMENT_2KB (1 << 11)            // 2 KB
+#define SHMOO_INCREMENT_10KB (10 * (1 << 10))    // 10KB
+#define SHMOO_INCREMENT_100KB (100 * (1 << 10))  // 100 KB
+#define SHMOO_INCREMENT_1MB (1 << 20)            // 1 MB
+#define SHMOO_INCREMENT_2MB (1 << 21)            // 2 MB
+#define SHMOO_INCREMENT_4MB (1 << 22)            // 4 MB
+#define SHMOO_LIMIT_20KB (20 * (1 << 10))        // 20 KB
+#define SHMOO_LIMIT_50KB (50 * (1 << 10))        // 50 KB
+#define SHMOO_LIMIT_100KB (100 * (1 << 10))      // 100 KB
+#define SHMOO_LIMIT_1MB (1 << 20)                // 1 MB
+#define SHMOO_LIMIT_16MB (1 << 24)               // 16 MB
+#define SHMOO_LIMIT_32MB (1 << 25)               // 32 MB
 
 // enums, project
 enum testMode { QUICK_MODE, RANGE_MODE, SHMOO_MODE };
@@ -63,20 +63,20 @@ enum memcpyKind { DEVICE_TO_HOST, HOST_TO_DEVICE, DEVICE_TO_DEVICE };
 enum printMode { USER_READABLE, CSV };
 enum memoryMode { PINNED, PAGEABLE };
 
-const char *sMemoryCopyKind[] = {"Device to Host", "Host to Device",
+const char* sMemoryCopyKind[] = {"Device to Host", "Host to Device",
                                  "Device to Device", NULL};
 
-const char *sMemoryMode[] = {"PINNED", "PAGEABLE", NULL};
+const char* sMemoryMode[] = {"PINNED", "PAGEABLE", NULL};
 
 // if true, use CPU based timing for everything
 static bool bDontUseGPUTiming;
 
-int *pArgc = NULL;
-char **pArgv = NULL;
+int* pArgc = NULL;
+char** pArgv = NULL;
 
 ////////////////////////////////////////////////////////////////////////////////
 // declaration, forward
-int runTest(const int argc, const char **argv);
+int runTest(const int argc, const char** argv);
 void testBandwidth(unsigned int start, unsigned int end, unsigned int increment,
                    testMode mode, memcpyKind kind, printMode printmode,
                    memoryMode memMode, int startDevice, int endDevice, bool wc);
@@ -95,10 +95,10 @@ float testDeviceToHostTransfer(unsigned int memSize, memoryMode memMode,
 float testHostToDeviceTransfer(unsigned int memSize, memoryMode memMode,
                                bool wc);
 float testDeviceToDeviceTransfer(unsigned int memSize);
-void printResultsReadable(unsigned int *memSizes, double *bandwidths,
+void printResultsReadable(unsigned int* memSizes, double* bandwidths,
                           unsigned int count, memcpyKind kind,
                           memoryMode memMode, int iNumDevs, bool wc);
-void printResultsCSV(unsigned int *memSizes, double *bandwidths,
+void printResultsCSV(unsigned int* memSizes, double* bandwidths,
                      unsigned int count, memcpyKind kind, memoryMode memMode,
                      int iNumDevs, bool wc);
 void printHelp(void);
@@ -106,14 +106,14 @@ void printHelp(void);
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   pArgc = &argc;
   pArgv = argv;
 
   // set logfile name and start logs
   printf("[%s] - Starting...\n", sSDKsample);
 
-  int iRetVal = runTest(argc, (const char **)argv);
+  int iRetVal = runTest(argc, (const char**)argv);
 
   if (iRetVal < 0) {
     checkCudaErrors(cudaSetDevice(0));
@@ -129,8 +129,9 @@ int main(int argc, char **argv) {
   // finish
   printf("%s\n", (iRetVal == 0) ? "Result = PASS" : "Result = FAIL");
 
-  printf("\nNOTE: The CUDA Samples are not meant for performance measurements. "
-         "Results may vary when GPU Boost is enabled.\n");
+  printf(
+      "\nNOTE: The CUDA Samples are not meant for performance measurements. "
+      "Results may vary when GPU Boost is enabled.\n");
 
   exit((iRetVal == 0) ? EXIT_SUCCESS : EXIT_FAILURE);
 }
@@ -138,7 +139,7 @@ int main(int argc, char **argv) {
 ///////////////////////////////////////////////////////////////////////////////
 // Parse args, run the appropriate tests
 ///////////////////////////////////////////////////////////////////////////////
-int runTest(const int argc, const char **argv) {
+int runTest(const int argc, const char** argv) {
   int start = DEFAULT_SIZE;
   int end = DEFAULT_SIZE;
   int startDevice = 0;
@@ -149,10 +150,10 @@ int runTest(const int argc, const char **argv) {
   bool dtoh = false;
   bool dtod = false;
   bool wc = false;
-  char *modeStr;
-  char *device = NULL;
+  char* modeStr;
+  char* device = NULL;
   printMode printmode = USER_READABLE;
-  char *memModeStr = NULL;
+  char* memModeStr = NULL;
   memoryMode memMode = PINNED;
 
   // process command line args
@@ -196,17 +197,19 @@ int runTest(const int argc, const char **argv) {
     }
 
     if (strcmp(device, "all") == 0) {
-      printf("\n!!!!!Cumulative Bandwidth to be computed from all the devices "
-             "!!!!!!\n\n");
+      printf(
+          "\n!!!!!Cumulative Bandwidth to be computed from all the devices "
+          "!!!!!!\n\n");
       startDevice = 0;
       endDevice = deviceCount - 1;
     } else {
       startDevice = endDevice = atoi(device);
 
       if (startDevice >= deviceCount || startDevice < 0) {
-        printf("\n!!!!!Invalid GPU number %d given hence default gpu %d will "
-               "be used !!!!!\n",
-               startDevice, 0);
+        printf(
+            "\n!!!!!Invalid GPU number %d given hence default gpu %d will "
+            "be used !!!!!\n",
+            startDevice, 0);
         startDevice = endDevice = 0;
       }
     }
@@ -223,8 +226,9 @@ int runTest(const int argc, const char **argv) {
       printf(" Device %d: %s\n", currentDevice, deviceProp.name);
 
       if (deviceProp.computeMode == cudaComputeModeProhibited) {
-        fprintf(stderr, "Error: device is running in <Compute Mode "
-                        "Prohibited>, no threads can use ::cudaSetDevice().\n");
+        fprintf(stderr,
+                "Error: device is running in <Compute Mode "
+                "Prohibited>, no threads can use ::cudaSetDevice().\n");
         checkCudaErrors(cudaSetDevice(currentDevice));
 
         // cudaDeviceReset causes the driver to clean up all state. While
@@ -304,7 +308,7 @@ int runTest(const int argc, const char **argv) {
   }
 
   if (RANGE_MODE == mode) {
-    if (checkCmdLineFlag(argc, (const char **)argv, "start")) {
+    if (checkCmdLineFlag(argc, (const char**)argv, "start")) {
       start = getCmdLineArgumentInt(argc, argv, "start");
 
       if (start <= 0) {
@@ -317,7 +321,7 @@ int runTest(const int argc, const char **argv) {
       return -5000;
     }
 
-    if (checkCmdLineFlag(argc, (const char **)argv, "end")) {
+    if (checkCmdLineFlag(argc, (const char**)argv, "end")) {
       end = getCmdLineArgumentInt(argc, argv, "end");
 
       if (end <= 0) {
@@ -390,22 +394,22 @@ void testBandwidth(unsigned int start, unsigned int end, unsigned int increment,
                    memoryMode memMode, int startDevice, int endDevice,
                    bool wc) {
   switch (mode) {
-  case QUICK_MODE:
-    testBandwidthQuick(DEFAULT_SIZE, kind, printmode, memMode, startDevice,
-                       endDevice, wc);
-    break;
+    case QUICK_MODE:
+      testBandwidthQuick(DEFAULT_SIZE, kind, printmode, memMode, startDevice,
+                         endDevice, wc);
+      break;
 
-  case RANGE_MODE:
-    testBandwidthRange(start, end, increment, kind, printmode, memMode,
-                       startDevice, endDevice, wc);
-    break;
+    case RANGE_MODE:
+      testBandwidthRange(start, end, increment, kind, printmode, memMode,
+                         startDevice, endDevice, wc);
+      break;
 
-  case SHMOO_MODE:
-    testBandwidthShmoo(kind, printmode, memMode, startDevice, endDevice, wc);
-    break;
+    case SHMOO_MODE:
+      testBandwidthShmoo(kind, printmode, memMode, startDevice, endDevice, wc);
+      break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }
 
@@ -429,8 +433,8 @@ void testBandwidthRange(unsigned int start, unsigned int end,
   // count the number of copies we're going to run
   unsigned int count = 1 + ((end - start) / increment);
 
-  unsigned int *memSizes = (unsigned int *)malloc(count * sizeof(unsigned int));
-  double *bandwidths = (double *)malloc(count * sizeof(double));
+  unsigned int* memSizes = (unsigned int*)malloc(count * sizeof(unsigned int));
+  double* bandwidths = (double*)malloc(count * sizeof(double));
 
   // Before calculating the cumulative bandwidth, initialize bandwidths array to
   // NULL
@@ -445,24 +449,23 @@ void testBandwidthRange(unsigned int start, unsigned int end,
 
     // run each of the copies
     for (unsigned int i = 0; i < count; i++) {
-
       memSizes[i] = start + i * increment;
 
       switch (kind) {
-      case DEVICE_TO_HOST:
-        bandwidths[i] += testDeviceToHostTransfer(memSizes[i], memMode, wc);
-        break;
+        case DEVICE_TO_HOST:
+          bandwidths[i] += testDeviceToHostTransfer(memSizes[i], memMode, wc);
+          break;
 
-      case HOST_TO_DEVICE:
-        bandwidths[i] += testHostToDeviceTransfer(memSizes[i], memMode, wc);
-        break;
+        case HOST_TO_DEVICE:
+          bandwidths[i] += testHostToDeviceTransfer(memSizes[i], memMode, wc);
+          break;
 
-      case DEVICE_TO_DEVICE:
-        bandwidths[i] += testDeviceToDeviceTransfer(memSizes[i]);
-        break;
+        case DEVICE_TO_DEVICE:
+          bandwidths[i] += testDeviceToDeviceTransfer(memSizes[i]);
+          break;
       }
     }
-  } // Complete the bandwidth computation on all the devices
+  }  // Complete the bandwidth computation on all the devices
 
   // print results
   if (printmode == CSV) {
@@ -494,8 +497,8 @@ void testBandwidthShmoo(memcpyKind kind, printMode printmode,
       ((SHMOO_LIMIT_32MB - SHMOO_LIMIT_16MB) / SHMOO_INCREMENT_2MB) +
       ((SHMOO_MEMSIZE_MAX - SHMOO_LIMIT_32MB) / SHMOO_INCREMENT_4MB);
 
-  unsigned int *memSizes = (unsigned int *)malloc(count * sizeof(unsigned int));
-  double *bandwidths = (double *)malloc(count * sizeof(double));
+  unsigned int* memSizes = (unsigned int*)malloc(count * sizeof(unsigned int));
+  double* bandwidths = (double*)malloc(count * sizeof(double));
 
   // Before calculating the cumulative bandwidth, initialize bandwidths array to
   // NULL
@@ -531,26 +534,26 @@ void testBandwidthShmoo(memcpyKind kind, printMode printmode,
       memSizes[iteration] = memSize;
 
       switch (kind) {
-      case DEVICE_TO_HOST:
-        bandwidths[iteration] +=
-            testDeviceToHostTransfer(memSizes[iteration], memMode, wc);
-        break;
+        case DEVICE_TO_HOST:
+          bandwidths[iteration] +=
+              testDeviceToHostTransfer(memSizes[iteration], memMode, wc);
+          break;
 
-      case HOST_TO_DEVICE:
-        bandwidths[iteration] +=
-            testHostToDeviceTransfer(memSizes[iteration], memMode, wc);
-        break;
+        case HOST_TO_DEVICE:
+          bandwidths[iteration] +=
+              testHostToDeviceTransfer(memSizes[iteration], memMode, wc);
+          break;
 
-      case DEVICE_TO_DEVICE:
-        bandwidths[iteration] +=
-            testDeviceToDeviceTransfer(memSizes[iteration]);
-        break;
+        case DEVICE_TO_DEVICE:
+          bandwidths[iteration] +=
+              testDeviceToDeviceTransfer(memSizes[iteration]);
+          break;
       }
 
       iteration++;
       printf(".");
     }
-  } // Complete the bandwidth computation on all the devices
+  }  // Complete the bandwidth computation on all the devices
 
   // print results
   printf("\n");
@@ -573,11 +576,11 @@ void testBandwidthShmoo(memcpyKind kind, printMode printmode,
 ///////////////////////////////////////////////////////////////////////////////
 float testDeviceToHostTransfer(unsigned int memSize, memoryMode memMode,
                                bool wc) {
-  StopWatchInterface *timer = NULL;
+  StopWatchInterface* timer = NULL;
   float elapsedTimeInMs = 0.0f;
   float bandwidthInMBs = 0.0f;
-  unsigned char *h_idata = NULL;
-  unsigned char *h_odata = NULL;
+  unsigned char* h_idata = NULL;
+  unsigned char* h_odata = NULL;
   cudaEvent_t start, stop;
 
   sdkCreateTimer(&timer);
@@ -588,18 +591,18 @@ float testDeviceToHostTransfer(unsigned int memSize, memoryMode memMode,
   if (PINNED == memMode) {
     // pinned memory mode - use special function to get OS-pinned memory
 #if CUDART_VERSION >= 2020
-    checkCudaErrors(cudaHostAlloc((void **)&h_idata, memSize,
+    checkCudaErrors(cudaHostAlloc((void**)&h_idata, memSize,
                                   (wc) ? cudaHostAllocWriteCombined : 0));
-    checkCudaErrors(cudaHostAlloc((void **)&h_odata, memSize,
+    checkCudaErrors(cudaHostAlloc((void**)&h_odata, memSize,
                                   (wc) ? cudaHostAllocWriteCombined : 0));
 #else
-    checkCudaErrors(cudaMallocHost((void **)&h_idata, memSize));
-    checkCudaErrors(cudaMallocHost((void **)&h_odata, memSize));
+    checkCudaErrors(cudaMallocHost((void**)&h_idata, memSize));
+    checkCudaErrors(cudaMallocHost((void**)&h_odata, memSize));
 #endif
   } else {
     // pageable memory mode - use malloc
-    h_idata = (unsigned char *)malloc(memSize);
-    h_odata = (unsigned char *)malloc(memSize);
+    h_idata = (unsigned char*)malloc(memSize);
+    h_odata = (unsigned char*)malloc(memSize);
 
     if (h_idata == 0 || h_odata == 0) {
       fprintf(stderr, "Not enough memory avaialable on host to run test!\n");
@@ -613,8 +616,8 @@ float testDeviceToHostTransfer(unsigned int memSize, memoryMode memMode,
   }
 
   // allocate device memory
-  unsigned char *d_idata;
-  checkCudaErrors(cudaMalloc((void **)&d_idata, memSize));
+  unsigned char* d_idata;
+  checkCudaErrors(cudaMalloc((void**)&d_idata, memSize));
 
   // initialize the device memory
   checkCudaErrors(
@@ -675,7 +678,7 @@ float testDeviceToHostTransfer(unsigned int memSize, memoryMode memMode,
 ///////////////////////////////////////////////////////////////////////////////
 float testHostToDeviceTransfer(unsigned int memSize, memoryMode memMode,
                                bool wc) {
-  StopWatchInterface *timer = NULL;
+  StopWatchInterface* timer = NULL;
   float elapsedTimeInMs = 0.0f;
   float bandwidthInMBs = 0.0f;
   cudaEvent_t start, stop;
@@ -684,20 +687,20 @@ float testHostToDeviceTransfer(unsigned int memSize, memoryMode memMode,
   checkCudaErrors(cudaEventCreate(&stop));
 
   // allocate host memory
-  unsigned char *h_odata = NULL;
+  unsigned char* h_odata = NULL;
 
   if (PINNED == memMode) {
 #if CUDART_VERSION >= 2020
     // pinned memory mode - use special function to get OS-pinned memory
-    checkCudaErrors(cudaHostAlloc((void **)&h_odata, memSize,
+    checkCudaErrors(cudaHostAlloc((void**)&h_odata, memSize,
                                   (wc) ? cudaHostAllocWriteCombined : 0));
 #else
     // pinned memory mode - use special function to get OS-pinned memory
-    checkCudaErrors(cudaMallocHost((void **)&h_odata, memSize));
+    checkCudaErrors(cudaMallocHost((void**)&h_odata, memSize));
 #endif
   } else {
     // pageable memory mode - use malloc
-    h_odata = (unsigned char *)malloc(memSize);
+    h_odata = (unsigned char*)malloc(memSize);
 
     if (h_odata == 0) {
       fprintf(stderr, "Not enough memory available on host to run test!\n");
@@ -705,8 +708,8 @@ float testHostToDeviceTransfer(unsigned int memSize, memoryMode memMode,
     }
   }
 
-  unsigned char *h_cacheClear1 = (unsigned char *)malloc(CACHE_CLEAR_SIZE);
-  unsigned char *h_cacheClear2 = (unsigned char *)malloc(CACHE_CLEAR_SIZE);
+  unsigned char* h_cacheClear1 = (unsigned char*)malloc(CACHE_CLEAR_SIZE);
+  unsigned char* h_cacheClear2 = (unsigned char*)malloc(CACHE_CLEAR_SIZE);
 
   if (h_cacheClear1 == 0 || h_cacheClear1 == 0) {
     fprintf(stderr, "Not enough memory available on host to run test!\n");
@@ -724,8 +727,8 @@ float testHostToDeviceTransfer(unsigned int memSize, memoryMode memMode,
   }
 
   // allocate device memory
-  unsigned char *d_idata;
-  checkCudaErrors(cudaMalloc((void **)&d_idata, memSize));
+  unsigned char* d_idata;
+  checkCudaErrors(cudaMalloc((void**)&d_idata, memSize));
 
   sdkStartTimer(&timer);
   checkCudaErrors(cudaEventRecord(start, 0));
@@ -781,7 +784,7 @@ float testHostToDeviceTransfer(unsigned int memSize, memoryMode memMode,
 //! test the bandwidth of a device to device memcopy of a specific size
 ///////////////////////////////////////////////////////////////////////////////
 float testDeviceToDeviceTransfer(unsigned int memSize) {
-  StopWatchInterface *timer = NULL;
+  StopWatchInterface* timer = NULL;
   float elapsedTimeInMs = 0.0f;
   float bandwidthInMBs = 0.0f;
   cudaEvent_t start, stop;
@@ -791,7 +794,7 @@ float testDeviceToDeviceTransfer(unsigned int memSize) {
   checkCudaErrors(cudaEventCreate(&stop));
 
   // allocate host memory
-  unsigned char *h_idata = (unsigned char *)malloc(memSize);
+  unsigned char* h_idata = (unsigned char*)malloc(memSize);
 
   if (h_idata == 0) {
     fprintf(stderr, "Not enough memory avaialable on host to run test!\n");
@@ -804,10 +807,10 @@ float testDeviceToDeviceTransfer(unsigned int memSize) {
   }
 
   // allocate device memory
-  unsigned char *d_idata;
-  checkCudaErrors(cudaMalloc((void **)&d_idata, memSize));
-  unsigned char *d_odata;
-  checkCudaErrors(cudaMalloc((void **)&d_odata, memSize));
+  unsigned char* d_idata;
+  checkCudaErrors(cudaMalloc((void**)&d_idata, memSize));
+  unsigned char* d_odata;
+  checkCudaErrors(cudaMalloc((void**)&d_odata, memSize));
 
   // initialize memory
   checkCudaErrors(
@@ -856,7 +859,7 @@ float testDeviceToDeviceTransfer(unsigned int memSize) {
 /////////////////////////////////////////////////////////
 // print results in an easily read format
 ////////////////////////////////////////////////////////
-void printResultsReadable(unsigned int *memSizes, double *bandwidths,
+void printResultsReadable(unsigned int* memSizes, double* bandwidths,
                           unsigned int count, memcpyKind kind,
                           memoryMode memMode, int iNumDevs, bool wc) {
   printf(" %s Bandwidth, %i Device(s)\n", sMemoryCopyKind[kind], iNumDevs);
@@ -881,7 +884,7 @@ void printResultsReadable(unsigned int *memSizes, double *bandwidths,
 ///////////////////////////////////////////////////////////////////////////
 // print results in a database format
 ///////////////////////////////////////////////////////////////////////////
-void printResultsCSV(unsigned int *memSizes, double *bandwidths,
+void printResultsCSV(unsigned int* memSizes, double* bandwidths,
                      unsigned int count, memcpyKind kind, memoryMode memMode,
                      int iNumDevs, bool wc) {
   std::string sConfig;
@@ -912,9 +915,10 @@ void printResultsCSV(unsigned int *memSizes, double *bandwidths,
 
   for (i = 0; i < count; i++) {
     dSeconds = (double)memSizes[i] / (bandwidths[i] * (double)(1 << 20));
-    printf("bandwidthTest-%s, Bandwidth = %.1f MB/s, Time = %.5f s, Size = %u "
-           "bytes, NumDevsUsed = %d\n",
-           sConfig.c_str(), bandwidths[i], dSeconds, memSizes[i], iNumDevs);
+    printf(
+        "bandwidthTest-%s, Bandwidth = %.1f MB/s, Time = %.5f s, Size = %u "
+        "bytes, NumDevsUsed = %d\n",
+        sConfig.c_str(), bandwidths[i], dSeconds, memSizes[i], iNumDevs);
   }
 }
 
@@ -923,14 +927,16 @@ void printResultsCSV(unsigned int *memSizes, double *bandwidths,
 ///////////////////////////////////////////////////////////////////////////
 void printHelp(void) {
   printf("Usage:  bandwidthTest [OPTION]...\n");
-  printf("Test the bandwidth for device to host, host to device, and device to "
-         "device transfers\n");
+  printf(
+      "Test the bandwidth for device to host, host to device, and device to "
+      "device transfers\n");
   printf("\n");
   printf(
       "Example:  measure the bandwidth of device to host pinned memory copies "
       "in the range 1024 Bytes to 102400 Bytes in 1024 Byte increments\n");
-  printf("./bandwidthTest --memory=pinned --mode=range --start=1024 "
-         "--end=102400 --increment=1024 --dtoh\n");
+  printf(
+      "./bandwidthTest --memory=pinned --mode=range --start=1024 "
+      "--end=102400 --increment=1024 --dtoh\n");
 
   printf("\n");
   printf("Options:\n");

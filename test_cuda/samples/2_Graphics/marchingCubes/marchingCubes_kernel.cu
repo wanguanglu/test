@@ -13,7 +13,7 @@
 #define _MARCHING_CUBES_KERNEL_CU_
 
 #include <cuda_runtime_api.h>
-#include <helper_cuda.h> // includes for helper CUDA functions
+#include <helper_cuda.h>  // includes for helper CUDA functions
 #include <helper_math.h>
 #include <stdio.h>
 #include <string.h>
@@ -31,28 +31,28 @@ texture<uint, 1, cudaReadModeElementType> numVertsTex;
 // volume data
 texture<uchar, 1, cudaReadModeNormalizedFloat> volumeTex;
 
-extern "C" void allocateTextures(uint **d_edgeTable, uint **d_triTable,
-                                 uint **d_numVertsTable) {
-  checkCudaErrors(cudaMalloc((void **)d_edgeTable, 256 * sizeof(uint)));
-  checkCudaErrors(cudaMemcpy((void *)*d_edgeTable, (void *)edgeTable,
+extern "C" void allocateTextures(uint** d_edgeTable, uint** d_triTable,
+                                 uint** d_numVertsTable) {
+  checkCudaErrors(cudaMalloc((void**)d_edgeTable, 256 * sizeof(uint)));
+  checkCudaErrors(cudaMemcpy((void*)*d_edgeTable, (void*)edgeTable,
                              256 * sizeof(uint), cudaMemcpyHostToDevice));
   cudaChannelFormatDesc channelDesc =
       cudaCreateChannelDesc(32, 0, 0, 0, cudaChannelFormatKindUnsigned);
   checkCudaErrors(cudaBindTexture(0, edgeTex, *d_edgeTable, channelDesc));
 
-  checkCudaErrors(cudaMalloc((void **)d_triTable, 256 * 16 * sizeof(uint)));
-  checkCudaErrors(cudaMemcpy((void *)*d_triTable, (void *)triTable,
+  checkCudaErrors(cudaMalloc((void**)d_triTable, 256 * 16 * sizeof(uint)));
+  checkCudaErrors(cudaMemcpy((void*)*d_triTable, (void*)triTable,
                              256 * 16 * sizeof(uint), cudaMemcpyHostToDevice));
   checkCudaErrors(cudaBindTexture(0, triTex, *d_triTable, channelDesc));
 
-  checkCudaErrors(cudaMalloc((void **)d_numVertsTable, 256 * sizeof(uint)));
-  checkCudaErrors(cudaMemcpy((void *)*d_numVertsTable, (void *)numVertsTable,
+  checkCudaErrors(cudaMalloc((void**)d_numVertsTable, 256 * sizeof(uint)));
+  checkCudaErrors(cudaMemcpy((void*)*d_numVertsTable, (void*)numVertsTable,
                              256 * sizeof(uint), cudaMemcpyHostToDevice));
   checkCudaErrors(
       cudaBindTexture(0, numVertsTex, *d_numVertsTable, channelDesc));
 }
 
-extern "C" void bindVolumeTexture(uchar *d_volume) {
+extern "C" void bindVolumeTexture(uchar* d_volume) {
   // bind to linear texture
   checkCudaErrors(cudaBindTexture(
       0, volumeTex, d_volume,
@@ -85,7 +85,7 @@ __device__ float4 fieldFunc4(float3 p) {
 }
 
 // sample volume data set at a point
-__device__ float sampleVolume(uchar *data, uint3 p, uint3 gridSize) {
+__device__ float sampleVolume(uchar* data, uint3 p, uint3 gridSize) {
   p.x = min(p.x, gridSize.x - 1);
   p.y = min(p.y, gridSize.y - 1);
   p.z = min(p.z, gridSize.z - 1);
@@ -106,8 +106,8 @@ __device__ uint3 calcGridPos(uint i, uint3 gridSizeShift, uint3 gridSizeMask) {
 
 // classify voxel based on number of vertices it will generate
 // one thread per voxel
-__global__ void classifyVoxel(uint *voxelVerts, uint *voxelOccupied,
-                              uchar *volume, uint3 gridSize,
+__global__ void classifyVoxel(uint* voxelVerts, uint* voxelOccupied,
+                              uchar* volume, uint3 gridSize,
                               uint3 gridSizeShift, uint3 gridSizeMask,
                               uint numVoxels, float3 voxelSize,
                               float isoValue) {
@@ -164,8 +164,8 @@ __global__ void classifyVoxel(uint *voxelVerts, uint *voxelOccupied,
   }
 }
 
-extern "C" void launch_classifyVoxel(dim3 grid, dim3 threads, uint *voxelVerts,
-                                     uint *voxelOccupied, uchar *volume,
+extern "C" void launch_classifyVoxel(dim3 grid, dim3 threads, uint* voxelVerts,
+                                     uint* voxelOccupied, uchar* volume,
                                      uint3 gridSize, uint3 gridSizeShift,
                                      uint3 gridSizeMask, uint numVoxels,
                                      float3 voxelSize, float isoValue) {
@@ -177,8 +177,8 @@ extern "C" void launch_classifyVoxel(dim3 grid, dim3 threads, uint *voxelVerts,
 }
 
 // compact voxel array
-__global__ void compactVoxels(uint *compactedVoxelArray, uint *voxelOccupied,
-                              uint *voxelOccupiedScan, uint numVoxels) {
+__global__ void compactVoxels(uint* compactedVoxelArray, uint* voxelOccupied,
+                              uint* voxelOccupiedScan, uint numVoxels) {
   uint blockId = __mul24(blockIdx.y, gridDim.x) + blockIdx.x;
   uint i = __mul24(blockId, blockDim.x) + threadIdx.x;
 
@@ -188,9 +188,9 @@ __global__ void compactVoxels(uint *compactedVoxelArray, uint *voxelOccupied,
 }
 
 extern "C" void launch_compactVoxels(dim3 grid, dim3 threads,
-                                     uint *compactedVoxelArray,
-                                     uint *voxelOccupied,
-                                     uint *voxelOccupiedScan, uint numVoxels) {
+                                     uint* compactedVoxelArray,
+                                     uint* voxelOccupied,
+                                     uint* voxelOccupiedScan, uint numVoxels) {
   compactVoxels<<<grid, threads>>>(compactedVoxelArray, voxelOccupied,
                                    voxelOccupiedScan, numVoxels);
   getLastCudaError("compactVoxels failed");
@@ -205,7 +205,7 @@ __device__ float3 vertexInterp(float isolevel, float3 p0, float3 p1, float f0,
 
 // compute interpolated vertex position and normal along an edge
 __device__ void vertexInterp2(float isolevel, float3 p0, float3 p1, float4 f0,
-                              float4 f1, float3 &p, float3 &n) {
+                              float4 f1, float3& p, float3& n) {
   float t = (isolevel - f0.w) / (f1.w - f0.w);
   p = lerp(p0, p1, t);
   n.x = lerp(f0.x, f1.x, t);
@@ -216,9 +216,9 @@ __device__ void vertexInterp2(float isolevel, float3 p0, float3 p1, float4 f0,
 
 // generate triangles for each voxel using marching cubes
 // interpolates normals from field function
-__global__ void generateTriangles(float4 *pos, float4 *norm,
-                                  uint *compactedVoxelArray,
-                                  uint *numVertsScanned, uint3 gridSize,
+__global__ void generateTriangles(float4* pos, float4* norm,
+                                  uint* compactedVoxelArray,
+                                  uint* numVertsScanned, uint3 gridSize,
                                   uint3 gridSizeShift, uint3 gridSizeMask,
                                   float3 voxelSize, float isoValue,
                                   uint activeVoxels, uint maxVerts) {
@@ -375,12 +375,11 @@ __global__ void generateTriangles(float4 *pos, float4 *norm,
   }
 }
 
-extern "C" void
-launch_generateTriangles(dim3 grid, dim3 threads, float4 *pos, float4 *norm,
-                         uint *compactedVoxelArray, uint *numVertsScanned,
-                         uint3 gridSize, uint3 gridSizeShift,
-                         uint3 gridSizeMask, float3 voxelSize, float isoValue,
-                         uint activeVoxels, uint maxVerts) {
+extern "C" void launch_generateTriangles(
+    dim3 grid, dim3 threads, float4* pos, float4* norm,
+    uint* compactedVoxelArray, uint* numVertsScanned, uint3 gridSize,
+    uint3 gridSizeShift, uint3 gridSizeMask, float3 voxelSize, float isoValue,
+    uint activeVoxels, uint maxVerts) {
   generateTriangles<<<grid, NTHREADS>>>(
       pos, norm, compactedVoxelArray, numVertsScanned, gridSize, gridSizeShift,
       gridSizeMask, voxelSize, isoValue, activeVoxels, maxVerts);
@@ -388,7 +387,7 @@ launch_generateTriangles(dim3 grid, dim3 threads, float4 *pos, float4 *norm,
 }
 
 // calculate triangle normal
-__device__ float3 calcNormal(float3 *v0, float3 *v1, float3 *v2) {
+__device__ float3 calcNormal(float3* v0, float3* v1, float3* v2) {
   float3 edge0 = *v1 - *v0;
   float3 edge1 = *v2 - *v0;
   // note - it's faster to perform normalization in vertex shader rather than
@@ -397,11 +396,10 @@ __device__ float3 calcNormal(float3 *v0, float3 *v1, float3 *v2) {
 }
 
 // version that calculates flat surface normal for each triangle
-__global__ void
-generateTriangles2(float4 *pos, float4 *norm, uint *compactedVoxelArray,
-                   uint *numVertsScanned, uchar *volume, uint3 gridSize,
-                   uint3 gridSizeShift, uint3 gridSizeMask, float3 voxelSize,
-                   float isoValue, uint activeVoxels, uint maxVerts) {
+__global__ void generateTriangles2(
+    float4* pos, float4* norm, uint* compactedVoxelArray, uint* numVertsScanned,
+    uchar* volume, uint3 gridSize, uint3 gridSizeShift, uint3 gridSizeMask,
+    float3 voxelSize, float isoValue, uint activeVoxels, uint maxVerts) {
   uint blockId = __mul24(blockIdx.y, gridDim.x) + blockIdx.x;
   uint i = __mul24(blockId, blockDim.x) + threadIdx.x;
 
@@ -525,7 +523,7 @@ generateTriangles2(float4 *pos, float4 *norm, uint *compactedVoxelArray,
   for (int i = 0; i < numVerts; i += 3) {
     uint index = numVertsScanned[voxel] + i;
 
-    float3 *v[3];
+    float3* v[3];
     uint edge;
     edge = tex1Dfetch(triTex, (cubeindex * 16) + i);
 #if USE_SHARED
@@ -564,19 +562,18 @@ generateTriangles2(float4 *pos, float4 *norm, uint *compactedVoxelArray,
   }
 }
 
-extern "C" void
-launch_generateTriangles2(dim3 grid, dim3 threads, float4 *pos, float4 *norm,
-                          uint *compactedVoxelArray, uint *numVertsScanned,
-                          uchar *volume, uint3 gridSize, uint3 gridSizeShift,
-                          uint3 gridSizeMask, float3 voxelSize, float isoValue,
-                          uint activeVoxels, uint maxVerts) {
+extern "C" void launch_generateTriangles2(
+    dim3 grid, dim3 threads, float4* pos, float4* norm,
+    uint* compactedVoxelArray, uint* numVertsScanned, uchar* volume,
+    uint3 gridSize, uint3 gridSizeShift, uint3 gridSizeMask, float3 voxelSize,
+    float isoValue, uint activeVoxels, uint maxVerts) {
   generateTriangles2<<<grid, NTHREADS>>>(
       pos, norm, compactedVoxelArray, numVertsScanned, volume, gridSize,
       gridSizeShift, gridSizeMask, voxelSize, isoValue, activeVoxels, maxVerts);
   getLastCudaError("generateTriangles2 failed");
 }
 
-extern "C" void ThrustScanWrapper(unsigned int *output, unsigned int *input,
+extern "C" void ThrustScanWrapper(unsigned int* output, unsigned int* input,
                                   unsigned int numElements) {
   thrust::exclusive_scan(thrust::device_ptr<unsigned int>(input),
                          thrust::device_ptr<unsigned int>(input + numElements),

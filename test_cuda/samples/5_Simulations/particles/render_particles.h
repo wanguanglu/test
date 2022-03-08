@@ -13,11 +13,11 @@
 #define __RENDER_PARTICLES__
 
 class ParticleRenderer {
-public:
+ public:
   ParticleRenderer();
   ~ParticleRenderer();
 
-  void setPositions(float *pos, int numParticles);
+  void setPositions(float* pos, int numParticles);
   void setVertexBuffer(unsigned int vbo, int numParticles);
   void setColorBuffer(unsigned int vbo) { m_colorVBO = vbo; }
 
@@ -34,13 +34,13 @@ public:
     m_window_h = h;
   }
 
-protected: // methods
+ protected:  // methods
   void _initGL();
   void _drawPoints();
-  GLuint _compileProgram(const char *vsource, const char *fsource);
+  GLuint _compileProgram(const char* vsource, const char* fsource);
 
-protected: // data
-  float *m_pos;
+ protected:  // data
+  float* m_pos;
   int m_numParticles;
 
   float m_pointSize;
@@ -54,4 +54,4 @@ protected: // data
   GLuint m_colorVBO;
 };
 
-#endif //__ RENDER_PARTICLES__
+#endif  //__ RENDER_PARTICLES__

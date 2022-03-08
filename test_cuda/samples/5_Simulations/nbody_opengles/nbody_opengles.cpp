@@ -70,9 +70,9 @@ int numBodies = 16384;
 
 std::string tipsyFile = "";
 
-int numIterations = 0; // run until exit
+int numIterations = 0;  // run until exit
 
-void computePerfStats(double &interactionsPerSecond, double &gflops,
+void computePerfStats(double& interactionsPerSecond, double& gflops,
                       float milliseconds, int iterations) {
   // double precision uses intrinsic operation followed by refinement,
   // resulting in higher operation count per interaction.
@@ -119,7 +119,7 @@ NBodyParams demoParams[] = {
 int numDemos = sizeof(demoParams) / sizeof(NBodyParams);
 bool cycleDemo = true;
 int activeDemo = 0;
-float demoTime = 10000.0f; // ms
+float demoTime = 10000.0f;  // ms
 StopWatchInterface *demoTimer = NULL, *timer = NULL;
 
 // run multiple iterations to compute an average sort time
@@ -135,8 +135,9 @@ static int fpsLimit = 5;
 cudaEvent_t startEvent, stopEvent;
 cudaEvent_t hostMemSyncEvent;
 
-template <typename T> class NBodyDemo {
-public:
+template <typename T>
+class NBodyDemo {
+ public:
   static void Create() { m_singleton = new NBodyDemo; }
   static void Destroy() { delete m_singleton; }
 
@@ -194,14 +195,14 @@ public:
     m_singleton->m_renderer->display();
   }
 
-  static void getArrays(T *pos, T *vel) {
-    T *_pos = m_singleton->m_nbody->getArray(BODYSYSTEM_POSITION);
-    T *_vel = m_singleton->m_nbody->getArray(BODYSYSTEM_VELOCITY);
+  static void getArrays(T* pos, T* vel) {
+    T* _pos = m_singleton->m_nbody->getArray(BODYSYSTEM_POSITION);
+    T* _vel = m_singleton->m_nbody->getArray(BODYSYSTEM_VELOCITY);
     memcpy(pos, _pos, m_singleton->m_nbody->getNumBodies() * 4 * sizeof(T));
     memcpy(vel, _vel, m_singleton->m_nbody->getNumBodies() * 4 * sizeof(T));
   }
 
-  static void setArrays(const T *pos, const T *vel) {
+  static void setArrays(const T* pos, const T* vel) {
     if (pos != m_singleton->m_hPos) {
       memcpy(m_singleton->m_hPos, pos, numBodies * 4 * sizeof(T));
     }
@@ -218,23 +219,28 @@ public:
     }
   }
 
-private:
-  static NBodyDemo *m_singleton;
+ private:
+  static NBodyDemo* m_singleton;
 
-  BodySystem<T> *m_nbody;
-  BodySystemCUDA<T> *m_nbodyCuda;
-  BodySystemCPU<T> *m_nbodyCpu;
+  BodySystem<T>* m_nbody;
+  BodySystemCUDA<T>* m_nbodyCuda;
+  BodySystemCPU<T>* m_nbodyCpu;
 
-  ParticleRenderer *m_renderer;
+  ParticleRenderer* m_renderer;
 
-  T *m_hPos;
-  T *m_hVel;
-  float *m_hColor;
+  T* m_hPos;
+  T* m_hVel;
+  float* m_hColor;
 
-private:
+ private:
   NBodyDemo()
-      : m_nbody(0), m_nbodyCuda(0), m_nbodyCpu(0), m_renderer(0), m_hPos(0),
-        m_hVel(0), m_hColor(0) {}
+      : m_nbody(0),
+        m_nbodyCuda(0),
+        m_nbodyCpu(0),
+        m_renderer(0),
+        m_hPos(0),
+        m_hVel(0),
+        m_hColor(0) {}
 
   ~NBodyDemo() {
     if (m_nbodyCpu) {
@@ -259,8 +265,7 @@ private:
 
     sdkDeleteTimer(&demoTimer);
 
-    if (!benchmark && !compareToCPU)
-      delete m_renderer;
+    if (!benchmark && !compareToCPU) delete m_renderer;
   }
 
   void _init(int numBodies, int numDevices, int blockSize, bool bUsePBO,
@@ -356,8 +361,8 @@ private:
 
       m_nbodyCpu->update(0.001f);
 
-      T *cudaPos = m_nbodyCuda->getArray(BODYSYSTEM_POSITION);
-      T *cpuPos = m_nbodyCpu->getArray(BODYSYSTEM_POSITION);
+      T* cudaPos = m_nbodyCuda->getArray(BODYSYSTEM_POSITION);
+      T* cpuPos = m_nbodyCpu->getArray(BODYSYSTEM_POSITION);
 
       T tolerance = 0.0005f;
 
@@ -422,27 +427,29 @@ void finalize() {
 
   NBodyDemo<float>::Destroy();
 
-  if (bSupportDouble)
-    NBodyDemo<double>::Destroy();
+  if (bSupportDouble) NBodyDemo<double>::Destroy();
 }
 
-template <> NBodyDemo<double> *NBodyDemo<double>::m_singleton = 0;
-template <> NBodyDemo<float> *NBodyDemo<float>::m_singleton = 0;
+template <>
+NBodyDemo<double>* NBodyDemo<double>::m_singleton = 0;
+template <>
+NBodyDemo<float>* NBodyDemo<float>::m_singleton = 0;
 
-template <typename T_new, typename T_old> void switchDemoPrecision() {
+template <typename T_new, typename T_old>
+void switchDemoPrecision() {
   cudaDeviceSynchronize();
 
   fp64 = !fp64;
   flopsPerInteraction = fp64 ? 30 : 20;
 
-  T_old *oldPos = new T_old[numBodies * 4];
-  T_old *oldVel = new T_old[numBodies * 4];
+  T_old* oldPos = new T_old[numBodies * 4];
+  T_old* oldVel = new T_old[numBodies * 4];
 
   NBodyDemo<T_old>::getArrays(oldPos, oldVel);
 
   // convert float to double
-  T_new *newPos = new T_new[numBodies * 4];
-  T_new *newVel = new T_new[numBodies * 4];
+  T_new* newPos = new T_new[numBodies * 4];
+  T_new* newVel = new T_new[numBodies * 4];
 
   for (int i = 0; i < numBodies * 4; i++) {
     newPos[i] = (T_new)oldPos[i];
@@ -459,7 +466,7 @@ template <typename T_new, typename T_old> void switchDemoPrecision() {
   delete[] newVel;
 }
 
-void initGL(int *argc, char **argv) {
+void initGL(int* argc, char** argv) {
   EGLint configAttrs[] = {EGL_RED_SIZE,
                           1,
                           EGL_GREEN_SIZE,
@@ -479,7 +486,7 @@ void initGL(int *argc, char **argv) {
   EGLint contextAttrs[] = {EGL_CONTEXT_CLIENT_VERSION, 3, EGL_NONE};
 
   EGLint windowAttrs[] = {EGL_NONE};
-  EGLConfig *configList = NULL;
+  EGLConfig* configList = NULL;
   EGLint configCount;
 
   eglDisplay = eglGetDisplay(0);
@@ -500,7 +507,7 @@ void initGL(int *argc, char **argv) {
     exit(EXIT_FAILURE);
   }
 
-  configList = (EGLConfig *)malloc(configCount * sizeof(EGLConfig));
+  configList = (EGLConfig*)malloc(configCount * sizeof(EGLConfig));
 
   if (!eglChooseConfig(eglDisplay, configAttrs, configList, configCount,
                        &configCount) ||
@@ -509,7 +516,7 @@ void initGL(int *argc, char **argv) {
     exit(EXIT_FAILURE);
   }
 
-  Display *xDisplay = XOpenDisplay(NULL);
+  Display* xDisplay = XOpenDisplay(NULL);
   if (!xDisplay) {
     printf("X server failed to open a window\n");
     exit(EXIT_FAILURE);
@@ -559,18 +566,18 @@ void initGL(int *argc, char **argv) {
                   &contextRendererType);
 
   switch (contextRendererType) {
-  case EGL_OPENGL_ES_API:
-    printf("Using OpenGL ES API\n");
-    break;
-  case EGL_OPENGL_API:
-    printf("Using OpenGL API - this is unsupported\n");
-    exit(EXIT_FAILURE);
-  case EGL_OPENVG_API:
-    printf("Using OpenVG API - this is unsupported\n");
-    exit(EXIT_FAILURE);
-  default:
-    printf("Unknown context type\n");
-    exit(EXIT_FAILURE);
+    case EGL_OPENGL_ES_API:
+      printf("Using OpenGL ES API\n");
+      break;
+    case EGL_OPENGL_API:
+      printf("Using OpenGL API - this is unsupported\n");
+      exit(EXIT_FAILURE);
+    case EGL_OPENVG_API:
+      printf("Using OpenVG API - this is unsupported\n");
+      exit(EXIT_FAILURE);
+    default:
+      printf("Unknown context type\n");
+      exit(EXIT_FAILURE);
   }
 }
 
@@ -592,7 +599,6 @@ void updateSimulation() {
 
 void displayNBodySystem() {
   if (fp64) {
-
     NBodyDemo<double>::display();
   } else {
     NBodyDemo<float>::display();
@@ -615,7 +621,7 @@ void display() {
 
     if (!useCpu) {
       cudaEventRecord(hostMemSyncEvent,
-                      0); // insert an event to wait on before rendering
+                      0);  // insert an event to wait on before rendering
     }
   }
 
@@ -684,106 +690,108 @@ void updateParams() {
 // commented out to remove unused parameter warnings in Linux
 void key(unsigned char key, int /*x*/, int /*y*/) {
   switch (key) {
-  case ' ':
-    bPause = !bPause;
-    break;
+    case ' ':
+      bPause = !bPause;
+      break;
 
-  case 27: // escape
-  case 'q':
-  case 'Q':
-    finalize();
+    case 27:  // escape
+    case 'q':
+    case 'Q':
+      finalize();
 
-    // cudaDeviceReset causes the driver to clean up all state. While
-    // not mandatory in normal operation, it is good practice.  It is also
-    // needed to ensure correct operation when the application is being
-    // profiled. Calling cudaDeviceReset causes all profile data to be
-    // flushed before the application exits
-    cudaDeviceReset();
-    exit(EXIT_SUCCESS);
-    break;
+      // cudaDeviceReset causes the driver to clean up all state. While
+      // not mandatory in normal operation, it is good practice.  It is also
+      // needed to ensure correct operation when the application is being
+      // profiled. Calling cudaDeviceReset causes all profile data to be
+      // flushed before the application exits
+      cudaDeviceReset();
+      exit(EXIT_SUCCESS);
+      break;
 
-  case 13: // return
-    if (bSupportDouble) {
-      if (fp64) {
-        switchDemoPrecision<float, double>();
-      } else {
-        switchDemoPrecision<double, float>();
+    case 13:  // return
+      if (bSupportDouble) {
+        if (fp64) {
+          switchDemoPrecision<float, double>();
+        } else {
+          switchDemoPrecision<double, float>();
+        }
+
+        printf("> %s precision floating point simulation\n",
+               fp64 ? "Double" : "Single");
       }
 
-      printf("> %s precision floating point simulation\n",
-             fp64 ? "Double" : "Single");
-    }
+      break;
 
-    break;
+    case '`':
+      bShowSliders = !bShowSliders;
+      break;
 
-  case '`':
-    bShowSliders = !bShowSliders;
-    break;
+    case 'g':
+    case 'G':
+      bDispInteractions = !bDispInteractions;
+      break;
 
-  case 'g':
-  case 'G':
-    bDispInteractions = !bDispInteractions;
-    break;
+    case 'c':
+    case 'C':
+      cycleDemo = !cycleDemo;
+      printf("Cycle Demo Parameters: %s\n", cycleDemo ? "ON" : "OFF");
+      break;
 
-  case 'c':
-  case 'C':
-    cycleDemo = !cycleDemo;
-    printf("Cycle Demo Parameters: %s\n", cycleDemo ? "ON" : "OFF");
-    break;
+    case '[':
+      activeDemo =
+          (activeDemo == 0) ? numDemos - 1 : (activeDemo - 1) % numDemos;
+      selectDemo(activeDemo);
+      break;
 
-  case '[':
-    activeDemo = (activeDemo == 0) ? numDemos - 1 : (activeDemo - 1) % numDemos;
-    selectDemo(activeDemo);
-    break;
+    case ']':
+      activeDemo = (activeDemo + 1) % numDemos;
+      selectDemo(activeDemo);
+      break;
 
-  case ']':
-    activeDemo = (activeDemo + 1) % numDemos;
-    selectDemo(activeDemo);
-    break;
+    case 'd':
+    case 'D':
+      displayEnabled = !displayEnabled;
+      break;
 
-  case 'd':
-  case 'D':
-    displayEnabled = !displayEnabled;
-    break;
+    case 'o':
+    case 'O':
+      activeParams.print();
+      break;
 
-  case 'o':
-  case 'O':
-    activeParams.print();
-    break;
+    case '1':
+      if (fp64) {
+        NBodyDemo<double>::reset(numBodies, NBODY_CONFIG_SHELL);
+      } else {
+        NBodyDemo<float>::reset(numBodies, NBODY_CONFIG_SHELL);
+      }
 
-  case '1':
-    if (fp64) {
-      NBodyDemo<double>::reset(numBodies, NBODY_CONFIG_SHELL);
-    } else {
-      NBodyDemo<float>::reset(numBodies, NBODY_CONFIG_SHELL);
-    }
+      break;
 
-    break;
+    case '2':
+      if (fp64) {
+        NBodyDemo<double>::reset(numBodies, NBODY_CONFIG_RANDOM);
+      } else {
+        NBodyDemo<float>::reset(numBodies, NBODY_CONFIG_RANDOM);
+      }
 
-  case '2':
-    if (fp64) {
-      NBodyDemo<double>::reset(numBodies, NBODY_CONFIG_RANDOM);
-    } else {
-      NBodyDemo<float>::reset(numBodies, NBODY_CONFIG_RANDOM);
-    }
+      break;
 
-    break;
+    case '3':
+      if (fp64) {
+        NBodyDemo<double>::reset(numBodies, NBODY_CONFIG_EXPAND);
+      } else {
+        NBodyDemo<float>::reset(numBodies, NBODY_CONFIG_EXPAND);
+      }
 
-  case '3':
-    if (fp64) {
-      NBodyDemo<double>::reset(numBodies, NBODY_CONFIG_EXPAND);
-    } else {
-      NBodyDemo<float>::reset(numBodies, NBODY_CONFIG_EXPAND);
-    }
-
-    break;
+      break;
   }
 }
 
 void showHelp() {
   printf("\t-fullscreen       (run n-body simulation in fullscreen mode)\n");
-  printf("\t-fp64             (use double precision floating point values for "
-         "simulation)\n");
+  printf(
+      "\t-fp64             (use double precision floating point values for "
+      "simulation)\n");
   printf("\t-hostmem          (stores simulation data in host memory)\n");
   printf("\t-benchmark        (run benchmark to measure performance) \n");
   printf(
@@ -791,14 +799,18 @@ void showHelp() {
   printf(
       "\t-device=<d>       (where d=0,1,2.... for the CUDA device to use)\n");
   printf("\t-dispno=<n>       (where n represents the display to use)\n");
-  printf("\t-width=<w>        (where w represents the width of the window to "
-         "open)\n");
-  printf("\t-width=<h>        (where h represents the height of the window to "
-         "open)\n");
-  printf("\t-numdevices=<i>   (where i=(number of CUDA devices > 0) to use for "
-         "simulation)\n");
-  printf("\t-compare          (compares simulation results running once on the "
-         "default GPU and once on the CPU)\n");
+  printf(
+      "\t-width=<w>        (where w represents the width of the window to "
+      "open)\n");
+  printf(
+      "\t-width=<h>        (where h represents the height of the window to "
+      "open)\n");
+  printf(
+      "\t-numdevices=<i>   (where i=(number of CUDA devices > 0) to use for "
+      "simulation)\n");
+  printf(
+      "\t-compare          (compares simulation results running once on the "
+      "default GPU and once on the CPU)\n");
   printf("\t-cpu              (run n-body simulation on the CPU)\n");
   printf("\t-tipsy=<file.bin> (load a tipsy model file for simulation)\n\n");
 }
@@ -806,68 +818,69 @@ void showHelp() {
 //////////////////////////////////////////////////////////////////////////////
 // Program main
 //////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   bool bTestResults = true;
 
 #if defined(__linux__)
   setenv("DISPLAY", ":0", 0);
 #endif
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "help")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "help")) {
     printf("\n> Command line options\n");
     showHelp();
     return 0;
   }
 
-  printf("Run \"nbody_opengles -benchmark [-numbodies=<numBodies>]\" to "
-         "measure performance.\n");
+  printf(
+      "Run \"nbody_opengles -benchmark [-numbodies=<numBodies>]\" to "
+      "measure performance.\n");
   showHelp();
 
-  bFullscreen =
-      (checkCmdLineFlag(argc, (const char **)argv, "fullscreen") != 0);
+  bFullscreen = (checkCmdLineFlag(argc, (const char**)argv, "fullscreen") != 0);
 
   if (bFullscreen) {
     bShowSliders = false;
   }
 
-  benchmark = (checkCmdLineFlag(argc, (const char **)argv, "benchmark") != 0);
+  benchmark = (checkCmdLineFlag(argc, (const char**)argv, "benchmark") != 0);
 
   compareToCPU =
-      ((checkCmdLineFlag(argc, (const char **)argv, "compare") != 0) ||
-       (checkCmdLineFlag(argc, (const char **)argv, "qatest") != 0));
+      ((checkCmdLineFlag(argc, (const char**)argv, "compare") != 0) ||
+       (checkCmdLineFlag(argc, (const char**)argv, "qatest") != 0));
 
-  QATest = (checkCmdLineFlag(argc, (const char **)argv, "qatest") != 0);
-  useHostMem = (checkCmdLineFlag(argc, (const char **)argv, "hostmem") != 0);
-  fp64 = (checkCmdLineFlag(argc, (const char **)argv, "fp64") != 0);
+  QATest = (checkCmdLineFlag(argc, (const char**)argv, "qatest") != 0);
+  useHostMem = (checkCmdLineFlag(argc, (const char**)argv, "hostmem") != 0);
+  fp64 = (checkCmdLineFlag(argc, (const char**)argv, "fp64") != 0);
 
   flopsPerInteraction = fp64 ? 30 : 20;
 
-  useCpu = (checkCmdLineFlag(argc, (const char **)argv, "cpu") != 0);
+  useCpu = (checkCmdLineFlag(argc, (const char**)argv, "cpu") != 0);
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "numdevices")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "numdevices")) {
     numDevsRequested =
-        getCmdLineArgumentInt(argc, (const char **)argv, "numdevices");
+        getCmdLineArgumentInt(argc, (const char**)argv, "numdevices");
 
     if (numDevsRequested < 1) {
-      printf("Error: \"number of CUDA devices\" specified %d is invalid.  "
-             "Value should be >= 1\n",
-             numDevsRequested);
+      printf(
+          "Error: \"number of CUDA devices\" specified %d is invalid.  "
+          "Value should be >= 1\n",
+          numDevsRequested);
       exit(bTestResults ? EXIT_SUCCESS : EXIT_FAILURE);
     } else {
       printf("number of CUDA devices  = %d\n", numDevsRequested);
     }
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "dispno")) {
-    dispno = getCmdLineArgumentInt(argc, (const char **)argv, "dispno");
+  if (checkCmdLineFlag(argc, (const char**)argv, "dispno")) {
+    dispno = getCmdLineArgumentInt(argc, (const char**)argv, "dispno");
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "width")) {
-    window_width = getCmdLineArgumentInt(argc, (const char **)argv, "width");
+  if (checkCmdLineFlag(argc, (const char**)argv, "width")) {
+    window_width = getCmdLineArgumentInt(argc, (const char**)argv, "width");
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "height")) {
-    window_height = getCmdLineArgumentInt(argc, (const char **)argv, "height");
+  if (checkCmdLineFlag(argc, (const char**)argv, "height")) {
+    window_height = getCmdLineArgumentInt(argc, (const char**)argv, "height");
   }
 
   // for multi-device we currently require using host memory -- the devices
@@ -913,11 +926,11 @@ int main(int argc, char **argv) {
   }
 
   if (!useCpu) {
-    if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
+    if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
       customGPU = true;
     }
 
-    devID = findCudaDevice(argc, (const char **)argv);
+    devID = findCudaDevice(argc, (const char**)argv);
 
     checkCudaErrors(cudaGetDevice(&devID));
     checkCudaErrors(cudaGetDeviceProperties(&props, devID));
@@ -974,8 +987,9 @@ int main(int argc, char **argv) {
     //     checkCudaErrors(cudaSetDevice(devID));
 
     if (fp64 && !bSupportDouble) {
-      fprintf(stderr, "One or more of the requested devices does not support "
-                      "double precision floating-point\n");
+      fprintf(stderr,
+              "One or more of the requested devices does not support "
+              "double precision floating-point\n");
 
       // cudaDeviceReset causes the driver to clean up all state. While
       // not mandatory in normal operation, it is good practice.  It is also
@@ -990,15 +1004,15 @@ int main(int argc, char **argv) {
   numIterations = 0;
   blockSize = 0;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "i")) {
-    numIterations = getCmdLineArgumentInt(argc, (const char **)argv, "i");
+  if (checkCmdLineFlag(argc, (const char**)argv, "i")) {
+    numIterations = getCmdLineArgumentInt(argc, (const char**)argv, "i");
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "blockSize")) {
-    blockSize = getCmdLineArgumentInt(argc, (const char **)argv, "blockSize");
+  if (checkCmdLineFlag(argc, (const char**)argv, "blockSize")) {
+    blockSize = getCmdLineArgumentInt(argc, (const char**)argv, "blockSize");
   }
 
-  if (blockSize == 0) // blockSize not set on command line
+  if (blockSize == 0)  // blockSize not set on command line
     blockSize = 256;
 
   // default number of bodies is #SMs * 4 * CTA size
@@ -1022,19 +1036,21 @@ int main(int argc, char **argv) {
     }
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "numbodies")) {
-    numBodies = getCmdLineArgumentInt(argc, (const char **)argv, "numbodies");
+  if (checkCmdLineFlag(argc, (const char**)argv, "numbodies")) {
+    numBodies = getCmdLineArgumentInt(argc, (const char**)argv, "numbodies");
 
     if (numBodies < 1) {
-      printf("Error: \"number of bodies\" specified %d is invalid.  Value "
-             "should be >= 1\n",
-             numBodies);
+      printf(
+          "Error: \"number of bodies\" specified %d is invalid.  Value "
+          "should be >= 1\n",
+          numBodies);
       exit(bTestResults ? EXIT_SUCCESS : EXIT_FAILURE);
     } else if (numBodies % blockSize) {
       int newNumBodies = ((numBodies / blockSize) + 1) * blockSize;
-      printf("Warning: \"number of bodies\" specified %d is not a multiple of "
-             "%d.\n",
-             numBodies, blockSize);
+      printf(
+          "Warning: \"number of bodies\" specified %d is not a multiple of "
+          "%d.\n",
+          numBodies, blockSize);
       printf("Rounding up to the nearest multiple: %d.\n", newNumBodies);
       numBodies = newNumBodies;
     } else {
@@ -1042,9 +1058,9 @@ int main(int argc, char **argv) {
     }
   }
 
-  char *fname;
+  char* fname;
 
-  if (getCmdLineArgumentString(argc, (const char **)argv, "tipsy", &fname)) {
+  if (getCmdLineArgumentString(argc, (const char**)argv, "tipsy", &fname)) {
     tipsyFile.assign(fname, strlen(fname));
     cycleDemo = false;
     bShowSliders = false;

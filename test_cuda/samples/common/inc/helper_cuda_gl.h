@@ -43,7 +43,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // These are CUDA OpenGL Helper functions
 
-inline int gpuGLDeviceInit(int ARGC, const char **ARGV) {
+inline int gpuGLDeviceInit(int ARGC, const char** ARGV) {
   int deviceCount;
   checkCudaErrors(cudaGetDeviceCount(&deviceCount));
 
@@ -74,8 +74,9 @@ inline int gpuGLDeviceInit(int ARGC, const char **ARGV) {
   checkCudaErrors(cudaGetDeviceProperties(&deviceProp, dev));
 
   if (deviceProp.computeMode == cudaComputeModeProhibited) {
-    fprintf(stderr, "Error: device is running in <Compute Mode Prohibited>, no "
-                    "threads can use ::cudaSetDevice().\n");
+    fprintf(stderr,
+            "Error: device is running in <Compute Mode Prohibited>, no "
+            "threads can use ::cudaSetDevice().\n");
     return -1;
   }
 
@@ -93,12 +94,12 @@ inline int gpuGLDeviceInit(int ARGC, const char **ARGV) {
 }
 
 // This function will pick the best CUDA device available with OpenGL interop
-inline int findCudaGLDevice(int argc, const char **argv) {
+inline int findCudaGLDevice(int argc, const char** argv) {
   int devID = 0;
 
   // If the command-line has a device number specified, use it
-  if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
-    devID = gpuGLDeviceInit(argc, (const char **)argv);
+  if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
+    devID = gpuGLDeviceInit(argc, (const char**)argv);
 
     if (devID < 0) {
       printf("no CUDA capable devices found, exiting...\n");
@@ -122,7 +123,7 @@ inline int findCudaGLDevice(int argc, const char **argv) {
 //! @note The GL error is listed on stderr
 //! @note This function should be used via the CHECK_ERROR_GL() macro
 ////////////////////////////////////////////////////////////////////////////
-inline bool sdkCheckErrorGL(const char *file, const int line) {
+inline bool sdkCheckErrorGL(const char* file, const int line) {
   bool ret_val = true;
 
   // check for error
@@ -146,10 +147,10 @@ inline bool sdkCheckErrorGL(const char *file, const int line) {
   return ret_val;
 }
 
-#define SDK_CHECK_ERROR_GL()                                                   \
-  if (false == sdkCheckErrorGL(__FILE__, __LINE__)) {                          \
-    DEVICE_RESET                                                               \
-    exit(EXIT_FAILURE);                                                        \
+#define SDK_CHECK_ERROR_GL()                          \
+  if (false == sdkCheckErrorGL(__FILE__, __LINE__)) { \
+    DEVICE_RESET                                      \
+    exit(EXIT_FAILURE);                               \
   }
 #endif
 

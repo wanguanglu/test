@@ -22,16 +22,16 @@
 #include <string.h>
 
 class CheckRenderD3D11 {
-public:
+ public:
   CheckRenderD3D11() {}
 
-  static HRESULT ActiveRenderTargetToPPM(ID3D11Device *pDevice,
-                                         const char *zFileName);
-  static HRESULT ResourceToPPM(ID3D11Device *pDevice, ID3D11Resource *pResource,
-                               const char *zFileName);
+  static HRESULT ActiveRenderTargetToPPM(ID3D11Device* pDevice,
+                                         const char* zFileName);
+  static HRESULT ResourceToPPM(ID3D11Device* pDevice, ID3D11Resource* pResource,
+                               const char* zFileName);
 
-  static bool PPMvsPPM(const char *src_file, const char *ref_file,
-                       const char *exec_path, const float epsilon,
+  static bool PPMvsPPM(const char* src_file, const char* ref_file,
+                       const char* exec_path, const float epsilon,
                        const float threshold = 0.0f);
 };
 

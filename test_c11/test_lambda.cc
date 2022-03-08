@@ -85,7 +85,7 @@ void test_capture() {
 }
 
 class A {
-public:
+ public:
   void TestLambda() {
     auto func1 = [this] {
       std::cout << x << std::endl;
@@ -102,7 +102,7 @@ public:
     func2();
   }
 
-private:
+ private:
   int x = 0;
   int y = 0;
 };
@@ -112,7 +112,7 @@ void test_this() {
   a.TestLambda();
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   // test();
   // test_capture();
   test_this();

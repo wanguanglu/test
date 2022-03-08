@@ -29,4 +29,4 @@
 #include <boost/numeric/interval/arith3.hpp>
 #include <boost/numeric/interval/transc.hpp>
 
-#endif // BOOST_NUMERIC_INTERVAL_HPP
+#endif  // BOOST_NUMERIC_INTERVAL_HPP

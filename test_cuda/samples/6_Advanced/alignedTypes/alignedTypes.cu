@@ -25,8 +25,8 @@
 #include <string.h>
 
 // includes, project
-#include <helper_cuda.h> // helper functions for CUDA error checking and initialization
-#include <helper_functions.h> // helper utility functions
+#include <helper_cuda.h>  // helper functions for CUDA error checking and initialization
+#include <helper_functions.h>  // helper utility functions
 
 ////////////////////////////////////////////////////////////////////////////////
 // Misaligned types
@@ -111,7 +111,7 @@ int iAlignDown(int a, int b) { return a - a % b; }
 // so it's not per-byte in case of padded structures.
 ////////////////////////////////////////////////////////////////////////////////
 template <class TData>
-__global__ void testKernel(TData *d_odata, TData *d_idata, int numElements) {
+__global__ void testKernel(TData* d_odata, TData* d_idata, int numElements) {
   const int tid = blockDim.x * blockIdx.x + threadIdx.x;
   const int numThreads = blockDim.x * gridDim.x;
 
@@ -129,14 +129,14 @@ __global__ void testKernel(TData *d_odata, TData *d_idata, int numElements) {
 // and doesn't contain any user data.
 ////////////////////////////////////////////////////////////////////////////////
 template <class TData>
-int testCPU(TData *h_odata, TData *h_idata, int numElements,
+int testCPU(TData* h_odata, TData* h_idata, int numElements,
             int packedElementSize) {
   for (int pos = 0; pos < numElements; pos++) {
     TData src = h_idata[pos];
     TData dst = h_odata[pos];
 
     for (int i = 0; i < packedElementSize; i++)
-      if (((char *)&src)[i] != ((char *)&dst)[i]) {
+      if (((char*)&src)[i] != ((char*)&dst)[i]) {
         return 0;
       }
   }
@@ -155,9 +155,10 @@ const int NUM_ITERATIONS = 32;
 unsigned char *d_idata, *d_odata;
 // CPU input data and instance of GPU output data
 unsigned char *h_idataCPU, *h_odataGPU;
-StopWatchInterface *hTimer = NULL;
+StopWatchInterface* hTimer = NULL;
 
-template <class TData> int runTest(int packedElementSize, int memory_size) {
+template <class TData>
+int runTest(int packedElementSize, int memory_size) {
   const int totalMemSizeAligned = iAlignDown(memory_size, sizeof(TData));
   const int numElements = iDivDown(memory_size, sizeof(TData));
 
@@ -170,7 +171,7 @@ template <class TData> int runTest(int packedElementSize, int memory_size) {
 
   for (int i = 0; i < NUM_ITERATIONS; i++) {
     testKernel<TData>
-        <<<64, 256>>>((TData *)d_odata, (TData *)d_idata, numElements);
+        <<<64, 256>>>((TData*)d_odata, (TData*)d_idata, numElements);
     getLastCudaError("testKernel() execution failed\n");
   }
 
@@ -183,7 +184,7 @@ template <class TData> int runTest(int packedElementSize, int memory_size) {
   // Read back GPU results and run validation
   checkCudaErrors(
       cudaMemcpy(h_odataGPU, d_odata, memory_size, cudaMemcpyDeviceToHost));
-  int flag = testCPU((TData *)h_odataGPU, (TData *)h_idataCPU, numElements,
+  int flag = testCPU((TData*)h_odataGPU, (TData*)h_idataCPU, numElements,
                      packedElementSize);
 
   printf(flag ? "\tTEST OK\n" : "\tTEST FAILURE\n");
@@ -191,7 +192,7 @@ template <class TData> int runTest(int packedElementSize, int memory_size) {
   return !flag;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   int i, nTotalFailures = 0;
 
   int devID;
@@ -199,7 +200,7 @@ int main(int argc, char **argv) {
   printf("[%s] - Starting...\n", argv[0]);
 
   // find first CUDA device
-  devID = findCudaDevice(argc, (const char **)argv);
+  devID = findCudaDevice(argc, (const char**)argv);
 
   // get number of SMs on this GPU
   checkCudaErrors(cudaGetDeviceProperties(&deviceProp, devID));
@@ -216,7 +217,7 @@ int main(int argc, char **argv) {
           1.0f);
 
   int MemorySize = (int)(MEM_SIZE / scale_factor) &
-                   0xffffff00; // force multiple of 256 bytes
+                   0xffffff00;  // force multiple of 256 bytes
 
   printf("> Compute scaling value = %4.2f\n", scale_factor);
   printf("> Memory Size = %d\n", MemorySize);
@@ -224,10 +225,10 @@ int main(int argc, char **argv) {
   sdkCreateTimer(&hTimer);
 
   printf("Allocating memory...\n");
-  h_idataCPU = (unsigned char *)malloc(MemorySize);
-  h_odataGPU = (unsigned char *)malloc(MemorySize);
-  checkCudaErrors(cudaMalloc((void **)&d_idata, MemorySize));
-  checkCudaErrors(cudaMalloc((void **)&d_odata, MemorySize));
+  h_idataCPU = (unsigned char*)malloc(MemorySize);
+  h_odataGPU = (unsigned char*)malloc(MemorySize);
+  checkCudaErrors(cudaMalloc((void**)&d_idata, MemorySize));
+  checkCudaErrors(cudaMalloc((void**)&d_odata, MemorySize));
 
   printf("Generating host input data array...\n");
 

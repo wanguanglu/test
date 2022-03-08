@@ -12,7 +12,7 @@
 #ifndef PERMUTATIONS_H
 #define PERMUTATIONS_H
 
-#include <helper_cuda.h> // assert
+#include <helper_cuda.h>  // assert
 
 static void computePermutations(uint permutations[1024]) {
   int indices[16];
@@ -100,8 +100,7 @@ static void computePermutations(uint permutations[1024]) {
           permutation |= indices[p] << (p * 2);
           // permutation |= indices[15-p] << (p * 2);
 
-          if (indices[p] == 3)
-            hasThree = true;
+          if (indices[p] == 3) hasThree = true;
         }
 
         if (hasThree) {
@@ -125,4 +124,4 @@ static void computePermutations(uint permutations[1024]) {
   assert(num == 1024);
 }
 
-#endif // PERMUTATIONS_H
+#endif  // PERMUTATIONS_H

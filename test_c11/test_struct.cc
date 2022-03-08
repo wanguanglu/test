@@ -13,7 +13,7 @@ struct A {
   int y = -2;
 };
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   A a;
   std::cout << "x: " << a.x << "y: " << a.y << std::endl;
 

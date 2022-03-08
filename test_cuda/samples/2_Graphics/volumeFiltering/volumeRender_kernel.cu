@@ -27,22 +27,22 @@
 #define VOLUMERENDER_TF_PREINTRAY 4
 
 enum TFMode {
-  TF_SINGLE_1D = 0,         // single 1D TF for everything
-  TF_LAYERED_2D_PREINT = 1, // layered 2D TF uses pre-integration
-  TF_LAYERED_2D = 2,        // layered 2D TF without pre-integration behavior
+  TF_SINGLE_1D = 0,          // single 1D TF for everything
+  TF_LAYERED_2D_PREINT = 1,  // layered 2D TF uses pre-integration
+  TF_LAYERED_2D = 2,         // layered 2D TF without pre-integration behavior
 };
 
 typedef unsigned int uint;
 typedef unsigned char uchar;
 
 static bool usePreInt = true;
-static cudaArray *d_transferIntegrate = 0;
-static cudaArray *d_transferFunc = 0;
-static cudaArray *d_transferArray = 0;
+static cudaArray* d_transferIntegrate = 0;
+static cudaArray* d_transferFunc = 0;
+static cudaArray* d_transferArray = 0;
 
 #ifdef VOLUMERENDER_RANDSIZE
 // 2D ray offsets
-static cudaArray *d_rayArray = 0;
+static cudaArray* d_rayArray = 0;
 texture<uchar, 2, cudaReadModeNormalizedFloat> rayTex;
 #endif
 
@@ -62,18 +62,18 @@ typedef struct {
   float4 m[3];
 } float3x4;
 
-__constant__ float3x4 c_invViewMatrix; // inverse view matrix
+__constant__ float3x4 c_invViewMatrix;  // inverse view matrix
 
 struct Ray {
-  float3 o; // origin
-  float3 d; // direction
+  float3 o;  // origin
+  float3 d;  // direction
 };
 
 // intersect ray with a box
 // http://www.siggraph.org/education/materials/HyperGraph/raytrace/rtinter3.htm
 
-__device__ int intersectBox(Ray r, float3 boxmin, float3 boxmax, float *tnear,
-                            float *tfar) {
+__device__ int intersectBox(Ray r, float3 boxmin, float3 boxmax, float* tnear,
+                            float* tfar) {
   // compute intersection of ray with all six bbox planes
   float3 invR = make_float3(1.0f) / r.d;
   float3 tbot = invR * (boxmin - r.o);
@@ -94,7 +94,7 @@ __device__ int intersectBox(Ray r, float3 boxmin, float3 boxmax, float *tnear,
 }
 
 // transform vector by matrix (no translation)
-__device__ float3 mul(const float3x4 &M, const float3 &v) {
+__device__ float3 mul(const float3x4& M, const float3& v) {
   float3 r;
   r.x = dot(v, make_float3(M.m[0]));
   r.y = dot(v, make_float3(M.m[1]));
@@ -103,7 +103,7 @@ __device__ float3 mul(const float3x4 &M, const float3 &v) {
 }
 
 // transform vector by matrix with translation
-__device__ float4 mul(const float3x4 &M, const float4 &v) {
+__device__ float4 mul(const float3x4& M, const float4& v) {
   float4 r;
   r.x = dot(v, M.m[0]);
   r.y = dot(v, M.m[1]);
@@ -113,7 +113,7 @@ __device__ float4 mul(const float3x4 &M, const float4 &v) {
 }
 
 __device__ uint rgbaFloatToInt(float4 rgba) {
-  rgba.x = __saturatef(rgba.x); // clamp to [0.0, 1.0]
+  rgba.x = __saturatef(rgba.x);  // clamp to [0.0, 1.0]
   rgba.y = __saturatef(rgba.y);
   rgba.z = __saturatef(rgba.z);
   rgba.w = __saturatef(rgba.w);
@@ -122,7 +122,7 @@ __device__ uint rgbaFloatToInt(float4 rgba) {
 }
 
 template <int TFMODE>
-__device__ void d_render(uint *d_output, uint imageW, uint imageH,
+__device__ void d_render(uint* d_output, uint imageW, uint imageH,
                          float density, float brightness, float transferOffset,
                          float transferScale, float transferWeight = 0.0f) {
   const float rayscale =
@@ -138,8 +138,7 @@ __device__ void d_render(uint *d_output, uint imageW, uint imageH,
   uint x = blockIdx.x * blockDim.x + threadIdx.x;
   uint y = blockIdx.y * blockDim.y + threadIdx.y;
 
-  if ((x >= imageW) || (y >= imageH))
-    return;
+  if ((x >= imageW) || (y >= imageH)) return;
 
   float u = (x / (float)imageW) * 2.0f - 1.0f;
   float v = (y / (float)imageH) * 2.0f - 1.0f;
@@ -155,11 +154,9 @@ __device__ void d_render(uint *d_output, uint imageW, uint imageH,
   float tnear, tfar;
   int hit = intersectBox(eyeRay, boxMin, boxMax, &tnear, &tfar);
 
-  if (!hit)
-    return;
+  if (!hit) return;
 
-  if (tnear < 0.0f)
-    tnear = 0.0f; // clamp to near plane
+  if (tnear < 0.0f) tnear = 0.0f;  // clamp to near plane
 
   // march along ray from front to back, accumulating color
   float4 sum = make_float4(0.0f);
@@ -207,13 +204,11 @@ __device__ void d_render(uint *d_output, uint imageW, uint imageH,
     sum = sum + col * (1.0f - sum.w);
 
     // exit early if opaque
-    if (sum.w > opacityThreshold)
-      break;
+    if (sum.w > opacityThreshold) break;
 
     t += tstep;
 
-    if (t > tfar)
-      break;
+    if (t > tfar) break;
 
     pos += step;
   }
@@ -224,7 +219,7 @@ __device__ void d_render(uint *d_output, uint imageW, uint imageH,
   d_output[y * imageW + x] = rgbaFloatToInt(sum);
 }
 
-__global__ void d_render_regular(uint *d_output, uint imageW, uint imageH,
+__global__ void d_render_regular(uint* d_output, uint imageW, uint imageH,
                                  float density, float brightness,
                                  float transferOffset, float transferScale,
                                  float transferWeight = 0.0f) {
@@ -232,7 +227,7 @@ __global__ void d_render_regular(uint *d_output, uint imageW, uint imageH,
                          transferOffset, transferScale, transferWeight);
 }
 
-__global__ void d_render_preint(uint *d_output, uint imageW, uint imageH,
+__global__ void d_render_preint(uint* d_output, uint imageW, uint imageH,
                                 float density, float brightness,
                                 float transferOffset, float transferScale,
                                 float transferWeight = 0.0f) {
@@ -240,7 +235,7 @@ __global__ void d_render_preint(uint *d_output, uint imageW, uint imageH,
                                  transferOffset, transferScale, transferWeight);
 }
 
-__global__ void d_render_preint_off(uint *d_output, uint imageW, uint imageH,
+__global__ void d_render_preint_off(uint* d_output, uint imageW, uint imageH,
                                     float density, float brightness,
                                     float transferOffset, float transferScale,
                                     float transferWeight = 0.0f) {
@@ -334,7 +329,7 @@ void VolumeRender_setTextureFilterMode(bool bLinearFilter) {
       bLinearFilter ? cudaFilterModeLinear : cudaFilterModePoint;
 }
 
-void VolumeRender_setVolume(const Volume *vol) {
+void VolumeRender_setVolume(const Volume* vol) {
   checkCudaErrors(
       cudaBindTextureToArray(volumeTex, vol->content, vol->channelDesc));
 }
@@ -343,14 +338,13 @@ static unsigned int iDivUp(size_t a, size_t b) {
   size_t val = (a % b != 0) ? (a / b + 1) : (a / b);
   if (val > UINT_MAX) {
     fprintf(stderr, "\nUINT_MAX limit exceeded in iDivUp() exiting.....\n");
-    exit(EXIT_FAILURE); // val exceeds limit
+    exit(EXIT_FAILURE);  // val exceeds limit
   }
 
   return static_cast<unsigned int>(val);
 }
 
-void VolumeRender_updateTF(int tfIdx, int numColors, float4 *colors) {
-
+void VolumeRender_updateTF(int tfIdx, int numColors, float4* colors) {
   if (d_transferFunc) {
     checkCudaErrors(cudaFreeArray(d_transferFunc));
     d_transferFunc = 0;
@@ -392,7 +386,7 @@ void VolumeRender_init() {
 #ifdef VOLUMERENDER_RANDSIZE
   // random ray offsets to fight aliasing
   srand(128123);
-  uchar *randoms = new uchar[VOLUMERENDER_RANDSIZE * VOLUMERENDER_RANDSIZE];
+  uchar* randoms = new uchar[VOLUMERENDER_RANDSIZE * VOLUMERENDER_RANDSIZE];
 
   for (int i = 0; i < VOLUMERENDER_RANDSIZE * VOLUMERENDER_RANDSIZE; i++) {
     randoms[i] = rand();
@@ -402,23 +396,23 @@ void VolumeRender_init() {
   checkCudaErrors(cudaMallocArray(&d_rayArray, &channelUchar,
                                   VOLUMERENDER_RANDSIZE,
                                   VOLUMERENDER_RANDSIZE));
-  checkCudaErrors(cudaMemcpyToArray(d_rayArray, 0, 0, randoms,
-                                    sizeof(uchar) * VOLUMERENDER_RANDSIZE *
-                                        VOLUMERENDER_RANDSIZE,
-                                    cudaMemcpyHostToDevice));
+  checkCudaErrors(cudaMemcpyToArray(
+      d_rayArray, 0, 0, randoms,
+      sizeof(uchar) * VOLUMERENDER_RANDSIZE * VOLUMERENDER_RANDSIZE,
+      cudaMemcpyHostToDevice));
   delete[] randoms;
 
   rayTex.normalized = 1;
-  rayTex.filterMode = cudaFilterModeLinear; // linear interpolation
+  rayTex.filterMode = cudaFilterModeLinear;  // linear interpolation
   rayTex.addressMode[0] = cudaAddressModeWrap;
   rayTex.addressMode[1] = cudaAddressModeWrap;
 
   checkCudaErrors(cudaBindTextureToArray(rayTex, d_rayArray, channelUchar));
 #endif
   // set texture parameters
-  volumeTex.normalized = true; // access with normalized texture coordinates
-  volumeTex.filterMode = cudaFilterModeLinear;     // linear interpolation
-  volumeTex.addressMode[0] = cudaAddressModeClamp; // clamp texture coordinates
+  volumeTex.normalized = true;  // access with normalized texture coordinates
+  volumeTex.filterMode = cudaFilterModeLinear;      // linear interpolation
+  volumeTex.addressMode[0] = cudaAddressModeClamp;  // clamp texture coordinates
   volumeTex.addressMode[1] = cudaAddressModeClamp;
   volumeTex.addressMode[2] = cudaAddressModeClamp;
 
@@ -592,7 +586,7 @@ void VolumeRender_deinit() {
 
 void VolumeRender_setPreIntegrated(int state) { usePreInt = !!state; }
 
-void VolumeRender_render(dim3 gridSize, dim3 blockSize, uint *d_output,
+void VolumeRender_render(dim3 gridSize, dim3 blockSize, uint* d_output,
                          uint imageW, uint imageH, float density,
                          float brightness, float transferOffset,
                          float transferScale) {
@@ -607,9 +601,9 @@ void VolumeRender_render(dim3 gridSize, dim3 blockSize, uint *d_output,
   }
 }
 
-void VolumeRender_copyInvViewMatrix(float *invViewMatrix, size_t sizeofMatrix) {
+void VolumeRender_copyInvViewMatrix(float* invViewMatrix, size_t sizeofMatrix) {
   checkCudaErrors(
       cudaMemcpyToSymbol(c_invViewMatrix, invViewMatrix, sizeofMatrix));
 }
 
-#endif // #ifndef _VOLUMERENDER_KERNEL_CU_
+#endif  // #ifndef _VOLUMERENDER_KERNEL_CU_

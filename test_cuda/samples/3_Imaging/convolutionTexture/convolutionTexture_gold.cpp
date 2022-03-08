@@ -14,7 +14,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Reference row convolution filter
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void convolutionRowsCPU(float *h_Dst, float *h_Src, float *h_Kernel,
+extern "C" void convolutionRowsCPU(float* h_Dst, float* h_Src, float* h_Kernel,
                                    int imageW, int imageH, int kernelR) {
   for (int y = 0; y < imageH; y++)
     for (int x = 0; x < imageW; x++) {
@@ -23,11 +23,9 @@ extern "C" void convolutionRowsCPU(float *h_Dst, float *h_Src, float *h_Kernel,
       for (int k = -kernelR; k <= kernelR; k++) {
         int d = x + k;
 
-        if (d < 0)
-          d = 0;
+        if (d < 0) d = 0;
 
-        if (d >= imageW)
-          d = imageW - 1;
+        if (d >= imageW) d = imageW - 1;
 
         sum += h_Src[y * imageW + d] * h_Kernel[kernelR - k];
       }
@@ -39,8 +37,8 @@ extern "C" void convolutionRowsCPU(float *h_Dst, float *h_Src, float *h_Kernel,
 ////////////////////////////////////////////////////////////////////////////////
 // Reference column convolution filter
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void convolutionColumnsCPU(float *h_Dst, float *h_Src,
-                                      float *h_Kernel, int imageW, int imageH,
+extern "C" void convolutionColumnsCPU(float* h_Dst, float* h_Src,
+                                      float* h_Kernel, int imageW, int imageH,
                                       int kernelR) {
   for (int y = 0; y < imageH; y++)
     for (int x = 0; x < imageW; x++) {
@@ -49,11 +47,9 @@ extern "C" void convolutionColumnsCPU(float *h_Dst, float *h_Src,
       for (int k = -kernelR; k <= kernelR; k++) {
         int d = y + k;
 
-        if (d < 0)
-          d = 0;
+        if (d < 0) d = 0;
 
-        if (d >= imageH)
-          d = imageH - 1;
+        if (d >= imageH) d = imageH - 1;
 
         sum += h_Src[d * imageW + x] * h_Kernel[kernelR - k];
       }

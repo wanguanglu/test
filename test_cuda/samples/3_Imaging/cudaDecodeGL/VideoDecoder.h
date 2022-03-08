@@ -21,9 +21,9 @@
 // Wrapper class around the CUDA Video Decoding API.
 //
 class VideoDecoder {
-public:
-  explicit VideoDecoder(const CUVIDEOFORMAT &rVideoFormat, CUcontext &rContext,
-                        cudaVideoCreateFlags eCreateFlags, CUvideoctxlock &ctx);
+ public:
+  explicit VideoDecoder(const CUVIDEOFORMAT& rVideoFormat, CUcontext& rContext,
+                        cudaVideoCreateFlags eCreateFlags, CUvideoctxlock& ctx);
 
   ~VideoDecoder();
 
@@ -43,23 +43,23 @@ public:
 
   unsigned long targetHeight() const;
 
-  void decodePicture(CUVIDPICPARAMS *pPictureParameters,
-                     CUcontext *pContext = NULL);
+  void decodePicture(CUVIDPICPARAMS* pPictureParameters,
+                     CUcontext* pContext = NULL);
 
-  void mapFrame(int iPictureIndex, CUdeviceptr *ppDevice, unsigned int *nPitch,
-                CUVIDPROCPARAMS *pVideoProcessingParameters);
+  void mapFrame(int iPictureIndex, CUdeviceptr* ppDevice, unsigned int* nPitch,
+                CUVIDPROCPARAMS* pVideoProcessingParameters);
 
   void unmapFrame(CUdeviceptr pDevice);
 
-private:
+ private:
   // Default constructor. Don't implement.
   VideoDecoder();
 
   // Copy constructor. Don't implement.
-  VideoDecoder(const VideoDecoder &);
+  VideoDecoder(const VideoDecoder&);
 
   // Assignment operator. Don't implement.
-  void operator=(const VideoDecoder &);
+  void operator=(const VideoDecoder&);
 
   CUVIDDECODECREATEINFO oVideoDecodeCreateInfo_;
   CUvideodecoder oDecoder_;
@@ -68,4 +68,4 @@ private:
   CUvideoctxlock m_VidCtxLock;
 };
 
-#endif // NV_VIDEODECODER_H
+#endif  // NV_VIDEODECODER_H

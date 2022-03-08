@@ -24,12 +24,12 @@
 #include <string.h>
 
 #include <cuda_runtime.h>
-#include <npp.h> // CUDA NPP Definitions
+#include <npp.h>  // CUDA NPP Definitions
 
-#include <helper_cuda.h>   // helper for CUDA Error handling and initialization
-#include <helper_string.h> // helper for string parsing
+#include <helper_cuda.h>    // helper for CUDA Error handling and initialization
+#include <helper_string.h>  // helper for string parsing
 
-inline int cudaDeviceInit(int argc, const char **argv) {
+inline int cudaDeviceInit(int argc, const char** argv) {
   int deviceCount;
   checkCudaErrors(cudaGetDeviceCount(&deviceCount));
 
@@ -50,8 +50,8 @@ inline int cudaDeviceInit(int argc, const char **argv) {
   return dev;
 }
 
-bool printfNPPinfo(int argc, char *argv[], int cudaVerMajor, int cudaVerMinor) {
-  const NppLibraryVersion *libVer = nppGetLibVersion();
+bool printfNPPinfo(int argc, char* argv[], int cudaVerMajor, int cudaVerMinor) {
+  const NppLibraryVersion* libVer = nppGetLibVersion();
 
   printf("NPP Library Version %d.%d.%d\n", libVer->major, libVer->minor,
          libVer->build);
@@ -72,52 +72,52 @@ bool printfNPPinfo(int argc, char *argv[], int cudaVerMajor, int cudaVerMinor) {
 // Error handler for FreeImage library.
 //  In case this handler is invoked, it throws an NPP exception.
 extern "C" void FreeImageErrorHandler(FREE_IMAGE_FORMAT oFif,
-                                      const char *zMessage) {
+                                      const char* zMessage) {
   throw npp::Exception(zMessage);
 }
 
-std::ostream &operator<<(std::ostream &rOutputStream, const FIBITMAP &rBitmap) {
+std::ostream& operator<<(std::ostream& rOutputStream, const FIBITMAP& rBitmap) {
   unsigned int nImageWidth =
-      FreeImage_GetWidth(const_cast<FIBITMAP *>(&rBitmap));
+      FreeImage_GetWidth(const_cast<FIBITMAP*>(&rBitmap));
   unsigned int nImageHeight =
-      FreeImage_GetHeight(const_cast<FIBITMAP *>(&rBitmap));
-  unsigned int nPitch = FreeImage_GetPitch(const_cast<FIBITMAP *>(&rBitmap));
-  unsigned int nBPP = FreeImage_GetBPP(const_cast<FIBITMAP *>(&rBitmap));
+      FreeImage_GetHeight(const_cast<FIBITMAP*>(&rBitmap));
+  unsigned int nPitch = FreeImage_GetPitch(const_cast<FIBITMAP*>(&rBitmap));
+  unsigned int nBPP = FreeImage_GetBPP(const_cast<FIBITMAP*>(&rBitmap));
 
   FREE_IMAGE_COLOR_TYPE eType =
-      FreeImage_GetColorType(const_cast<FIBITMAP *>(&rBitmap));
+      FreeImage_GetColorType(const_cast<FIBITMAP*>(&rBitmap));
 
   rOutputStream << "Size  (" << nImageWidth << ", " << nImageHeight << ")\n";
   rOutputStream << "Pitch " << nPitch << "\n";
   rOutputStream << "Type  ";
 
   switch (eType) {
-  case FIC_MINISWHITE:
-    rOutputStream << "FIC_MINISWHITE\n";
-    break;
+    case FIC_MINISWHITE:
+      rOutputStream << "FIC_MINISWHITE\n";
+      break;
 
-  case FIC_MINISBLACK:
-    rOutputStream << "FIC_MINISBLACK\n";
-    break;
+    case FIC_MINISBLACK:
+      rOutputStream << "FIC_MINISBLACK\n";
+      break;
 
-  case FIC_RGB:
-    rOutputStream << "FIC_RGB\n";
-    break;
+    case FIC_RGB:
+      rOutputStream << "FIC_RGB\n";
+      break;
 
-  case FIC_PALETTE:
-    rOutputStream << "FIC_PALETTE\n";
-    break;
+    case FIC_PALETTE:
+      rOutputStream << "FIC_PALETTE\n";
+      break;
 
-  case FIC_RGBALPHA:
-    rOutputStream << "FIC_RGBALPHA\n";
-    break;
+    case FIC_RGBALPHA:
+      rOutputStream << "FIC_RGBALPHA\n";
+      break;
 
-  case FIC_CMYK:
-    rOutputStream << "FIC_CMYK\n";
-    break;
+    case FIC_CMYK:
+      rOutputStream << "FIC_CMYK\n";
+      break;
 
-  default:
-    rOutputStream << "Unknown pixel format.\n";
+    default:
+      rOutputStream << "Unknown pixel format.\n";
   }
 
   rOutputStream << "BPP   " << nBPP << std::endl;
@@ -125,17 +125,17 @@ std::ostream &operator<<(std::ostream &rOutputStream, const FIBITMAP &rBitmap) {
   return rOutputStream;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   printf("%s Starting...\n\n", argv[0]);
 
   try {
     std::string sFilename;
-    char *filePath;
+    char* filePath;
 
     // set your own FreeImage error handler
     FreeImage_SetOutputMessage(FreeImageErrorHandler);
 
-    cudaDeviceInit(argc, (const char **)argv);
+    cudaDeviceInit(argc, (const char**)argv);
 
     // Min spec is SM 1.0 devices
     if (printfNPPinfo(argc, argv, 1, 0) == false) {
@@ -143,8 +143,8 @@ int main(int argc, char *argv[]) {
       exit(EXIT_SUCCESS);
     }
 
-    if (checkCmdLineFlag(argc, (const char **)argv, "input")) {
-      getCmdLineArgumentString(argc, (const char **)argv, "input", &filePath);
+    if (checkCmdLineFlag(argc, (const char**)argv, "input")) {
+      getCmdLineArgumentString(argc, (const char**)argv, "input", &filePath);
     } else {
       filePath = sdkFindFilePath("Lena.pgm", argv[0]);
     }
@@ -186,9 +186,9 @@ int main(int argc, char *argv[]) {
 
     sResultFilename += "_boxFilterFII.pgm";
 
-    if (checkCmdLineFlag(argc, (const char **)argv, "output")) {
-      char *outputFilePath;
-      getCmdLineArgumentString(argc, (const char **)argv, "output",
+    if (checkCmdLineFlag(argc, (const char**)argv, "output")) {
+      char* outputFilePath;
+      getCmdLineArgumentString(argc, (const char**)argv, "output",
                                &outputFilePath);
       sResultFilename = outputFilePath;
     }
@@ -202,7 +202,7 @@ int main(int argc, char *argv[]) {
 
     NPP_ASSERT(eFormat != FIF_UNKNOWN);
     // check that the plugin has reading capabilities ...
-    FIBITMAP *pBitmap;
+    FIBITMAP* pBitmap;
 
     if (FreeImage_FIFSupportsReading(eFormat)) {
       pBitmap = FreeImage_Load(eFormat, sFilename.c_str());
@@ -218,10 +218,10 @@ int main(int argc, char *argv[]) {
     unsigned int nImageWidth = FreeImage_GetWidth(pBitmap);
     unsigned int nImageHeight = FreeImage_GetHeight(pBitmap);
     unsigned int nSrcPitch = FreeImage_GetPitch(pBitmap);
-    unsigned char *pSrcData = FreeImage_GetBits(pBitmap);
+    unsigned char* pSrcData = FreeImage_GetBits(pBitmap);
 
     int nSrcPitchCUDA;
-    Npp8u *pSrcImageCUDA =
+    Npp8u* pSrcImageCUDA =
         nppiMalloc_8u_C1(nImageWidth, nImageHeight, &nSrcPitchCUDA);
     NPP_ASSERT_NOT_NULL(pSrcImageCUDA);
     // copy image loaded via FreeImage to into CUDA device memory, i.e.
@@ -238,7 +238,7 @@ int main(int argc, char *argv[]) {
                                (int)nImageHeight - (oMaskSize.height - 1)};
     // allocate result image memory
     int nDstPitchCUDA;
-    Npp8u *pDstImageCUDA =
+    Npp8u* pDstImageCUDA =
         nppiMalloc_8u_C1(oSizeROI.width, oSizeROI.height, &nDstPitchCUDA);
     NPP_ASSERT_NOT_NULL(pDstImageCUDA);
     NPP_CHECK_NPP(nppiFilterBox_8u_C1R(pSrcImageCUDA, nSrcPitchCUDA,
@@ -246,11 +246,11 @@ int main(int argc, char *argv[]) {
                                        oMaskSize, oMaskAchnor));
     // create the result image storage using FreeImage so we can easily
     // save
-    FIBITMAP *pResultBitmap = FreeImage_Allocate(
+    FIBITMAP* pResultBitmap = FreeImage_Allocate(
         oSizeROI.width, oSizeROI.height, 8 /* bits per pixel */);
     NPP_ASSERT_NOT_NULL(pResultBitmap);
     unsigned int nResultPitch = FreeImage_GetPitch(pResultBitmap);
-    unsigned char *pResultData = FreeImage_GetBits(pResultBitmap);
+    unsigned char* pResultData = FreeImage_GetBits(pResultBitmap);
 
     NPP_CHECK_CUDA(cudaMemcpy2D(pResultData, nResultPitch, pDstImageCUDA,
                                 nDstPitchCUDA, oSizeROI.width, oSizeROI.height,
@@ -267,7 +267,7 @@ int main(int argc, char *argv[]) {
 
     cudaDeviceReset();
     exit(EXIT_SUCCESS);
-  } catch (npp::Exception &rException) {
+  } catch (npp::Exception& rException) {
     std::cerr << "Program error! The following exception occurred: \n";
     std::cerr << rException << std::endl;
     std::cerr << "Aborting." << std::endl;

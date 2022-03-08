@@ -22,11 +22,11 @@ namespace std {
 template <class T, class Policies>
 class numeric_limits<boost::numeric::interval<T, Policies>>
     : public numeric_limits<T> {
-private:
+ private:
   typedef boost::numeric::interval<T, Policies> I;
   typedef numeric_limits<T> bl;
 
-public:
+ public:
   static I min BOOST_PREVENT_MACRO_SUBSTITUTION() throw() {
     return I((bl::min)(), (bl::min)());
   }
@@ -47,12 +47,12 @@ public:
     return I(bl::denorm_min(), bl::denorm_min());
   }
 
-private:
-  static I round_error(); // hide this on purpose, not yet implemented
+ private:
+  static I round_error();  // hide this on purpose, not yet implemented
 };
 
-} // namespace std
+}  // namespace std
 
 #endif
 
-#endif // BOOST_NUMERIC_INTERVAL_LIMITS_HPP
+#endif  // BOOST_NUMERIC_INTERVAL_LIMITS_HPP

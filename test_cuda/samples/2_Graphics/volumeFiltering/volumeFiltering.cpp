@@ -57,13 +57,13 @@ typedef unsigned char uchar;
 #define MAX_EPSILON_ERROR 5.00f
 #define THRESHOLD 0.30f
 
-const char *sSDKsample = "CUDA 3D Volume Filtering";
+const char* sSDKsample = "CUDA 3D Volume Filtering";
 
 #include "volume.h"
 #include "volumeFilter.h"
 #include "volumeRender.h"
 
-const char *volumeFilename = "Bucky.raw";
+const char* volumeFilename = "Bucky.raw";
 cudaExtent volumeSize = make_cudaExtent(32, 32, 32);
 
 uint width = 512, height = 512;
@@ -80,7 +80,7 @@ float transferOffset = 0.0f;
 float transferScale = 1.0f;
 bool linearFiltering = true;
 bool preIntegrated = true;
-StopWatchInterface *animationTimer = NULL;
+StopWatchInterface* animationTimer = NULL;
 
 float filterFactor = 0.0f;
 bool filterAnimation = true;
@@ -93,23 +93,23 @@ Volume volumeOriginal;
 Volume volumeFilter0;
 Volume volumeFilter1;
 
-GLuint pbo = 0;       // OpenGL pixel buffer object
-GLuint volumeTex = 0; // OpenGL texture object
-struct cudaGraphicsResource
-    *cuda_pbo_resource; // CUDA Graphics Resource (to transfer PBO)
+GLuint pbo = 0;        // OpenGL pixel buffer object
+GLuint volumeTex = 0;  // OpenGL texture object
+struct cudaGraphicsResource*
+    cuda_pbo_resource;  // CUDA Graphics Resource (to transfer PBO)
 
-StopWatchInterface *timer = 0;
+StopWatchInterface* timer = 0;
 
 // Auto-Verification Code
 const int frameCheckNumber = 2;
-int fpsCount = 0; // FPS count for averaging
-int fpsLimit = 1; // FPS limit for sampling
+int fpsCount = 0;  // FPS count for averaging
+int fpsLimit = 1;  // FPS limit for sampling
 int g_Index = 0;
 unsigned int frameCount = 0;
 unsigned int g_TotalErrors = 0;
 
-int *pArgc;
-char **pArgv;
+int* pArgc;
+char** pArgv;
 
 #define MAX(a, b) ((a > b) ? a : b)
 
@@ -212,7 +212,7 @@ void filter() {
 
   FilterKernel_update(filterFactor);
 
-  Volume *volumeRender = VolumeFilter_runFilter(
+  Volume* volumeRender = VolumeFilter_runFilter(
       &volumeOriginal, &volumeFilter0, &volumeFilter1, filterIterations,
       3 * 3 * 3, filterWeights, filterBias);
 
@@ -224,16 +224,15 @@ void filter() {
 
 // render image using CUDA
 void render() {
-
   VolumeRender_copyInvViewMatrix(invViewMatrix, sizeof(float4) * 3);
 
   // map PBO to get CUDA device pointer
-  uint *d_output;
+  uint* d_output;
   // map PBO to get CUDA device pointer
   checkCudaErrors(cudaGraphicsMapResources(1, &cuda_pbo_resource, 0));
   size_t num_bytes;
   checkCudaErrors(cudaGraphicsResourceGetMappedPointer(
-      (void **)&d_output, &num_bytes, cuda_pbo_resource));
+      (void**)&d_output, &num_bytes, cuda_pbo_resource));
   // printf("CUDA mapped PBO: May access %ld bytes\n", num_bytes);
 
   // clear image
@@ -325,75 +324,76 @@ void idle() { glutPostRedisplay(); }
 
 void keyboard(unsigned char key, int x, int y) {
   switch (key) {
-  case 27:
+    case 27:
 #if defined(__APPLE__) || defined(MACOSX)
-    exit(EXIT_SUCCESS);
+      exit(EXIT_SUCCESS);
 #else
-    glutDestroyWindow(glutGetWindow());
-    return;
+      glutDestroyWindow(glutGetWindow());
+      return;
 #endif
-    break;
+      break;
 
-  case ' ':
-    filterAnimation = !filterAnimation;
+    case ' ':
+      filterAnimation = !filterAnimation;
 
-    if (!filterAnimation) {
-      sdkStopTimer(&animationTimer);
-    } else {
-      sdkStartTimer(&animationTimer);
-    }
+      if (!filterAnimation) {
+        sdkStopTimer(&animationTimer);
+      } else {
+        sdkStartTimer(&animationTimer);
+      }
 
-    break;
+      break;
 
-  case 'f':
-    linearFiltering = !linearFiltering;
-    VolumeRender_setTextureFilterMode(linearFiltering);
-    break;
+    case 'f':
+      linearFiltering = !linearFiltering;
+      VolumeRender_setTextureFilterMode(linearFiltering);
+      break;
 
-  case 'p':
-    preIntegrated = !preIntegrated;
-    VolumeRender_setPreIntegrated(preIntegrated);
-    break;
+    case 'p':
+      preIntegrated = !preIntegrated;
+      VolumeRender_setPreIntegrated(preIntegrated);
+      break;
 
-  case '+':
-    density += 0.01f;
-    break;
+    case '+':
+      density += 0.01f;
+      break;
 
-  case '-':
-    density -= 0.01f;
-    break;
+    case '-':
+      density -= 0.01f;
+      break;
 
-  case ']':
-    brightness += 0.1f;
-    break;
+    case ']':
+      brightness += 0.1f;
+      break;
 
-  case '[':
-    brightness -= 0.1f;
-    break;
+    case '[':
+      brightness -= 0.1f;
+      break;
 
-  case ';':
-    transferOffset += 0.01f;
-    break;
+    case ';':
+      transferOffset += 0.01f;
+      break;
 
-  case '\'':
-    transferOffset -= 0.01f;
-    break;
+    case '\'':
+      transferOffset -= 0.01f;
+      break;
 
-  case '.':
-    transferScale += 0.01f;
-    break;
+    case '.':
+      transferScale += 0.01f;
+      break;
 
-  case ',':
-    transferScale -= 0.01f;
-    break;
+    case ',':
+      transferScale -= 0.01f;
+      break;
 
-  default:
-    break;
+    default:
+      break;
   }
 
-  printf("density = %.2f, brightness = %.2f, transferOffset = %.2f, "
-         "transferScale = %.2f\n",
-         density, brightness, transferOffset, transferScale);
+  printf(
+      "density = %.2f, brightness = %.2f, transferOffset = %.2f, "
+      "transferScale = %.2f\n",
+      density, brightness, transferOffset, transferScale);
   glutPostRedisplay();
 }
 
@@ -458,7 +458,7 @@ void reshape(int w, int h) {
   glOrtho(0.0, 1.0, 0.0, 1.0, 0.0, 1.0);
 }
 
-void initGL(int *argc, char **argv) {
+void initGL(int* argc, char** argv) {
   // initialize GLUT callback functions
   glutInit(argc, argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
@@ -530,15 +530,15 @@ void cleanup() {
 }
 
 // Load raw data from disk
-void *loadRawFile(char *filename, size_t size) {
-  FILE *fp = fopen(filename, "rb");
+void* loadRawFile(char* filename, size_t size) {
+  FILE* fp = fopen(filename, "rb");
 
   if (!fp) {
     fprintf(stderr, "Error opening file '%s'\n", filename);
     return 0;
   }
 
-  void *data = malloc(size);
+  void* data = malloc(size);
   size_t read = fread(data, 1, size, fp);
   fclose(fp);
 
@@ -547,37 +547,37 @@ void *loadRawFile(char *filename, size_t size) {
   return data;
 }
 
-void initData(int argc, char **argv) {
+void initData(int argc, char** argv) {
   // parse arguments
-  char *filename;
+  char* filename;
 
-  if (getCmdLineArgumentString(argc, (const char **)argv, "file", &filename)) {
+  if (getCmdLineArgumentString(argc, (const char**)argv, "file", &filename)) {
     volumeFilename = filename;
   }
 
   int n;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "size")) {
-    n = getCmdLineArgumentInt(argc, (const char **)argv, "size");
+  if (checkCmdLineFlag(argc, (const char**)argv, "size")) {
+    n = getCmdLineArgumentInt(argc, (const char**)argv, "size");
     volumeSize.width = volumeSize.height = volumeSize.depth = n;
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "xsize")) {
-    n = getCmdLineArgumentInt(argc, (const char **)argv, "xsize");
+  if (checkCmdLineFlag(argc, (const char**)argv, "xsize")) {
+    n = getCmdLineArgumentInt(argc, (const char**)argv, "xsize");
     volumeSize.width = n;
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "ysize")) {
-    n = getCmdLineArgumentInt(argc, (const char **)argv, "ysize");
+  if (checkCmdLineFlag(argc, (const char**)argv, "ysize")) {
+    n = getCmdLineArgumentInt(argc, (const char**)argv, "ysize");
     volumeSize.height = n;
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "zsize")) {
-    n = getCmdLineArgumentInt(argc, (const char **)argv, "zsize");
+  if (checkCmdLineFlag(argc, (const char**)argv, "zsize")) {
+    n = getCmdLineArgumentInt(argc, (const char**)argv, "zsize");
     volumeSize.depth = n;
   }
 
-  char *path = sdkFindFilePath(volumeFilename, argv[0]);
+  char* path = sdkFindFilePath(volumeFilename, argv[0]);
 
   if (path == 0) {
     printf("Error finding file '%s'\n", volumeFilename);
@@ -586,7 +586,7 @@ void initData(int argc, char **argv) {
 
   size_t size = volumeSize.width * volumeSize.height * volumeSize.depth *
                 sizeof(VolumeType);
-  void *h_volume = loadRawFile(path, size);
+  void* h_volume = loadRawFile(path, size);
 
   FilterKernel_init();
   Volume_init(&volumeOriginal, volumeSize, h_volume, 0);
@@ -629,7 +629,7 @@ bool checkCUDAProfile(int dev, int min_runtime, int min_compute) {
   }
 }
 
-int findCapableDevice(int argc, char **argv) {
+int findCapableDevice(int argc, char** argv) {
   int dev;
   int bestDev = -1;
 
@@ -664,8 +664,9 @@ int findCapableDevice(int argc, char **argv) {
   }
 
   if (bestDev == -1) {
-    fprintf(stderr, "\nNo configuration with available capabilities was found. "
-                    " Test has been waived.\n");
+    fprintf(stderr,
+            "\nNo configuration with available capabilities was found. "
+            " Test has been waived.\n");
     fprintf(stderr, "This CUDA Sample has minimum requirements:\n");
     fprintf(stderr, "\tCUDA Compute Capability >= %d.%d is required\n",
             MIN_COMPUTE_VERSION / 16, MIN_COMPUTE_VERSION % 16);
@@ -676,7 +677,7 @@ int findCapableDevice(int argc, char **argv) {
   return bestDev;
 }
 
-void checkDeviceMeetComputeSpec(int argc, char **argv) {
+void checkDeviceMeetComputeSpec(int argc, char** argv) {
   int device = 0;
   cudaGetDevice(&device);
 
@@ -684,8 +685,9 @@ void checkDeviceMeetComputeSpec(int argc, char **argv) {
     fprintf(stderr, "\nCUDA Capable Device %d, meets minimum required specs.\n",
             device);
   } else {
-    fprintf(stderr, "\nNo configuration with minimum compute capabilities "
-                    "found.  Exiting...\n");
+    fprintf(stderr,
+            "\nNo configuration with minimum compute capabilities "
+            "found.  Exiting...\n");
     fprintf(stderr, "This sample requires:\n");
     fprintf(stderr, "\tCUDA Compute Capability >= %d.%d is required\n",
             MIN_COMPUTE_VERSION / 16, MIN_COMPUTE_VERSION % 16);
@@ -704,10 +706,9 @@ void checkDeviceMeetComputeSpec(int argc, char **argv) {
 
 //////////////////////////////////////////////////////////////////////////
 // AUTOMATIC TESTING
-void runSingleTest(const char *ref_file, const char *exec_path) {
-  uint *d_output;
-  checkCudaErrors(
-      cudaMalloc((void **)&d_output, width * height * sizeof(uint)));
+void runSingleTest(const char* ref_file, const char* exec_path) {
+  uint* d_output;
+  checkCudaErrors(cudaMalloc((void**)&d_output, width * height * sizeof(uint)));
   checkCudaErrors(cudaMemset(d_output, 0, width * height * sizeof(uint)));
 
   float modelView[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
@@ -751,15 +752,16 @@ void runSingleTest(const char *ref_file, const char *exec_path) {
   sdkStopTimer(&timer);
   // Get elapsed time and throughput, then log to sample and master logs
   double dAvgTime = sdkGetTimerValue(&timer) / (nIter * 1000.0);
-  printf("volumeFiltering, Throughput = %.4f MTexels/s, Time = %.5f s, Size = "
-         "%u Texels, NumDevsUsed = %u, Workgroup = %u\n",
-         (1.0e-6 * width * height) / dAvgTime, dAvgTime, (width * height), 1,
-         blockSize.x * blockSize.y);
+  printf(
+      "volumeFiltering, Throughput = %.4f MTexels/s, Time = %.5f s, Size = "
+      "%u Texels, NumDevsUsed = %u, Workgroup = %u\n",
+      (1.0e-6 * width * height) / dAvgTime, dAvgTime, (width * height), 1,
+      blockSize.x * blockSize.y);
 
   getLastCudaError("Error: kernel execution FAILED");
   checkCudaErrors(cudaDeviceSynchronize());
 
-  unsigned char *h_output = (unsigned char *)malloc(width * height * 4);
+  unsigned char* h_output = (unsigned char*)malloc(width * height * 4);
   checkCudaErrors(cudaMemcpy(h_output, d_output, width * height * 4,
                              cudaMemcpyDeviceToHost));
 
@@ -788,11 +790,11 @@ void printHelp() {
   printf("\t\t-zsize = 32 (volume size, anisotropic)\n\n");
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   pArgc = &argc;
   pArgv = argv;
 
-  char *ref_file = NULL;
+  char* ref_file = NULL;
 
 #if defined(__linux__)
   setenv("DISPLAY", ":0", 0);
@@ -802,19 +804,19 @@ int main(int argc, char **argv) {
 
   // start logs
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "help")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "help")) {
     printHelp();
     exit(EXIT_SUCCESS);
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "file")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "file")) {
     fpsLimit = frameCheckNumber;
-    getCmdLineArgumentString(argc, (const char **)argv, "file", &ref_file);
+    getCmdLineArgumentString(argc, (const char**)argv, "file", &ref_file);
   }
 
   if (ref_file) {
-    if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
-      int device = findCudaDevice(argc, (const char **)argv);
+    if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
+      int device = findCudaDevice(argc, (const char**)argv);
 
       if (device < 0) {
         printf("No CUDA Capable devices found, exiting...\n");
@@ -838,11 +840,13 @@ int main(int argc, char **argv) {
       }
     }
   } else {
-    if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
-      printf("   This SDK does not explicitly support -device=n when running "
-             "with OpenGL.\n");
-      printf("   When specifying -device=n (n=0,1,2,....) the sample must not "
-             "use OpenGL.\n");
+    if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
+      printf(
+          "   This SDK does not explicitly support -device=n when running "
+          "with OpenGL.\n");
+      printf(
+          "   When specifying -device=n (n=0,1,2,....) the sample must not "
+          "use OpenGL.\n");
       printf("   See details below to run without OpenGL:\n\n");
       printf(" > %s -device=n -file=output.bin\n\n", argv[0]);
       printf("exiting...\n");
@@ -866,13 +870,14 @@ int main(int argc, char **argv) {
   // load volume data
   initData(argc, argv);
 
-  printf("Press \n"
-         "  'SPACE'     to toggle animation\n"
-         "  'p'         to toggle pre-integrated transfer function\n"
-         "  '+' and '-' to change density (0.01 increments)\n"
-         "  ']' and '[' to change brightness\n"
-         "  ';' and ''' to modify transfer function offset\n"
-         "  '.' and ',' to modify transfer function scale\n\n");
+  printf(
+      "Press \n"
+      "  'SPACE'     to toggle animation\n"
+      "  'p'         to toggle pre-integrated transfer function\n"
+      "  '+' and '-' to change density (0.01 increments)\n"
+      "  ']' and '[' to change brightness\n"
+      "  ';' and ''' to modify transfer function offset\n"
+      "  '.' and ',' to modify transfer function scale\n\n");
 
   if (ref_file) {
     runSingleTest(ref_file, argv[0]);

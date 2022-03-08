@@ -26,8 +26,8 @@ extern "C" {
 //! @param  ug  upper limit of Gerschgorin interval
 //! @param  iterations  number of iterations (for timing)
 ////////////////////////////////////////////////////////////////////////////////
-void computeEigenvaluesLargeMatrix(const InputData &input,
-                                   const ResultDataLarge &result,
+void computeEigenvaluesLargeMatrix(const InputData& input,
+                                   const ResultDataLarge& result,
                                    const unsigned int mat_size,
                                    const float precision, const float lg,
                                    const float ug,
@@ -38,14 +38,14 @@ void computeEigenvaluesLargeMatrix(const InputData &input,
 //! @param  result handles to memory
 //! @param  matr_size  size of the matrix
 ////////////////////////////////////////////////////////////////////////////////
-void initResultDataLargeMatrix(ResultDataLarge &result,
+void initResultDataLargeMatrix(ResultDataLarge& result,
                                const unsigned int mat_size);
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Cleanup result memory
 //! @param result  handles to memory
 ////////////////////////////////////////////////////////////////////////////////
-void cleanupResultDataLargeMatrix(ResultDataLarge &result);
+void cleanupResultDataLargeMatrix(ResultDataLarge& result);
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Process the result, that is obtain result from device and do simple sanity
@@ -55,12 +55,12 @@ void cleanupResultDataLargeMatrix(ResultDataLarge &result);
 //! @param  mat_size  matrix size
 //! @param  filename  output filename
 ////////////////////////////////////////////////////////////////////////////////
-bool processResultDataLargeMatrix(const InputData &input,
-                                  const ResultDataLarge &result,
+bool processResultDataLargeMatrix(const InputData& input,
+                                  const ResultDataLarge& result,
                                   const unsigned int mat_size,
-                                  const char *filename,
+                                  const char* filename,
                                   const unsigned int user_defined,
-                                  char *exec_path);
+                                  char* exec_path);
 };
 
-#endif // #ifndef _BISECT_LARGE_CUH_
+#endif  // #ifndef _BISECT_LARGE_CUH_

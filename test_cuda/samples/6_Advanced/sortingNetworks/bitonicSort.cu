@@ -20,8 +20,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Monolithic bitonic sort kernel for short arrays fitting into shared memory
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void bitonicSortShared(uint *d_DstKey, uint *d_DstVal,
-                                  uint *d_SrcKey, uint *d_SrcVal,
+__global__ void bitonicSortShared(uint* d_DstKey, uint* d_DstVal,
+                                  uint* d_SrcKey, uint* d_SrcVal,
                                   uint arrayLength, uint dir) {
   // Shared memory storage for one or more short vectors
   __shared__ uint s_key[SHARED_SIZE_LIMIT];
@@ -78,8 +78,8 @@ __global__ void bitonicSortShared(uint *d_DstKey, uint *d_DstVal,
 // even / odd subarrays being sorted in opposite directions
 // Bitonic merge accepts both
 // Ascending | descending or descending | ascending sorted pairs
-__global__ void bitonicSortShared1(uint *d_DstKey, uint *d_DstVal,
-                                   uint *d_SrcKey, uint *d_SrcVal) {
+__global__ void bitonicSortShared1(uint* d_DstKey, uint* d_DstVal,
+                                   uint* d_SrcKey, uint* d_SrcVal) {
   // Shared memory storage for current subarray
   __shared__ uint s_key[SHARED_SIZE_LIMIT];
   __shared__ uint s_val[SHARED_SIZE_LIMIT];
@@ -130,8 +130,8 @@ __global__ void bitonicSortShared1(uint *d_DstKey, uint *d_DstVal,
 }
 
 // Bitonic merge iteration for stride >= SHARED_SIZE_LIMIT
-__global__ void bitonicMergeGlobal(uint *d_DstKey, uint *d_DstVal,
-                                   uint *d_SrcKey, uint *d_SrcVal,
+__global__ void bitonicMergeGlobal(uint* d_DstKey, uint* d_DstVal,
+                                   uint* d_SrcKey, uint* d_SrcVal,
                                    uint arrayLength, uint size, uint stride,
                                    uint dir) {
   uint global_comparatorI = blockIdx.x * blockDim.x + threadIdx.x;
@@ -156,8 +156,8 @@ __global__ void bitonicMergeGlobal(uint *d_DstKey, uint *d_DstVal,
 
 // Combined bitonic merge steps for
 // size > SHARED_SIZE_LIMIT and stride = [1 .. SHARED_SIZE_LIMIT / 2]
-__global__ void bitonicMergeShared(uint *d_DstKey, uint *d_DstVal,
-                                   uint *d_SrcKey, uint *d_SrcVal,
+__global__ void bitonicMergeShared(uint* d_DstKey, uint* d_DstVal,
+                                   uint* d_SrcKey, uint* d_SrcVal,
                                    uint arrayLength, uint size, uint dir) {
   // Shared memory storage for current subarray
   __shared__ uint s_key[SHARED_SIZE_LIMIT];
@@ -199,7 +199,7 @@ __global__ void bitonicMergeShared(uint *d_DstKey, uint *d_DstVal,
 // Interface function
 ////////////////////////////////////////////////////////////////////////////////
 // Helper function (also used by odd-even merge sort)
-extern "C" uint factorRadix2(uint *log2L, uint L) {
+extern "C" uint factorRadix2(uint* log2L, uint L) {
   if (!L) {
     *log2L = 0;
     return 0;
@@ -211,12 +211,11 @@ extern "C" uint factorRadix2(uint *log2L, uint L) {
   }
 }
 
-extern "C" uint bitonicSort(uint *d_DstKey, uint *d_DstVal, uint *d_SrcKey,
-                            uint *d_SrcVal, uint batchSize, uint arrayLength,
+extern "C" uint bitonicSort(uint* d_DstKey, uint* d_DstVal, uint* d_SrcKey,
+                            uint* d_SrcVal, uint batchSize, uint arrayLength,
                             uint dir) {
   // Nothing to sort
-  if (arrayLength < 2)
-    return 0;
+  if (arrayLength < 2) return 0;
 
   // Only power-of-two array lengths are supported by this implementation
   uint log2L;

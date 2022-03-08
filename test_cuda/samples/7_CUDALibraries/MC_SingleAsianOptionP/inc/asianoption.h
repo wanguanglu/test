@@ -12,7 +12,8 @@
 #ifndef ASIANOPTION_H
 #define ASIANOPTION_H
 
-template <typename Real> struct AsianOption {
+template <typename Real>
+struct AsianOption {
   enum CallPut { Call, Put };
 
   // Parameters

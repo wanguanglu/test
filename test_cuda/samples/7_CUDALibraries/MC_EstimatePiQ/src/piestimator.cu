@@ -46,8 +46,8 @@ __device__ unsigned int reduce_sum(unsigned int in) {
 
 // Estimator kernel
 template <typename Real>
-__global__ void computeValue(unsigned int *const results,
-                             const Real *const points,
+__global__ void computeValue(unsigned int* const results,
+                             const Real* const points,
                              const unsigned int numSims) {
   // Determine thread ID
   unsigned int bid = blockIdx.x;
@@ -55,8 +55,8 @@ __global__ void computeValue(unsigned int *const results,
   unsigned int step = gridDim.x * blockDim.x;
 
   // Shift the input/output pointers
-  const Real *pointx = points + tid;
-  const Real *pointy = pointx + numSims;
+  const Real* pointx = points + tid;
+  const Real* pointy = pointx + numSims;
 
   // Count the number of points which lie inside the unit quarter-circle
   unsigned int pointsInside = 0;
@@ -84,10 +84,12 @@ __global__ void computeValue(unsigned int *const results,
 template <typename Real>
 PiEstimator<Real>::PiEstimator(unsigned int numSims, unsigned int device,
                                unsigned int threadBlockSize)
-    : m_numSims(numSims), m_device(device), m_threadBlockSize(threadBlockSize) {
-}
+    : m_numSims(numSims),
+      m_device(device),
+      m_threadBlockSize(threadBlockSize) {}
 
-template <typename Real> Real PiEstimator<Real>::operator()() {
+template <typename Real>
+Real PiEstimator<Real>::operator()() {
   cudaError_t cudaResult = cudaSuccess;
   struct cudaDeviceProp deviceProperties;
   struct cudaFuncAttributes funcAttributes;
@@ -157,8 +159,8 @@ template <typename Real> Real PiEstimator<Real>::operator()() {
 
   // Allocate memory for points
   // Each simulation has two random numbers to give X and Y coordinate
-  Real *d_points = 0;
-  cudaResult = cudaMalloc((void **)&d_points, 2 * m_numSims * sizeof(Real));
+  Real* d_points = 0;
+  cudaResult = cudaMalloc((void**)&d_points, 2 * m_numSims * sizeof(Real));
 
   if (cudaResult != cudaSuccess) {
     string msg("Could not allocate memory on device for random numbers: ");
@@ -168,8 +170,8 @@ template <typename Real> Real PiEstimator<Real>::operator()() {
 
   // Allocate memory for result
   // Each thread block will produce one result
-  unsigned int *d_results = 0;
-  cudaResult = cudaMalloc((void **)&d_results, grid.x * sizeof(unsigned int));
+  unsigned int* d_results = 0;
+  cudaResult = cudaMalloc((void**)&d_results, grid.x * sizeof(unsigned int));
 
   if (cudaResult != cudaSuccess) {
     string msg("Could not allocate memory on device for partial results: ");
@@ -199,8 +201,9 @@ template <typename Real> Real PiEstimator<Real>::operator()() {
   curandResult = curandSetQuasiRandomGeneratorDimensions(qrng, 2);
 
   if (curandResult != CURAND_STATUS_SUCCESS) {
-    string msg("Could not set number of dimensions for quasi-random number "
-               "generator: ");
+    string msg(
+        "Could not set number of dimensions for quasi-random number "
+        "generator: ");
     msg += curandResult;
     throw std::runtime_error(msg);
   }
@@ -215,11 +218,10 @@ template <typename Real> Real PiEstimator<Real>::operator()() {
   }
 
   if (typeid(Real) == typeid(float)) {
-    curandResult =
-        curandGenerateUniform(qrng, (float *)d_points, 2 * m_numSims);
+    curandResult = curandGenerateUniform(qrng, (float*)d_points, 2 * m_numSims);
   } else if (typeid(Real) == typeid(double)) {
     curandResult =
-        curandGenerateUniformDouble(qrng, (double *)d_points, 2 * m_numSims);
+        curandGenerateUniformDouble(qrng, (double*)d_points, 2 * m_numSims);
   } else {
     string msg("Could not generate random numbers of specified type");
     throw std::runtime_error(msg);

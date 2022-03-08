@@ -40,13 +40,13 @@
 #include <helper_timer.h>
 
 // SDK information
-static const char *printfFile = "randomFog.txt";
+static const char* printfFile = "randomFog.txt";
 
 // RNG instance
-RNG *g_pRng = NULL;
+RNG* g_pRng = NULL;
 
 // CheckRender instance (for QA)
-CheckRender *g_pCheckRender = NULL;
+CheckRender* g_pCheckRender = NULL;
 
 // Simple struct which contains the position and color of a vertex
 struct SVertex {
@@ -55,14 +55,14 @@ struct SVertex {
 };
 
 // Data for the vertices
-SVertex *g_pVertices = NULL;
-int g_nVertices;          // Size of the vertex array
-int g_nVerticesPopulated; // Number currently populated
+SVertex* g_pVertices = NULL;
+int g_nVertices;           // Size of the vertex array
+int g_nVerticesPopulated;  // Number currently populated
 
 // Control the randomness
-int nSkip1 = 0; // Number of samples to discard between x,y
-int nSkip2 = 0; // Number of samples to discard between y,z
-int nSkip3 = 0; // Number of samples to discard between z,x
+int nSkip1 = 0;  // Number of samples to discard between x,y
+int nSkip2 = 0;  // Number of samples to discard between y,z
+int nSkip3 = 0;  // Number of samples to discard between z,x
 
 // Control the display
 enum Shape_t { Sphere, SphericalShell, Cube, Plane };
@@ -320,17 +320,17 @@ void idle(void) {
 
 void reCreate(void) {
   switch (g_currentShape) {
-  case Sphere:
-  case SphericalShell:
-    createSphere();
-    break;
+    case Sphere:
+    case SphericalShell:
+      createSphere();
+      break;
 
-  case Cube:
-    createCube();
-    break;
+    case Cube:
+      createCube();
+      break;
 
-  default:
-    createPlane();
+    default:
+      createPlane();
   }
 
   display();
@@ -365,186 +365,186 @@ void glutClose() { cleanup(EXIT_SUCCESS); }
 
 void keyboard(unsigned char key, int x, int y) {
   switch (key) {
-  // Select shape
-  case 's':
-  case 'S':
-    g_currentShape = Sphere;
-    createSphere();
-    display();
-    break;
+    // Select shape
+    case 's':
+    case 'S':
+      g_currentShape = Sphere;
+      createSphere();
+      display();
+      break;
 
-  case 'e':
-  case 'E':
-    g_currentShape = SphericalShell;
-    createSphere();
-    display();
-    break;
+    case 'e':
+    case 'E':
+      g_currentShape = SphericalShell;
+      createSphere();
+      display();
+      break;
 
-  case 'b':
-  case 'B':
-    g_currentShape = Cube;
-    createCube();
-    display();
-    break;
+    case 'b':
+    case 'B':
+      g_currentShape = Cube;
+      createCube();
+      display();
+      break;
 
-  case 'p':
-  case 'P':
-    g_currentShape = Plane;
-    createPlane();
-    display();
-    break;
+    case 'p':
+    case 'P':
+      g_currentShape = Plane;
+      createPlane();
+      display();
+      break;
 
-  // Rotation
-  case 'a':
-  case 'A':
-    g_bAutoRotate = !g_bAutoRotate;
-    break;
+    // Rotation
+    case 'a':
+    case 'A':
+      g_bAutoRotate = !g_bAutoRotate;
+      break;
 
-  case 'i':
-  case 'I':
-    g_xRotated -= 1.0f;
+    case 'i':
+    case 'I':
+      g_xRotated -= 1.0f;
 
-    if (g_xRotated <= 0.0f) {
-      g_xRotated += 360.0f;
-    }
+      if (g_xRotated <= 0.0f) {
+        g_xRotated += 360.0f;
+      }
 
-    display();
-    break;
+      display();
+      break;
 
-  case ',':
-    g_xRotated += 1.0f;
+    case ',':
+      g_xRotated += 1.0f;
 
-    if (g_xRotated >= 360.0f) {
-      g_xRotated -= 360.0f;
-    }
+      if (g_xRotated >= 360.0f) {
+        g_xRotated -= 360.0f;
+      }
 
-    display();
-    break;
+      display();
+      break;
 
-  case 'j':
-  case 'J':
-    g_yRotated -= 1.0f;
+    case 'j':
+    case 'J':
+      g_yRotated -= 1.0f;
 
-    if (g_yRotated <= 0.0f) {
-      g_yRotated += 360.0f;
-    }
+      if (g_yRotated <= 0.0f) {
+        g_yRotated += 360.0f;
+      }
 
-    display();
-    break;
+      display();
+      break;
 
-  case 'l':
-  case 'L':
-    g_yRotated += 1.0f;
+    case 'l':
+    case 'L':
+      g_yRotated += 1.0f;
 
-    if (g_yRotated >= 360.0f) {
-      g_yRotated -= 360.0f;
-    }
+      if (g_yRotated >= 360.0f) {
+        g_yRotated -= 360.0f;
+      }
 
-    display();
-    break;
+      display();
+      break;
 
-  // Zoom
-  case 't':
-  case 'T':
-    g_bTenXZoom = !g_bTenXZoom;
-    reshape(g_lastShapeX, g_lastShapeY);
-    reCreate();
-    break;
+    // Zoom
+    case 't':
+    case 'T':
+      g_bTenXZoom = !g_bTenXZoom;
+      reshape(g_lastShapeX, g_lastShapeY);
+      reCreate();
+      break;
 
-  // Axes
-  case 'z':
-  case 'Z':
-    g_bShowAxes = !g_bShowAxes;
-    reCreate();
-    break;
+    // Axes
+    case 'z':
+    case 'Z':
+      g_bShowAxes = !g_bShowAxes;
+      reCreate();
+      break;
 
-  // RNG
-  case 'x':
-  case 'X':
-    g_pRng->selectRng(RNG::Pseudo);
-    reCreate();
-    break;
+    // RNG
+    case 'x':
+    case 'X':
+      g_pRng->selectRng(RNG::Pseudo);
+      reCreate();
+      break;
 
-  case 'c':
-  case 'C':
-    g_pRng->selectRng(RNG::Quasi);
-    reCreate();
-    break;
+    case 'c':
+    case 'C':
+      g_pRng->selectRng(RNG::Quasi);
+      reCreate();
+      break;
 
-  case 'v':
-  case 'V':
-    g_pRng->selectRng(RNG::ScrambledQuasi);
-    reCreate();
-    break;
+    case 'v':
+    case 'V':
+      g_pRng->selectRng(RNG::ScrambledQuasi);
+      reCreate();
+      break;
 
-  case 'r':
-  case 'R':
-    g_pRng->resetSeed();
-    reCreate();
-    break;
+    case 'r':
+    case 'R':
+      g_pRng->resetSeed();
+      reCreate();
+      break;
 
-  case ']':
-    g_pRng->incrementDimensions();
-    reCreate();
-    break;
+    case ']':
+      g_pRng->incrementDimensions();
+      reCreate();
+      break;
 
-  case '[':
-    g_pRng->resetDimensions();
-    reCreate();
-    break;
+    case '[':
+      g_pRng->resetDimensions();
+      reCreate();
+      break;
 
-  case '1':
-    nSkip1++;
-    reCreate();
-    break;
+    case '1':
+      nSkip1++;
+      reCreate();
+      break;
 
-  case '2':
-    nSkip2++;
-    reCreate();
-    break;
+    case '2':
+      nSkip2++;
+      reCreate();
+      break;
 
-  case '3':
-    nSkip3++;
-    reCreate();
-    break;
+    case '3':
+      nSkip3++;
+      reCreate();
+      break;
 
-  case '!':
-    nSkip1 = 0;
-    nSkip2 = 0;
-    nSkip3 = 0;
-    reCreate();
-    break;
+    case '!':
+      nSkip1 = 0;
+      nSkip2 = 0;
+      nSkip3 = 0;
+      reCreate();
+      break;
 
-  // Number of vertices
-  case '+':
-    g_nVerticesPopulated += 8000;
+    // Number of vertices
+    case '+':
+      g_nVerticesPopulated += 8000;
 
-    if (g_nVerticesPopulated > g_nVertices) {
-      g_nVerticesPopulated = g_nVertices;
-    }
+      if (g_nVerticesPopulated > g_nVertices) {
+        g_nVerticesPopulated = g_nVertices;
+      }
 
-    reCreate();
-    break;
+      reCreate();
+      break;
 
-  case '-':
-    g_nVerticesPopulated -= 8000;
+    case '-':
+      g_nVerticesPopulated -= 8000;
 
-    if (g_nVerticesPopulated < 8000) {
-      g_nVerticesPopulated = 8000;
-    }
+      if (g_nVerticesPopulated < 8000) {
+        g_nVerticesPopulated = 8000;
+      }
 
-    reCreate();
-    break;
+      reCreate();
+      break;
 
-  // Quit
-  case 27:
-  case 'q':
-  case 'Q':
+    // Quit
+    case 27:
+    case 'q':
+    case 'Q':
 #if defined(__APPLE__) || defined(MACOSX)
-    exit(EXIT_SUCCESS);
+      exit(EXIT_SUCCESS);
 #else
-    glutDestroyWindow(glutGetWindow());
-    return;
+      glutDestroyWindow(glutGetWindow());
+      return;
 #endif
   }
 }
@@ -614,7 +614,7 @@ void showHelp(void) {
   puts(ss.str().c_str());
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   using std::runtime_error;
 
   try {
@@ -625,10 +625,10 @@ int main(int argc, char **argv) {
     printf("==========\n\n");
 
     // Check QA mode
-    if (checkCmdLineFlag(argc, (const char **)argv, "qatest")) {
+    if (checkCmdLineFlag(argc, (const char**)argv, "qatest")) {
       bQA = true;
 
-      findCudaDevice(argc, (const char **)argv);
+      findCudaDevice(argc, (const char**)argv);
 
       g_pCheckRender =
           new CheckBackBuffer(g_lastShapeX, g_lastShapeY, 4, false);
@@ -648,7 +648,7 @@ int main(int argc, char **argv) {
       glewInit();
 
       // Select CUDA device with OpenGL interoperability
-      findCudaGLDevice(argc, (const char **)argv);
+      findCudaGLDevice(argc, (const char**)argv);
     }
 
     // Create vertices
@@ -688,12 +688,12 @@ int main(int argc, char **argv) {
       // each vertex)
       glEnableClientState(GL_COLOR_ARRAY);
       // Pass the vertex pointer:
-      glVertexPointer(3, // 3 components per vertex (x,y,z)
+      glVertexPointer(3,  // 3 components per vertex (x,y,z)
                       GL_FLOAT, sizeof(SVertex), g_pVertices);
       // Pass the color pointer
-      glColorPointer(3, // 3 components per vertex (r,g,b)
+      glColorPointer(3,  // 3 components per vertex (r,g,b)
                      GL_FLOAT, sizeof(SVertex),
-                     &g_pVertices[0].r); // Pointer to the first color
+                     &g_pVertices[0].r);  // Pointer to the first color
       // Point size for point mode
       glPointSize(1.0f);
       glLineWidth(2.0f);
@@ -713,7 +713,7 @@ int main(int argc, char **argv) {
       // Let's get started!
       glutMainLoop();
     }
-  } catch (runtime_error &e) {
+  } catch (runtime_error& e) {
     printf("runtime error (%s)\n", e.what());
   }
 

@@ -26,13 +26,13 @@
 #include <cusparse.h>
 
 // Utilities and system includes
-#include <helper_cuda.h> // helper function CUDA error checking and initialization
-#include <helper_functions.h> // helper for shared functions common to CUDA Samples
+#include <helper_cuda.h>  // helper function CUDA error checking and initialization
+#include <helper_functions.h>  // helper for shared functions common to CUDA Samples
 
-const char *sSDKname = "conjugateGradientUM";
+const char* sSDKname = "conjugateGradientUM";
 
 /* genTridiag: generate a random tridiagonal symmetric matrix */
-void genTridiag(int *I, int *J, float *val, int N, int nz) {
+void genTridiag(int* I, int* J, float* val, int N, int nz) {
   I[0] = 0, J[0] = 0, J[1] = 1;
   val[0] = (float)rand() / RAND_MAX + 10.0f;
   val[1] = (float)rand() / RAND_MAX;
@@ -64,13 +64,13 @@ void genTridiag(int *I, int *J, float *val, int N, int nz) {
   I[N] = nz;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   int N = 0, nz = 0, *I = NULL, *J = NULL;
-  float *val = NULL;
+  float* val = NULL;
   const float tol = 1e-5f;
   const int max_iter = 10000;
-  float *x;
-  float *rhs;
+  float* x;
+  float* rhs;
   float a, b, na, r0, r1;
   float dot;
   float *r, *p, *Ax;
@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
 
   // This will pick the best possible CUDA capable device
   cudaDeviceProp deviceProp;
-  int devID = findCudaDevice(argc, (const char **)argv);
+  int devID = findCudaDevice(argc, (const char**)argv);
   checkCudaErrors(cudaGetDeviceProperties(&deviceProp, devID));
 
   if (!deviceProp.managedMemory) {
@@ -106,14 +106,14 @@ int main(int argc, char **argv) {
   N = 1048576;
   nz = (N - 2) * 3 + 4;
 
-  cudaMallocManaged((void **)&I, sizeof(int) * (N + 1));
-  cudaMallocManaged((void **)&J, sizeof(int) * nz);
-  cudaMallocManaged((void **)&val, sizeof(float) * nz);
+  cudaMallocManaged((void**)&I, sizeof(int) * (N + 1));
+  cudaMallocManaged((void**)&J, sizeof(int) * nz);
+  cudaMallocManaged((void**)&val, sizeof(float) * nz);
 
   genTridiag(I, J, val, N, nz);
 
-  cudaMallocManaged((void **)&x, sizeof(float) * N);
-  cudaMallocManaged((void **)&rhs, sizeof(float) * N);
+  cudaMallocManaged((void**)&x, sizeof(float) * N);
+  cudaMallocManaged((void**)&rhs, sizeof(float) * N);
 
   for (int i = 0; i < N; i++) {
     rhs[i] = 1.0;
@@ -143,9 +143,9 @@ int main(int argc, char **argv) {
   cusparseSetMatIndexBase(descr, CUSPARSE_INDEX_BASE_ZERO);
 
   // temp memory for CG
-  checkCudaErrors(cudaMallocManaged((void **)&r, N * sizeof(float)));
-  checkCudaErrors(cudaMallocManaged((void **)&p, N * sizeof(float)));
-  checkCudaErrors(cudaMallocManaged((void **)&Ax, N * sizeof(float)));
+  checkCudaErrors(cudaMallocManaged((void**)&r, N * sizeof(float)));
+  checkCudaErrors(cudaMallocManaged((void**)&p, N * sizeof(float)));
+  checkCudaErrors(cudaMallocManaged((void**)&Ax, N * sizeof(float)));
 
   cudaDeviceSynchronize();
 

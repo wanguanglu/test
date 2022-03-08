@@ -16,7 +16,7 @@
 // export C interface
 #define EPSILON 1e-3
 extern "C" void updateGaussianGold(float delta, int radius);
-extern "C" void bilateralFilterGold(unsigned int *pSrc, unsigned int *pDest,
+extern "C" void bilateralFilterGold(unsigned int* pSrc, unsigned int* pDest,
                                     float e_d, int w, int h, int r);
 // variables
 float gaussian[50];
@@ -56,10 +56,10 @@ unsigned int hrgbaFloatToInt(float4 rgba) {
 
 float4 hrgbaIntToFloat(unsigned int c) {
   float4 rgba;
-  rgba.x = (c & 0xff) * 0.003921568627f;         //  /255.0f;
-  rgba.y = ((c >> 8) & 0xff) * 0.003921568627f;  //  /255.0f;
-  rgba.z = ((c >> 16) & 0xff) * 0.003921568627f; //  /255.0f;
-  rgba.w = ((c >> 24) & 0xff) * 0.003921568627f; //  /255.0f;
+  rgba.x = (c & 0xff) * 0.003921568627f;          //  /255.0f;
+  rgba.y = ((c >> 8) & 0xff) * 0.003921568627f;   //  /255.0f;
+  rgba.z = ((c >> 16) & 0xff) * 0.003921568627f;  //  /255.0f;
+  rgba.w = ((c >> 24) & 0xff) * 0.003921568627f;  //  /255.0f;
   return rgba;
 }
 
@@ -83,9 +83,9 @@ float4 add4(float4 a, float4 b) {
   return ans;
 }
 
-void bilateralFilterGold(unsigned int *pSrc, unsigned int *pDest, float e_d,
+void bilateralFilterGold(unsigned int* pSrc, unsigned int* pDest, float e_d,
                          int w, int h, int r) {
-  float4 *hImage = new float4[w * h];
+  float4* hImage = new float4[w * h];
   float domainDist, colorDist, factor;
 
   for (int y = 0; y < h; y++) {

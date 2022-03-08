@@ -50,7 +50,7 @@ inline void endWinCoords(void) {
   glPopMatrix();
 }
 
-inline void glPrint(int x, int y, const char *s, void *font) {
+inline void glPrint(int x, int y, const char* s, void* font) {
   glRasterPos2f((GLfloat)x, (GLfloat)y);
   int len = (int)strlen(s);
 
@@ -59,23 +59,26 @@ inline void glPrint(int x, int y, const char *s, void *font) {
   }
 }
 
-inline void glPrintShadowed(int x, int y, const char *s, void *font,
-                            float *color) {
+inline void glPrintShadowed(int x, int y, const char* s, void* font,
+                            float* color) {
   glColor3f(0.0, 0.0, 0.0);
   glPrint(x - 1, y - 1, s, font);
 
-  glColor3fv((GLfloat *)color);
+  glColor3fv((GLfloat*)color);
   glPrint(x, y, s, font);
 }
 
 class ParamListGL : public ParamList {
-public:
-  ParamListGL(const char *name = "")
-      : ParamList(name), m_active(true), m_text_color_selected(1.0, 1.0, 1.0),
+ public:
+  ParamListGL(const char* name = "")
+      : ParamList(name),
+        m_active(true),
+        m_text_color_selected(1.0, 1.0, 1.0),
         m_text_color_unselected(0.75, 0.75, 0.75),
-        m_text_color_shadow(0.0, 0.0, 0.0), m_bar_color_outer(0.25, 0.25, 0.25),
+        m_text_color_shadow(0.0, 0.0, 0.0),
+        m_bar_color_outer(0.25, 0.25, 0.25),
         m_bar_color_inner(1.0, 1.0, 1.0) {
-    m_font = (void *)GLUT_BITMAP_9_BY_15; // GLUT_BITMAP_8_BY_13;
+    m_font = (void*)GLUT_BITMAP_9_BY_15;  // GLUT_BITMAP_8_BY_13;
     m_font_h = 15;
     m_bar_x = 260;
     m_bar_w = 250;
@@ -94,10 +97,10 @@ public:
     m_start_x = x;
     m_start_y = y;
 
-    for (std::vector<ParamBase *>::const_iterator p = m_params.begin();
+    for (std::vector<ParamBase*>::const_iterator p = m_params.begin();
          p != m_params.end(); ++p) {
       if ((*p)->IsList()) {
-        ParamListGL *list = (ParamListGL *)(*p);
+        ParamListGL* list = (ParamListGL*)(*p);
         list->Render(x + 10, y);
         y += m_separation * list->GetSize();
       } else {
@@ -122,7 +125,7 @@ public:
                   m_font);
         }
 
-        glColor3fv((GLfloat *)&m_bar_color_outer.r);
+        glColor3fv((GLfloat*)&m_bar_color_outer.r);
         glBegin(GL_LINE_LOOP);
         glVertex2f((GLfloat)(x + m_bar_x), (GLfloat)(y + m_bar_offset));
         glVertex2f((GLfloat)(x + m_bar_x + m_bar_w),
@@ -133,7 +136,7 @@ public:
                    (GLfloat)(y + m_bar_offset + m_bar_h));
         glEnd();
 
-        glColor3fv((GLfloat *)&m_bar_color_inner.r);
+        glColor3fv((GLfloat*)&m_bar_color_inner.r);
         glRectf(
             (GLfloat)(x + m_bar_x), (GLfloat)(y + m_bar_offset + m_bar_h),
             (GLfloat)(x + m_bar_x + ((m_bar_w - 1) * (*p)->GetPercentage())),
@@ -202,39 +205,38 @@ public:
   }
 
   void Special(int key, int x, int y) {
-    if (!m_active)
-      return;
+    if (!m_active) return;
 
     switch (key) {
-    case GLUT_KEY_DOWN:
-      Increment();
-      break;
+      case GLUT_KEY_DOWN:
+        Increment();
+        break;
 
-    case GLUT_KEY_UP:
-      Decrement();
-      break;
+      case GLUT_KEY_UP:
+        Decrement();
+        break;
 
-    case GLUT_KEY_RIGHT:
-      GetCurrent()->Increment();
-      break;
+      case GLUT_KEY_RIGHT:
+        GetCurrent()->Increment();
+        break;
 
-    case GLUT_KEY_LEFT:
-      GetCurrent()->Decrement();
-      break;
+      case GLUT_KEY_LEFT:
+        GetCurrent()->Decrement();
+        break;
 
-    case GLUT_KEY_HOME:
-      GetCurrent()->Reset();
-      break;
+      case GLUT_KEY_HOME:
+        GetCurrent()->Reset();
+        break;
 
-    case GLUT_KEY_END:
-      GetCurrent()->SetPercentage(1.0);
-      break;
+      case GLUT_KEY_END:
+        GetCurrent()->SetPercentage(1.0);
+        break;
     }
 
     glutPostRedisplay();
   }
 
-  void SetFont(void *font, int height) {
+  void SetFont(void* font, int height) {
     m_font = font;
     m_font_h = height;
   }
@@ -254,17 +256,17 @@ public:
 
   void SetActive(bool b) { m_active = b; }
 
-private:
-  void *m_font;
-  int m_font_h; // font height
+ private:
+  void* m_font;
+  int m_font_h;  // font height
 
-  int m_bar_x;      // bar start x position
-  int m_bar_w;      // bar width
-  int m_bar_h;      // bar height
-  int m_text_x;     // text start x position
-  int m_separation; // bar separation in y
-  int m_value_x;    // value text x position
-  int m_bar_offset; // bar offset in y
+  int m_bar_x;       // bar start x position
+  int m_bar_w;       // bar width
+  int m_bar_h;       // bar height
+  int m_text_x;      // text start x position
+  int m_separation;  // bar separation in y
+  int m_value_x;     // value text x position
+  int m_bar_offset;  // bar offset in y
 
   int m_start_x, m_start_y;
 

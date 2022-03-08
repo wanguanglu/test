@@ -86,7 +86,7 @@
 
 // based on swap_rows - in just folds in the loop from the cpu,
 // so there is no going in and out of the gpu
-__global__ void dlaswp(int n, double *A, int lda, int *ipiv, int k1, int k2) {
+__global__ void dlaswp(int n, double* A, int lda, int* ipiv, int k1, int k2) {
   for (; k1 < k2; ++k1) {
     int src_row = k1;
     int dst_row = ipiv[k1];

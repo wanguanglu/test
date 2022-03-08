@@ -87,7 +87,7 @@ void test_abs() {
   std::cout << "abs(x): " << abs(x) << std::endl;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   test_numlimits();
   test_abs();
   return 0;

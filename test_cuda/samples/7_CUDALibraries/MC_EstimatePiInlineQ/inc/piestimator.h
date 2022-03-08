@@ -12,13 +12,14 @@
 #ifndef PIESTIMATOR_H
 #define PIESTIMATOR_H
 
-template <typename Real> class PiEstimator {
-public:
+template <typename Real>
+class PiEstimator {
+ public:
   PiEstimator(unsigned int numSims, unsigned int device,
               unsigned int threadBlockSize);
   Real operator()();
 
-private:
+ private:
   unsigned int m_numSims;
   unsigned int m_device;
   unsigned int m_threadBlockSize;

@@ -2,14 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   if (argc != 3) {
     printf("usage: %s infile outfile.\n", argv[0]);
     return -1;
   }
 
-  FILE *fp_in = fopen(argv[1], "rb");
-  FILE *fp_out = fopen(argv[2], "wb");
+  FILE* fp_in = fopen(argv[1], "rb");
+  FILE* fp_out = fopen(argv[2], "wb");
   char line[1024];
 
   while (fgets(line, 1024, fp_in)) {

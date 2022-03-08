@@ -15,7 +15,7 @@
 #endif
 #endif
 
-#if __MSL_CPP__ >= 0x6000 // Pro 6
+#if __MSL_CPP__ >= 0x6000  // Pro 6
 #define BOOST_HAS_HASH
 #define BOOST_STD_EXTENSION_NAMESPACE Metrowerks
 #endif
@@ -67,9 +67,9 @@
 #define BOOST_NO_0X_HDR_THREAD
 #define BOOST_NO_0X_HDR_TUPLE
 #define BOOST_NO_0X_HDR_TYPE_TRAITS
-#define BOOST_NO_STD_UNORDERED // deprecated; see following
+#define BOOST_NO_STD_UNORDERED  // deprecated; see following
 #define BOOST_NO_0X_HDR_UNORDERED_MAP
 #define BOOST_NO_0X_HDR_UNORDERED_SET
 
-#define BOOST_STDLIB                                                           \
+#define BOOST_STDLIB \
   "Metrowerks Standard Library version " BOOST_STRINGIZE(__MSL_CPP__)

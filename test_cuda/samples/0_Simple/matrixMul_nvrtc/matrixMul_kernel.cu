@@ -33,7 +33,7 @@
 template <int BLOCK_SIZE>
 __device__ void
 
-matrixMulCUDA(float *C, float *A, float *B, int wA, int wB) {
+matrixMulCUDA(float* C, float* A, float* B, int wA, int wB) {
   // Block index
   int bx = blockIdx.x;
   int by = blockIdx.y;
@@ -101,12 +101,12 @@ matrixMulCUDA(float *C, float *A, float *B, int wA, int wB) {
   C[c + wB * ty + tx] = Csub;
 }
 
-extern "C" __global__ void matrixMulCUDA_block16(float *C, float *A, float *B,
+extern "C" __global__ void matrixMulCUDA_block16(float* C, float* A, float* B,
                                                  int wA, int wB) {
   matrixMulCUDA<16>(C, A, B, wA, wB);
 }
 
-extern "C" __global__ void matrixMulCUDA_block32(float *C, float *A, float *B,
+extern "C" __global__ void matrixMulCUDA_block32(float* C, float* A, float* B,
                                                  int wA, int wB) {
   matrixMulCUDA<32>(C, A, B, wA, wB);
 }

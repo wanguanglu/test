@@ -19,15 +19,15 @@
 #include <cuda_runtime.h>
 #include <nvrtc_helper.h>
 
-#include <helper_functions.h> // helper functions for string parsing
+#include <helper_functions.h>  // helper functions for string parsing
 
 ////////////////////////////////////////////////////////////////////////////////
 // Process an array of optN options on CPU
 ////////////////////////////////////////////////////////////////////////////////
 
-extern "C" void BlackScholesCPU(float *h_CallResult, float *h_PutResult,
-                                float *h_StockPrice, float *h_OptionStrike,
-                                float *h_OptionYears, float Riskfree,
+extern "C" void BlackScholesCPU(float* h_CallResult, float* h_PutResult,
+                                float* h_StockPrice, float* h_OptionStrike,
+                                float* h_OptionYears, float Riskfree,
                                 float Volatility, int optN);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ const float VOLATILITY = 0.30f;
 // Main program
 ////////////////////////////////////////////////////////////////////////////////
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   // Start logs
   printf("[%s] - Starting...\n", argv[0]);
 
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
 
   double delta, ref, sum_delta, sum_ref, max_delta, L1norm, gpuTime;
 
-  StopWatchInterface *hTimer = NULL;
+  StopWatchInterface* hTimer = NULL;
   int i;
 
   sdkCreateTimer(&hTimer);
@@ -93,26 +93,26 @@ int main(int argc, char **argv) {
   printf("Initializing data...\n");
   printf("...allocating CPU memory for options.\n");
 
-  h_CallResultCPU = (float *)malloc(OPT_SZ);
-  h_PutResultCPU = (float *)malloc(OPT_SZ);
-  h_CallResultGPU = (float *)malloc(OPT_SZ);
-  h_PutResultGPU = (float *)malloc(OPT_SZ);
-  h_StockPrice = (float *)malloc(OPT_SZ);
-  h_OptionStrike = (float *)malloc(OPT_SZ);
-  h_OptionYears = (float *)malloc(OPT_SZ);
+  h_CallResultCPU = (float*)malloc(OPT_SZ);
+  h_PutResultCPU = (float*)malloc(OPT_SZ);
+  h_CallResultGPU = (float*)malloc(OPT_SZ);
+  h_PutResultGPU = (float*)malloc(OPT_SZ);
+  h_StockPrice = (float*)malloc(OPT_SZ);
+  h_OptionStrike = (float*)malloc(OPT_SZ);
+  h_OptionYears = (float*)malloc(OPT_SZ);
 
   char *ptx, *kernel_file;
   size_t ptxSize;
   kernel_file = sdkFindFilePath("BlackScholes_kernel.cuh", argv[0]);
 
   // Set a Compiler Option to have maximum register to be used by each thread.
-  char *compile_options[1];
+  char* compile_options[1];
   compile_options[0] =
-      (char *)malloc(sizeof(char) * (strlen("--maxrregcount=16")));
-  strcpy((char *)compile_options[0], "--maxrregcount=16");
+      (char*)malloc(sizeof(char) * (strlen("--maxrregcount=16")));
+  strcpy((char*)compile_options[0], "--maxrregcount=16");
 
   // Compile the kernel BlackScholes_kernel.
-  compileFileToPTX(kernel_file, 1, (const char **)compile_options, &ptx,
+  compileFileToPTX(kernel_file, 1, (const char**)compile_options, &ptx,
                    &ptxSize);
   CUmodule module = loadPTX(ptx, argc, argv);
 
@@ -158,13 +158,12 @@ int main(int argc, char **argv) {
   float volatility = VOLATILITY;
   int optval = OPT_N;
 
-  void *arr[] = {(void *)&d_CallResult,  (void *)&d_PutResult,
-                 (void *)&d_StockPrice,  (void *)&d_OptionStrike,
-                 (void *)&d_OptionYears, (void *)&risk,
-                 (void *)&volatility,    (void *)&optval};
+  void* arr[] = {(void*)&d_CallResult,  (void*)&d_PutResult,
+                 (void*)&d_StockPrice,  (void*)&d_OptionStrike,
+                 (void*)&d_OptionYears, (void*)&risk,
+                 (void*)&volatility,    (void*)&optval};
 
   for (i = 0; i < NUM_ITERATIONS; i++) {
-
     checkCudaErrors(cuLaunchKernel(kernel_addr, cudaGridSize.x, cudaGridSize.y,
                                    cudaGridSize.z, /* grid dim */
                                    cudaBlockSize.x, cudaBlockSize.y,
@@ -186,10 +185,11 @@ int main(int argc, char **argv) {
          ((double)(5 * OPT_N * sizeof(float)) * 1E-9) / (gpuTime * 1E-3));
   printf("Gigaoptions per second    : %f     \n\n",
          ((double)(2 * OPT_N) * 1E-9) / (gpuTime * 1E-3));
-  printf("BlackScholes, Throughput = %.4f GOptions/s, Time = %.5f s, Size = %u "
-         "options, NumDevsUsed = %u, Workgroup = %u\n",
-         (((double)(2.0 * OPT_N) * 1.0E-9) / (gpuTime * 1.0E-3)),
-         gpuTime * 1e-3, (2 * OPT_N), 1, 128);
+  printf(
+      "BlackScholes, Throughput = %.4f GOptions/s, Time = %.5f s, Size = %u "
+      "options, NumDevsUsed = %u, Workgroup = %u\n",
+      (((double)(2.0 * OPT_N) * 1.0E-9) / (gpuTime * 1.0E-3)), gpuTime * 1e-3,
+      (2 * OPT_N), 1, 128);
 
   printf("\nReading back GPU results...\n");
 

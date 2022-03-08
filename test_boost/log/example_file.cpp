@@ -27,8 +27,7 @@ namespace expr = boost::log::expressions;
 namespace attrs = boost::log::attributes;
 namespace keywords = boost::log::keywords;
 
-int main(int argc, char *argv[]) {
-
+int main(int argc, char* argv[]) {
   logging::add_file_log("sample.log");
 
   logging::core::get()->set_filter(logging::trivial::severity >=

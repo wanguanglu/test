@@ -37,16 +37,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 // declaration, forward
 
-extern "C" void computeGold(char *reference, char *idata,
+extern "C" void computeGold(char* reference, char* idata,
                             const unsigned int len);
-extern "C" void computeGold2(int2 *reference, int2 *idata,
+extern "C" void computeGold2(int2* reference, int2* idata,
                              const unsigned int len);
 
 ///////////////////////////////////////////////////////////////////////////////
 //! Simple test kernel for device functionality
 //! @param g_odata  memory to process (in and out)
 ///////////////////////////////////////////////////////////////////////////////
-__global__ void kernel(int *g_data) {
+__global__ void kernel(int* g_data) {
   // write data to global memory
   const unsigned int tid = threadIdx.x;
   int data = g_data[tid];
@@ -68,7 +68,7 @@ __global__ void kernel(int *g_data) {
 //! Demonstration that int2 data can be used in the cpp code
 //! @param g_odata  memory to process (in and out)
 ///////////////////////////////////////////////////////////////////////////////
-__global__ void kernel2(int2 *g_data) {
+__global__ void kernel2(int2* g_data) {
   // write data to global memory
   const unsigned int tid = threadIdx.x;
   int2 data = g_data[tid];
@@ -91,11 +91,11 @@ __global__ void kernel2(int2 *g_data) {
 //! @param data  data to process on the device
 //! @param len   len of \a data
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" bool runTest(const int argc, const char **argv, char *data,
-                        int2 *data_int2, unsigned int len) {
+extern "C" bool runTest(const int argc, const char** argv, char* data,
+                        int2* data_int2, unsigned int len) {
   // use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  findCudaDevice(argc, (const char **)argv);
+  findCudaDevice(argc, (const char**)argv);
 
   const unsigned int num_threads = len / 4;
   assert(0 == (len % 4));
@@ -103,13 +103,13 @@ extern "C" bool runTest(const int argc, const char **argv, char *data,
   const unsigned int mem_size_int2 = sizeof(int2) * len;
 
   // allocate device memory
-  char *d_data;
-  checkCudaErrors(cudaMalloc((void **)&d_data, mem_size));
+  char* d_data;
+  checkCudaErrors(cudaMalloc((void**)&d_data, mem_size));
   // copy host memory to device
   checkCudaErrors(cudaMemcpy(d_data, data, mem_size, cudaMemcpyHostToDevice));
   // allocate device memory for int2 version
-  int2 *d_data_int2;
-  checkCudaErrors(cudaMalloc((void **)&d_data_int2, mem_size_int2));
+  int2* d_data_int2;
+  checkCudaErrors(cudaMalloc((void**)&d_data_int2, mem_size_int2));
   // copy host memory to device
   checkCudaErrors(cudaMemcpy(d_data_int2, data_int2, mem_size_int2,
                              cudaMemcpyHostToDevice));
@@ -117,18 +117,18 @@ extern "C" bool runTest(const int argc, const char **argv, char *data,
   // setup execution parameters
   dim3 grid(1, 1, 1);
   dim3 threads(num_threads, 1, 1);
-  dim3 threads2(len, 1, 1); // more threads needed fir separate int2 version
+  dim3 threads2(len, 1, 1);  // more threads needed fir separate int2 version
   // execute the kernel
-  kernel<<<grid, threads>>>((int *)d_data);
+  kernel<<<grid, threads>>>((int*)d_data);
   kernel2<<<grid, threads2>>>(d_data_int2);
 
   // check if kernel execution generated and error
   getLastCudaError("Kernel execution failed");
 
   // compute reference solutions
-  char *reference = (char *)malloc(mem_size);
+  char* reference = (char*)malloc(mem_size);
   computeGold(reference, data, len);
-  int2 *reference2 = (int2 *)malloc(mem_size_int2);
+  int2* reference2 = (int2*)malloc(mem_size_int2);
   computeGold2(reference2, data_int2, len);
 
   // copy results from device to host

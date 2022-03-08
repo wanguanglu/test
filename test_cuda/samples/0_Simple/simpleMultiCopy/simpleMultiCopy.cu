@@ -24,7 +24,7 @@
  *
  */
 
-const char *sSDKname = "simpleMultiCopy";
+const char* sSDKname = "simpleMultiCopy";
 
 // includes, system
 #include <stdio.h>
@@ -34,12 +34,12 @@ const char *sSDKname = "simpleMultiCopy";
 
 // includes, project
 #include <helper_cuda.h>
-#include <helper_functions.h> // helper for shared that are common to CUDA Samples
+#include <helper_functions.h>  // helper for shared that are common to CUDA Samples
 
 // includes, kernels
 // Declare the CUDA kernels here and main() code that is needed to launch
 // Compute workload on the system
-__global__ void incKernel(int *g_out, int *g_in, int N, int inner_reps) {
+__global__ void incKernel(int* g_out, int* g_in, int N, int inner_reps) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (idx < N) {
@@ -54,14 +54,14 @@ __global__ void incKernel(int *g_out, int *g_in, int N, int inner_reps) {
 // Uncomment to simulate data source/sink IO times
 //#define SIMULATE_IO
 
-int *h_data_source;
-int *h_data_sink;
+int* h_data_source;
+int* h_data_sink;
 
-int *h_data_in[STREAM_COUNT];
-int *d_data_in[STREAM_COUNT];
+int* h_data_in[STREAM_COUNT];
+int* d_data_in[STREAM_COUNT];
 
-int *h_data_out[STREAM_COUNT];
-int *d_data_out[STREAM_COUNT];
+int* h_data_out[STREAM_COUNT];
+int* d_data_out[STREAM_COUNT];
 
 cudaEvent_t cycleDone[STREAM_COUNT];
 cudaStream_t stream[STREAM_COUNT];
@@ -69,7 +69,7 @@ cudaStream_t stream[STREAM_COUNT];
 cudaEvent_t start, stop;
 
 int N = 1 << 22;
-int nreps = 10; // number of times each experiment is repeated
+int nreps = 10;  // number of times each experiment is repeated
 int inner_reps = 5;
 
 int memsize;
@@ -86,15 +86,15 @@ bool test();
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   int cuda_device = 0;
   float scale_factor;
   cudaDeviceProp deviceProp;
 
   printf("[%s] - Starting...\n", sSDKname);
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
-    cuda_device = getCmdLineArgumentInt(argc, (const char **)argv, "device=");
+  if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
+    cuda_device = getCmdLineArgumentInt(argc, (const char**)argv, "device=");
 
     if (cuda_device < 0) {
       printf("Invalid command line parameters\n");
@@ -145,11 +145,10 @@ int main(int argc, char *argv[]) {
 
   // Allocate resources
 
-  h_data_source = (int *)malloc(memsize);
-  h_data_sink = (int *)malloc(memsize);
+  h_data_source = (int*)malloc(memsize);
+  h_data_sink = (int*)malloc(memsize);
 
   for (int i = 0; i < STREAM_COUNT; ++i) {
-
     checkCudaErrors(
         cudaHostAlloc(&h_data_in[i], memsize, cudaHostAllocDefault));
     checkCudaErrors(cudaMalloc(&d_data_in[i], memsize));
@@ -201,9 +200,10 @@ int main(int argc, char *argv[]) {
 
   printf("\n");
   printf("Relevant properties of this CUDA device\n");
-  printf("(%s) Can overlap one CPU<>GPU data transfer with GPU kernel "
-         "execution (device property \"deviceOverlap\")\n",
-         deviceProp.deviceOverlap ? "X" : " ");
+  printf(
+      "(%s) Can overlap one CPU<>GPU data transfer with GPU kernel "
+      "execution (device property \"deviceOverlap\")\n",
+      deviceProp.deviceOverlap ? "X" : " ");
   // printf("(%s) Can execute several GPU kernels simultaneously (compute
   // capability >= 2.0)\n", deviceProp.major >= 2 ? "X": " ");
   printf(
@@ -222,8 +222,9 @@ int main(int argc, char *argv[]) {
          (inner_reps * memsize * 2e-6) / kernel_time);
 
   printf("\n");
-  printf("Theoretical limits for speedup gained from overlapped data "
-         "transfers:\n");
+  printf(
+      "Theoretical limits for speedup gained from overlapped data "
+      "transfers:\n");
   printf("No overlap at all (transfer-kernel-transfer): %f ms \n",
          memcpy_h2d_time + memcpy_d2h_time + kernel_time);
   printf("Compute can overlap with one transfer: %f ms\n",
@@ -258,7 +259,6 @@ int main(int argc, char *argv[]) {
   free(h_data_sink);
 
   for (int i = 0; i < STREAM_COUNT; ++i) {
-
     cudaFreeHost(h_data_in[i]);
     cudaFree(d_data_in[i]);
 
@@ -284,7 +284,6 @@ int main(int argc, char *argv[]) {
 }
 
 float processWithStreams(int streams_used) {
-
   int current_stream = 0;
 
   float time;
@@ -352,7 +351,6 @@ void init() {
 }
 
 bool test() {
-
   bool passed = true;
 
   for (int j = 0; j < STREAM_COUNT; ++j) {

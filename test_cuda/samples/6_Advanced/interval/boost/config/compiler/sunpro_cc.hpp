@@ -125,7 +125,7 @@
 // last known and checked version is 0x590:
 #if (__SUNPRO_CC > 0x590)
 #if defined(BOOST_ASSERT_CONFIG)
-#error                                                                         \
+#error \
     "Unknown compiler version - please run the configure tests and report the results"
 #endif
 #endif

@@ -26,8 +26,8 @@
 // CUDA utilities and system includes
 #include <helper_cuda.h>
 
-int *pArgc = NULL;
-char **pArgv = NULL;
+int* pArgc = NULL;
+char** pArgv = NULL;
 
 #define MAX_DEVICES 8
 #define PROCESSES_PER_DEVICE 1
@@ -58,7 +58,7 @@ typedef struct ipcBarrier_st {
   bool allExit;
 } ipcBarrier_t;
 
-ipcBarrier_t *g_barrier = NULL;
+ipcBarrier_t* g_barrier = NULL;
 bool g_procSense;
 int g_processCount;
 
@@ -82,13 +82,13 @@ void procBarrier() {
 }
 
 // CUDA Kernel
-__global__ void simpleKernel(int *dst, int *src, int num) {
+__global__ void simpleKernel(int* dst, int* src, int num) {
   // Dummy kernel
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   dst[idx] = src[idx] / num;
 }
 
-void getDeviceCount(ipcDevices_t *devices) {
+void getDeviceCount(ipcDevices_t* devices) {
   // We can't initialize CUDA before fork() so we need to spawn a new process
 
   pid_t pid = fork();
@@ -155,9 +155,9 @@ void getDeviceCount(ipcDevices_t *devices) {
   }
 }
 
-inline bool IsAppBuiltAs64() { return sizeof(void *) == 8; }
+inline bool IsAppBuiltAs64() { return sizeof(void*) == 8; }
 
-void runTestMultiKernel(ipcCUDA_t *s_mem, int index) {
+void runTestMultiKernel(ipcCUDA_t* s_mem, int index) {
   /*
    * a) Process 0 loads a reference buffer into GPU0 memory
    * b) Other processes launch a kernel on the GPU0 memory using P2P
@@ -165,7 +165,7 @@ void runTestMultiKernel(ipcCUDA_t *s_mem, int index) {
    */
 
   // memory buffer in gpu
-  int *d_ptr;
+  int* d_ptr;
 
   // reference buffer in host memory  (do in all processes for rand()
   // consistency)
@@ -183,11 +183,11 @@ void runTestMultiKernel(ipcCUDA_t *s_mem, int index) {
     int h_results[DATA_BUF_SIZE * MAX_DEVICES * PROCESSES_PER_DEVICE];
 
     cudaEvent_t event[MAX_DEVICES * PROCESSES_PER_DEVICE];
-    checkCudaErrors(cudaMalloc((void **)&d_ptr,
+    checkCudaErrors(cudaMalloc((void**)&d_ptr,
                                DATA_BUF_SIZE * g_processCount * sizeof(int)));
     checkCudaErrors(cudaIpcGetMemHandle(
-        (cudaIpcMemHandle_t *)&s_mem[0].memHandle, (void *)d_ptr));
-    checkCudaErrors(cudaMemcpy((void *)d_ptr, (void *)h_refData,
+        (cudaIpcMemHandle_t*)&s_mem[0].memHandle, (void*)d_ptr));
+    checkCudaErrors(cudaMemcpy((void*)d_ptr, (void*)h_refData,
                                DATA_BUF_SIZE * sizeof(int),
                                cudaMemcpyHostToDevice));
 
@@ -228,19 +228,20 @@ void runTestMultiKernel(ipcCUDA_t *s_mem, int index) {
     }
   } else {
     cudaEvent_t event;
-    checkCudaErrors(cudaEventCreate(&event, cudaEventDisableTiming |
-                                                cudaEventInterprocess));
+    checkCudaErrors(cudaEventCreate(
+        &event, cudaEventDisableTiming | cudaEventInterprocess));
     checkCudaErrors(cudaIpcGetEventHandle(
-        (cudaIpcEventHandle_t *)&s_mem[index].eventHandle, event));
+        (cudaIpcEventHandle_t*)&s_mem[index].eventHandle, event));
 
     // b.1: wait until proc 0 initializes device memory
     procBarrier();
 
-    checkCudaErrors(cudaIpcOpenMemHandle((void **)&d_ptr, s_mem[0].memHandle,
+    checkCudaErrors(cudaIpcOpenMemHandle((void**)&d_ptr, s_mem[0].memHandle,
                                          cudaIpcMemLazyEnablePeerAccess));
-    printf("> Process %3d: Run kernel on GPU%d, taking source data from and "
-           "writing results to process %d, GPU%d...\n",
-           index, s_mem[index].device, 0, s_mem[0].device);
+    printf(
+        "> Process %3d: Run kernel on GPU%d, taking source data from and "
+        "writing results to process %d, GPU%d...\n",
+        index, s_mem[index].device, 0, s_mem[0].device);
     const dim3 threads(512, 1);
     const dim3 blocks(DATA_BUF_SIZE / threads.x, 1);
     simpleKernel<<<blocks, threads>>>(d_ptr + index * DATA_BUF_SIZE, d_ptr,
@@ -260,29 +261,31 @@ void runTestMultiKernel(ipcCUDA_t *s_mem, int index) {
 }
 #endif
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   pArgc = &argc;
   pArgv = argv;
 
 #if CUDART_VERSION >= 4010 && defined(__linux)
 
   if (!IsAppBuiltAs64()) {
-    printf("%s is only supported on 64-bit Linux OS and the application must "
-           "be built as a 64-bit target. Test is being waived.\n",
-           argv[0]);
+    printf(
+        "%s is only supported on 64-bit Linux OS and the application must "
+        "be built as a 64-bit target. Test is being waived.\n",
+        argv[0]);
     exit(EXIT_WAIVED);
   }
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 18)
-  printf("%s is only supported with Linux OS kernel version 2.6.18 and higher. "
-         "Test is being waived.\n",
-         argv[0]);
+  printf(
+      "%s is only supported with Linux OS kernel version 2.6.18 and higher. "
+      "Test is being waived.\n",
+      argv[0]);
   exit(EXIT_WAIVED);
 #endif
 
-  ipcDevices_t *s_devices =
-      (ipcDevices_t *)mmap(NULL, sizeof(*s_devices), PROT_READ | PROT_WRITE,
-                           MAP_SHARED | MAP_ANONYMOUS, 0, 0);
+  ipcDevices_t* s_devices =
+      (ipcDevices_t*)mmap(NULL, sizeof(*s_devices), PROT_READ | PROT_WRITE,
+                          MAP_SHARED | MAP_ANONYMOUS, 0, 0);
   assert(MAP_FAILED != s_devices);
 
   // We can't initialize CUDA before fork() so we need to spawn a new process
@@ -299,25 +302,25 @@ int main(int argc, char **argv) {
   if (s_devices->count > 1) {
     g_processCount = PROCESSES_PER_DEVICE * s_devices->count;
   } else {
-    g_processCount = 2; // two processes per single device
+    g_processCount = 2;  // two processes per single device
   }
 
   g_barrier =
-      (ipcBarrier_t *)mmap(NULL, sizeof(*g_barrier), PROT_READ | PROT_WRITE,
-                           MAP_SHARED | MAP_ANONYMOUS, 0, 0);
+      (ipcBarrier_t*)mmap(NULL, sizeof(*g_barrier), PROT_READ | PROT_WRITE,
+                          MAP_SHARED | MAP_ANONYMOUS, 0, 0);
   assert(MAP_FAILED != g_barrier);
-  memset((void *)g_barrier, 0, sizeof(*g_barrier));
+  memset((void*)g_barrier, 0, sizeof(*g_barrier));
   // set local barrier sense flag
   g_procSense = 0;
 
   // shared memory for CUDA memory an event handlers
-  ipcCUDA_t *s_mem = (ipcCUDA_t *)mmap(NULL, g_processCount * sizeof(*s_mem),
-                                       PROT_READ | PROT_WRITE,
-                                       MAP_SHARED | MAP_ANONYMOUS, 0, 0);
+  ipcCUDA_t* s_mem = (ipcCUDA_t*)mmap(NULL, g_processCount * sizeof(*s_mem),
+                                      PROT_READ | PROT_WRITE,
+                                      MAP_SHARED | MAP_ANONYMOUS, 0, 0);
   assert(MAP_FAILED != s_mem);
 
   // initialize shared memory
-  memset((void *)s_mem, 0, g_processCount * sizeof(*s_mem));
+  memset((void*)s_mem, 0, g_processCount * sizeof(*s_mem));
 
   printf("\nSpawning processes and assigning GPUs...\n");
 
@@ -375,9 +378,10 @@ int main(int argc, char **argv) {
     exit(EXIT_SUCCESS);
   }
 
-#else // Using CUDA 4.0 and older or non Linux OS
-  printf("simpleIPC requires CUDA 4.1 and Linux to build and run, waiving "
-         "testing\n\n");
+#else  // Using CUDA 4.0 and older or non Linux OS
+  printf(
+      "simpleIPC requires CUDA 4.1 and Linux to build and run, waiving "
+      "testing\n\n");
   exit(EXIT_WAIVED);
 #endif
 }

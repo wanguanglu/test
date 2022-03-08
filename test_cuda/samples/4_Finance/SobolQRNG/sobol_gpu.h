@@ -42,6 +42,6 @@
 #define SOBOL_GPU_H
 
 extern "C" void sobolGPU(int n_vectors, int n_dimensions,
-                         unsigned int *d_directions, float *d_output);
+                         unsigned int* d_directions, float* d_output);
 
 #endif

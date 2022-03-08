@@ -31,17 +31,18 @@
 using boost::numeric::interval;
 using namespace boost::numeric;
 
-template <class T, int N, int THREADS> class global_stack_cpu {
-private:
-  T *buf;
+template <class T, int N, int THREADS>
+class global_stack_cpu {
+ private:
+  T* buf;
   int free_index;
 
-public:
+ public:
   // buf should point to an allocated global buffer of size N * THREADS *
   // sizeof(T)
-  global_stack_cpu(T *buf, int thread_id) : buf(buf), free_index(thread_id) {}
+  global_stack_cpu(T* buf, int thread_id) : buf(buf), free_index(thread_id) {}
 
-  void push(T const &v) {
+  void push(T const& v) {
     buf[free_index] = v;
     free_index += THREADS;
   }
@@ -56,21 +57,24 @@ public:
 
 // The function F of which we want to find roots, defined on intervals
 // Should typically depend on thread_id (indexing an array of coefficients...)
-template <class I> I f_cpu(I const &x, int thread_id) {
+template <class I>
+I f_cpu(I const& x, int thread_id) {
   typedef typename I::base_type T;
   T alpha = -T(thread_id) / T(THREADS);
   return square(x - I(1)) + I(alpha) * x;
 }
 
 // First derivative of F, also defined on intervals
-template <class I> I fd_cpu(I const &x, int thread_id) {
+template <class I>
+I fd_cpu(I const& x, int thread_id) {
   typedef typename I::base_type T;
   T alpha = -T(thread_id) / T(THREADS);
   return I(2) * x + I(alpha - 2);
 }
 
 // Is this interval small enough to stop iterating?
-template <class I> bool is_minimal_cpu(I const &x, int thread_id) {
+template <class I>
+bool is_minimal_cpu(I const& x, int thread_id) {
   typedef typename I::base_type T;
   T const epsilon_x = 1e-6f;
   T const epsilon_y = 1e-6f;
@@ -81,7 +85,7 @@ template <class I> bool is_minimal_cpu(I const &x, int thread_id) {
 // In some cases, Newton iterations converge slowly.
 // Bisecting the interval accelerates convergence.
 template <class I>
-bool should_bisect_cpu(I const &x, I const &x1, I const &x2,
+bool should_bisect_cpu(I const& x, I const& x1, I const& x2,
                        typename I::base_type alpha) {
   typedef typename I::base_type T;
   T wmax = alpha * width(x);
@@ -95,11 +99,11 @@ int const DEPTH_WORK = 128;
 // Always keep the next interval to work on in registers (avoids excessive
 // spilling to local mem)
 template <class I, int THREADS, int DEPTH_RESULT>
-void newton_interval_cpu(global_stack_cpu<I, DEPTH_RESULT, THREADS> &result,
-                         I const &ix0, int thread_id) {
+void newton_interval_cpu(global_stack_cpu<I, DEPTH_RESULT, THREADS>& result,
+                         I const& ix0, int thread_id) {
   typedef typename I::base_type T;
 
-  T const alpha = .99f; // Threshold before switching to bisection
+  T const alpha = .99f;  // Threshold before switching to bisection
 
   // Intervals to be processed
   I local_buffer[DEPTH_WORK];
@@ -161,19 +165,19 @@ void newton_interval_cpu(global_stack_cpu<I, DEPTH_RESULT, THREADS> &result,
     } else {
       // No solution
       // Do we still have work to do in the stack?
-      if (work.empty()) // If not, we are done
+      if (work.empty())  // If not, we are done
         break;
       else
-        ix = work.pop(); // Otherwise, pick an interval to work on
+        ix = work.pop();  // Otherwise, pick an interval to work on
     }
   }
 }
 
 template <class I, int THREADS, int DEPTH_RESULT>
-void newton_interval_rec_cpu(global_stack_cpu<I, DEPTH_RESULT, THREADS> &result,
-                             I const &ix, int thread_id) {
+void newton_interval_rec_cpu(global_stack_cpu<I, DEPTH_RESULT, THREADS>& result,
+                             I const& ix, int thread_id) {
   typedef typename I::base_type T;
-  T const alpha = .99f; // Threshold before switching to bisection
+  T const alpha = .99f;  // Threshold before switching to bisection
 
   if (is_minimal_cpu(ix, thread_id)) {
     result.push(ix);
@@ -214,7 +218,7 @@ void newton_interval_rec_cpu(global_stack_cpu<I, DEPTH_RESULT, THREADS> &result,
 }
 
 template <class I>
-void test_interval_newton_cpu(I *buffer, int *nresults, I i) {
+void test_interval_newton_cpu(I* buffer, int* nresults, I i) {
   typedef typename I::base_type T;
 
   // Intervals to return
@@ -242,8 +246,8 @@ Ibase::traits_type::rounding rnd;
 typedef Ibase I_CPU;
 #endif
 
-bool checkAgainstHost(int *h_nresults, int *h_nresults_cpu, I_CPU *h_result,
-                      I_CPU *h_result_cpu) {
+bool checkAgainstHost(int* h_nresults, int* h_nresults_cpu, I_CPU* h_result,
+                      I_CPU* h_result_cpu) {
   std::cout << "\nCheck against Host computation...\n\n";
   int success = 1;
   int success1 = 1;

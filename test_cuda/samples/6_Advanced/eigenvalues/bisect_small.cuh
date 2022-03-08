@@ -27,8 +27,8 @@ extern "C" {
 //! @param  precision  desired precision of eigenvalues
 //! @param  iterations  number of iterations for timing
 ////////////////////////////////////////////////////////////////////////////////
-void computeEigenvaluesSmallMatrix(const InputData &input,
-                                   ResultDataSmall &result,
+void computeEigenvaluesSmallMatrix(const InputData& input,
+                                   ResultDataSmall& result,
                                    const unsigned int mat_size, const float lg,
                                    const float ug, const float precision,
                                    const unsigned int iterations);
@@ -38,14 +38,14 @@ void computeEigenvaluesSmallMatrix(const InputData &input,
 //! @param result  handles to the necessary memory
 //! @param  mat_size  matrix_size
 ////////////////////////////////////////////////////////////////////////////////
-void initResultSmallMatrix(ResultDataSmall &result,
+void initResultSmallMatrix(ResultDataSmall& result,
                            const unsigned int mat_size);
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Cleanup memory and variables for result for small matrices
 //! @param  result  handle to variables
 ////////////////////////////////////////////////////////////////////////////////
-void cleanupResultSmallMatrix(ResultDataSmall &result);
+void cleanupResultSmallMatrix(ResultDataSmall& result);
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Process the result obtained on the device, that is transfer to host and
@@ -55,10 +55,10 @@ void cleanupResultSmallMatrix(ResultDataSmall &result);
 //! @param  mat_size   matrix size
 //! @param  filename  output filename
 ////////////////////////////////////////////////////////////////////////////////
-void processResultSmallMatrix(const InputData &input,
-                              const ResultDataSmall &result,
+void processResultSmallMatrix(const InputData& input,
+                              const ResultDataSmall& result,
                               const unsigned int mat_size,
-                              const char *filename);
+                              const char* filename);
 }
 
-#endif // #ifndef _BISECT_SMALL_CUH_
+#endif  // #ifndef _BISECT_SMALL_CUH_

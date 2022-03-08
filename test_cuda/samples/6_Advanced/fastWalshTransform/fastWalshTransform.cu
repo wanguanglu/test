@@ -31,10 +31,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Reference CPU FWT
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void fwtCPU(float *h_Output, float *h_Input, int log2N);
-extern "C" void slowWTcpu(float *h_Output, float *h_Input, int log2N);
-extern "C" void dyadicConvolutionCPU(float *h_Result, float *h_Data,
-                                     float *h_Kernel, int log2dataN,
+extern "C" void fwtCPU(float* h_Output, float* h_Input, int log2N);
+extern "C" void slowWTcpu(float* h_Output, float* h_Input, int log2N);
+extern "C" void dyadicConvolutionCPU(float* h_Result, float* h_Data,
+                                     float* h_Kernel, int log2dataN,
                                      int log2kernelN);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,33 +59,33 @@ const double NOPS = 3.0 * (double)dataN * (double)log2Data / 2.0;
 ////////////////////////////////////////////////////////////////////////////////
 // Main program
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   float *h_Data, *h_Kernel, *h_ResultCPU, *h_ResultGPU;
 
   float *d_Data, *d_Kernel;
 
   double delta, ref, sum_delta2, sum_ref2, L2norm, gpuTime;
 
-  StopWatchInterface *hTimer = NULL;
+  StopWatchInterface* hTimer = NULL;
   int i;
 
   printf("%s Starting...\n\n", argv[0]);
 
   // use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  findCudaDevice(argc, (const char **)argv);
+  findCudaDevice(argc, (const char**)argv);
 
   sdkCreateTimer(&hTimer);
 
   printf("Initializing data...\n");
   printf("...allocating CPU memory\n");
-  h_Kernel = (float *)malloc(KERNEL_SIZE);
-  h_Data = (float *)malloc(DATA_SIZE);
-  h_ResultCPU = (float *)malloc(DATA_SIZE);
-  h_ResultGPU = (float *)malloc(DATA_SIZE);
+  h_Kernel = (float*)malloc(KERNEL_SIZE);
+  h_Data = (float*)malloc(DATA_SIZE);
+  h_ResultCPU = (float*)malloc(DATA_SIZE);
+  h_ResultGPU = (float*)malloc(DATA_SIZE);
   printf("...allocating GPU memory\n");
-  checkCudaErrors(cudaMalloc((void **)&d_Kernel, DATA_SIZE));
-  checkCudaErrors(cudaMalloc((void **)&d_Data, DATA_SIZE));
+  checkCudaErrors(cudaMalloc((void**)&d_Kernel, DATA_SIZE));
+  checkCudaErrors(cudaMalloc((void**)&d_Data, DATA_SIZE));
 
   printf("...generating data\n");
   printf("Data length: %i; kernel length: %i\n", dataN, kernelN);

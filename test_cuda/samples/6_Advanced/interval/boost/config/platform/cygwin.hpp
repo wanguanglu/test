@@ -21,7 +21,7 @@
 // revert to native Win threads.
 #define BOOST_HAS_UNISTD_H
 #include <unistd.h>
-#if defined(_POSIX_THREADS) && (_POSIX_THREADS + 0 >= 0) &&                    \
+#if defined(_POSIX_THREADS) && (_POSIX_THREADS + 0 >= 0) && \
     !defined(BOOST_HAS_WINTHREADS)
 #define BOOST_HAS_PTHREADS
 #define BOOST_HAS_SCHED_YIELD

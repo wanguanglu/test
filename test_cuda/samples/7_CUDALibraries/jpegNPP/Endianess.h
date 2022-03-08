@@ -33,17 +33,19 @@
 
 using namespace std;
 
-template <class T> T readBigEndian(const unsigned char *pData) {
+template <class T>
+T readBigEndian(const unsigned char* pData) {
   if (sizeof(T) > 1) {
     unsigned char p[sizeof(T)];
     reverse_copy(pData, pData + sizeof(T), p);
-    return *reinterpret_cast<T *>(p);
+    return *reinterpret_cast<T*>(p);
   } else {
     return *pData;
   }
 }
 
-template <class T> void writeBigEndian(unsigned char *pData, T value) {
-  unsigned char *pValue = reinterpret_cast<unsigned char *>(&value);
+template <class T>
+void writeBigEndian(unsigned char* pData, T value) {
+  unsigned char* pValue = reinterpret_cast<unsigned char*>(&value);
   reverse_copy(pValue, pValue + sizeof(T), pData);
 }

@@ -26,7 +26,7 @@ static __device__ __forceinline__ unsigned int __btflo(unsigned int word) {
 //  Perhaps it requires a class?
 //
 ////////////////////////////////////////////////////////////////////////////////
-__device__ __forceinline__ int qcompare(unsigned &val1, unsigned &val2) {
+__device__ __forceinline__ int qcompare(unsigned& val1, unsigned& val2) {
   return (val1 > val2) ? 1 : (val1 == val2) ? 0 : -1;
 }
 
@@ -53,12 +53,12 @@ __device__ __forceinline__ int qcompare(unsigned &val1, unsigned &val2) {
 //  how much data we can sort per block.
 //
 ////////////////////////////////////////////////////////////////////////////////
-static __device__ __forceinline__ void bitonicsort_kernel(unsigned *indata,
-                                                          unsigned *outdata,
+static __device__ __forceinline__ void bitonicsort_kernel(unsigned* indata,
+                                                          unsigned* outdata,
                                                           unsigned int offset,
                                                           unsigned int len) {
   __shared__ unsigned
-      sortbuf[1024]; // Max of 1024 elements - TODO: make this dynamic
+      sortbuf[1024];  // Max of 1024 elements - TODO: make this dynamic
 
   // First copy data into shared memory.
   unsigned int inside = (threadIdx.x < len);
@@ -71,13 +71,13 @@ static __device__ __forceinline__ void bitonicsort_kernel(unsigned *indata,
   // each work on one butterfly, because the read/write needs to happen
   // simultaneously
   for (unsigned int k = 2; k <= blockDim.x;
-       k *= 2) // Butterfly stride increments in powers of 2
+       k *= 2)  // Butterfly stride increments in powers of 2
   {
     for (unsigned int j = k >> 1; j > 0;
-         j >>= 1) // Strides also in powers of to, up to <k
+         j >>= 1)  // Strides also in powers of to, up to <k
     {
       unsigned int swap_idx =
-          threadIdx.x ^ j; // Index of element we're compare-and-swapping with
+          threadIdx.x ^ j;  // Index of element we're compare-and-swapping with
       unsigned my_elem = sortbuf[threadIdx.x];
       unsigned swap_elem = sortbuf[swap_idx];
 
@@ -95,13 +95,11 @@ static __device__ __forceinline__ void bitonicsort_kernel(unsigned *indata,
       bool swap = false;
 
       if ((threadIdx.x & k) == ascend) {
-        if (my_elem > swap_elem)
-          swap = true;
+        if (my_elem > swap_elem) swap = true;
       }
 
       if ((threadIdx.x & k) == descend) {
-        if (my_elem < swap_elem)
-          swap = true;
+        if (my_elem < swap_elem) swap = true;
       }
 
       // If we had to swap, then write my data to the other element's position.
@@ -115,8 +113,7 @@ static __device__ __forceinline__ void bitonicsort_kernel(unsigned *indata,
   }
 
   // Copy the sorted data from shared memory back to the output buffer
-  if (threadIdx.x < len)
-    outdata[threadIdx.x + offset] = sortbuf[threadIdx.x];
+  if (threadIdx.x < len) outdata[threadIdx.x + offset] = sortbuf[threadIdx.x];
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -132,14 +129,15 @@ static __device__ __forceinline__ void bitonicsort_kernel(unsigned *indata,
 //  type. It must be a directly-comparable (i.e. with max value) type.
 //
 ////////////////////////////////////////////////////////////////////////////////
-static __device__ __forceinline__ void
-big_bitonicsort_kernel(unsigned *indata, unsigned *outdata, unsigned *backbuf,
-                       unsigned int offset, unsigned int len) {
+static __device__ __forceinline__ void big_bitonicsort_kernel(
+    unsigned* indata, unsigned* outdata, unsigned* backbuf, unsigned int offset,
+    unsigned int len) {
   unsigned int len2 =
-      1 << (__btflo(len - 1U) + 1); // Round up len to nearest power-of-2
+      1 << (__btflo(len - 1U) + 1);  // Round up len to nearest power-of-2
 
   if (threadIdx.x >= len2)
-    return; // Early out for case where more threads launched than there is data
+    return;  // Early out for case where more threads launched than there is
+             // data
 
   // First, set up our unused values to be the max data type.
   for (unsigned int i = len; i < len2; i += blockDim.x) {
@@ -162,15 +160,15 @@ big_bitonicsort_kernel(unsigned *indata, unsigned *outdata, unsigned *backbuf,
   // each work on one butterfly, because the read/write needs to happen
   // simultaneously
   for (unsigned int k = 2; k <= len2;
-       k *= 2) // Butterfly stride increments in powers of 2
+       k *= 2)  // Butterfly stride increments in powers of 2
   {
     for (unsigned int j = k >> 1; j > 0;
-         j >>= 1) // Strides also in powers of to, up to <k
+         j >>= 1)  // Strides also in powers of to, up to <k
     {
       for (unsigned int i = 0; i < len2; i += blockDim.x) {
         unsigned int index = threadIdx.x + i;
         unsigned int swap_idx =
-            index ^ j; // Index of element we're compare-and-swapping with
+            index ^ j;  // Index of element we're compare-and-swapping with
 
         // Only do the swap for index<swap_idx (avoids collision between other
         // threads)
@@ -194,13 +192,11 @@ big_bitonicsort_kernel(unsigned *indata, unsigned *outdata, unsigned *backbuf,
           bool swap = false;
 
           if ((index & k) == 0) {
-            if (my_elem > swap_elem)
-              swap = true;
+            if (my_elem > swap_elem) swap = true;
           }
 
           if ((index & k) == k) {
-            if (my_elem < swap_elem)
-              swap = true;
+            if (my_elem < swap_elem) swap = true;
           }
 
           // If we had to swap, then write my data to the other element's
@@ -219,7 +215,7 @@ big_bitonicsort_kernel(unsigned *indata, unsigned *outdata, unsigned *backbuf,
         }
       }
 
-      __syncthreads(); // Only need to sync for each "j" pass
+      __syncthreads();  // Only need to sync for each "j" pass
     }
   }
 
@@ -229,8 +225,7 @@ big_bitonicsort_kernel(unsigned *indata, unsigned *outdata, unsigned *backbuf,
     for (unsigned int i = 0; i < len; i += blockDim.x) {
       unsigned int index = i + threadIdx.x;
 
-      if (index < len)
-        outdata[index + offset] = indata[index + offset];
+      if (index < len) outdata[index + offset] = indata[index + offset];
     }
   }
 }
@@ -239,13 +234,13 @@ big_bitonicsort_kernel(unsigned *indata, unsigned *outdata, unsigned *backbuf,
 // KERNELS
 ////////////////////////////////////////////////////////////////////////////////
 
-__global__ void bitonicsort(unsigned *indata, unsigned *outdata,
+__global__ void bitonicsort(unsigned* indata, unsigned* outdata,
                             unsigned int offset, unsigned int len) {
   bitonicsort_kernel(indata, outdata, offset, len);
 }
 
-__global__ void big_bitonicsort(unsigned *indata, unsigned *outdata,
-                                unsigned *backbuf, unsigned int offset,
+__global__ void big_bitonicsort(unsigned* indata, unsigned* outdata,
+                                unsigned* backbuf, unsigned int offset,
                                 unsigned int len) {
   big_bitonicsort_kernel(indata, outdata, backbuf, offset, len);
 }

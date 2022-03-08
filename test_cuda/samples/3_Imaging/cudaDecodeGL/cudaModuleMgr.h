@@ -48,65 +48,65 @@ typedef struct CudaTexRef {
 typedef struct _sCUModuleContext {
   std::string mModuleName;
 
-  int nMaxKernels_;   // maximum number of kernels
-  int nMaxGlobalMem_; // maximum number of global constants
-  int nMaxTexRef_;    // maximum number of texture references
+  int nMaxKernels_;    // maximum number of kernels
+  int nMaxGlobalMem_;  // maximum number of global constants
+  int nMaxTexRef_;     // maximum number of texture references
 
-  int nLastKernel_;    // the last kernel
-  int nLastGlobalMem_; // the last global constant used
-  int nLastTexRef_;    // the last texture reference used
+  int nLastKernel_;     // the last kernel
+  int nLastGlobalMem_;  // the last global constant used
+  int nLastTexRef_;     // the last texture reference used
 
-  CudaKernels *pCudaKernels_; // stores the data, strings for the CUDA kernels
-  CudaGlobalMem *pGlobalMem_; // stores the data, strings for the Global Memory
-                              // (Device Pointers)
-  CudaTexRef *pTexRef_; // stores the data, strings for the Texture References
+  CudaKernels* pCudaKernels_;  // stores the data, strings for the CUDA kernels
+  CudaGlobalMem* pGlobalMem_;  // stores the data, strings for the Global Memory
+                               // (Device Pointers)
+  CudaTexRef* pTexRef_;  // stores the data, strings for the Texture References
 
   CUmodule cuModule_;
 } sCtxModule;
 
 // Here is the C implementation for the Module Manager, the C++ class calls the
 // C implementation
-extern "C" bool modInitCtx(sCtxModule *mCtx, const char *filename,
-                           const char *exec_path, int nKernels, int nGlobalMem,
+extern "C" bool modInitCtx(sCtxModule* mCtx, const char* filename,
+                           const char* exec_path, int nKernels, int nGlobalMem,
                            int nTexRef);
-extern "C" void modFreeCtx(sCtxModule *mCtx);
+extern "C" void modFreeCtx(sCtxModule* mCtx);
 
-extern "C" CUresult modGetCudaDevicePtr(sCtxModule *mCtx,
-                                        const char *address_name,
-                                        CUdeviceptr *pGlobalMem);
-extern "C" CUresult modGetTexRef(sCtxModule *mCtx, const char *texref_name,
-                                 CUtexref *pTexRef);
-extern "C" CUresult modLaunchKernel(sCtxModule *mCtx, CUfunction fpFunc,
+extern "C" CUresult modGetCudaDevicePtr(sCtxModule* mCtx,
+                                        const char* address_name,
+                                        CUdeviceptr* pGlobalMem);
+extern "C" CUresult modGetTexRef(sCtxModule* mCtx, const char* texref_name,
+                                 CUtexref* pTexRef);
+extern "C" CUresult modLaunchKernel(sCtxModule* mCtx, CUfunction fpFunc,
                                     dim3 block, dim3 grid);
 
-extern "C" int modFindIndex_CudaKernels(sCtxModule *mCtx,
-                                        const char *func_name);
-extern "C" int modFindIndex_GlobalMem(sCtxModule *mCtx,
-                                      const char *address_name);
-extern "C" int modFindIndex_TexRef(sCtxModule *mCtx, const char *texref_name);
+extern "C" int modFindIndex_CudaKernels(sCtxModule* mCtx,
+                                        const char* func_name);
+extern "C" int modFindIndex_GlobalMem(sCtxModule* mCtx,
+                                      const char* address_name);
+extern "C" int modFindIndex_TexRef(sCtxModule* mCtx, const char* texref_name);
 
 // Here is the C++ Class interface to the Module Manager
 class CUmoduleManager {
-public:
+ public:
   // For each CUBIN file loaded, one CUBIN is associated with one CUmodule
-  CUmoduleManager(const char *filename_module, const char *exec_path,
+  CUmoduleManager(const char* filename_module, const char* exec_path,
                   int nKernels, int nGlobalMem, int nTexRef);
   ~CUmoduleManager();
 
-  CUresult GetCudaFunction(const char *func_name, CUfunction *fpCudaKernel = 0);
-  CUresult GetCudaDevicePtr(const char *address_name,
-                            CUdeviceptr *pGlobalMem = 0);
-  CUresult GetTexRef(const char *texref_name, CUtexref *pTexRef = 0);
+  CUresult GetCudaFunction(const char* func_name, CUfunction* fpCudaKernel = 0);
+  CUresult GetCudaDevicePtr(const char* address_name,
+                            CUdeviceptr* pGlobalMem = 0);
+  CUresult GetTexRef(const char* texref_name, CUtexref* pTexRef = 0);
 
-  int findIndex_CudaKernels(const char *func_name);
-  int findIndex_GlobalMem(const char *address_name);
-  int findIndex_TexRef(const char *texref_name);
+  int findIndex_CudaKernels(const char* func_name);
+  int findIndex_GlobalMem(const char* address_name);
+  int findIndex_TexRef(const char* texref_name);
 
   CUresult launchKernel(CUfunction fpFunc, dim3 block, dim3 grid);
 
   CUmodule getModule() { return mCtx.cuModule_; }
 
-protected:
+ protected:
   // This stores all of the relevant data for the Module (PTX or CUBIN)
   sCtxModule mCtx;
 };

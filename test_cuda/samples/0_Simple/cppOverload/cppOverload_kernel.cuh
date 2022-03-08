@@ -1,4 +1,4 @@
-__global__ void simple_kernel(const int *pIn, int *pOut, int a) {
+__global__ void simple_kernel(const int* pIn, int* pOut, int a) {
   __shared__ int sData[THREAD_N];
   int tid = threadIdx.x + blockDim.x * blockIdx.x;
 
@@ -9,7 +9,7 @@ __global__ void simple_kernel(const int *pIn, int *pOut, int a) {
   ;
 }
 
-__global__ void simple_kernel(const int2 *pIn, int *pOut, int a) {
+__global__ void simple_kernel(const int2* pIn, int* pOut, int a) {
   __shared__ int2 sData[THREAD_N];
   int tid = threadIdx.x + blockDim.x * blockIdx.x;
 
@@ -20,7 +20,7 @@ __global__ void simple_kernel(const int2 *pIn, int *pOut, int a) {
   ;
 }
 
-__global__ void simple_kernel(const int *pIn1, const int *pIn2, int *pOut,
+__global__ void simple_kernel(const int* pIn1, const int* pIn2, int* pOut,
                               int a) {
   __shared__ int sData1[THREAD_N];
   __shared__ int sData2[THREAD_N];

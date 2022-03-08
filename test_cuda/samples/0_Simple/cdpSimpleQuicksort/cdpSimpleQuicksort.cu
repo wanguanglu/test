@@ -20,7 +20,7 @@
 // Selection sort used when depth gets too big or the number of elements drops
 // below a threshold.
 ////////////////////////////////////////////////////////////////////////////////
-__device__ void selection_sort(unsigned int *data, int left, int right) {
+__device__ void selection_sort(unsigned int* data, int left, int right) {
   for (int i = left; i <= right; ++i) {
     unsigned min_val = data[i];
     int min_idx = i;
@@ -46,7 +46,7 @@ __device__ void selection_sort(unsigned int *data, int left, int right) {
 ////////////////////////////////////////////////////////////////////////////////
 // Very basic quicksort algorithm, recursively launching the next level.
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void cdp_simple_quicksort(unsigned int *data, int left, int right,
+__global__ void cdp_simple_quicksort(unsigned int* data, int left, int right,
                                      int depth) {
   // If we're too deep or there are few elements left, we use an insertion
   // sort...
@@ -55,8 +55,8 @@ __global__ void cdp_simple_quicksort(unsigned int *data, int left, int right,
     return;
   }
 
-  unsigned int *lptr = data + left;
-  unsigned int *rptr = data + right;
+  unsigned int* lptr = data + left;
+  unsigned int* rptr = data + right;
   unsigned int pivot = data[(left + right) / 2];
 
   // Do the partitioning.
@@ -110,7 +110,7 @@ __global__ void cdp_simple_quicksort(unsigned int *data, int left, int right,
 ////////////////////////////////////////////////////////////////////////////////
 // Call the quicksort kernel from the host.
 ////////////////////////////////////////////////////////////////////////////////
-void run_qsort(unsigned int *data, unsigned int nitems) {
+void run_qsort(unsigned int* data, unsigned int nitems) {
   // Prepare CDP for the max depth 'MAX_DEPTH'.
   checkCudaErrors(cudaDeviceSetLimit(cudaLimitDevRuntimeSyncDepth, MAX_DEPTH));
 
@@ -125,20 +125,19 @@ void run_qsort(unsigned int *data, unsigned int nitems) {
 ////////////////////////////////////////////////////////////////////////////////
 // Initialize data on the host.
 ////////////////////////////////////////////////////////////////////////////////
-void initialize_data(unsigned int *dst, unsigned int nitems) {
+void initialize_data(unsigned int* dst, unsigned int nitems) {
   // Fixed seed for illustration
   srand(2047);
 
   // Fill dst with random values
-  for (unsigned i = 0; i < nitems; i++)
-    dst[i] = rand() % nitems;
+  for (unsigned i = 0; i < nitems; i++) dst[i] = rand() % nitems;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Verify the results.
 ////////////////////////////////////////////////////////////////////////////////
-void check_results(int n, unsigned int *results_d) {
-  unsigned int *results_h = new unsigned[n];
+void check_results(int n, unsigned int* results_d) {
+  unsigned int* results_h = new unsigned[n];
   checkCudaErrors(cudaMemcpy(results_h, results_d, n * sizeof(unsigned),
                              cudaMemcpyDeviceToHost));
 
@@ -156,12 +155,12 @@ void check_results(int n, unsigned int *results_d) {
 ////////////////////////////////////////////////////////////////////////////////
 // Main entry point.
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   int num_items = 128;
   bool verbose = false;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "help") ||
-      checkCmdLineFlag(argc, (const char **)argv, "h")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "help") ||
+      checkCmdLineFlag(argc, (const char**)argv, "h")) {
     std::cerr << "Usage: " << argv[0]
               << " num_items=<num_items>\twhere num_items is the number of "
                  "items to sort"
@@ -169,12 +168,12 @@ int main(int argc, char **argv) {
     exit(EXIT_SUCCESS);
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "v")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "v")) {
     verbose = true;
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "num_items")) {
-    num_items = getCmdLineArgumentInt(argc, (const char **)argv, "num_items");
+  if (checkCmdLineFlag(argc, (const char**)argv, "num_items")) {
+    num_items = getCmdLineArgumentInt(argc, (const char**)argv, "num_items");
 
     if (num_items < 1) {
       std::cerr << "ERROR: num_items has to be greater than 1" << std::endl;
@@ -185,8 +184,8 @@ int main(int argc, char **argv) {
   // Get device properties
   int device_count = 0, device = -1;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
-    device = getCmdLineArgumentInt(argc, (const char **)argv, "device");
+  if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
+    device = getCmdLineArgumentInt(argc, (const char**)argv, "device");
 
     cudaDeviceProp properties;
     checkCudaErrors(cudaGetDeviceProperties(&properties, device));
@@ -234,12 +233,12 @@ int main(int argc, char **argv) {
   cudaSetDevice(device);
 
   // Create input data
-  unsigned int *h_data = 0;
-  unsigned int *d_data = 0;
+  unsigned int* h_data = 0;
+  unsigned int* d_data = 0;
 
   // Allocate CPU memory and initialize data.
   std::cout << "Initializing data:" << std::endl;
-  h_data = (unsigned int *)malloc(num_items * sizeof(unsigned int));
+  h_data = (unsigned int*)malloc(num_items * sizeof(unsigned int));
   initialize_data(h_data, num_items);
 
   if (verbose) {
@@ -249,7 +248,7 @@ int main(int argc, char **argv) {
 
   // Allocate GPU memory.
   checkCudaErrors(
-      cudaMalloc((void **)&d_data, num_items * sizeof(unsigned int)));
+      cudaMalloc((void**)&d_data, num_items * sizeof(unsigned int)));
   checkCudaErrors(cudaMemcpy(d_data, h_data, num_items * sizeof(unsigned int),
                              cudaMemcpyHostToDevice));
 

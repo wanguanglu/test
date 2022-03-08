@@ -18,18 +18,18 @@
 
 #include "helper_cuda_drvapi.h"
 
-GLuint compile_glsl_shader(GLenum program_type, const char *code) {
+GLuint compile_glsl_shader(GLenum program_type, const char* code) {
   GLuint program_id;
   glGenProgramsARB(1, &program_id);
   glBindProgramARB(program_type, program_id);
   glProgramStringARB(program_type, GL_PROGRAM_FORMAT_ASCII_ARB,
-                     (GLsizei)strlen(code), (GLubyte *)code);
+                     (GLsizei)strlen(code), (GLubyte*)code);
 
   GLint error_pos;
   glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &error_pos);
 
   if (error_pos != -1) {
-    const GLubyte *error_string;
+    const GLubyte* error_string;
     error_string = glGetString(GL_PROGRAM_ERROR_STRING_ARB);
     fprintf(stderr, "Program error at position: %d\n%s\n", (int)error_pos,
             error_string);
@@ -42,9 +42,13 @@ GLuint compile_glsl_shader(GLenum program_type, const char *code) {
 ImageGL::ImageGL(unsigned int nDispWidth, unsigned int nDispHeight,
                  unsigned int nTexWidth, unsigned int nTexHeight,
                  bool bIsProgressive, PixelFormat ePixelFormat)
-    : nWidth_(nDispWidth), nHeight_(nDispHeight), nTexWidth_(nTexWidth),
-      nTexHeight_(nTexHeight), e_PixFmt_(ePixelFormat),
-      bIsProgressive_(bIsProgressive), bIsCudaResource_(false) {
+    : nWidth_(nDispWidth),
+      nHeight_(nDispHeight),
+      nTexWidth_(nTexWidth),
+      nTexHeight_(nTexHeight),
+      e_PixFmt_(ePixelFormat),
+      bIsProgressive_(bIsProgressive),
+      bIsCudaResource_(false) {
   int nFrames = bIsProgressive_ ? 1 : 2;
 
   glGenBuffersARB(nFrames, gl_pbo_);
@@ -122,7 +126,7 @@ void ImageGL::setCUDAdevice(CUdevice oDevice) {
 
 bool ImageGL::isCudaResource() const { return bIsCudaResource_; }
 
-void ImageGL::map(CUdeviceptr *pImageData, size_t *pImagePitch, int field_num) {
+void ImageGL::map(CUdeviceptr* pImageData, size_t* pImagePitch, int field_num) {
   checkCudaErrors(
       cuGLMapBufferObject(pImageData, pImagePitch, gl_pbo_[field_num]));
   assert(0 != *pImagePitch);

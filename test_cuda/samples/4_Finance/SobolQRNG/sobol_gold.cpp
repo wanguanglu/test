@@ -52,7 +52,7 @@
 // fairly simple implementation.
 // WIN32 is defined on 32 and 64 bit Windows
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-int ffs(const unsigned int &i) {
+int ffs(const unsigned int& i) {
   unsigned int v = i;
   unsigned int count;
 
@@ -89,8 +89,8 @@ int ffs(const unsigned int &i) {
 #endif
 
 // Create the direction numbers, based on the primitive polynomials.
-void initSobolDirectionVectors(int n_dimensions, unsigned int *directions) {
-  unsigned int *v = directions;
+void initSobolDirectionVectors(int n_dimensions, unsigned int* directions) {
+  unsigned int* v = directions;
 
   for (int dim = 0; dim < n_dimensions; dim++) {
     // First dimension is a special case
@@ -134,9 +134,9 @@ void initSobolDirectionVectors(int n_dimensions, unsigned int *directions) {
 }
 
 // Reference model for generating Sobol numbers on the host
-void sobolCPU(int n_vectors, int n_dimensions, unsigned int *directions,
-              float *output) {
-  unsigned int *v = directions;
+void sobolCPU(int n_vectors, int n_dimensions, unsigned int* directions,
+              float* output) {
+  unsigned int* v = directions;
 
   for (int d = 0; d < n_dimensions; d++) {
     unsigned int X = 0;

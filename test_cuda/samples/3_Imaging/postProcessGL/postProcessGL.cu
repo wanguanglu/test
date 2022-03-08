@@ -64,7 +64,7 @@ __device__ uchar4 getPixel(int x, int y) {
     <----tilew---->
 */
 
-__global__ void cudaProcess(unsigned int *g_odata, int imgw, int imgh,
+__global__ void cudaProcess(unsigned int* g_odata, int imgw, int imgh,
                             int tilew, int r, float threshold,
                             float highlight) {
   extern __shared__ uchar4 sdata[];
@@ -165,8 +165,8 @@ __global__ void cudaProcess(unsigned int *g_odata, int imgw, int imgh,
 }
 
 extern "C" void launch_cudaProcess(dim3 grid, dim3 block, int sbytes,
-                                   cudaArray *g_data_array,
-                                   unsigned int *g_odata, int imgw, int imgh,
+                                   cudaArray* g_data_array,
+                                   unsigned int* g_odata, int imgw, int imgh,
                                    int tilew, int radius, float threshold,
                                    float highlight) {
   checkCudaErrors(cudaBindTextureToArray(inTex, g_data_array));
@@ -186,7 +186,7 @@ extern "C" void launch_cudaProcess(dim3 grid, dim3 block, int sbytes,
 
   // printf("\n");
 #ifdef GPU_PROFILING
-  StopWatchInterface *timer = 0;
+  StopWatchInterface* timer = 0;
   sdkCreateTimer(&timer);
 
   int nIter = 30;
@@ -212,9 +212,10 @@ extern "C" void launch_cudaProcess(dim3 grid, dim3 block, int sbytes,
 
   if (radius == 4) {
     printf("\n");
-    printf("postprocessGL, Throughput = %.4f MTexels/s, Time = %.5f s, Size = "
-           "%.0f Texels, NumDevsUsed = %d, Workgroup = %u\n",
-           mtexps, dSeconds, dNumTexels, 1, block.x * block.y);
+    printf(
+        "postprocessGL, Throughput = %.4f MTexels/s, Time = %.5f s, Size = "
+        "%.0f Texels, NumDevsUsed = %d, Workgroup = %u\n",
+        mtexps, dSeconds, dNumTexels, 1, block.x * block.y);
   }
 
 #endif

@@ -82,7 +82,7 @@
 #include <vector_functions.h>
 #include <vector_types.h>
 
-#include <helper_cuda.h> // includes cuda.h and cuda_runtime_api.h
+#include <helper_cuda.h>  // includes cuda.h and cuda_runtime_api.h
 #include <helper_cuda_gl.h>
 #include <helper_functions.h>
 
@@ -95,42 +95,40 @@
 #include <GL/freeglut.h>
 #endif
 
-extern "C" void launch_classifyVoxel(dim3 grid, dim3 threads, uint *voxelVerts,
-                                     uint *voxelOccupied, uchar *volume,
+extern "C" void launch_classifyVoxel(dim3 grid, dim3 threads, uint* voxelVerts,
+                                     uint* voxelOccupied, uchar* volume,
                                      uint3 gridSize, uint3 gridSizeShift,
                                      uint3 gridSizeMask, uint numVoxels,
                                      float3 voxelSize, float isoValue);
 
 extern "C" void launch_compactVoxels(dim3 grid, dim3 threads,
-                                     uint *compactedVoxelArray,
-                                     uint *voxelOccupied,
-                                     uint *voxelOccupiedScan, uint numVoxels);
+                                     uint* compactedVoxelArray,
+                                     uint* voxelOccupied,
+                                     uint* voxelOccupiedScan, uint numVoxels);
 
-extern "C" void
-launch_generateTriangles(dim3 grid, dim3 threads, float4 *pos, float4 *norm,
-                         uint *compactedVoxelArray, uint *numVertsScanned,
-                         uint3 gridSize, uint3 gridSizeShift,
-                         uint3 gridSizeMask, float3 voxelSize, float isoValue,
-                         uint activeVoxels, uint maxVerts);
+extern "C" void launch_generateTriangles(
+    dim3 grid, dim3 threads, float4* pos, float4* norm,
+    uint* compactedVoxelArray, uint* numVertsScanned, uint3 gridSize,
+    uint3 gridSizeShift, uint3 gridSizeMask, float3 voxelSize, float isoValue,
+    uint activeVoxels, uint maxVerts);
 
-extern "C" void
-launch_generateTriangles2(dim3 grid, dim3 threads, float4 *pos, float4 *norm,
-                          uint *compactedVoxelArray, uint *numVertsScanned,
-                          uchar *volume, uint3 gridSize, uint3 gridSizeShift,
-                          uint3 gridSizeMask, float3 voxelSize, float isoValue,
-                          uint activeVoxels, uint maxVerts);
+extern "C" void launch_generateTriangles2(
+    dim3 grid, dim3 threads, float4* pos, float4* norm,
+    uint* compactedVoxelArray, uint* numVertsScanned, uchar* volume,
+    uint3 gridSize, uint3 gridSizeShift, uint3 gridSizeMask, float3 voxelSize,
+    float isoValue, uint activeVoxels, uint maxVerts);
 
-extern "C" void allocateTextures(uint **d_edgeTable, uint **d_triTable,
-                                 uint **d_numVertsTable);
-extern "C" void bindVolumeTexture(uchar *d_volume);
-extern "C" void ThrustScanWrapper(unsigned int *output, unsigned int *input,
+extern "C" void allocateTextures(uint** d_edgeTable, uint** d_triTable,
+                                 uint** d_numVertsTable);
+extern "C" void bindVolumeTexture(uchar* d_volume);
+extern "C" void ThrustScanWrapper(unsigned int* output, unsigned int* input,
                                   unsigned int numElements);
 
 // constants
 const unsigned int window_width = 512;
 const unsigned int window_height = 512;
 
-const char *volumeFilename = "Bucky.raw";
+const char* volumeFilename = "Bucky.raw";
 
 uint3 gridSizeLog2 = make_uint3(5, 5, 5);
 uint3 gridSizeShift;
@@ -150,21 +148,21 @@ float dIsoValue = 0.005f;
 GLuint posVbo, normalVbo;
 GLint gl_Shader;
 struct cudaGraphicsResource *cuda_posvbo_resource,
-    *cuda_normalvbo_resource; // handles OpenGL-CUDA exchange
+    *cuda_normalvbo_resource;  // handles OpenGL-CUDA exchange
 
 float4 *d_pos = 0, *d_normal = 0;
 
-uchar *d_volume = 0;
-uint *d_voxelVerts = 0;
-uint *d_voxelVertsScan = 0;
-uint *d_voxelOccupied = 0;
-uint *d_voxelOccupiedScan = 0;
-uint *d_compVoxelArray;
+uchar* d_volume = 0;
+uint* d_voxelVerts = 0;
+uint* d_voxelVertsScan = 0;
+uint* d_voxelOccupied = 0;
+uint* d_voxelOccupiedScan = 0;
+uint* d_compVoxelArray;
 
 // tables
-uint *d_numVertsTable = 0;
-uint *d_edgeTable = 0;
-uint *d_triTable = 0;
+uint* d_numVertsTable = 0;
+uint* d_edgeTable = 0;
+uint* d_triTable = 0;
 
 // mouse controls
 int mouse_old_x, mouse_old_y;
@@ -180,41 +178,41 @@ bool render = true;
 bool compute = true;
 
 #define MAX_EPSILON_ERROR 5.0f
-#define REFRESH_DELAY 10 // ms
+#define REFRESH_DELAY 10  // ms
 
 // Define the files that are to be save and the reference images for validation
-const char *sOriginal[] = {"march_cubes.ppm", NULL};
+const char* sOriginal[] = {"march_cubes.ppm", NULL};
 
-const char *sReference[] = {"ref_march_cubes.ppm", NULL};
+const char* sReference[] = {"ref_march_cubes.ppm", NULL};
 
-StopWatchInterface *timer = 0;
+StopWatchInterface* timer = 0;
 
 // Auto-Verification Code
 const int frameCheckNumber = 4;
-int fpsCount = 0; // FPS count for averaging
-int fpsLimit = 1; // FPS limit for sampling
+int fpsCount = 0;  // FPS count for averaging
+int fpsLimit = 1;  // FPS limit for sampling
 int g_Index = 0;
 unsigned int frameCount = 0;
 bool g_bValidate = false;
 
-int *pArgc = NULL;
-char **pArgv = NULL;
+int* pArgc = NULL;
+char** pArgv = NULL;
 
 // forward declarations
-void runGraphicsTest(int argc, char **argv);
-void runAutoTest(int argc, char **argv);
-void initMC(int argc, char **argv);
+void runGraphicsTest(int argc, char** argv);
+void runAutoTest(int argc, char** argv);
+void initMC(int argc, char** argv);
 void computeIsosurface();
-void dumpFile(void *dData, int data_bytes, const char *file_name);
+void dumpFile(void* dData, int data_bytes, const char* file_name);
 
 template <class T>
-void dumpBuffer(T *d_buffer, int nelements, int size_element);
+void dumpBuffer(T* d_buffer, int nelements, int size_element);
 
 void cleanup();
 
-bool initGL(int *argc, char **argv);
-void createVBO(GLuint *vbo, unsigned int size);
-void deleteVBO(GLuint *vbo, struct cudaGraphicsResource **cuda_resource);
+bool initGL(int* argc, char** argv);
+void createVBO(GLuint* vbo, unsigned int size);
+void deleteVBO(GLuint* vbo, struct cudaGraphicsResource** cuda_resource);
 
 void display();
 void keyboard(unsigned char key, int x, int y);
@@ -268,15 +266,15 @@ void computeFPS() {
 ////////////////////////////////////////////////////////////////////////////////
 // Load raw data from disk
 ////////////////////////////////////////////////////////////////////////////////
-uchar *loadRawFile(char *filename, int size) {
-  FILE *fp = fopen(filename, "rb");
+uchar* loadRawFile(char* filename, int size) {
+  FILE* fp = fopen(filename, "rb");
 
   if (!fp) {
     fprintf(stderr, "Error opening file '%s'\n", filename);
     return 0;
   }
 
-  uchar *data = (uchar *)malloc(size);
+  uchar* data = (uchar*)malloc(size);
   size_t read = fread(data, 1, size, fp);
   fclose(fp);
 
@@ -285,17 +283,17 @@ uchar *loadRawFile(char *filename, int size) {
   return data;
 }
 
-void dumpFile(void *dData, int data_bytes, const char *file_name) {
-  void *hData = malloc(data_bytes);
+void dumpFile(void* dData, int data_bytes, const char* file_name) {
+  void* hData = malloc(data_bytes);
   checkCudaErrors(cudaMemcpy(hData, dData, data_bytes, cudaMemcpyDeviceToHost));
   sdkDumpBin(hData, data_bytes, file_name);
   free(hData);
 }
 
 template <class T>
-void dumpBuffer(T *d_buffer, int nelements, int size_element) {
+void dumpBuffer(T* d_buffer, int nelements, int size_element) {
   uint bytes = nelements * size_element;
-  T *h_buffer = (T *)malloc(bytes);
+  T* h_buffer = (T*)malloc(bytes);
   checkCudaErrors(
       cudaMemcpy(h_buffer, d_buffer, bytes, cudaMemcpyDeviceToHost));
 
@@ -307,53 +305,53 @@ void dumpBuffer(T *d_buffer, int nelements, int size_element) {
   free(h_buffer);
 }
 
-void runAutoTest(int argc, char **argv) {
-  findCudaDevice(argc, (const char **)argv);
+void runAutoTest(int argc, char** argv) {
+  findCudaDevice(argc, (const char**)argv);
 
   // Initialize CUDA buffers for Marching Cubes
   initMC(argc, argv);
 
   computeIsosurface();
 
-  char *ref_file = NULL;
-  getCmdLineArgumentString(argc, (const char **)argv, "file", &ref_file);
+  char* ref_file = NULL;
+  getCmdLineArgumentString(argc, (const char**)argv, "file", &ref_file);
 
   enum DUMP_TYPE { DUMP_POS = 0, DUMP_NORMAL, DUMP_VOXEL };
-  int dump_option = getCmdLineArgumentInt(argc, (const char **)argv, "dump");
+  int dump_option = getCmdLineArgumentInt(argc, (const char**)argv, "dump");
 
   bool bTestResult = true;
 
   switch (dump_option) {
-  case DUMP_POS:
-    dumpFile((void *)d_pos, sizeof(float4) * maxVerts,
-             "marchCube_posArray.bin");
-    bTestResult = sdkCompareBin2BinFloat(
-        "marchCube_posArray.bin", "posArray.bin", maxVerts * sizeof(float) * 4,
-        EPSILON, THRESHOLD, argv[0]);
-    break;
+    case DUMP_POS:
+      dumpFile((void*)d_pos, sizeof(float4) * maxVerts,
+               "marchCube_posArray.bin");
+      bTestResult = sdkCompareBin2BinFloat(
+          "marchCube_posArray.bin", "posArray.bin",
+          maxVerts * sizeof(float) * 4, EPSILON, THRESHOLD, argv[0]);
+      break;
 
-  case DUMP_NORMAL:
-    dumpFile((void *)d_normal, sizeof(float4) * maxVerts,
-             "marchCube_normalArray.bin");
-    bTestResult = sdkCompareBin2BinFloat(
-        "marchCube_normalArray.bin", "normalArray.bin",
-        maxVerts * sizeof(float) * 4, EPSILON, THRESHOLD, argv[0]);
-    break;
+    case DUMP_NORMAL:
+      dumpFile((void*)d_normal, sizeof(float4) * maxVerts,
+               "marchCube_normalArray.bin");
+      bTestResult = sdkCompareBin2BinFloat(
+          "marchCube_normalArray.bin", "normalArray.bin",
+          maxVerts * sizeof(float) * 4, EPSILON, THRESHOLD, argv[0]);
+      break;
 
-  case DUMP_VOXEL:
-    dumpFile((void *)d_compVoxelArray, sizeof(uint) * numVoxels,
-             "marchCube_compVoxelArray.bin");
-    bTestResult = sdkCompareBin2BinFloat(
-        "marchCube_compVoxelArray.bin", "compVoxelArray.bin",
-        numVoxels * sizeof(uint), EPSILON, THRESHOLD, argv[0]);
-    break;
+    case DUMP_VOXEL:
+      dumpFile((void*)d_compVoxelArray, sizeof(uint) * numVoxels,
+               "marchCube_compVoxelArray.bin");
+      bTestResult = sdkCompareBin2BinFloat(
+          "marchCube_compVoxelArray.bin", "compVoxelArray.bin",
+          numVoxels * sizeof(uint), EPSILON, THRESHOLD, argv[0]);
+      break;
 
-  default:
-    printf("Invalid validation flag!\n");
-    printf("-dump=0 <check position>\n");
-    printf("-dump=1 <check normal>\n");
-    printf("-dump=2 <check voxel>\n");
-    exit(EXIT_SUCCESS);
+    default:
+      printf("Invalid validation flag!\n");
+      printf("-dump=0 <check position>\n");
+      printf("-dump=1 <check normal>\n");
+      printf("-dump=2 <check voxel>\n");
+      exit(EXIT_SUCCESS);
   }
 
   exit(bTestResult ? EXIT_SUCCESS : EXIT_FAILURE);
@@ -362,7 +360,7 @@ void runAutoTest(int argc, char **argv) {
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   pArgc = &argc;
   pArgv = argv;
 
@@ -372,8 +370,8 @@ int main(int argc, char **argv) {
 
   printf("[%s] - Starting...\n", argv[0]);
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "file") &&
-      checkCmdLineFlag(argc, (const char **)argv, "dump")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "file") &&
+      checkCmdLineFlag(argc, (const char**)argv, "dump")) {
     animate = false;
     fpsLimit = frameCheckNumber;
     g_bValidate = true;
@@ -394,33 +392,33 @@ int main(int argc, char **argv) {
 ////////////////////////////////////////////////////////////////////////////////
 // initialize marching cubes
 ////////////////////////////////////////////////////////////////////////////////
-void initMC(int argc, char **argv) {
+void initMC(int argc, char** argv) {
   // parse command line arguments
   int n;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "grid")) {
-    n = getCmdLineArgumentInt(argc, (const char **)argv, "grid");
+  if (checkCmdLineFlag(argc, (const char**)argv, "grid")) {
+    n = getCmdLineArgumentInt(argc, (const char**)argv, "grid");
     gridSizeLog2.x = gridSizeLog2.y = gridSizeLog2.z = n;
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "gridx")) {
-    n = getCmdLineArgumentInt(argc, (const char **)argv, "gridx");
+  if (checkCmdLineFlag(argc, (const char**)argv, "gridx")) {
+    n = getCmdLineArgumentInt(argc, (const char**)argv, "gridx");
     gridSizeLog2.x = n;
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "gridx")) {
-    n = getCmdLineArgumentInt(argc, (const char **)argv, "gridx");
+  if (checkCmdLineFlag(argc, (const char**)argv, "gridx")) {
+    n = getCmdLineArgumentInt(argc, (const char**)argv, "gridx");
     gridSizeLog2.y = n;
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "gridz")) {
-    n = getCmdLineArgumentInt(argc, (const char **)argv, "gridz");
+  if (checkCmdLineFlag(argc, (const char**)argv, "gridz")) {
+    n = getCmdLineArgumentInt(argc, (const char**)argv, "gridz");
     gridSizeLog2.z = n;
   }
 
-  char *filename;
+  char* filename;
 
-  if (getCmdLineArgumentString(argc, (const char **)argv, "file", &filename)) {
+  if (getCmdLineArgumentString(argc, (const char**)argv, "file", &filename)) {
     volumeFilename = filename;
   }
 
@@ -441,7 +439,7 @@ void initMC(int argc, char **argv) {
 
 #if SAMPLE_VOLUME
   // load volume data
-  char *path = sdkFindFilePath(volumeFilename, argv[0]);
+  char* path = sdkFindFilePath(volumeFilename, argv[0]);
 
   if (path == NULL) {
     fprintf(stderr, "Error finding file '%s'\n", volumeFilename);
@@ -456,8 +454,8 @@ void initMC(int argc, char **argv) {
   }
 
   int size = gridSize.x * gridSize.y * gridSize.z * sizeof(uchar);
-  uchar *volume = loadRawFile(path, size);
-  checkCudaErrors(cudaMalloc((void **)&d_volume, size));
+  uchar* volume = loadRawFile(path, size);
+  checkCudaErrors(cudaMalloc((void**)&d_volume, size));
   checkCudaErrors(cudaMemcpy(d_volume, volume, size, cudaMemcpyHostToDevice));
   free(volume);
 
@@ -465,8 +463,8 @@ void initMC(int argc, char **argv) {
 #endif
 
   if (g_bValidate) {
-    cudaMalloc((void **)&(d_pos), maxVerts * sizeof(float) * 4);
-    cudaMalloc((void **)&(d_normal), maxVerts * sizeof(float) * 4);
+    cudaMalloc((void**)&(d_pos), maxVerts * sizeof(float) * 4);
+    cudaMalloc((void**)&(d_normal), maxVerts * sizeof(float) * 4);
   } else {
     // create VBOs
     createVBO(&posVbo, maxVerts * sizeof(float) * 4);
@@ -485,11 +483,11 @@ void initMC(int argc, char **argv) {
 
   // allocate device memory
   unsigned int memSize = sizeof(uint) * numVoxels;
-  checkCudaErrors(cudaMalloc((void **)&d_voxelVerts, memSize));
-  checkCudaErrors(cudaMalloc((void **)&d_voxelVertsScan, memSize));
-  checkCudaErrors(cudaMalloc((void **)&d_voxelOccupied, memSize));
-  checkCudaErrors(cudaMalloc((void **)&d_voxelOccupiedScan, memSize));
-  checkCudaErrors(cudaMalloc((void **)&d_compVoxelArray, memSize));
+  checkCudaErrors(cudaMalloc((void**)&d_voxelVerts, memSize));
+  checkCudaErrors(cudaMalloc((void**)&d_voxelVertsScan, memSize));
+  checkCudaErrors(cudaMalloc((void**)&d_voxelOccupied, memSize));
+  checkCudaErrors(cudaMalloc((void**)&d_voxelOccupiedScan, memSize));
+  checkCudaErrors(cudaMalloc((void**)&d_compVoxelArray, memSize));
 }
 
 void cleanup() {
@@ -531,10 +529,10 @@ void initMenus() {
   glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
-void runGraphicsTest(int argc, char **argv) {
+void runGraphicsTest(int argc, char** argv) {
   printf("MarchingCubes\n");
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
     printf("[%s]\n", argv[0]);
     printf("   Does not explicitly support -device=n in OpenGL mode\n");
     printf("   To use -device=n, the sample must be running w/o OpenGL\n\n");
@@ -549,7 +547,7 @@ void runGraphicsTest(int argc, char **argv) {
     return;
   }
 
-  findCudaGLDevice(argc, (const char **)argv);
+  findCudaGLDevice(argc, (const char**)argv);
 
   // register callbacks
   glutDisplayFunc(display);
@@ -614,11 +612,11 @@ void computeIsosurface() {
   // the scan result plus the last value in the input array
   {
     uint lastElement, lastScanElement;
-    checkCudaErrors(cudaMemcpy((void *)&lastElement,
-                               (void *)(d_voxelOccupied + numVoxels - 1),
+    checkCudaErrors(cudaMemcpy((void*)&lastElement,
+                               (void*)(d_voxelOccupied + numVoxels - 1),
                                sizeof(uint), cudaMemcpyDeviceToHost));
-    checkCudaErrors(cudaMemcpy((void *)&lastScanElement,
-                               (void *)(d_voxelOccupiedScan + numVoxels - 1),
+    checkCudaErrors(cudaMemcpy((void*)&lastScanElement,
+                               (void*)(d_voxelOccupiedScan + numVoxels - 1),
                                sizeof(uint), cudaMemcpyDeviceToHost));
     activeVoxels = lastElement + lastScanElement;
   }
@@ -634,7 +632,7 @@ void computeIsosurface() {
                        d_voxelOccupiedScan, numVoxels);
   getLastCudaError("compactVoxels failed");
 
-#endif // SKIP_EMPTY_VOXELS
+#endif  // SKIP_EMPTY_VOXELS
 
   // scan voxel vertex count array
   ThrustScanWrapper(d_voxelVertsScan, d_voxelVerts, numVoxels);
@@ -647,11 +645,11 @@ void computeIsosurface() {
   // readback total number of vertices
   {
     uint lastElement, lastScanElement;
-    checkCudaErrors(cudaMemcpy((void *)&lastElement,
-                               (void *)(d_voxelVerts + numVoxels - 1),
+    checkCudaErrors(cudaMemcpy((void*)&lastElement,
+                               (void*)(d_voxelVerts + numVoxels - 1),
                                sizeof(uint), cudaMemcpyDeviceToHost));
-    checkCudaErrors(cudaMemcpy((void *)&lastScanElement,
-                               (void *)(d_voxelVertsScan + numVoxels - 1),
+    checkCudaErrors(cudaMemcpy((void*)&lastScanElement,
+                               (void*)(d_voxelVertsScan + numVoxels - 1),
                                sizeof(uint), cudaMemcpyDeviceToHost));
     totalVerts = lastElement + lastScanElement;
   }
@@ -663,13 +661,13 @@ void computeIsosurface() {
     // posVbo));
     checkCudaErrors(cudaGraphicsMapResources(1, &cuda_posvbo_resource, 0));
     checkCudaErrors(cudaGraphicsResourceGetMappedPointer(
-        (void **)&d_pos, &num_bytes, cuda_posvbo_resource));
+        (void**)&d_pos, &num_bytes, cuda_posvbo_resource));
 
     // DEPRECATED: checkCudaErrors(cudaGLMapBufferObject((void**)&d_normal,
     // normalVbo));
     checkCudaErrors(cudaGraphicsMapResources(1, &cuda_normalvbo_resource, 0));
     checkCudaErrors(cudaGraphicsResourceGetMappedPointer(
-        (void **)&d_normal, &num_bytes, cuda_normalvbo_resource));
+        (void**)&d_normal, &num_bytes, cuda_normalvbo_resource));
   }
 
 #if SKIP_EMPTY_VOXELS
@@ -704,23 +702,23 @@ void computeIsosurface() {
 }
 
 // shader for displaying floating-point texture
-static const char *shader_code =
+static const char* shader_code =
     "!!ARBfp1.0\n"
     "TEX result.color, fragment.texcoord, texture[0], 2D; \n"
     "END";
 
-GLuint compileASMShader(GLenum program_type, const char *code) {
+GLuint compileASMShader(GLenum program_type, const char* code) {
   GLuint program_id;
   glGenProgramsARB(1, &program_id);
   glBindProgramARB(program_type, program_id);
   glProgramStringARB(program_type, GL_PROGRAM_FORMAT_ASCII_ARB,
-                     (GLsizei)strlen(code), (GLubyte *)code);
+                     (GLsizei)strlen(code), (GLubyte*)code);
 
   GLint error_pos;
   glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &error_pos);
 
   if (error_pos != -1) {
-    const GLubyte *error_string;
+    const GLubyte* error_string;
     error_string = glGetString(GL_PROGRAM_ERROR_STRING_ARB);
     fprintf(stderr, "Program error at position: %d\n%s\n", (int)error_pos,
             error_string);
@@ -733,7 +731,7 @@ GLuint compileASMShader(GLenum program_type, const char *code) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Initialize OpenGL
 ////////////////////////////////////////////////////////////////////////////////
-bool initGL(int *argc, char **argv) {
+bool initGL(int* argc, char** argv) {
   // Create GL context
   glutInit(argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
@@ -785,7 +783,7 @@ bool initGL(int *argc, char **argv) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Create VBO
 ////////////////////////////////////////////////////////////////////////////////
-void createVBO(GLuint *vbo, unsigned int size) {
+void createVBO(GLuint* vbo, unsigned int size) {
   // create buffer object
   glGenBuffers(1, vbo);
   glBindBuffer(GL_ARRAY_BUFFER, *vbo);
@@ -800,7 +798,7 @@ void createVBO(GLuint *vbo, unsigned int size) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Delete VBO
 ////////////////////////////////////////////////////////////////////////////////
-void deleteVBO(GLuint *vbo, struct cudaGraphicsResource **cuda_resource) {
+void deleteVBO(GLuint* vbo, struct cudaGraphicsResource** cuda_resource) {
   glBindBuffer(1, *vbo);
   glDeleteBuffers(1, vbo);
   // DEPRECATED: checkCudaErrors(cudaGLUnregisterBufferObject(*vbo));
@@ -882,51 +880,51 @@ void display() {
 ////////////////////////////////////////////////////////////////////////////////
 void keyboard(unsigned char key, int /*x*/, int /*y*/) {
   switch (key) {
-  case (27):
-    cleanup();
-    // cudaDeviceReset causes the driver to clean up all state. While
-    // not mandatory in normal operation, it is good practice.  It is also
-    // needed to ensure correct operation when the application is being
-    // profiled. Calling cudaDeviceReset causes all profile data to be
-    // flushed before the application exits
-    cudaDeviceReset();
-    exit(EXIT_SUCCESS);
+    case (27):
+      cleanup();
+      // cudaDeviceReset causes the driver to clean up all state. While
+      // not mandatory in normal operation, it is good practice.  It is also
+      // needed to ensure correct operation when the application is being
+      // profiled. Calling cudaDeviceReset causes all profile data to be
+      // flushed before the application exits
+      cudaDeviceReset();
+      exit(EXIT_SUCCESS);
 
-  case '=':
-    isoValue += 0.01f;
-    break;
+    case '=':
+      isoValue += 0.01f;
+      break;
 
-  case '-':
-    isoValue -= 0.01f;
-    break;
+    case '-':
+      isoValue -= 0.01f;
+      break;
 
-  case '+':
-    isoValue += 0.1f;
-    break;
+    case '+':
+      isoValue += 0.1f;
+      break;
 
-  case '_':
-    isoValue -= 0.1f;
-    break;
+    case '_':
+      isoValue -= 0.1f;
+      break;
 
-  case 'w':
-    wireframe = !wireframe;
-    break;
+    case 'w':
+      wireframe = !wireframe;
+      break;
 
-  case ' ':
-    animate = !animate;
-    break;
+    case ' ':
+      animate = !animate;
+      break;
 
-  case 'l':
-    lighting = !lighting;
-    break;
+    case 'l':
+      lighting = !lighting;
+      break;
 
-  case 'r':
-    render = !render;
-    break;
+    case 'r':
+      render = !render;
+      break;
 
-  case 'c':
-    compute = !compute;
-    break;
+    case 'c':
+      compute = !compute;
+      break;
   }
 
   printf("isoValue = %f\n", isoValue);

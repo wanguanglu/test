@@ -19,18 +19,18 @@
 #include <helper_string.h>
 #include <stdio.h>
 
-const char *sampleName = "C++ Function Overloading";
+const char* sampleName = "C++ Function Overloading";
 
-#define OUTPUT_ATTR(attr)                                                      \
-  printf("Shared Size:   %d\n", (int)attr.sharedSizeBytes);                    \
-  printf("Constant Size: %d\n", (int)attr.constSizeBytes);                     \
-  printf("Local Size:    %d\n", (int)attr.localSizeBytes);                     \
-  printf("Max Threads Per Block: %d\n", attr.maxThreadsPerBlock);              \
-  printf("Number of Registers: %d\n", attr.numRegs);                           \
-  printf("PTX Version: %d\n", attr.ptxVersion);                                \
+#define OUTPUT_ATTR(attr)                                         \
+  printf("Shared Size:   %d\n", (int)attr.sharedSizeBytes);       \
+  printf("Constant Size: %d\n", (int)attr.constSizeBytes);        \
+  printf("Local Size:    %d\n", (int)attr.localSizeBytes);        \
+  printf("Max Threads Per Block: %d\n", attr.maxThreadsPerBlock); \
+  printf("Number of Registers: %d\n", attr.numRegs);              \
+  printf("PTX Version: %d\n", attr.ptxVersion);                   \
   printf("Binary Version: %d\n", attr.binaryVersion);
 
-bool check_func1(int *hInput, int *hOutput, int a) {
+bool check_func1(int* hInput, int* hOutput, int a) {
   for (int i = 0; i < N; ++i) {
     int cpuRes = hInput[i] * a + i;
 
@@ -42,7 +42,7 @@ bool check_func1(int *hInput, int *hOutput, int a) {
   return true;
 }
 
-bool check_func2(int2 *hInput, int *hOutput, int a) {
+bool check_func2(int2* hInput, int* hOutput, int a) {
   for (int i = 0; i < N; i++) {
     int cpuRes = (hInput[i].x + hInput[i].y) * a + i;
 
@@ -54,7 +54,7 @@ bool check_func2(int2 *hInput, int *hOutput, int a) {
   return true;
 }
 
-bool check_func3(int *hInput1, int *hInput2, int *hOutput, int a) {
+bool check_func3(int* hInput1, int* hInput2, int* hOutput, int a) {
   for (int i = 0; i < N; i++) {
     if (hOutput[i] != (hInput1[i] + hInput2[i]) * a + i) {
       return false;
@@ -64,11 +64,11 @@ bool check_func3(int *hInput1, int *hInput2, int *hOutput, int a) {
   return true;
 }
 
-int main(int argc, const char *argv[]) {
-  int *hInput = NULL;
-  int *hOutput = NULL;
-  int *dInput = NULL;
-  int *dOutput = NULL;
+int main(int argc, const char* argv[]) {
+  int* hInput = NULL;
+  int* hOutput = NULL;
+  int* dInput = NULL;
+  int* dOutput = NULL;
 
   printf("%s starting...\n", sampleName);
 
@@ -80,8 +80,9 @@ int main(int argc, const char *argv[]) {
   cudaDeviceProp prop;
   checkCudaErrors(cudaGetDeviceProperties(&prop, deviceID));
   if (prop.major < 2) {
-    printf("ERROR: cppOverload requires GPU devices with compute SM 2.0 or "
-           "higher.\n");
+    printf(
+        "ERROR: cppOverload requires GPU devices with compute SM 2.0 or "
+        "higher.\n");
     printf("Current GPU device has compute SM%d.%d, Exiting...", prop.major,
            prop.minor);
     exit(EXIT_WAIVED);
@@ -110,9 +111,9 @@ int main(int argc, const char *argv[]) {
   bool funcResult = true;
   int a = 1;
 
-  void (*func1)(const int *, int *, int);
-  void (*func2)(const int2 *, int *, int);
-  void (*func3)(const int *, const int *, int *, int);
+  void (*func1)(const int*, int*, int);
+  void (*func2)(const int2*, int*, int);
+  void (*func3)(const int*, const int*, int*, int);
   struct cudaFuncAttributes attr;
 
   // overload function 1
@@ -135,10 +136,10 @@ int main(int argc, const char *argv[]) {
   checkCudaErrors(cudaFuncSetCacheConfig(*func2, cudaFuncCachePreferShared));
   checkCudaErrors(cudaFuncGetAttributes(&attr, *func2));
   OUTPUT_ATTR(attr);
-  (*func2)<<<DIV_UP(N, THREAD_N), THREAD_N>>>((int2 *)dInput, dOutput, a);
+  (*func2)<<<DIV_UP(N, THREAD_N), THREAD_N>>>((int2*)dInput, dOutput, a);
   checkCudaErrors(
       cudaMemcpy(hOutput, dOutput, sizeof(int) * N, cudaMemcpyDeviceToHost));
-  funcResult = check_func2(reinterpret_cast<int2 *>(hInput), hOutput, a);
+  funcResult = check_func2(reinterpret_cast<int2*>(hInput), hOutput, a);
   printf("simple_kernel(const int2 *pIn, int *pOut, int a) %s\n\n",
          funcResult ? "PASSED" : "FAILED");
   testResult &= funcResult;
@@ -153,9 +154,10 @@ int main(int argc, const char *argv[]) {
   checkCudaErrors(
       cudaMemcpy(hOutput, dOutput, sizeof(int) * N, cudaMemcpyDeviceToHost));
   funcResult = check_func3(&hInput[0], &hInput[N], hOutput, a);
-  printf("simple_kernel(const int *pIn1, const int *pIn2, int *pOut, int a) "
-         "%s\n\n",
-         funcResult ? "PASSED" : "FAILED");
+  printf(
+      "simple_kernel(const int *pIn1, const int *pIn2, int *pOut, int a) "
+      "%s\n\n",
+      funcResult ? "PASSED" : "FAILED");
   testResult &= funcResult;
 
   checkCudaErrors(cudaFree(dInput));

@@ -31,7 +31,7 @@
 #include <helper_cuda.h>
 #include <helper_string.h>
 
-inline int cudaDeviceInit(int argc, const char **argv) {
+inline int cudaDeviceInit(int argc, const char** argv) {
   int deviceCount;
   checkCudaErrors(cudaGetDeviceCount(&deviceCount));
 
@@ -52,8 +52,8 @@ inline int cudaDeviceInit(int argc, const char **argv) {
   return dev;
 }
 
-bool printfNPPinfo(int argc, char *argv[]) {
-  const NppLibraryVersion *libVer = nppGetLibVersion();
+bool printfNPPinfo(int argc, char* argv[]) {
+  const NppLibraryVersion* libVer = nppGetLibVersion();
 
   printf("NPP Library Version %d.%d.%d\n", libVer->major, libVer->minor,
          libVer->build);
@@ -72,22 +72,22 @@ bool printfNPPinfo(int argc, char *argv[]) {
   return bVal;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   printf("%s Starting...\n\n", argv[0]);
 
   try {
     std::string sFilename;
-    char *filePath;
+    char* filePath;
 
-    cudaDeviceInit(argc, (const char **)argv);
+    cudaDeviceInit(argc, (const char**)argv);
 
     if (printfNPPinfo(argc, argv) == false) {
       cudaDeviceReset();
       exit(EXIT_SUCCESS);
     }
 
-    if (checkCmdLineFlag(argc, (const char **)argv, "input")) {
-      getCmdLineArgumentString(argc, (const char **)argv, "input", &filePath);
+    if (checkCmdLineFlag(argc, (const char**)argv, "input")) {
+      getCmdLineArgumentString(argc, (const char**)argv, "input", &filePath);
     } else {
       filePath = sdkFindFilePath("Lena.pgm", argv[0]);
     }
@@ -130,9 +130,9 @@ int main(int argc, char *argv[]) {
 
     sResultFilename += "_boxFilter.pgm";
 
-    if (checkCmdLineFlag(argc, (const char **)argv, "output")) {
-      char *outputFilePath;
-      getCmdLineArgumentString(argc, (const char **)argv, "output",
+    if (checkCmdLineFlag(argc, (const char**)argv, "output")) {
+      char* outputFilePath;
+      getCmdLineArgumentString(argc, (const char**)argv, "output",
                                &outputFilePath);
       sResultFilename = outputFilePath;
     }
@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
 
     cudaDeviceReset();
     exit(EXIT_SUCCESS);
-  } catch (npp::Exception &rException) {
+  } catch (npp::Exception& rException) {
     std::cerr << "Program error! The following exception occurred: \n";
     std::cerr << rException << std::endl;
     std::cerr << "Aborting." << std::endl;

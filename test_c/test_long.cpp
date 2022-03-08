@@ -14,7 +14,7 @@
 
 #include "stdio.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   long la = 0;
   printf("%d.\n", sizeof(long));
 

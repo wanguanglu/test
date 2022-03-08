@@ -23,13 +23,13 @@
 
 // Error handler for FreeImage library.
 //  In case this handler is invoked, it throws an NPP exception.
-void FreeImageErrorHandler(FREE_IMAGE_FORMAT oFif, const char *zMessage) {
+void FreeImageErrorHandler(FREE_IMAGE_FORMAT oFif, const char* zMessage) {
   throw npp::Exception(zMessage);
 }
 
 namespace npp {
 // Load a gray-scale image from disk.
-void loadImage(const std::string &rFileName, ImageCPU_8u_C1 &rImage) {
+void loadImage(const std::string& rFileName, ImageCPU_8u_C1& rImage) {
   // set your own FreeImage error handler
   FreeImage_SetOutputMessage(FreeImageErrorHandler);
 
@@ -42,7 +42,7 @@ void loadImage(const std::string &rFileName, ImageCPU_8u_C1 &rImage) {
 
   NPP_ASSERT(eFormat != FIF_UNKNOWN);
   // check that the plugin has reading capabilities ...
-  FIBITMAP *pBitmap;
+  FIBITMAP* pBitmap;
 
   if (FreeImage_FIFSupportsReading(eFormat)) {
     pBitmap = FreeImage_Load(eFormat, rFileName.c_str());
@@ -59,9 +59,9 @@ void loadImage(const std::string &rFileName, ImageCPU_8u_C1 &rImage) {
 
   // Copy the FreeImage data into the new ImageCPU
   unsigned int nSrcPitch = FreeImage_GetPitch(pBitmap);
-  const Npp8u *pSrcLine = FreeImage_GetBits(pBitmap) +
+  const Npp8u* pSrcLine = FreeImage_GetBits(pBitmap) +
                           nSrcPitch * (FreeImage_GetHeight(pBitmap) - 1);
-  Npp8u *pDstLine = oImage.data();
+  Npp8u* pDstLine = oImage.data();
   unsigned int nDstPitch = oImage.pitch();
 
   for (size_t iLine = 0; iLine < oImage.height(); ++iLine) {
@@ -76,16 +76,16 @@ void loadImage(const std::string &rFileName, ImageCPU_8u_C1 &rImage) {
 }
 
 // Save an gray-scale image to disk.
-void saveImage(const std::string &rFileName, const ImageCPU_8u_C1 &rImage) {
+void saveImage(const std::string& rFileName, const ImageCPU_8u_C1& rImage) {
   // create the result image storage using FreeImage so we can easily
   // save
-  FIBITMAP *pResultBitmap = FreeImage_Allocate(rImage.width(), rImage.height(),
+  FIBITMAP* pResultBitmap = FreeImage_Allocate(rImage.width(), rImage.height(),
                                                8 /* bits per pixel */);
   NPP_ASSERT_NOT_NULL(pResultBitmap);
   unsigned int nDstPitch = FreeImage_GetPitch(pResultBitmap);
-  Npp8u *pDstLine =
+  Npp8u* pDstLine =
       FreeImage_GetBits(pResultBitmap) + nDstPitch * (rImage.height() - 1);
-  const Npp8u *pSrcLine = rImage.data();
+  const Npp8u* pSrcLine = rImage.data();
   unsigned int nSrcPitch = rImage.pitch();
 
   for (size_t iLine = 0; iLine < rImage.height(); ++iLine) {
@@ -102,7 +102,7 @@ void saveImage(const std::string &rFileName, const ImageCPU_8u_C1 &rImage) {
 }
 
 // Load a gray-scale image from disk.
-void loadImage(const std::string &rFileName, ImageNPP_8u_C1 &rImage) {
+void loadImage(const std::string& rFileName, ImageNPP_8u_C1& rImage) {
   ImageCPU_8u_C1 oImage;
   loadImage(rFileName, oImage);
   ImageNPP_8u_C1 oResult(oImage);
@@ -110,12 +110,12 @@ void loadImage(const std::string &rFileName, ImageNPP_8u_C1 &rImage) {
 }
 
 // Save an gray-scale image to disk.
-void saveImage(const std::string &rFileName, const ImageNPP_8u_C1 &rImage) {
+void saveImage(const std::string& rFileName, const ImageNPP_8u_C1& rImage) {
   ImageCPU_8u_C1 oHostImage(rImage.size());
   // copy the device result data
   rImage.copyTo(oHostImage.data(), oHostImage.pitch());
   saveImage(rFileName, oHostImage);
 }
-} // namespace npp
+}  // namespace npp
 
-#endif // NV_UTIL_NPP_IMAGE_IO_H
+#endif  // NV_UTIL_NPP_IMAGE_IO_H

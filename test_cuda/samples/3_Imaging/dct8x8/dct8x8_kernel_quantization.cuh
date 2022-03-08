@@ -41,7 +41,7 @@ __constant__ short Q[] = {32, 33, 51, 81, 66, 39, 34, 17, 33, 36, 48, 47, 28,
 *
 * \return None
 */
-__global__ void CUDAkernelQuantizationFloat(float *SrcDst, int Stride) {
+__global__ void CUDAkernelQuantizationFloat(float* SrcDst, int Stride) {
   // Block index
   int bx = blockIdx.x;
   int by = blockIdx.y;
@@ -73,7 +73,7 @@ __global__ void CUDAkernelQuantizationFloat(float *SrcDst, int Stride) {
 *
 * \return None
 */
-__global__ void CUDAkernelQuantizationShort(short *SrcDst, int Stride) {
+__global__ void CUDAkernelQuantizationShort(short* SrcDst, int Stride) {
   // Block index
   int bx = blockIdx.x;
   int by = blockIdx.y;

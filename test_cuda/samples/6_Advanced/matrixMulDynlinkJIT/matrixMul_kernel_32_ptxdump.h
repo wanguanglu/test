@@ -29,4 +29,4 @@ extern unsigned char matrixMul_kernel_32_ptxdump[25784];
 }
 #endif
 
-#endif //__matrixMul_kernel_32_ptxdump_h__
+#endif  //__matrixMul_kernel_32_ptxdump_h__

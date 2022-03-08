@@ -49,7 +49,7 @@ enum { False = 0, True = 1 };
 // 2D height field
 struct HeightField {
   int width;
-  float *height;
+  float* height;
 };
 
 // Ray
@@ -68,18 +68,18 @@ texture<float, 2, cudaReadModeElementType> g_HeightFieldTex;
 
 ////////////////////////////////////////////////////////////////////////////////
 // declaration, forward
-int runTest(int argc, char **argv);
-__global__ void computeAngles_kernel(const Ray, float *);
-__global__ void computeVisibilities_kernel(const float *, const float *, int,
-                                           Bool *);
-void lineOfSight_gold(const HeightField, const Ray, Bool *);
+int runTest(int argc, char** argv);
+__global__ void computeAngles_kernel(const Ray, float*);
+__global__ void computeVisibilities_kernel(const float*, const float*, int,
+                                           Bool*);
+void lineOfSight_gold(const HeightField, const Ray, Bool*);
 __device__ __host__ float2 getLocation(const Ray, int);
 __device__ __host__ float getAngle(const Ray, float2, float);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   int res = runTest(argc, argv);
 
   // cudaDeviceReset causes the driver to clean up all state. While
@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Run a line-of-sight test for CUDA
 ////////////////////////////////////////////////////////////////////////////////
-int runTest(int argc, char **argv) {
+int runTest(int argc, char** argv) {
   ////////////////////////////////////////////////////////////////////////////
   // Device initialization
 
@@ -109,13 +109,13 @@ int runTest(int argc, char **argv) {
 
   // use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  findCudaDevice(argc, (const char **)argv);
+  findCudaDevice(argc, (const char**)argv);
 
   ////////////////////////////////////////////////////////////////////////////
   // Timer
 
   // Create
-  StopWatchInterface *timer;
+  StopWatchInterface* timer;
   sdkCreateTimer(&timer);
 
   // Number of iterations to get accurate timing
@@ -130,7 +130,7 @@ int runTest(int argc, char **argv) {
   int2 dim = make_int2(10000, 100);
   heightField.width = dim.x;
   thrust::host_vector<float> height(dim.x * dim.y);
-  heightField.height = (float *)&height[0];
+  heightField.height = (float*)&height[0];
 
   //
   // Fill in with an arbitrary sine surface
@@ -146,7 +146,7 @@ int runTest(int argc, char **argv) {
   // Allocate CUDA array in device memory
   cudaChannelFormatDesc channelDesc =
       cudaCreateChannelDesc(32, 0, 0, 0, cudaChannelFormatKindFloat);
-  cudaArray *heightFieldArray;
+  cudaArray* heightFieldArray;
   checkCudaErrors(
       cudaMallocArray(&heightFieldArray, &channelDesc, dim.x, dim.y));
 
@@ -194,7 +194,7 @@ int runTest(int argc, char **argv) {
 
   ////////////////////////////////////////////////////////////////////////////
   // Reference solution
-  lineOfSight_gold(heightField, ray, (Bool *)&h_visibilitiesRef[0]);
+  lineOfSight_gold(heightField, ray, (Bool*)&h_visibilitiesRef[0]);
 
   ////////////////////////////////////////////////////////////////////////////
   // Device solution
@@ -208,7 +208,6 @@ int runTest(int argc, char **argv) {
   sdkStartTimer(&timer);
 
   for (uint i = 0; i < numIterations; ++i) {
-
     // Compute view angle for each point along the ray
     computeAngles_kernel<<<grid, block>>>(
         ray, thrust::raw_pointer_cast(&d_angles[0]));
@@ -253,7 +252,7 @@ int runTest(int argc, char **argv) {
 //! @param ray         ray
 //! @param angles      view angles
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void computeAngles_kernel(const Ray ray, float *angles) {
+__global__ void computeAngles_kernel(const Ray ray, float* angles) {
   uint i = blockDim.x * blockIdx.x + threadIdx.x;
 
   if (i < ray.length) {
@@ -272,9 +271,9 @@ __global__ void computeAngles_kernel(const Ray ray, float *angles) {
 //! @param visibilities    boolean array indicating the visibility of each point
 //!                        along the ray
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void computeVisibilities_kernel(const float *angles,
-                                           const float *scannedAngles,
-                                           int numAngles, Bool *visibilities) {
+__global__ void computeVisibilities_kernel(const float* angles,
+                                           const float* scannedAngles,
+                                           int numAngles, Bool* visibilities) {
   uint i = blockDim.x * blockIdx.x + threadIdx.x;
 
   if (i < numAngles) {
@@ -290,7 +289,7 @@ __global__ void computeVisibilities_kernel(const float *angles,
 //!                        along the ray
 ////////////////////////////////////////////////////////////////////////////////
 void lineOfSight_gold(const HeightField heightField, const Ray ray,
-                      Bool *visibilities) {
+                      Bool* visibilities) {
   float angleMax = asinf(-1.0f);
 
   for (int i = 0; i < ray.length; ++i) {

@@ -26,9 +26,9 @@
 //
 // No std::stringstream with gcc < 3
 //
-#if defined(__GNUC__) && (__GNUC__ < 3) &&                                     \
-        ((__GNUC_MINOR__ < 95) || (__GNUC_MINOR__ == 96)) &&                   \
-        !defined(__STL_USE_NEW_IOSTREAMS) ||                                   \
+#if defined(__GNUC__) && (__GNUC__ < 3) &&                   \
+        ((__GNUC_MINOR__ < 95) || (__GNUC_MINOR__ == 96)) && \
+        !defined(__STL_USE_NEW_IOSTREAMS) ||                 \
     defined(__APPLE_CC__)
 // Note that we only set this for GNU C++ prior to 2.95 since the
 // latest patches for that release do contain a minimal <sstream>
@@ -51,7 +51,7 @@
 //
 // Original native SGI streams have non-standard std::messages facet:
 //
-#if defined(__sgi) && (_COMPILER_VERSION <= 650) &&                            \
+#if defined(__sgi) && (_COMPILER_VERSION <= 650) && \
     !defined(__SGI_STL_OWN_IOSTREAMS)
 #define BOOST_NO_STD_LOCALE
 #endif
@@ -59,7 +59,7 @@
 //
 // SGI's new iostreams have missing "const" in messages<>::open
 //
-#if defined(__sgi) && (_COMPILER_VERSION <= 740) &&                            \
+#if defined(__sgi) && (_COMPILER_VERSION <= 740) && \
     defined(__STL_USE_NEW_IOSTREAMS)
 #define BOOST_NO_STD_MESSAGES
 #endif
@@ -128,7 +128,7 @@
 #define BOOST_NO_0X_HDR_THREAD
 #define BOOST_NO_0X_HDR_TUPLE
 #define BOOST_NO_0X_HDR_TYPE_TRAITS
-#define BOOST_NO_STD_UNORDERED // deprecated; see following
+#define BOOST_NO_STD_UNORDERED  // deprecated; see following
 #define BOOST_NO_0X_HDR_UNORDERED_MAP
 #define BOOST_NO_0X_HDR_UNORDERED_SET
 

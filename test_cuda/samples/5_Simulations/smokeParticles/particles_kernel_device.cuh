@@ -38,7 +38,8 @@ struct integrate_functor {
   __host__ __device__ integrate_functor(float delta_time)
       : deltaTime(delta_time) {}
 
-  template <typename Tuple> __device__ void operator()(Tuple t) {
+  template <typename Tuple>
+  __device__ void operator()(Tuple t) {
     volatile float4 posData = thrust::get<2>(t);
     volatile float4 velData = thrust::get<3>(t);
 
@@ -80,10 +81,11 @@ struct calcDepth_functor {
   __host__ __device__ calcDepth_functor(float3 sort_vector)
       : sortVector(sort_vector) {}
 
-  template <typename Tuple> __host__ __device__ void operator()(Tuple t) {
+  template <typename Tuple>
+  __host__ __device__ void operator()(Tuple t) {
     volatile float4 p = thrust::get<0>(t);
     float key = -dot(make_float3(p.x, p.y, p.z),
-                     sortVector); // project onto sort vector
+                     sortVector);  // project onto sort vector
     thrust::get<1>(t) = key;
   }
 };

@@ -9,20 +9,20 @@
 #include <iostream>
 
 class A {
-public:
+ public:
   A() { std::cout << "Constuct A" << std::endl; }
 };
 
 static A a;
 
 class B {
-public:
+ public:
   B() { std::cout << "Constuct B" << std::endl; }
 };
 
 void func() { static B b; }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   std::cout << "In main." << std::endl;
   func();
   return 0;

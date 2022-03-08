@@ -47,24 +47,24 @@ typedef struct {
   int optionCount;
 
   // Host-side data source and result destination
-  TOptionData *optionData;
-  TOptionValue *callValue;
+  TOptionData* optionData;
+  TOptionValue* callValue;
 
   // Temporary Host-side pinned memory for async + faster data transfers
-  __TOptionValue *h_CallValue;
+  __TOptionValue* h_CallValue;
 
   // Device- and host-side option data
-  void *d_OptionData;
-  void *h_OptionData;
+  void* d_OptionData;
+  void* h_OptionData;
 
   // Device-side option values
-  void *d_CallValue;
+  void* d_CallValue;
 
   // Intermediate device-side buffers
-  void *d_Buffer;
+  void* d_Buffer;
 
   // random number generator states
-  curandState *rngStates;
+  curandState* rngStates;
 
   // Pseudorandom samples count
   int pathN;
@@ -75,8 +75,8 @@ typedef struct {
   int gridSize;
 } TOptionPlan;
 
-extern "C" void initMonteCarloGPU(TOptionPlan *plan);
-extern "C" void MonteCarloGPU(TOptionPlan *plan, cudaStream_t stream = 0);
-extern "C" void closeMonteCarloGPU(TOptionPlan *plan);
+extern "C" void initMonteCarloGPU(TOptionPlan* plan);
+extern "C" void MonteCarloGPU(TOptionPlan* plan, cudaStream_t stream = 0);
+extern "C" void closeMonteCarloGPU(TOptionPlan* plan);
 
 #endif

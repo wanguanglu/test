@@ -50,39 +50,39 @@ typedef unsigned char uchar;
 #define MAX_EPSILON_ERROR 5.0f
 #define THRESHOLD 0.15f
 
-const char *sSDKsample = "simpleTexture3D";
+const char* sSDKsample = "simpleTexture3D";
 
-const char *volumeFilename = "Bucky.raw";
+const char* volumeFilename = "Bucky.raw";
 const cudaExtent volumeSize = make_cudaExtent(32, 32, 32);
 
 const uint width = 512, height = 512;
 const dim3 blockSize(16, 16, 1);
 const dim3 gridSize(width / blockSize.x, height / blockSize.y);
 
-float w = 0.5; // texture coordinate in z
+float w = 0.5;  // texture coordinate in z
 
-GLuint pbo; // OpenGL pixel buffer object
-struct cudaGraphicsResource
-    *cuda_pbo_resource; // CUDA Graphics Resource (to transfer PBO)
+GLuint pbo;  // OpenGL pixel buffer object
+struct cudaGraphicsResource*
+    cuda_pbo_resource;  // CUDA Graphics Resource (to transfer PBO)
 
 bool linearFiltering = true;
 bool animate = true;
 
-StopWatchInterface *timer = NULL;
+StopWatchInterface* timer = NULL;
 
-uint *d_output = NULL;
+uint* d_output = NULL;
 
 // Auto-Verification Code
 const int frameCheckNumber = 4;
-int fpsCount = 0; // FPS count for averaging
-int fpsLimit = 1; // FPS limit for sampling
+int fpsCount = 0;  // FPS count for averaging
+int fpsLimit = 1;  // FPS limit for sampling
 int g_Index = 0;
 unsigned int frameCount = 0;
 unsigned int g_TotalErrors = 0;
 volatile int g_GraphicsMapFlag = 0;
 
-int *pArgc = NULL;
-char **pArgv = NULL;
+int* pArgc = NULL;
+char** pArgv = NULL;
 
 #ifndef MAX
 #define MAX(a, b) ((a > b) ? a : b)
@@ -90,11 +90,11 @@ char **pArgv = NULL;
 
 extern "C" void cleanup();
 extern "C" void setTextureFilterMode(bool bLinearFilter);
-extern "C" void initCuda(const uchar *h_volume, cudaExtent volumeSize);
-extern "C" void render_kernel(dim3 gridSize, dim3 blockSize, uint *d_output,
+extern "C" void initCuda(const uchar* h_volume, cudaExtent volumeSize);
+extern "C" void render_kernel(dim3 gridSize, dim3 blockSize, uint* d_output,
                               uint imageW, uint imageH, float w);
 
-void loadVolumeData(char *exec_path);
+void loadVolumeData(char* exec_path);
 
 void computeFPS() {
   frameCount++;
@@ -120,7 +120,7 @@ void render() {
   checkCudaErrors(cudaGraphicsMapResources(1, &cuda_pbo_resource, 0));
   size_t num_bytes;
   checkCudaErrors(cudaGraphicsResourceGetMappedPointer(
-      (void **)&d_output, &num_bytes, cuda_pbo_resource));
+      (void**)&d_output, &num_bytes, cuda_pbo_resource));
   // printf("CUDA mapped PBO: May access %ld bytes\n", num_bytes);
 
   // call CUDA kernel, writing results to PBO
@@ -166,36 +166,36 @@ void idle() {
 
 void keyboard(unsigned char key, int x, int y) {
   switch (key) {
-  case 27:
+    case 27:
 #if defined(__APPLE__) || defined(MACOSX)
-    exit(EXIT_SUCCESS);
-    glutDestroyWindow(glutGetWindow());
-    return;
+      exit(EXIT_SUCCESS);
+      glutDestroyWindow(glutGetWindow());
+      return;
 #else
-    glutDestroyWindow(glutGetWindow());
-    return;
+      glutDestroyWindow(glutGetWindow());
+      return;
 #endif
 
-  case '=':
-  case '+':
-    w += 0.01f;
-    break;
+    case '=':
+    case '+':
+      w += 0.01f;
+      break;
 
-  case '-':
-    w -= 0.01f;
-    break;
+    case '-':
+      w -= 0.01f;
+      break;
 
-  case 'f':
-    linearFiltering = !linearFiltering;
-    setTextureFilterMode(linearFiltering);
-    break;
+    case 'f':
+      linearFiltering = !linearFiltering;
+      setTextureFilterMode(linearFiltering);
+      break;
 
-  case ' ':
-    animate = !animate;
-    break;
+    case ' ':
+      animate = !animate;
+      break;
 
-  default:
-    break;
+    default:
+      break;
   }
 
   glutPostRedisplay();
@@ -247,15 +247,15 @@ void initGLBuffers() {
 }
 
 // Load raw data from disk
-uchar *loadRawFile(const char *filename, size_t size) {
-  FILE *fp = fopen(filename, "rb");
+uchar* loadRawFile(const char* filename, size_t size) {
+  FILE* fp = fopen(filename, "rb");
 
   if (!fp) {
     fprintf(stderr, "Error opening file '%s'\n", filename);
     return 0;
   }
 
-  uchar *data = (uchar *)malloc(size);
+  uchar* data = (uchar*)malloc(size);
   size_t read = fread(data, 1, size, fp);
   fclose(fp);
 
@@ -264,7 +264,7 @@ uchar *loadRawFile(const char *filename, size_t size) {
   return data;
 }
 
-void initGL(int *argc, char **argv) {
+void initGL(int* argc, char** argv) {
   // initialize GLUT callback functions
   glutInit(argc, argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
@@ -284,21 +284,21 @@ void initGL(int *argc, char **argv) {
 }
 
 // General initialization call for CUDA Device
-int chooseCudaDevice(int argc, char **argv, bool bUseOpenGL) {
+int chooseCudaDevice(int argc, char** argv, bool bUseOpenGL) {
   int result = 0;
 
   if (bUseOpenGL) {
-    result = findCudaGLDevice(argc, (const char **)argv);
+    result = findCudaGLDevice(argc, (const char**)argv);
   } else {
-    result = findCudaDevice(argc, (const char **)argv);
+    result = findCudaDevice(argc, (const char**)argv);
   }
 
   return result;
 }
 
-void runAutoTest(const char *ref_file, char *exec_path) {
+void runAutoTest(const char* ref_file, char* exec_path) {
   checkCudaErrors(
-      cudaMalloc((void **)&d_output, width * height * sizeof(GLubyte) * 4));
+      cudaMalloc((void**)&d_output, width * height * sizeof(GLubyte) * 4));
 
   // render the volumeData
   render_kernel(gridSize, blockSize, d_output, width, height, w);
@@ -306,7 +306,7 @@ void runAutoTest(const char *ref_file, char *exec_path) {
   checkCudaErrors(cudaDeviceSynchronize());
   getLastCudaError("render_kernel failed");
 
-  void *h_output = malloc(width * height * sizeof(GLubyte) * 4);
+  void* h_output = malloc(width * height * sizeof(GLubyte) * 4);
   checkCudaErrors(cudaMemcpy(h_output, d_output,
                              width * height * sizeof(GLubyte) * 4,
                              cudaMemcpyDeviceToHost));
@@ -332,9 +332,9 @@ void runAutoTest(const char *ref_file, char *exec_path) {
   exit(bTestResult ? EXIT_SUCCESS : EXIT_FAILURE);
 }
 
-void loadVolumeData(char *exec_path) {
+void loadVolumeData(char* exec_path) {
   // load volume data
-  const char *path = sdkFindFilePath(volumeFilename, exec_path);
+  const char* path = sdkFindFilePath(volumeFilename, exec_path);
 
   if (path == NULL) {
     fprintf(stderr, "Error unable to find 3D Volume file: '%s'\n",
@@ -343,7 +343,7 @@ void loadVolumeData(char *exec_path) {
   }
 
   size_t size = volumeSize.width * volumeSize.height * volumeSize.depth;
-  uchar *h_volume = loadRawFile(path, size);
+  uchar* h_volume = loadRawFile(path, size);
 
   initCuda(h_volume, volumeSize);
   sdkCreateTimer(&timer);
@@ -354,11 +354,11 @@ void loadVolumeData(char *exec_path) {
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   pArgc = &argc;
   pArgv = argv;
 
-  char *ref_file = NULL;
+  char* ref_file = NULL;
 
 #if defined(__linux__)
   setenv("DISPLAY", ":0", 0);
@@ -366,9 +366,9 @@ int main(int argc, char **argv) {
 
   printf("%s Starting...\n\n", sSDKsample);
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "file")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "file")) {
     fpsLimit = frameCheckNumber;
-    getCmdLineArgumentString(argc, (const char **)argv, "file", &ref_file);
+    getCmdLineArgumentString(argc, (const char**)argv, "file", &ref_file);
   }
 
   if (ref_file) {
@@ -393,8 +393,9 @@ int main(int argc, char **argv) {
     loadVolumeData(argv[0]);
   }
 
-  printf("Press space to toggle animation\n"
-         "Press '+' and '-' to change displayed slice\n");
+  printf(
+      "Press space to toggle animation\n"
+      "Press '+' and '-' to change displayed slice\n");
 
 #if defined(__APPLE__) || defined(MACOSX)
   atexit(cleanup);

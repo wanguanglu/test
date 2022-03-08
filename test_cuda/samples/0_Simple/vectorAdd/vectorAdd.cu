@@ -28,7 +28,7 @@
  * Computes the vector addition of A and B into C. The 3 vectors have the same
  * number of elements numElements.
  */
-__global__ void vectorAdd(const float *A, const float *B, float *C,
+__global__ void vectorAdd(const float* A, const float* B, float* C,
                           int numElements) {
   int i = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -50,13 +50,13 @@ int main(void) {
   printf("[Vector addition of %d elements]\n", numElements);
 
   // Allocate the host input vector A
-  float *h_A = (float *)malloc(size);
+  float* h_A = (float*)malloc(size);
 
   // Allocate the host input vector B
-  float *h_B = (float *)malloc(size);
+  float* h_B = (float*)malloc(size);
 
   // Allocate the host output vector C
-  float *h_C = (float *)malloc(size);
+  float* h_C = (float*)malloc(size);
 
   // Verify that allocations succeeded
   if (h_A == NULL || h_B == NULL || h_C == NULL) {
@@ -71,8 +71,8 @@ int main(void) {
   }
 
   // Allocate the device input vector A
-  float *d_A = NULL;
-  err = cudaMalloc((void **)&d_A, size);
+  float* d_A = NULL;
+  err = cudaMalloc((void**)&d_A, size);
 
   if (err != cudaSuccess) {
     fprintf(stderr, "Failed to allocate device vector A (error code %s)!\n",
@@ -81,8 +81,8 @@ int main(void) {
   }
 
   // Allocate the device input vector B
-  float *d_B = NULL;
-  err = cudaMalloc((void **)&d_B, size);
+  float* d_B = NULL;
+  err = cudaMalloc((void**)&d_B, size);
 
   if (err != cudaSuccess) {
     fprintf(stderr, "Failed to allocate device vector B (error code %s)!\n",
@@ -91,8 +91,8 @@ int main(void) {
   }
 
   // Allocate the device output vector C
-  float *d_C = NULL;
-  err = cudaMalloc((void **)&d_C, size);
+  float* d_C = NULL;
+  err = cudaMalloc((void**)&d_C, size);
 
   if (err != cudaSuccess) {
     fprintf(stderr, "Failed to allocate device vector C (error code %s)!\n",

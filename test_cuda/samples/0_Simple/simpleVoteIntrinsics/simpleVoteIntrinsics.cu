@@ -24,7 +24,7 @@
 #define MAX(a, b) (a > b ? a : b)
 #endif
 
-static const char *sSDKsample = "[simpleVoteIntrinsics]\0";
+static const char* sSDKsample = "[simpleVoteIntrinsics]\0";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Global types and parameters
@@ -37,7 +37,7 @@ static const char *sSDKsample = "[simpleVoteIntrinsics]\0";
 #include "simpleVote_kernel.cuh"
 
 // Generate the test pattern for Tests 1 and 2
-void genVoteTestPattern(unsigned int *VOTE_PATTERN, int size) {
+void genVoteTestPattern(unsigned int* VOTE_PATTERN, int size) {
   // For testing VOTE.Any (all of these threads will return 0)
   for (int i = 0; i < size / 4; i++) {
     VOTE_PATTERN[i] = 0x00000000;
@@ -59,8 +59,8 @@ void genVoteTestPattern(unsigned int *VOTE_PATTERN, int size) {
   }
 }
 
-int checkErrors1(unsigned int *h_result, int start, int end, int warp_size,
-                 const char *voteType) {
+int checkErrors1(unsigned int* h_result, int start, int end, int warp_size,
+                 const char* voteType) {
   int i, sum = 0;
 
   for (sum = 0, i = start; i < end; i++) {
@@ -80,8 +80,8 @@ int checkErrors1(unsigned int *h_result, int start, int end, int warp_size,
   return (sum > 0);
 }
 
-int checkErrors2(unsigned int *h_result, int start, int end, int warp_size,
-                 const char *voteType) {
+int checkErrors2(unsigned int* h_result, int start, int end, int warp_size,
+                 const char* voteType) {
   int i, sum = 0;
 
   for (sum = 0, i = start; i < end; i++) {
@@ -102,7 +102,7 @@ int checkErrors2(unsigned int *h_result, int start, int end, int warp_size,
 }
 
 // Verification code for Kernel #1
-int checkResultsVoteAnyKernel1(unsigned int *h_result, int size,
+int checkResultsVoteAnyKernel1(unsigned int* h_result, int size,
                                int warp_size) {
   int error_count = 0;
 
@@ -123,7 +123,7 @@ int checkResultsVoteAnyKernel1(unsigned int *h_result, int size,
 }
 
 // Verification code for Kernel #2
-int checkResultsVoteAllKernel2(unsigned int *h_result, int size,
+int checkResultsVoteAllKernel2(unsigned int* h_result, int size,
                                int warp_size) {
   int error_count = 0;
 
@@ -144,37 +144,37 @@ int checkResultsVoteAllKernel2(unsigned int *h_result, int size,
 }
 
 // Verification code for Kernel #3
-int checkResultsVoteAnyKernel3(bool *hinfo, int size) {
+int checkResultsVoteAnyKernel3(bool* hinfo, int size) {
   int i, error_count = 0;
 
   for (i = 0; i < size * 3; i++) {
     switch (i % 3) {
-    case 0:
+      case 0:
 
-      // First warp should be all zeros.
-      if (hinfo[i] != (i >= size * 1)) {
-        error_count++;
-      }
+        // First warp should be all zeros.
+        if (hinfo[i] != (i >= size * 1)) {
+          error_count++;
+        }
 
-      break;
+        break;
 
-    case 1:
+      case 1:
 
-      // First warp and half of second should be all zeros.
-      if (hinfo[i] != (i >= size * 3 / 2)) {
-        error_count++;
-      }
+        // First warp and half of second should be all zeros.
+        if (hinfo[i] != (i >= size * 3 / 2)) {
+          error_count++;
+        }
 
-      break;
+        break;
 
-    case 2:
+      case 2:
 
-      // First two warps should be all zeros.
-      if (hinfo[i] != (i >= size * 2)) {
-        error_count++;
-      }
+        // First two warps should be all zeros.
+        if (hinfo[i] != (i >= size * 2)) {
+          error_count++;
+        }
 
-      break;
+        break;
     }
   }
 
@@ -182,7 +182,7 @@ int checkResultsVoteAnyKernel3(bool *hinfo, int size) {
   return error_count;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   unsigned int *h_input, *h_result;
   unsigned int *d_input, *d_result;
 
@@ -195,7 +195,7 @@ int main(int argc, char **argv) {
   printf("%s\n", sSDKsample);
 
   // This will pick the best possible CUDA capable device
-  devID = findCudaDevice(argc, (const char **)argv);
+  devID = findCudaDevice(argc, (const char**)argv);
 
   checkCudaErrors(cudaGetDeviceProperties(&deviceProp, devID));
 
@@ -207,9 +207,10 @@ int main(int argc, char **argv) {
   int version = (deviceProp.major * 0x10 + deviceProp.minor);
 
   if (version < 0x12) {
-    printf("%s: requires minimum of Compute Capability 1.2 or higher, waiving "
-           "test...\n",
-           sSDKsample);
+    printf(
+        "%s: requires minimum of Compute Capability 1.2 or higher, waiving "
+        "test...\n",
+        sSDKsample);
 
     // cudaDeviceReset causes the driver to clean up all state. While
     // not mandatory in normal operation, it is good practice.  It is also
@@ -220,14 +221,14 @@ int main(int argc, char **argv) {
     exit(EXIT_SUCCESS);
   }
 
-  h_input = (unsigned int *)malloc(VOTE_DATA_GROUP * warp_size *
-                                   sizeof(unsigned int));
-  h_result = (unsigned int *)malloc(VOTE_DATA_GROUP * warp_size *
-                                    sizeof(unsigned int));
-  checkCudaErrors(cudaMalloc((void **)&d_input, VOTE_DATA_GROUP * warp_size *
-                                                    sizeof(unsigned int)));
-  checkCudaErrors(cudaMalloc((void **)&d_result, VOTE_DATA_GROUP * warp_size *
-                                                     sizeof(unsigned int)));
+  h_input =
+      (unsigned int*)malloc(VOTE_DATA_GROUP * warp_size * sizeof(unsigned int));
+  h_result =
+      (unsigned int*)malloc(VOTE_DATA_GROUP * warp_size * sizeof(unsigned int));
+  checkCudaErrors(cudaMalloc(
+      (void**)&d_input, VOTE_DATA_GROUP * warp_size * sizeof(unsigned int)));
+  checkCudaErrors(cudaMalloc(
+      (void**)&d_result, VOTE_DATA_GROUP * warp_size * sizeof(unsigned int)));
   genVoteTestPattern(h_input, VOTE_DATA_GROUP * warp_size);
   checkCudaErrors(cudaMemcpy(d_input, h_input,
                              VOTE_DATA_GROUP * warp_size * sizeof(unsigned int),
@@ -270,8 +271,8 @@ int main(int argc, char **argv) {
       h_result, VOTE_DATA_GROUP * warp_size, warp_size);
 
   // Second Vote Kernel Test #3 (both Any/All)
-  hinfo = (bool *)calloc(warp_size * 3 * 3, sizeof(bool));
-  cudaMalloc((void **)&dinfo, warp_size * 3 * 3 * sizeof(bool));
+  hinfo = (bool*)calloc(warp_size * 3 * 3, sizeof(bool));
+  cudaMalloc((void**)&dinfo, warp_size * 3 * 3 * sizeof(bool));
   cudaMemcpy(dinfo, hinfo, warp_size * 3 * 3 * sizeof(bool),
              cudaMemcpyHostToDevice);
 

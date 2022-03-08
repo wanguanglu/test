@@ -35,14 +35,15 @@ void srand48(long seed) { srand((unsigned int)seed); }
 double drand48() { return double(rand()) / RAND_MAX; }
 #endif
 
-const char *sSDKname = "UnifiedMemoryStreams";
+const char* sSDKname = "UnifiedMemoryStreams";
 
 // simple task
-template <typename T> struct Task {
+template <typename T>
+struct Task {
   unsigned int size, id;
-  T *data;
-  T *result;
-  T *vector;
+  T* data;
+  T* result;
+  T* vector;
 
   Task() : size(0), id(0), data(NULL), result(NULL), vector(NULL){};
   Task(unsigned int s) : size(s), id(0), data(NULL), result(NULL) {
@@ -85,7 +86,7 @@ template <typename T> struct Task {
 
 // simple host dgemv: assume data is in row-major format and square
 template <typename T>
-void gemv(int m, int n, T alpha, T *A, T *x, T beta, T *result) {
+void gemv(int m, int n, T alpha, T* A, T* x, T beta, T* result) {
   // rows
   for (int i = 0; i < n; i++) {
     result[i] *= beta;
@@ -98,7 +99,7 @@ void gemv(int m, int n, T alpha, T *A, T *x, T beta, T *result) {
 
 // execute a single task on either host or device depending on size
 template <typename T>
-void execute(Task<T> &t, cublasHandle_t *handle, cudaStream_t *stream,
+void execute(Task<T>& t, cublasHandle_t* handle, cudaStream_t* stream,
              int tid) {
   if (t.size < 100) {
     // perform on host
@@ -140,7 +141,8 @@ void execute(Task<T> &t, cublasHandle_t *handle, cudaStream_t *stream,
 }
 
 // populate a list of tasks with random sizes
-template <typename T> void initialise_tasks(std::vector<Task<T>> &TaskList) {
+template <typename T>
+void initialise_tasks(std::vector<Task<T>>& TaskList) {
   for (unsigned int i = 0; i < TaskList.size(); i++) {
     // generate random size
     int size;
@@ -149,10 +151,10 @@ template <typename T> void initialise_tasks(std::vector<Task<T>> &TaskList) {
   }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   // set device
   cudaDeviceProp device_prop;
-  int dev_id = findCudaDevice(argc, (const char **)argv);
+  int dev_id = findCudaDevice(argc, (const char**)argv);
   checkCudaErrors(cudaGetDeviceProperties(&device_prop, dev_id));
 
   if (!device_prop.managedMemory) {
@@ -171,8 +173,9 @@ int main(int argc, char **argv) {
   if (device_prop.computeMode == cudaComputeModeExclusive ||
       device_prop.computeMode == cudaComputeModeProhibited) {
     // This sample requires being run with a default or process exclusive mode
-    fprintf(stderr, "This sample requires a device in either default or "
-                    "process exclusive mode\n");
+    fprintf(stderr,
+            "This sample requires a device in either default or "
+            "process exclusive mode\n");
 
     // cudaDeviceReset causes the driver to clean up all state. While
     // not mandatory in normal operation, it is good practice.  It is also
@@ -191,8 +194,8 @@ int main(int argc, char **argv) {
   const int nthreads = 4;
   omp_set_num_threads(nthreads);
   // number of streams = number of threads
-  cudaStream_t *streams = new cudaStream_t[nthreads + 1];
-  cublasHandle_t *handles = new cublasHandle_t[nthreads + 1];
+  cudaStream_t* streams = new cudaStream_t[nthreads + 1];
+  cublasHandle_t* handles = new cublasHandle_t[nthreads + 1];
 
   for (int i = 0; i < nthreads + 1; i++) {
     checkCudaErrors(cudaStreamCreate(&streams[i]));

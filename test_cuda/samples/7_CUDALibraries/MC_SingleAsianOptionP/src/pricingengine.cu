@@ -26,7 +26,7 @@ using std::string;
 using std::vector;
 
 // RNG init kernel
-__global__ void initRNG(curandState *const rngStates, const unsigned int seed) {
+__global__ void initRNG(curandState* const rngStates, const unsigned int seed) {
   // Determine thread ID
   unsigned int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -34,19 +34,19 @@ __global__ void initRNG(curandState *const rngStates, const unsigned int seed) {
   curand_init(seed, tid, 0, &rngStates[tid]);
 }
 
-__device__ inline float getPathStep(float &drift, float &diffusion,
-                                    curandState &state) {
+__device__ inline float getPathStep(float& drift, float& diffusion,
+                                    curandState& state) {
   return expf(drift + diffusion * curand_normal(&state));
 }
-__device__ inline double getPathStep(double &drift, double &diffusion,
-                                     curandState &state) {
+__device__ inline double getPathStep(double& drift, double& diffusion,
+                                     curandState& state) {
   return exp(drift + diffusion * curand_normal_double(&state));
 }
 
 // Path generation kernel
 template <typename Real>
-__global__ void generatePaths(Real *const paths, curandState *const rngStates,
-                              const AsianOption<Real> *const option,
+__global__ void generatePaths(Real* const paths, curandState* const rngStates,
+                              const AsianOption<Real>* const option,
                               const unsigned int numSims,
                               const unsigned int numTimesteps) {
   // Determine thread ID
@@ -64,7 +64,7 @@ __global__ void generatePaths(Real *const paths, curandState *const rngStates,
 
   for (unsigned int i = tid; i < numSims; i += step) {
     // Shift the output pointer
-    Real *output = paths + i;
+    Real* output = paths + i;
 
     // Simulate the path
     Real s = static_cast<Real>(1);
@@ -76,7 +76,8 @@ __global__ void generatePaths(Real *const paths, curandState *const rngStates,
   }
 }
 
-template <typename Real> __device__ Real reduce_sum(Real in) {
+template <typename Real>
+__device__ Real reduce_sum(Real in) {
   SharedMemory<Real> sdata;
 
   // Perform first level of reduction:
@@ -100,8 +101,8 @@ template <typename Real> __device__ Real reduce_sum(Real in) {
 
 // Valuation kernel
 template <typename Real>
-__global__ void computeValue(Real *const values, const Real *const paths,
-                             const AsianOption<Real> *const option,
+__global__ void computeValue(Real* const values, const Real* const paths,
+                             const AsianOption<Real>* const option,
                              const unsigned int numSims,
                              const unsigned int numTimesteps) {
   // Determine thread ID
@@ -113,7 +114,7 @@ __global__ void computeValue(Real *const values, const Real *const paths,
 
   for (unsigned int i = tid; i < numSims; i += step) {
     // Shift the input pointer
-    const Real *path = paths + i;
+    const Real* path = paths + i;
     // Compute the arithmetic average
     Real avg = static_cast<Real>(0);
 
@@ -147,11 +148,13 @@ template <typename Real>
 PricingEngine<Real>::PricingEngine(unsigned int numSims, unsigned int device,
                                    unsigned int threadBlockSize,
                                    unsigned int seed)
-    : m_numSims(numSims), m_device(device), m_threadBlockSize(threadBlockSize),
+    : m_numSims(numSims),
+      m_device(device),
+      m_threadBlockSize(threadBlockSize),
       m_seed(seed) {}
 
 template <typename Real>
-void PricingEngine<Real>::operator()(AsianOption<Real> &option) {
+void PricingEngine<Real>::operator()(AsianOption<Real>& option) {
   cudaError_t cudaResult = cudaSuccess;
   struct cudaDeviceProp deviceProperties;
   struct cudaFuncAttributes funcAttributes;
@@ -240,8 +243,8 @@ void PricingEngine<Real>::operator()(AsianOption<Real> &option) {
   }
 
   // Setup problem on GPU
-  AsianOption<Real> *d_option = 0;
-  cudaResult = cudaMalloc((void **)&d_option, sizeof(AsianOption<Real>));
+  AsianOption<Real>* d_option = 0;
+  cudaResult = cudaMalloc((void**)&d_option, sizeof(AsianOption<Real>));
 
   if (cudaResult != cudaSuccess) {
     string msg("Could not allocate memory on device for option data: ");
@@ -259,10 +262,10 @@ void PricingEngine<Real>::operator()(AsianOption<Real> &option) {
   }
 
   // Allocate memory for paths
-  Real *d_paths = 0;
+  Real* d_paths = 0;
   int numTimesteps = static_cast<int>(option.tenor / option.dt);
   cudaResult =
-      cudaMalloc((void **)&d_paths, m_numSims * numTimesteps * sizeof(Real));
+      cudaMalloc((void**)&d_paths, m_numSims * numTimesteps * sizeof(Real));
 
   if (cudaResult != cudaSuccess) {
     string msg("Could not allocate memory on device for paths: ");
@@ -271,9 +274,9 @@ void PricingEngine<Real>::operator()(AsianOption<Real> &option) {
   }
 
   // Allocate memory for RNG states
-  curandState *d_rngStates = 0;
+  curandState* d_rngStates = 0;
   cudaResult =
-      cudaMalloc((void **)&d_rngStates, grid.x * block.x * sizeof(curandState));
+      cudaMalloc((void**)&d_rngStates, grid.x * block.x * sizeof(curandState));
 
   if (cudaResult != cudaSuccess) {
     string msg("Could not allocate memory on device for RNG state: ");
@@ -282,8 +285,8 @@ void PricingEngine<Real>::operator()(AsianOption<Real> &option) {
   }
 
   // Allocate memory for result
-  Real *d_values = 0;
-  cudaResult = cudaMalloc((void **)&d_values, grid.x * sizeof(Real));
+  Real* d_values = 0;
+  cudaResult = cudaMalloc((void**)&d_values, grid.x * sizeof(Real));
 
   if (cudaResult != cudaSuccess) {
     string msg("Could not allocate memory on device for partial results: ");

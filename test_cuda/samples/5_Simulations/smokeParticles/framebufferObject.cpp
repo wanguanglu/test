@@ -136,8 +136,8 @@ void FramebufferObject::AttachRenderBuffer(GLuint buffId, GLenum attachment) {
 void FramebufferObject::AttachRenderBuffers(int numBuffers, GLuint buffId[],
                                             GLenum attachment[]) {
   for (int i = 0; i < numBuffers; ++i) {
-    AttachRenderBuffer(buffId[i], attachment ? attachment[i]
-                                             : (GL_COLOR_ATTACHMENT0_EXT + i));
+    AttachRenderBuffer(
+        buffId[i], attachment ? attachment[i] : (GL_COLOR_ATTACHMENT0_EXT + i));
   }
 }
 
@@ -146,20 +146,20 @@ void FramebufferObject::Unattach(GLenum attachment) {
   GLenum type = GetAttachedType(attachment);
 
   switch (type) {
-  case GL_NONE:
-    break;
+    case GL_NONE:
+      break;
 
-  case GL_RENDERBUFFER_EXT:
-    AttachRenderBuffer(0, attachment);
-    break;
+    case GL_RENDERBUFFER_EXT:
+      AttachRenderBuffer(0, attachment);
+      break;
 
-  case GL_TEXTURE:
-    AttachTexture(GL_TEXTURE_2D, 0, attachment);
-    break;
+    case GL_TEXTURE:
+      AttachTexture(GL_TEXTURE_2D, 0, attachment);
+      break;
 
-  default:
-    cerr << "FramebufferObject::unbind_attachment ERROR: Unknown attached "
-            "resource type\n";
+    default:
+      cerr << "FramebufferObject::unbind_attachment ERROR: Unknown attached "
+              "resource type\n";
   }
 
   _GuardedUnbind();
@@ -218,7 +218,7 @@ void FramebufferObject::_FramebufferTextureND(GLenum attachment,
 }
 
 #ifndef NDEBUG
-bool FramebufferObject::IsValid(ostream &ostr) {
+bool FramebufferObject::IsValid(ostream& ostr) {
   _GuardedBind();
 
   bool isOK = false;
@@ -227,62 +227,62 @@ bool FramebufferObject::IsValid(ostream &ostr) {
   status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 
   switch (status) {
-  case GL_FRAMEBUFFER_COMPLETE_EXT: // Everything's OK
-    isOK = true;
-    break;
+    case GL_FRAMEBUFFER_COMPLETE_EXT:  // Everything's OK
+      isOK = true;
+      break;
 
-  case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-    ostr << "glift::CheckFramebufferStatus() ERROR:\n\t"
-         << "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT\n";
-    isOK = false;
-    break;
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+      ostr << "glift::CheckFramebufferStatus() ERROR:\n\t"
+           << "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT\n";
+      isOK = false;
+      break;
 
-  case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-    ostr << "glift::CheckFramebufferStatus() ERROR:\n\t"
-         << "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT\n";
-    isOK = false;
-    break;
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
+      ostr << "glift::CheckFramebufferStatus() ERROR:\n\t"
+           << "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT\n";
+      isOK = false;
+      break;
 
-  case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-    ostr << "glift::CheckFramebufferStatus() ERROR:\n\t"
-         << "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT\n";
-    isOK = false;
-    break;
+    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+      ostr << "glift::CheckFramebufferStatus() ERROR:\n\t"
+           << "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT\n";
+      isOK = false;
+      break;
 
-  case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-    ostr << "glift::CheckFramebufferStatus() ERROR:\n\t"
-         << "GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT\n";
-    isOK = false;
-    break;
+    case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
+      ostr << "glift::CheckFramebufferStatus() ERROR:\n\t"
+           << "GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT\n";
+      isOK = false;
+      break;
 
-  case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-    ostr << "glift::CheckFramebufferStatus() ERROR:\n\t"
-         << "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT\n";
-    isOK = false;
-    break;
+    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+      ostr << "glift::CheckFramebufferStatus() ERROR:\n\t"
+           << "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT\n";
+      isOK = false;
+      break;
 
-  case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-    ostr << "glift::CheckFramebufferStatus() ERROR:\n\t"
-         << "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT\n";
-    isOK = false;
-    break;
+    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
+      ostr << "glift::CheckFramebufferStatus() ERROR:\n\t"
+           << "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT\n";
+      isOK = false;
+      break;
 
-  case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-    ostr << "glift::CheckFramebufferStatus() ERROR:\n\t"
-         << "GL_FRAMEBUFFER_UNSUPPORTED_EXT\n";
-    isOK = false;
-    break;
+    case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+      ostr << "glift::CheckFramebufferStatus() ERROR:\n\t"
+           << "GL_FRAMEBUFFER_UNSUPPORTED_EXT\n";
+      isOK = false;
+      break;
 
-  default:
-    ostr << "glift::CheckFramebufferStatus() ERROR:\n\t"
-         << "Unknown ERROR\n";
-    isOK = false;
+    default:
+      ostr << "glift::CheckFramebufferStatus() ERROR:\n\t"
+           << "Unknown ERROR\n";
+      isOK = false;
   }
 
   _GuardedUnbind();
   return isOK;
 }
-#endif // NDEBUG
+#endif  // NDEBUG
 
 /// Accessors
 GLenum FramebufferObject::GetAttachedType(GLenum attachment) {

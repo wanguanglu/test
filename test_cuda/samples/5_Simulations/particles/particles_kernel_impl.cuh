@@ -41,7 +41,8 @@ struct integrate_functor {
   __host__ __device__ integrate_functor(float delta_time)
       : deltaTime(delta_time) {}
 
-  template <typename Tuple> __device__ void operator()(Tuple t) {
+  template <typename Tuple>
+  __device__ void operator()(Tuple t) {
     volatile float4 posData = thrust::get<0>(t);
     volatile float4 velData = thrust::get<1>(t);
     float3 pos = make_float3(posData.x, posData.y, posData.z);
@@ -106,7 +107,7 @@ __device__ int3 calcGridPos(float3 p) {
 // calculate address in grid from position (clamping to edges)
 __device__ uint calcGridHash(int3 gridPos) {
   gridPos.x = gridPos.x &
-              (params.gridSize.x - 1); // wrap grid, assumes size is power of 2
+              (params.gridSize.x - 1);  // wrap grid, assumes size is power of 2
   gridPos.y = gridPos.y & (params.gridSize.y - 1);
   gridPos.z = gridPos.z & (params.gridSize.z - 1);
   return __umul24(__umul24(gridPos.z, params.gridSize.y), params.gridSize.x) +
@@ -114,14 +115,13 @@ __device__ uint calcGridHash(int3 gridPos) {
 }
 
 // calculate grid hash value for each particle
-__global__ void calcHashD(uint *gridParticleHash,  // output
-                          uint *gridParticleIndex, // output
-                          float4 *pos,             // input: positions
+__global__ void calcHashD(uint* gridParticleHash,   // output
+                          uint* gridParticleIndex,  // output
+                          float4* pos,              // input: positions
                           uint numParticles) {
   uint index = __umul24(blockIdx.x, blockDim.x) + threadIdx.x;
 
-  if (index >= numParticles)
-    return;
+  if (index >= numParticles) return;
 
   volatile float4 p = pos[index];
 
@@ -137,16 +137,16 @@ __global__ void calcHashD(uint *gridParticleHash,  // output
 // rearrange particle data into sorted order, and find the start of each cell
 // in the sorted hash array
 __global__ void reorderDataAndFindCellStartD(
-    uint *cellStart,         // output: cell start index
-    uint *cellEnd,           // output: cell end index
-    float4 *sortedPos,       // output: sorted positions
-    float4 *sortedVel,       // output: sorted velocities
-    uint *gridParticleHash,  // input: sorted grid hashes
-    uint *gridParticleIndex, // input: sorted particle indices
-    float4 *oldPos,          // input: sorted position array
-    float4 *oldVel,          // input: sorted velocity array
+    uint* cellStart,          // output: cell start index
+    uint* cellEnd,            // output: cell end index
+    float4* sortedPos,        // output: sorted positions
+    float4* sortedVel,        // output: sorted velocities
+    uint* gridParticleHash,   // input: sorted grid hashes
+    uint* gridParticleIndex,  // input: sorted particle indices
+    float4* oldPos,           // input: sorted position array
+    float4* oldVel,           // input: sorted velocity array
     uint numParticles) {
-  extern __shared__ uint sharedHash[]; // blockSize + 1 elements
+  extern __shared__ uint sharedHash[];  // blockSize + 1 elements
   uint index = __umul24(blockIdx.x, blockDim.x) + threadIdx.x;
 
   uint hash;
@@ -178,8 +178,7 @@ __global__ void reorderDataAndFindCellStartD(
     if (index == 0 || hash != sharedHash[threadIdx.x]) {
       cellStart[hash] = index;
 
-      if (index > 0)
-        cellEnd[sharedHash[threadIdx.x]] = index;
+      if (index > 0) cellEnd[sharedHash[threadIdx.x]] = index;
     }
 
     if (index == numParticles - 1) {
@@ -189,8 +188,8 @@ __global__ void reorderDataAndFindCellStartD(
     // Now use the sorted index to reorder the pos and vel data
     uint sortedIndex = gridParticleIndex[index];
     float4 pos = FETCH(
-        oldPos, sortedIndex); // macro does either global read or texture fetch
-    float4 vel = FETCH(oldVel, sortedIndex); // see particles_kernel.cuh
+        oldPos, sortedIndex);  // macro does either global read or texture fetch
+    float4 vel = FETCH(oldVel, sortedIndex);  // see particles_kernel.cuh
 
     sortedPos[index] = pos;
     sortedVel[index] = vel;
@@ -233,8 +232,8 @@ __device__ float3 collideSpheres(float3 posA, float3 posB, float3 velA,
 
 // collide a particle against all other particles in a given cell
 __device__ float3 collideCell(int3 gridPos, uint index, float3 pos, float3 vel,
-                              float4 *oldPos, float4 *oldVel, uint *cellStart,
-                              uint *cellEnd) {
+                              float4* oldPos, float4* oldVel, uint* cellStart,
+                              uint* cellEnd) {
   uint gridHash = calcGridHash(gridPos);
 
   // get start of bucket for this cell
@@ -242,13 +241,13 @@ __device__ float3 collideCell(int3 gridPos, uint index, float3 pos, float3 vel,
 
   float3 force = make_float3(0.0f);
 
-  if (startIndex != 0xffffffff) // cell is not empty
+  if (startIndex != 0xffffffff)  // cell is not empty
   {
     // iterate over particles in this cell
     uint endIndex = FETCH(cellEnd, gridHash);
 
     for (uint j = startIndex; j < endIndex; j++) {
-      if (j != index) // check not colliding with self
+      if (j != index)  // check not colliding with self
       {
         float3 pos2 = make_float3(FETCH(oldPos, j));
         float3 vel2 = make_float3(FETCH(oldVel, j));
@@ -263,16 +262,15 @@ __device__ float3 collideCell(int3 gridPos, uint index, float3 pos, float3 vel,
   return force;
 }
 
-__global__ void
-collideD(float4 *newVel,          // output: new velocity
-         float4 *oldPos,          // input: sorted positions
-         float4 *oldVel,          // input: sorted velocities
-         uint *gridParticleIndex, // input: sorted particle indices
-         uint *cellStart, uint *cellEnd, uint numParticles) {
+__global__ void collideD(
+    float4* newVel,           // output: new velocity
+    float4* oldPos,           // input: sorted positions
+    float4* oldVel,           // input: sorted velocities
+    uint* gridParticleIndex,  // input: sorted particle indices
+    uint* cellStart, uint* cellEnd, uint numParticles) {
   uint index = __mul24(blockIdx.x, blockDim.x) + threadIdx.x;
 
-  if (index >= numParticles)
-    return;
+  if (index >= numParticles) return;
 
   // read particle data from sorted arrays
   float3 pos = make_float3(FETCH(oldPos, index));

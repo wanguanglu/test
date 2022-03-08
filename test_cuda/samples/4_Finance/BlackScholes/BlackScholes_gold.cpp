@@ -27,8 +27,7 @@ static double CND(double d) {
   double cnd = RSQRT2PI * exp(-0.5 * d * d) *
                (K * (A1 + K * (A2 + K * (A3 + K * (A4 + K * A5)))));
 
-  if (d > 0)
-    cnd = 1.0 - cnd;
+  if (d > 0) cnd = 1.0 - cnd;
 
   return cnd;
 }
@@ -36,12 +35,12 @@ static double CND(double d) {
 ///////////////////////////////////////////////////////////////////////////////
 // Black-Scholes formula for both call and put
 ///////////////////////////////////////////////////////////////////////////////
-static void BlackScholesBodyCPU(float &callResult, float &putResult,
-                                float Sf, // Stock price
-                                float Xf, // Option strike
-                                float Tf, // Option years
-                                float Rf, // Riskless rate
-                                float Vf  // Volatility rate
+static void BlackScholesBodyCPU(float& callResult, float& putResult,
+                                float Sf,  // Stock price
+                                float Xf,  // Option strike
+                                float Tf,  // Option years
+                                float Rf,  // Riskless rate
+                                float Vf   // Volatility rate
 ) {
   double S = Sf, X = Xf, T = Tf, R = Rf, V = Vf;
 
@@ -60,9 +59,9 @@ static void BlackScholesBodyCPU(float &callResult, float &putResult,
 ////////////////////////////////////////////////////////////////////////////////
 // Process an array of optN options
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void BlackScholesCPU(float *h_CallResult, float *h_PutResult,
-                                float *h_StockPrice, float *h_OptionStrike,
-                                float *h_OptionYears, float Riskfree,
+extern "C" void BlackScholesCPU(float* h_CallResult, float* h_PutResult,
+                                float* h_StockPrice, float* h_OptionStrike,
+                                float* h_OptionYears, float Riskfree,
                                 float Volatility, int optN) {
   for (int opt = 0; opt < optN; opt++)
     BlackScholesBodyCPU(h_CallResult[opt], h_PutResult[opt], h_StockPrice[opt],

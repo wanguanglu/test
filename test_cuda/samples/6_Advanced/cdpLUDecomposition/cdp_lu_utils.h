@@ -17,7 +17,7 @@
 // call returns an error
 #define checkCudaErrors(err) __check_cuda_errors(err, __FILE__, __LINE__)
 
-inline void __check_cuda_errors(cudaError err, const char *file,
+inline void __check_cuda_errors(cudaError err, const char* file,
                                 const int line) {
   if (cudaSuccess != err) {
     fflush(stdout);
@@ -42,9 +42,9 @@ inline void __check_cuda_errors(cudaError err, const char *file,
 #define MIN(a, b) ((a <= b) ? a : b)
 #endif
 
-inline void errorExit(const char *msg) {
+inline void errorExit(const char* msg) {
 #ifdef SHR_QATEST_H
-  shrQAFinishExit(argc, (const char **)argv, QA_FAILED);
+  shrQAFinishExit(argc, (const char**)argv, QA_FAILED);
 #else
   fflush(stdout);
   fprintf(stderr, "%s\n", msg);

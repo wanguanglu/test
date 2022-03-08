@@ -96,7 +96,7 @@ __global__ void binomialOptionsKernel() {
 ////////////////////////////////////////////////////////////////////////////////
 // Host-side interface to GPU binomialOptions
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void binomialOptionsGPU(real *callValue, TOptionData *optionData,
+extern "C" void binomialOptionsGPU(real* callValue, TOptionData* optionData,
                                    int optN) {
   __TOptionData h_OptionData[MAX_OPTIONS];
 

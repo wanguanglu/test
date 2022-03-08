@@ -22,13 +22,13 @@
 
 // Standard Windows includes
 #include <assert.h>
-#include <commctrl.h> // for InitCommonControls()
+#include <commctrl.h>  // for InitCommonControls()
 #include <initguid.h>
 #include <limits.h>
 #include <math.h>
 #include <mmsystem.h>
-#include <new.h>      // for placement new
-#include <shellapi.h> // for ExtractIcon()
+#include <new.h>       // for placement new
+#include <shellapi.h>  // for ExtractIcon()
 #include <shlobj.h>
 #include <stdio.h>
 #include <wchar.h>
@@ -68,7 +68,7 @@
 #pragma deprecated("_tcsncat")
 #endif
 
-#pragma warning(disable : 4996) // disable deprecated warning
+#pragma warning(disable : 4996)  // disable deprecated warning
 #include <strsafe.h>
 #pragma warning(default : 4996)
 
@@ -91,8 +91,8 @@ struct DXUTD3D10DeviceSettings {
   UINT32 CreateFlags;
   UINT32 SyncInterval;
   DWORD PresentFlags;
-  bool AutoCreateDepthStencil; // DXUT will create the a depth stencil resource
-                               // and view if true
+  bool AutoCreateDepthStencil;  // DXUT will create the a depth stencil resource
+                                // and view if true
   DXGI_FORMAT AutoDepthStencilFormat;
 };
 
@@ -100,8 +100,8 @@ enum DXUTDeviceVersion { DXUT_D3D9_DEVICE, DXUT_D3D10_DEVICE };
 struct DXUTDeviceSettings {
   DXUTDeviceVersion ver;
   union {
-    DXUTD3D9DeviceSettings d3d9;   // only valid if ver == DXUT_D3D9_DEVICE
-    DXUTD3D10DeviceSettings d3d10; // only valid if ver == DXUT_D3D10_DEVICE
+    DXUTD3D9DeviceSettings d3d9;    // only valid if ver == DXUT_D3D9_DEVICE
+    DXUTD3D10DeviceSettings d3d10;  // only valid if ver == DXUT_D3D10_DEVICE
   };
 };
 
@@ -109,88 +109,88 @@ struct DXUTDeviceSettings {
 // Error codes
 //--------------------------------------------------------------------------------------
 #define DXUTERR_NODIRECT3D MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x0901)
-#define DXUTERR_NOCOMPATIBLEDEVICES                                            \
+#define DXUTERR_NOCOMPATIBLEDEVICES \
   MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x0902)
 #define DXUTERR_MEDIANOTFOUND MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x0903)
-#define DXUTERR_NONZEROREFCOUNT                                                \
+#define DXUTERR_NONZEROREFCOUNT \
   MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x0904)
-#define DXUTERR_CREATINGDEVICE                                                 \
+#define DXUTERR_CREATINGDEVICE \
   MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x0905)
-#define DXUTERR_RESETTINGDEVICE                                                \
+#define DXUTERR_RESETTINGDEVICE \
   MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x0906)
-#define DXUTERR_CREATINGDEVICEOBJECTS                                          \
+#define DXUTERR_CREATINGDEVICEOBJECTS \
   MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x0907)
-#define DXUTERR_RESETTINGDEVICEOBJECTS                                         \
+#define DXUTERR_RESETTINGDEVICEOBJECTS \
   MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x0908)
 #define DXUTERR_DEVICEREMOVED MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x090A)
 
-typedef HRESULT(WINAPI *LPCREATEDXGIFACTORY)(REFIID, void **);
-typedef HRESULT(WINAPI *LPD3D10CREATEDEVICE)(IDXGIAdapter *, D3D10_DRIVER_TYPE,
+typedef HRESULT(WINAPI* LPCREATEDXGIFACTORY)(REFIID, void**);
+typedef HRESULT(WINAPI* LPD3D10CREATEDEVICE)(IDXGIAdapter*, D3D10_DRIVER_TYPE,
                                              HMODULE, UINT, UINT32,
-                                             ID3D10Device **);
-typedef HRESULT(WINAPI *LPD3D10CREATEDEVICE1)(IDXGIAdapter *, D3D10_DRIVER_TYPE,
+                                             ID3D10Device**);
+typedef HRESULT(WINAPI* LPD3D10CREATEDEVICE1)(IDXGIAdapter*, D3D10_DRIVER_TYPE,
                                               HMODULE, UINT,
                                               D3D10_FEATURE_LEVEL1, UINT,
-                                              ID3D10Device1 **);
-typedef HRESULT(WINAPI *LPD3D10CREATESTATEBLOCK)(
-    ID3D10Device *pDevice, D3D10_STATE_BLOCK_MASK *pStateBlockMask,
-    ID3D10StateBlock **ppStateBlock);
-typedef HRESULT(WINAPI *LPD3D10STATEBLOCKMASKUNION)(
-    D3D10_STATE_BLOCK_MASK *pA, D3D10_STATE_BLOCK_MASK *pB,
-    D3D10_STATE_BLOCK_MASK *pResult);
-typedef HRESULT(WINAPI *LPD3D10STATEBLOCKMASKINTERSECT)(
-    D3D10_STATE_BLOCK_MASK *pA, D3D10_STATE_BLOCK_MASK *pB,
-    D3D10_STATE_BLOCK_MASK *pResult);
-typedef HRESULT(WINAPI *LPD3D10STATEBLOCKMASKDIFFERENCE)(
-    D3D10_STATE_BLOCK_MASK *pA, D3D10_STATE_BLOCK_MASK *pB,
-    D3D10_STATE_BLOCK_MASK *pResult);
-typedef HRESULT(WINAPI *LPD3D10STATEBLOCKMASKENABLECAPTURE)(
-    D3D10_STATE_BLOCK_MASK *pMask, D3D10_DEVICE_STATE_TYPES StateType,
+                                              ID3D10Device1**);
+typedef HRESULT(WINAPI* LPD3D10CREATESTATEBLOCK)(
+    ID3D10Device* pDevice, D3D10_STATE_BLOCK_MASK* pStateBlockMask,
+    ID3D10StateBlock** ppStateBlock);
+typedef HRESULT(WINAPI* LPD3D10STATEBLOCKMASKUNION)(
+    D3D10_STATE_BLOCK_MASK* pA, D3D10_STATE_BLOCK_MASK* pB,
+    D3D10_STATE_BLOCK_MASK* pResult);
+typedef HRESULT(WINAPI* LPD3D10STATEBLOCKMASKINTERSECT)(
+    D3D10_STATE_BLOCK_MASK* pA, D3D10_STATE_BLOCK_MASK* pB,
+    D3D10_STATE_BLOCK_MASK* pResult);
+typedef HRESULT(WINAPI* LPD3D10STATEBLOCKMASKDIFFERENCE)(
+    D3D10_STATE_BLOCK_MASK* pA, D3D10_STATE_BLOCK_MASK* pB,
+    D3D10_STATE_BLOCK_MASK* pResult);
+typedef HRESULT(WINAPI* LPD3D10STATEBLOCKMASKENABLECAPTURE)(
+    D3D10_STATE_BLOCK_MASK* pMask, D3D10_DEVICE_STATE_TYPES StateType,
     UINT RangeStart, UINT RangeLength);
-typedef HRESULT(WINAPI *LPD3D10STATEBLOCKMASKDISABLECAPTURE)(
-    D3D10_STATE_BLOCK_MASK *pMask, D3D10_DEVICE_STATE_TYPES StateType,
+typedef HRESULT(WINAPI* LPD3D10STATEBLOCKMASKDISABLECAPTURE)(
+    D3D10_STATE_BLOCK_MASK* pMask, D3D10_DEVICE_STATE_TYPES StateType,
     UINT RangeStart, UINT RangeLength);
-typedef HRESULT(WINAPI *LPD3D10STATEBLOCKMASKENABLEALL)(
-    D3D10_STATE_BLOCK_MASK *pMask);
-typedef HRESULT(WINAPI *LPD3D10STATEBLOCKMASKDISABLEALL)(
-    D3D10_STATE_BLOCK_MASK *pMask);
-typedef BOOL(WINAPI *LPD3D10STATEBLOCKMASKGETSETTING)(
-    D3D10_STATE_BLOCK_MASK *pMask, D3D10_DEVICE_STATE_TYPES StateType,
+typedef HRESULT(WINAPI* LPD3D10STATEBLOCKMASKENABLEALL)(
+    D3D10_STATE_BLOCK_MASK* pMask);
+typedef HRESULT(WINAPI* LPD3D10STATEBLOCKMASKDISABLEALL)(
+    D3D10_STATE_BLOCK_MASK* pMask);
+typedef BOOL(WINAPI* LPD3D10STATEBLOCKMASKGETSETTING)(
+    D3D10_STATE_BLOCK_MASK* pMask, D3D10_DEVICE_STATE_TYPES StateType,
     UINT Entry);
 
-typedef HRESULT(WINAPI *LPD3D10COMPILEEFFECTFROMMEMORY)(
-    void *pData, SIZE_T DataLength, LPCSTR pSrcFileName,
-    CONST D3D10_SHADER_MACRO *pDefines, ID3D10Include *pInclude, UINT HLSLFlags,
-    UINT FXFlags, ID3D10Blob **ppCompiledEffect, ID3D10Blob **ppErrors);
-typedef HRESULT(WINAPI *LPD3D10CREATEEFFECTFROMMEMORY)(
-    void *pData, SIZE_T DataLength, UINT FXFlags, ID3D10Device *pDevice,
-    ID3D10EffectPool *pEffectPool, ID3D10Effect **ppEffect);
-typedef HRESULT(WINAPI *LPD3D10CREATEEFFECTPOOLFROMMEMORY)(
-    void *pData, SIZE_T DataLength, UINT FXFlags, ID3D10Device *pDevice,
-    ID3D10EffectPool **ppEffectPool);
+typedef HRESULT(WINAPI* LPD3D10COMPILEEFFECTFROMMEMORY)(
+    void* pData, SIZE_T DataLength, LPCSTR pSrcFileName,
+    CONST D3D10_SHADER_MACRO* pDefines, ID3D10Include* pInclude, UINT HLSLFlags,
+    UINT FXFlags, ID3D10Blob** ppCompiledEffect, ID3D10Blob** ppErrors);
+typedef HRESULT(WINAPI* LPD3D10CREATEEFFECTFROMMEMORY)(
+    void* pData, SIZE_T DataLength, UINT FXFlags, ID3D10Device* pDevice,
+    ID3D10EffectPool* pEffectPool, ID3D10Effect** ppEffect);
+typedef HRESULT(WINAPI* LPD3D10CREATEEFFECTPOOLFROMMEMORY)(
+    void* pData, SIZE_T DataLength, UINT FXFlags, ID3D10Device* pDevice,
+    ID3D10EffectPool** ppEffectPool);
 
-typedef HRESULT(WINAPI *LPD3D10CREATEDEVICEANDSWAPCHAIN)(
-    IDXGIAdapter *pAdapter, D3D10_DRIVER_TYPE DriverType, HMODULE Software,
-    UINT Flags, UINT SDKVersion, DXGI_SWAP_CHAIN_DESC *pSwapChainDesc,
-    IDXGISwapChain **ppSwapChain, ID3D10Device **ppDevice);
+typedef HRESULT(WINAPI* LPD3D10CREATEDEVICEANDSWAPCHAIN)(
+    IDXGIAdapter* pAdapter, D3D10_DRIVER_TYPE DriverType, HMODULE Software,
+    UINT Flags, UINT SDKVersion, DXGI_SWAP_CHAIN_DESC* pSwapChainDesc,
+    IDXGISwapChain** ppSwapChain, ID3D10Device** ppDevice);
 
-typedef HRESULT(WINAPI *LPD3D10CREATEDEVICEANDSWAPCHAIN1)(
-    IDXGIAdapter *pAdapter, D3D10_DRIVER_TYPE DriverType, HMODULE Software,
+typedef HRESULT(WINAPI* LPD3D10CREATEDEVICEANDSWAPCHAIN1)(
+    IDXGIAdapter* pAdapter, D3D10_DRIVER_TYPE DriverType, HMODULE Software,
     UINT Flags, D3D10_FEATURE_LEVEL1 HardwareLevel, UINT SDKVersion,
-    DXGI_SWAP_CHAIN_DESC *pSwapChainDesc, IDXGISwapChain **ppSwapChain,
-    ID3D10Device1 **ppDevice);
+    DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, IDXGISwapChain** ppSwapChain,
+    ID3D10Device1** ppDevice);
 
 // Build a perspective projection matrix. (left-handed)
-typedef D3DXMATRIX *(WINAPI *LPD3DXMATRIXPERSPECTIVEFOVLH)(D3DXMATRIX *pOut,
-                                                           FLOAT fovy,
-                                                           FLOAT Aspect,
-                                                           FLOAT zn, FLOAT zf);
+typedef D3DXMATRIX*(WINAPI* LPD3DXMATRIXPERSPECTIVEFOVLH)(D3DXMATRIX* pOut,
+                                                          FLOAT fovy,
+                                                          FLOAT Aspect,
+                                                          FLOAT zn, FLOAT zf);
 
 // Build a lookat matrix. (left-handed)
-typedef D3DXMATRIX *(WINAPI *LPD3DXMATRIXLOOKATLH)(D3DXMATRIX *pOut,
-                                                   CONST D3DXVECTOR3 *pEye,
-                                                   CONST D3DXVECTOR3 *pAt,
-                                                   CONST D3DXVECTOR3 *pUp);
+typedef D3DXMATRIX*(WINAPI* LPD3DXMATRIXLOOKATLH)(D3DXMATRIX* pOut,
+                                                  CONST D3DXVECTOR3* pEye,
+                                                  CONST D3DXVECTOR3* pAt,
+                                                  CONST D3DXVECTOR3* pUp);
 
 // Module and function pointers
 static HMODULE g_hModDXGI = NULL;

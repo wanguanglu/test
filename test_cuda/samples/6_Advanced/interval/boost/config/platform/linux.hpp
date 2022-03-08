@@ -17,7 +17,7 @@
 // <stdint.h> added to glibc 2.1.1
 // We can only test for 2.1 though:
 //
-#if defined(__GLIBC__) &&                                                      \
+#if defined(__GLIBC__) && \
     ((__GLIBC__ > 2) || ((__GLIBC__ == 2) && (__GLIBC_MINOR__ >= 1)))
 // <stdint.h> defines int64_t unconditionally, but <sys/types.h> defines
 // int64_t only if __GNUC__.  Thus, assume a fully usable <stdint.h>

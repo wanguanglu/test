@@ -9,21 +9,21 @@
 #include <iostream>
 
 class B {
-public:
+ public:
   virtual ~B() = default;
 };
 
 class A : public B {
-public:
+ public:
   explicit A(int i) : x_(i) {}
 
   void Print() { std::cout << "x = " << x_ << std::endl; }
 
-private:
+ private:
   const int x_;
 };
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   A a(1);
   A b(2);
   // b = a;  // compile error.

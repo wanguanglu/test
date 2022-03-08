@@ -21,17 +21,17 @@
 #include <string.h>
 
 class CheckRenderD3D9 {
-public:
+ public:
   CheckRenderD3D9() {}
 
-  static HRESULT BackbufferToPPM(IDirect3DDevice9 *pDevice,
-                                 const char *zFileName);
-  static HRESULT SurfaceToPPM(IDirect3DDevice9 *pDevice,
-                              IDirect3DSurface9 *pSurface,
-                              const char *zFileName);
+  static HRESULT BackbufferToPPM(IDirect3DDevice9* pDevice,
+                                 const char* zFileName);
+  static HRESULT SurfaceToPPM(IDirect3DDevice9* pDevice,
+                              IDirect3DSurface9* pSurface,
+                              const char* zFileName);
 
-  static bool PPMvsPPM(const char *src_file, const char *ref_file,
-                       const char *exec_path, const float epsilon,
+  static bool PPMvsPPM(const char* src_file, const char* ref_file,
+                       const char* exec_path, const float epsilon,
                        const float threshold = 0.0f);
 };
 

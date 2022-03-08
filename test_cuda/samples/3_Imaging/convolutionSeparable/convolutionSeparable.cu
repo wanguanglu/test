@@ -18,7 +18,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 __constant__ float c_Kernel[KERNEL_LENGTH];
 
-extern "C" void setConvolutionKernel(float *h_Kernel) {
+extern "C" void setConvolutionKernel(float* h_Kernel) {
   cudaMemcpyToSymbol(c_Kernel, h_Kernel, KERNEL_LENGTH * sizeof(float));
 }
 
@@ -30,7 +30,7 @@ extern "C" void setConvolutionKernel(float *h_Kernel) {
 #define ROWS_RESULT_STEPS 8
 #define ROWS_HALO_STEPS 1
 
-__global__ void convolutionRowsKernel(float *d_Dst, float *d_Src, int imageW,
+__global__ void convolutionRowsKernel(float* d_Dst, float* d_Src, int imageW,
                                       int imageH, int pitch) {
   __shared__ float
       s_Data[ROWS_BLOCKDIM_Y]
@@ -88,7 +88,7 @@ __global__ void convolutionRowsKernel(float *d_Dst, float *d_Src, int imageW,
   }
 }
 
-extern "C" void convolutionRowsGPU(float *d_Dst, float *d_Src, int imageW,
+extern "C" void convolutionRowsGPU(float* d_Dst, float* d_Src, int imageW,
                                    int imageH) {
   assert(ROWS_BLOCKDIM_X * ROWS_HALO_STEPS >= KERNEL_RADIUS);
   assert(imageW % (ROWS_RESULT_STEPS * ROWS_BLOCKDIM_X) == 0);
@@ -111,7 +111,7 @@ extern "C" void convolutionRowsGPU(float *d_Dst, float *d_Src, int imageW,
 #define COLUMNS_RESULT_STEPS 8
 #define COLUMNS_HALO_STEPS 1
 
-__global__ void convolutionColumnsKernel(float *d_Dst, float *d_Src, int imageW,
+__global__ void convolutionColumnsKernel(float* d_Dst, float* d_Src, int imageW,
                                          int imageH, int pitch) {
   __shared__ float s_Data[COLUMNS_BLOCKDIM_X]
                          [(COLUMNS_RESULT_STEPS + 2 * COLUMNS_HALO_STEPS) *
@@ -175,7 +175,7 @@ __global__ void convolutionColumnsKernel(float *d_Dst, float *d_Src, int imageW,
   }
 }
 
-extern "C" void convolutionColumnsGPU(float *d_Dst, float *d_Src, int imageW,
+extern "C" void convolutionColumnsGPU(float* d_Dst, float* d_Src, int imageW,
                                       int imageH) {
   assert(COLUMNS_BLOCKDIM_Y * COLUMNS_HALO_STEPS >= KERNEL_RADIUS);
   assert(imageW % COLUMNS_BLOCKDIM_X == 0);

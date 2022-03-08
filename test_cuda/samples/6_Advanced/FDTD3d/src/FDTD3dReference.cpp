@@ -17,7 +17,7 @@
 #include <iostream>
 #include <stdio.h>
 
-void generateRandomData(float *data, const int dimx, const int dimy,
+void generateRandomData(float* data, const int dimx, const int dimy,
                         const int dimz, const float lowerBound,
                         const float upperBound) {
   srand(0);
@@ -33,7 +33,7 @@ void generateRandomData(float *data, const int dimx, const int dimy,
   }
 }
 
-void generatePatternData(float *data, const int dimx, const int dimy,
+void generatePatternData(float* data, const int dimx, const int dimy,
                          const int dimz, const float lowerBound,
                          const float upperBound) {
   for (int iz = 0; iz < dimz; iz++) {
@@ -47,7 +47,7 @@ void generatePatternData(float *data, const int dimx, const int dimy,
   }
 }
 
-bool fdtdReference(float *output, const float *input, const float *coeff,
+bool fdtdReference(float* output, const float* input, const float* coeff,
                    const int dimx, const int dimy, const int dimz,
                    const int radius, const int timesteps) {
   const int outerDimx = dimx + 2 * radius;
@@ -56,14 +56,14 @@ bool fdtdReference(float *output, const float *input, const float *coeff,
   const size_t volumeSize = outerDimx * outerDimy * outerDimz;
   const int stride_y = outerDimx;
   const int stride_z = stride_y * outerDimy;
-  float *intermediate = 0;
-  const float *bufsrc = 0;
-  float *bufdst = 0;
-  float *bufdstnext = 0;
+  float* intermediate = 0;
+  const float* bufsrc = 0;
+  float* bufdst = 0;
+  float* bufdstnext = 0;
 
   // Allocate temporary buffer
   printf(" calloc intermediate\n");
-  intermediate = (float *)calloc(volumeSize, sizeof(float));
+  intermediate = (float*)calloc(volumeSize, sizeof(float));
 
   // Decide which buffer to use first (result should end up in output)
   if ((timesteps % 2) == 0) {
@@ -81,8 +81,8 @@ bool fdtdReference(float *output, const float *input, const float *coeff,
 
   for (int it = 0; it < timesteps; it++) {
     printf("\tt = %d\n", it);
-    const float *src = bufsrc;
-    float *dst = bufdst;
+    const float* src = bufsrc;
+    float* dst = bufdst;
 
     for (int iz = -radius; iz < dimz + radius; iz++) {
       for (int iy = -radius; iy < dimy + radius; iy++) {
@@ -92,12 +92,12 @@ bool fdtdReference(float *output, const float *input, const float *coeff,
             float value = (*src) * coeff[0];
 
             for (int ir = 1; ir <= radius; ir++) {
-              value += coeff[ir] * (*(src + ir) + *(src - ir)); // horizontal
+              value += coeff[ir] * (*(src + ir) + *(src - ir));  // horizontal
               value += coeff[ir] * (*(src + ir * stride_y) +
-                                    *(src - ir * stride_y)); // vertical
+                                    *(src - ir * stride_y));  // vertical
               value +=
                   coeff[ir] * (*(src + ir * stride_z) +
-                               *(src - ir * stride_z)); // in front & behind
+                               *(src - ir * stride_z));  // in front & behind
             }
 
             *dst = value;
@@ -112,21 +112,20 @@ bool fdtdReference(float *output, const float *input, const float *coeff,
     }
 
     // Rotate buffers
-    float *tmp = bufdst;
+    float* tmp = bufdst;
     bufdst = bufdstnext;
     bufdstnext = tmp;
-    bufsrc = (const float *)tmp;
+    bufsrc = (const float*)tmp;
   }
 
   printf("\n");
 
-  if (intermediate)
-    free(intermediate);
+  if (intermediate) free(intermediate);
 
   return true;
 }
 
-bool compareData(const float *output, const float *reference, const int dimx,
+bool compareData(const float* output, const float* reference, const int dimx,
                  const int dimy, const int dimz, const int radius,
                  const float tolerance) {
   for (int iz = -radius; iz < dimz + radius; iz++) {

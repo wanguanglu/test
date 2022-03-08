@@ -24,13 +24,13 @@
 #define SWITCH_CHAR '-'
 
 struct testOpts {
-  char *sparse_mat_filename; // by switch -F<filename>
-  const char *testFunc;      // by switch -R<name>
-  const char *reorder;       // by switch -P<name>
-  int lda;                   // by switch -lda<int>
+  char* sparse_mat_filename;  // by switch -F<filename>
+  const char* testFunc;       // by switch -R<name>
+  const char* reorder;        // by switch -P<name>
+  int lda;                    // by switch -lda<int>
 };
 
-double vec_norminf(int n, const double *x) {
+double vec_norminf(int n, const double* x) {
   double norminf = 0;
   for (int j = 0; j < n; j++) {
     double x_abs = fabs(x[j]);
@@ -42,7 +42,7 @@ double vec_norminf(int n, const double *x) {
 /*
  * |A| = max { |A|*ones(m,1) }
  */
-double mat_norminf(int m, int n, const double *A, int lda) {
+double mat_norminf(int m, int n, const double* A, int lda) {
   double norminf = 0;
   for (int i = 0; i < m; i++) {
     double sum = 0.0;
@@ -59,8 +59,8 @@ double mat_norminf(int m, int n, const double *A, int lda) {
  * |A| = max { |A|*ones(m,1) }
  */
 double csr_mat_norminf(int m, int n, int nnzA, const cusparseMatDescr_t descrA,
-                       const double *csrValA, const int *csrRowPtrA,
-                       const int *csrColIndA) {
+                       const double* csrValA, const int* csrRowPtrA,
+                       const int* csrColIndA) {
   const int baseA =
       (CUSPARSE_INDEX_BASE_ONE == cusparseGetMatIndexBase(descrA)) ? 1 : 0;
 
@@ -80,8 +80,8 @@ double csr_mat_norminf(int m, int n, int nnzA, const cusparseMatDescr_t descrA,
 }
 
 void display_matrix(int m, int n, int nnzA, const cusparseMatDescr_t descrA,
-                    const double *csrValA, const int *csrRowPtrA,
-                    const int *csrColIndA) {
+                    const double* csrValA, const int* csrRowPtrA,
+                    const int* csrColIndA) {
   const int baseA =
       (CUSPARSE_INDEX_BASE_ONE == cusparseGetMatIndexBase(descrA)) ? 1 : 0;
 

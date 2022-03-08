@@ -56,14 +56,14 @@ using namespace std;
 
 ////////////////////////////////////////////////////////////////////////////////
 // declaration, forward
-void runTest(int argc, char **argv);
-void randomInit(float *, int);
+void runTest(int argc, char** argv);
+void randomInit(float*, int);
 
-extern "C" void computeGold(float *, const float *, const float *, unsigned int,
+extern "C" void computeGold(float*, const float*, const float*, unsigned int,
                             unsigned int, unsigned int);
 
-static CUresult initCUDA(int argc, char **argv, CUfunction *pMatrixMul,
-                         int *block_size_out);
+static CUresult initCUDA(int argc, char** argv, CUfunction* pMatrixMul,
+                         int* block_size_out);
 
 // define input ptx file for different platforms
 #if defined(_WIN64) || defined(__LP64__)
@@ -82,9 +82,9 @@ CUcontext cuContext;
 CUmodule cuModule;
 size_t totalGlobalMem;
 
-const char *sSDKsample = "matrixMulDrv (Driver API)";
+const char* sSDKsample = "matrixMulDrv (Driver API)";
 
-void constantInit(float *data, int size, float val) {
+void constantInit(float* data, int size, float val) {
   for (int i = 0; i < size; ++i) {
     data[i] = val;
   }
@@ -93,7 +93,7 @@ void constantInit(float *data, int size, float val) {
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   printf("[ %s ]\n", sSDKsample);
 
   runTest(argc, argv);
@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Run a simple test for CUDA
 ////////////////////////////////////////////////////////////////////////////////
-void runTest(int argc, char **argv) {
+void runTest(int argc, char** argv) {
   // initialize CUDA
   CUfunction matrixMul = NULL;
   int block_size = 0;
@@ -121,10 +121,10 @@ void runTest(int argc, char **argv) {
   // allocate host memory for matrices A and B
   unsigned int size_A = WA * HA;
   unsigned int mem_size_A = sizeof(float) * size_A;
-  float *h_A = (float *)malloc(mem_size_A);
+  float* h_A = (float*)malloc(mem_size_A);
   unsigned int size_B = WB * HB;
   unsigned int mem_size_B = sizeof(float) * size_B;
-  float *h_B = (float *)malloc(mem_size_B);
+  float* h_B = (float*)malloc(mem_size_B);
 
   // initialize host memory
   const float valB = 0.01f;
@@ -161,10 +161,10 @@ void runTest(int argc, char **argv) {
   checkCudaErrors(cuMemAlloc(&d_C, mem_size_C));
 
   // allocate mem for the result on host side
-  float *h_C = (float *)malloc(mem_size_C);
+  float* h_C = (float*)malloc(mem_size_C);
 
   // create and start timer
-  StopWatchInterface *timer = NULL;
+  StopWatchInterface* timer = NULL;
   sdkCreateTimer(&timer);
 
   // start the timer
@@ -183,7 +183,7 @@ void runTest(int argc, char **argv) {
         (totalGlobalMem > (unsigned long long)4 * 1024 * 1024 * 1024L)) {
       size_t Matrix_Width_A = (size_t)WA;
       size_t Matrix_Width_B = (size_t)WB;
-      void *args[5] = {&d_C, &d_A, &d_B, &Matrix_Width_A, &Matrix_Width_B};
+      void* args[5] = {&d_C, &d_A, &d_B, &Matrix_Width_A, &Matrix_Width_B};
       // new CUDA 4.0 Driver API Kernel launch call
       checkCudaErrors(cuLaunchKernel(
           matrixMul, grid.x, grid.y, grid.z, block.x, block.y, block.z,
@@ -192,7 +192,7 @@ void runTest(int argc, char **argv) {
     } else {
       int Matrix_Width_A = WA;
       int Matrix_Width_B = WB;
-      void *args[5] = {&d_C, &d_A, &d_B, &Matrix_Width_A, &Matrix_Width_B};
+      void* args[5] = {&d_C, &d_A, &d_B, &Matrix_Width_A, &Matrix_Width_B};
       // new CUDA 4.0 Driver API Kernel launch call
       checkCudaErrors(cuLaunchKernel(
           matrixMul, grid.x, grid.y, grid.z, block.x, block.y, block.z,
@@ -207,11 +207,11 @@ void runTest(int argc, char **argv) {
 
     // pass in launch parameters (not actually de-referencing CUdeviceptr).
     // CUdeviceptr is storing the value of the parameters
-    *((CUdeviceptr *)&argBuffer[offset]) = d_C;
+    *((CUdeviceptr*)&argBuffer[offset]) = d_C;
     offset += sizeof(d_C);
-    *((CUdeviceptr *)&argBuffer[offset]) = d_A;
+    *((CUdeviceptr*)&argBuffer[offset]) = d_A;
     offset += sizeof(d_A);
-    *((CUdeviceptr *)&argBuffer[offset]) = d_B;
+    *((CUdeviceptr*)&argBuffer[offset]) = d_B;
     offset += sizeof(d_B);
 
     if (use_64bit_memory_address &&
@@ -219,21 +219,21 @@ void runTest(int argc, char **argv) {
       size_t Matrix_Width_A = (size_t)WA;
       size_t Matrix_Width_B = (size_t)WB;
 
-      *((CUdeviceptr *)&argBuffer[offset]) = Matrix_Width_A;
+      *((CUdeviceptr*)&argBuffer[offset]) = Matrix_Width_A;
       offset += sizeof(Matrix_Width_A);
-      *((CUdeviceptr *)&argBuffer[offset]) = Matrix_Width_B;
+      *((CUdeviceptr*)&argBuffer[offset]) = Matrix_Width_B;
       offset += sizeof(Matrix_Width_B);
     } else {
       int Matrix_Width_A = WA;
       int Matrix_Width_B = WB;
 
-      *((int *)&argBuffer[offset]) = Matrix_Width_A;
+      *((int*)&argBuffer[offset]) = Matrix_Width_A;
       offset += sizeof(Matrix_Width_A);
-      *((int *)&argBuffer[offset]) = Matrix_Width_B;
+      *((int*)&argBuffer[offset]) = Matrix_Width_B;
       offset += sizeof(Matrix_Width_B);
     }
 
-    void *kernel_launch_config[5] = {CU_LAUNCH_PARAM_BUFFER_POINTER, argBuffer,
+    void* kernel_launch_config[5] = {CU_LAUNCH_PARAM_BUFFER_POINTER, argBuffer,
                                      CU_LAUNCH_PARAM_BUFFER_SIZE, &offset,
                                      CU_LAUNCH_PARAM_END};
 
@@ -241,11 +241,11 @@ void runTest(int argc, char **argv) {
     checkCudaErrors(cuLaunchKernel(matrixMul, grid.x, grid.y, grid.z, block.x,
                                    block.y, block.z,
                                    2 * block_size * block_size * sizeof(float),
-                                   NULL, NULL, (void **)&kernel_launch_config));
+                                   NULL, NULL, (void**)&kernel_launch_config));
   }
 
   // copy result from device to host
-  checkCudaErrors(cuMemcpyDtoH((void *)h_C, d_C, mem_size_C));
+  checkCudaErrors(cuMemcpyDtoH((void*)h_C, d_C, mem_size_C));
 
   // stop and destroy timer
   sdkStopTimer(&timer);
@@ -265,8 +265,9 @@ void runTest(int argc, char **argv) {
 
   printf("%s\n", correct ? "Result = PASS" : "Result = FAIL");
 
-  printf("\nNOTE: The CUDA Samples are not meant for performance measurements. "
-         "Results may vary when GPU Boost is enabled.\n");
+  printf(
+      "\nNOTE: The CUDA Samples are not meant for performance measurements. "
+      "Results may vary when GPU Boost is enabled.\n");
 
   // clean up memory
   if (use_64bit_memory_address) {
@@ -287,15 +288,15 @@ void runTest(int argc, char **argv) {
 }
 
 // Allocates a matrix with random float entries.
-void randomInit(float *data, int size) {
+void randomInit(float* data, int size) {
   for (int i = 0; i < size; ++i) {
     data[i] = rand() / (float)RAND_MAX;
   }
 }
 
-bool inline findModulePath(const char *module_file, string &module_path,
-                           char **argv, string &ptx_source) {
-  char *actual_path = sdkFindFilePath(module_file, argv[0]);
+bool inline findModulePath(const char* module_file, string& module_path,
+                           char** argv, string& ptx_source) {
+  char* actual_path = sdkFindFilePath(module_file, argv[0]);
 
   if (actual_path) {
     module_path = actual_path;
@@ -311,10 +312,10 @@ bool inline findModulePath(const char *module_file, string &module_path,
     printf("> findModulePath <%s>\n", module_path.c_str());
 
     if (module_path.rfind(".ptx") != string::npos) {
-      FILE *fp = fopen(module_path.c_str(), "rb");
+      FILE* fp = fopen(module_path.c_str(), "rb");
       fseek(fp, 0, SEEK_END);
       int file_size = ftell(fp);
-      char *buf = new char[file_size + 1];
+      char* buf = new char[file_size + 1];
       fseek(fp, 0, SEEK_SET);
       fread(buf, sizeof(char), file_size, fp);
       fclose(fp);
@@ -327,15 +328,15 @@ bool inline findModulePath(const char *module_file, string &module_path,
   }
 }
 
-static CUresult initCUDA(int argc, char **argv, CUfunction *pMatrixMul,
-                         int *block_size_out) {
+static CUresult initCUDA(int argc, char** argv, CUfunction* pMatrixMul,
+                         int* block_size_out) {
   CUfunction cuFunction = 0;
   CUresult status;
   int major = 0, minor = 0;
   char deviceName[100];
   string module_path, ptx_source;
 
-  cuDevice = findCudaDeviceDRV(argc, (const char **)argv);
+  cuDevice = findCudaDeviceDRV(argc, (const char**)argv);
 
   // get compute capabilities and the devicename
   checkCudaErrors(cuDeviceComputeCapability(&major, &minor, cuDevice));
@@ -374,26 +375,26 @@ static CUresult initCUDA(int argc, char **argv, CUfunction *pMatrixMul,
   if (module_path.rfind("ptx") != string::npos) {
     // in this branch we use compilation with parameters
     const unsigned int jitNumOptions = 3;
-    CUjit_option *jitOptions = new CUjit_option[jitNumOptions];
-    void **jitOptVals = new void *[jitNumOptions];
+    CUjit_option* jitOptions = new CUjit_option[jitNumOptions];
+    void** jitOptVals = new void*[jitNumOptions];
 
     // set up size of compilation log buffer
     jitOptions[0] = CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES;
     int jitLogBufferSize = 1024;
-    jitOptVals[0] = (void *)(size_t)jitLogBufferSize;
+    jitOptVals[0] = (void*)(size_t)jitLogBufferSize;
 
     // set up pointer to the compilation log buffer
     jitOptions[1] = CU_JIT_INFO_LOG_BUFFER;
-    char *jitLogBuffer = new char[jitLogBufferSize];
+    char* jitLogBuffer = new char[jitLogBufferSize];
     jitOptVals[1] = jitLogBuffer;
 
     // set up pointer to set the Maximum # of registers for a particular kernel
     jitOptions[2] = CU_JIT_MAX_REGISTERS;
     int jitRegCount = 32;
-    jitOptVals[2] = (void *)(size_t)jitRegCount;
+    jitOptVals[2] = (void*)(size_t)jitRegCount;
 
     status = cuModuleLoadDataEx(&cuModule, ptx_source.c_str(), jitNumOptions,
-                                jitOptions, (void **)jitOptVals);
+                                jitOptions, (void**)jitOptVals);
 
     printf("> PTX JIT log:\n%s\n", jitLogBuffer);
   } else {

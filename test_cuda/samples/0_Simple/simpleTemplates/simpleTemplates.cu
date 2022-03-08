@@ -43,10 +43,11 @@ int g_TotalFailures = 0;
 //! @param g_idata  input data in global memory
 //! @param g_odata  output data in global memory
 ////////////////////////////////////////////////////////////////////////////////
-template <class T> __global__ void testKernel(T *g_idata, T *g_odata) {
+template <class T>
+__global__ void testKernel(T* g_idata, T* g_odata) {
   // Shared mem size is determined by the host app at run time
   SharedMemory<T> smem;
-  T *sdata = smem.getPointer();
+  T* sdata = smem.getPointer();
 
   // access thread id
   const unsigned int tid = threadIdx.x;
@@ -67,10 +68,11 @@ template <class T> __global__ void testKernel(T *g_idata, T *g_odata) {
 
 ////////////////////////////////////////////////////////////////////////////////
 // declaration, forward
-template <class T> void runTest(int argc, char **argv, int len);
+template <class T>
+void runTest(int argc, char** argv, int len);
 
 template <class T>
-void computeGold(T *reference, T *idata, const unsigned int len) {
+void computeGold(T* reference, T* idata, const unsigned int len) {
   const T T_len = static_cast<T>(len);
 
   for (unsigned int i = 0; i < len; ++i) {
@@ -81,7 +83,7 @@ void computeGold(T *reference, T *idata, const unsigned int len) {
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   printf("> runTest<float,32>\n");
   runTest<float>(argc, argv, 32);
   printf("> runTest<int,64>\n");
@@ -103,9 +105,10 @@ int main(int argc, char **argv) {
 // functions for different types.
 
 // Here's the generic wrapper for cutCompare*
-template <class T> class ArrayComparator {
-public:
-  bool compare(const T *reference, T *data, unsigned int len) {
+template <class T>
+class ArrayComparator {
+ public:
+  bool compare(const T* reference, T* data, unsigned int len) {
     fprintf(stderr,
             "Error: no comparison function implemented for this type\n");
     return false;
@@ -113,25 +116,28 @@ public:
 };
 
 // Here's the specialization for ints:
-template <> class ArrayComparator<int> {
-public:
-  bool compare(const int *reference, int *data, unsigned int len) {
+template <>
+class ArrayComparator<int> {
+ public:
+  bool compare(const int* reference, int* data, unsigned int len) {
     return compareData(reference, data, len, 0.15f, 0.0f);
   }
 };
 
 // Here's the specialization for floats:
-template <> class ArrayComparator<float> {
-public:
-  bool compare(const float *reference, float *data, unsigned int len) {
+template <>
+class ArrayComparator<float> {
+ public:
+  bool compare(const float* reference, float* data, unsigned int len) {
     return compareData(reference, data, len, 0.15f, 0.15f);
   }
 };
 
 // Here's the generic wrapper for cutWriteFile*
-template <class T> class ArrayFileWriter {
-public:
-  bool write(const char *filename, T *data, unsigned int len, float epsilon) {
+template <class T>
+class ArrayFileWriter {
+ public:
+  bool write(const char* filename, T* data, unsigned int len, float epsilon) {
     fprintf(stderr,
             "Error: no file write function implemented for this type\n");
     return false;
@@ -139,17 +145,19 @@ public:
 };
 
 // Here's the specialization for ints:
-template <> class ArrayFileWriter<int> {
-public:
-  bool write(const char *filename, int *data, unsigned int len, float epsilon) {
+template <>
+class ArrayFileWriter<int> {
+ public:
+  bool write(const char* filename, int* data, unsigned int len, float epsilon) {
     return sdkWriteFile(filename, data, len, epsilon, false);
   }
 };
 
 // Here's the specialization for floats:
-template <> class ArrayFileWriter<float> {
-public:
-  bool write(const char *filename, float *data, unsigned int len,
+template <>
+class ArrayFileWriter<float> {
+ public:
+  bool write(const char* filename, float* data, unsigned int len,
              float epsilon) {
     return sdkWriteFile(filename, data, len, epsilon, false);
   }
@@ -158,11 +166,12 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 //! Run a simple test for CUDA
 ////////////////////////////////////////////////////////////////////////////////
-template <class T> void runTest(int argc, char **argv, int len) {
+template <class T>
+void runTest(int argc, char** argv, int len) {
   int devID;
   cudaDeviceProp deviceProps;
 
-  devID = findCudaDevice(argc, (const char **)argv);
+  devID = findCudaDevice(argc, (const char**)argv);
 
   // get number of SMs on this GPU
   checkCudaErrors(cudaGetDeviceProperties(&deviceProps, devID));
@@ -175,7 +184,7 @@ template <class T> void runTest(int argc, char **argv, int len) {
   unsigned int mem_size = sizeof(float) * num_threads;
 
   // allocate host memory
-  T *h_idata = (T *)malloc(mem_size);
+  T* h_idata = (T*)malloc(mem_size);
 
   // initialize the memory
   for (unsigned int i = 0; i < num_threads; ++i) {
@@ -183,15 +192,15 @@ template <class T> void runTest(int argc, char **argv, int len) {
   }
 
   // allocate device memory
-  T *d_idata;
-  checkCudaErrors(cudaMalloc((void **)&d_idata, mem_size));
+  T* d_idata;
+  checkCudaErrors(cudaMalloc((void**)&d_idata, mem_size));
   // copy host memory to device
   checkCudaErrors(
       cudaMemcpy(d_idata, h_idata, mem_size, cudaMemcpyHostToDevice));
 
   // allocate device memory for result
-  T *d_odata;
-  checkCudaErrors(cudaMalloc((void **)&d_odata, mem_size));
+  T* d_odata;
+  checkCudaErrors(cudaMalloc((void**)&d_odata, mem_size));
 
   // setup execution parameters
   dim3 grid(1, 1, 1);
@@ -204,7 +213,7 @@ template <class T> void runTest(int argc, char **argv, int len) {
   getLastCudaError("Kernel execution failed");
 
   // allocate mem for the result on host side
-  T *h_odata = (T *)malloc(mem_size);
+  T* h_odata = (T*)malloc(mem_size);
   // copy result from device to host
   checkCudaErrors(cudaMemcpy(h_odata, d_odata, sizeof(T) * num_threads,
                              cudaMemcpyDeviceToHost));
@@ -212,14 +221,14 @@ template <class T> void runTest(int argc, char **argv, int len) {
   printf("Processing time: %f (ms)\n", GetTimer());
 
   // compute reference solution
-  T *reference = (T *)malloc(mem_size);
+  T* reference = (T*)malloc(mem_size);
   computeGold<T>(reference, h_idata, num_threads);
 
   ArrayComparator<T> comparator;
   ArrayFileWriter<T> writer;
 
   // check result
-  if (checkCmdLineFlag(argc, (const char **)argv, "regression")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "regression")) {
     // write file for regression test
     writer.write("./data/regression.dat", h_odata, num_threads, 0.0f);
   } else {

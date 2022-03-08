@@ -20,8 +20,8 @@
 
 #define CHECK_BANK_CONFLICTS 0
 #if CHECK_BANK_CONFLICTS
-#define AS(i, j) cutilBankChecker(((float *)&As[0][0]), (block_size * i + j))
-#define BS(i, j) cutilBankChecker(((float *)&Bs[0][0]), (block_size * i + j))
+#define AS(i, j) cutilBankChecker(((float*)&As[0][0]), (block_size * i + j))
+#define BS(i, j) cutilBankChecker(((float*)&Bs[0][0]), (block_size * i + j))
 #else
 #define AS(i, j) As[i][j]
 #define BS(i, j) Bs[i][j]
@@ -32,7 +32,7 @@
 //! wA is A's width and wB is B's width
 ////////////////////////////////////////////////////////////////////////////////
 template <int block_size, typename size_type>
-__device__ void matrixMul(float *C, float *A, float *B, size_type wA,
+__device__ void matrixMul(float* C, float* A, float* B, size_type wA,
                           size_type wB) {
   // Block index
   size_type bx = blockIdx.x;
@@ -64,7 +64,6 @@ __device__ void matrixMul(float *C, float *A, float *B, size_type wA,
   // Loop over all the sub-matrices of A and B
   // required to compute the block sub-matrix
   for (size_type a = aBegin, b = bBegin; a <= aEnd; a += aStep, b += bStep) {
-
     // Declaration of the shared memory array As used to
     // store the sub-matrix of A
     __shared__ float As[block_size][block_size];
@@ -87,8 +86,7 @@ __device__ void matrixMul(float *C, float *A, float *B, size_type wA,
     // of the block sub-matrix
 #pragma unroll
 
-    for (size_type k = 0; k < block_size; ++k)
-      Csub += AS(ty, k) * BS(k, tx);
+    for (size_type k = 0; k < block_size; ++k) Csub += AS(ty, k) * BS(k, tx);
 
     // Synchronize to make sure that the preceding
     // computation is done before loading two new
@@ -103,21 +101,21 @@ __device__ void matrixMul(float *C, float *A, float *B, size_type wA,
 }
 
 // C wrappers around our template kernel
-extern "C" __global__ void matrixMul_bs16_32bit(float *C, float *A, float *B,
+extern "C" __global__ void matrixMul_bs16_32bit(float* C, float* A, float* B,
                                                 int wA, int wB) {
   matrixMul<16, int>(C, A, B, wA, wB);
 }
-extern "C" __global__ void matrixMul_bs16_64bit(float *C, float *A, float *B,
+extern "C" __global__ void matrixMul_bs16_64bit(float* C, float* A, float* B,
                                                 size_t wA, size_t wB) {
   matrixMul<16, size_t>(C, A, B, wA, wB);
 }
-extern "C" __global__ void matrixMul_bs32_32bit(float *C, float *A, float *B,
+extern "C" __global__ void matrixMul_bs32_32bit(float* C, float* A, float* B,
                                                 int wA, int wB) {
   matrixMul<32, int>(C, A, B, wA, wB);
 }
-extern "C" __global__ void matrixMul_bs32_64bit(float *C, float *A, float *B,
+extern "C" __global__ void matrixMul_bs32_64bit(float* C, float* A, float* B,
                                                 size_t wA, size_t wB) {
   matrixMul<32, size_t>(C, A, B, wA, wB);
 }
 
-#endif // #ifndef _MATRIXMUL_KERNEL_H_
+#endif  // #ifndef _MATRIXMUL_KERNEL_H_

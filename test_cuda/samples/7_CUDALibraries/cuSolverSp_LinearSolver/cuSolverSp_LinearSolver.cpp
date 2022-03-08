@@ -64,9 +64,9 @@
 #include "helper_cusolver.h"
 
 template <typename T_ELEM>
-int loadMMSparseMatrix(char *filename, char elem_type, bool csrFormat, int *m,
-                       int *n, int *nnz, T_ELEM **aVal, int **aRowInd,
-                       int **aColInd, int extendSymMatrix);
+int loadMMSparseMatrix(char* filename, char elem_type, bool csrFormat, int* m,
+                       int* n, int* nnz, T_ELEM** aVal, int** aRowInd,
+                       int** aColInd, int extendSymMatrix);
 
 void UsageSP(void) {
   printf("<options>\n");
@@ -84,16 +84,16 @@ void UsageSP(void) {
   exit(0);
 }
 
-void parseCommandLineArguments(int argc, char *argv[], struct testOpts &opts) {
+void parseCommandLineArguments(int argc, char* argv[], struct testOpts& opts) {
   memset(&opts, 0, sizeof(opts));
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "-h")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "-h")) {
     UsageSP();
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "R")) {
-    char *solverType = NULL;
-    getCmdLineArgumentString(argc, (const char **)argv, "R", &solverType);
+  if (checkCmdLineFlag(argc, (const char**)argv, "R")) {
+    char* solverType = NULL;
+    getCmdLineArgumentString(argc, (const char**)argv, "R", &solverType);
 
     if (solverType) {
       if ((STRCASECMP(solverType, "chol") != 0) &&
@@ -107,9 +107,9 @@ void parseCommandLineArguments(int argc, char *argv[], struct testOpts &opts) {
     }
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "P")) {
-    char *reorderType = NULL;
-    getCmdLineArgumentString(argc, (const char **)argv, "P", &reorderType);
+  if (checkCmdLineFlag(argc, (const char**)argv, "P")) {
+    char* reorderType = NULL;
+    getCmdLineArgumentString(argc, (const char**)argv, "P", &reorderType);
 
     if (reorderType) {
       if ((STRCASECMP(reorderType, "symrcm") != 0) &&
@@ -123,12 +123,12 @@ void parseCommandLineArguments(int argc, char *argv[], struct testOpts &opts) {
   }
 
   if (!opts.reorder) {
-    opts.reorder = "symrcm"; // Setting default reordering to be symrcm.
+    opts.reorder = "symrcm";  // Setting default reordering to be symrcm.
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "file")) {
-    char *fileName = 0;
-    getCmdLineArgumentString(argc, (const char **)argv, "file", &fileName);
+  if (checkCmdLineFlag(argc, (const char**)argv, "file")) {
+    char* fileName = 0;
+    getCmdLineArgumentString(argc, (const char**)argv, "file", &fileName);
 
     if (fileName) {
       opts.sparse_mat_filename = fileName;
@@ -139,49 +139,49 @@ void parseCommandLineArguments(int argc, char *argv[], struct testOpts &opts) {
   }
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   struct testOpts opts;
   cusolverSpHandle_t handle = NULL;
-  cusparseHandle_t cusparseHandle = NULL; // used in residual evaluation
+  cusparseHandle_t cusparseHandle = NULL;  // used in residual evaluation
   cudaStream_t stream = NULL;
   cusparseMatDescr_t descrA = NULL;
 
-  int rowsA = 0; // number of rows of A
-  int colsA = 0; // number of columns of A
-  int nnzA = 0;  // number of nonzeros of A
-  int baseA = 0; // base index in CSR format
+  int rowsA = 0;  // number of rows of A
+  int colsA = 0;  // number of columns of A
+  int nnzA = 0;   // number of nonzeros of A
+  int baseA = 0;  // base index in CSR format
 
   // CSR(A) from I/O
-  int *h_csrRowPtrA = NULL;
-  int *h_csrColIndA = NULL;
-  double *h_csrValA = NULL;
+  int* h_csrRowPtrA = NULL;
+  int* h_csrColIndA = NULL;
+  double* h_csrValA = NULL;
 
-  double *h_x = NULL; // x = A \ b
-  double *h_b = NULL; // b = ones(m,1)
-  double *h_r = NULL; // r = b - A*x
+  double* h_x = NULL;  // x = A \ b
+  double* h_b = NULL;  // b = ones(m,1)
+  double* h_r = NULL;  // r = b - A*x
 
-  int *h_Q = NULL; // <int> n
-                   // reorder to reduce zero fill-in
-                   // Q = symrcm(A) or Q = symamd(A)
+  int* h_Q = NULL;  // <int> n
+                    // reorder to reduce zero fill-in
+                    // Q = symrcm(A) or Q = symamd(A)
   // B = Q*A*Q^T
-  int *h_csrRowPtrB = NULL; // <int> n+1
-  int *h_csrColIndB = NULL; // <int> nnzA
-  double *h_csrValB = NULL; // <double> nnzA
-  int *h_mapBfromA = NULL;  // <int> nnzA
+  int* h_csrRowPtrB = NULL;  // <int> n+1
+  int* h_csrColIndB = NULL;  // <int> nnzA
+  double* h_csrValB = NULL;  // <double> nnzA
+  int* h_mapBfromA = NULL;   // <int> nnzA
 
   size_t size_perm = 0;
-  void *buffer_cpu = NULL; // working space for permutation: B = Q*A*Q^T
+  void* buffer_cpu = NULL;  // working space for permutation: B = Q*A*Q^T
 
-  int *d_csrRowPtrA = NULL;
-  int *d_csrColIndA = NULL;
-  double *d_csrValA = NULL;
-  double *d_x = NULL; // x = A \ b
-  double *d_b = NULL; // a copy of h_b
-  double *d_r = NULL; // r = b - A*x
+  int* d_csrRowPtrA = NULL;
+  int* d_csrColIndA = NULL;
+  double* d_csrValA = NULL;
+  double* d_x = NULL;  // x = A \ b
+  double* d_b = NULL;  // a copy of h_b
+  double* d_r = NULL;  // r = b - A*x
 
   double tol = 1.e-12;
-  int reorder = 0;     // no reordering
-  int singularity = 0; // -1 if A is invertible under tol.
+  int reorder = 0;      // no reordering
+  int singularity = 0;  // -1 if A is invertible under tol.
 
   // the constants are used in residual evaluation, r = b - A*x
   const double minus_one = -1.0;
@@ -200,11 +200,11 @@ int main(int argc, char *argv[]) {
   parseCommandLineArguments(argc, argv, opts);
 
   if (NULL == opts.testFunc) {
-    opts.testFunc = "chol"; // By default running Cholesky as NO solver selected
-                            // with -R option.
+    opts.testFunc = "chol";  // By default running Cholesky as NO solver
+                             // selected with -R option.
   }
 
-  findCudaDevice(argc, (const char **)argv);
+  findCudaDevice(argc, (const char**)argv);
 
   if (opts.sparse_mat_filename == NULL) {
     opts.sparse_mat_filename = sdkFindFilePath("lap2D_5pt_n100.mtx", argv[0]);
@@ -228,7 +228,7 @@ int main(int argc, char *argv[]) {
                                  &h_csrColIndA, true)) {
     exit(EXIT_FAILURE);
   }
-  baseA = h_csrRowPtrA[0]; // baseA = {0,1}
+  baseA = h_csrRowPtrA[0];  // baseA = {0,1}
   printf("sparse matrix A is %d x %d with %d nonzeros, base=%d\n", rowsA, colsA,
          nnzA, baseA);
 
@@ -255,20 +255,19 @@ int main(int argc, char *argv[]) {
     checkCudaErrors(cusparseSetMatIndexBase(descrA, CUSPARSE_INDEX_BASE_ZERO));
   }
 
-  h_x = (double *)malloc(sizeof(double) * colsA);
-  h_b = (double *)malloc(sizeof(double) * rowsA);
-  h_r = (double *)malloc(sizeof(double) * rowsA);
+  h_x = (double*)malloc(sizeof(double) * colsA);
+  h_b = (double*)malloc(sizeof(double) * rowsA);
+  h_r = (double*)malloc(sizeof(double) * rowsA);
   assert(NULL != h_x);
   assert(NULL != h_b);
   assert(NULL != h_r);
 
-  checkCudaErrors(
-      cudaMalloc((void **)&d_csrRowPtrA, sizeof(int) * (rowsA + 1)));
-  checkCudaErrors(cudaMalloc((void **)&d_csrColIndA, sizeof(int) * nnzA));
-  checkCudaErrors(cudaMalloc((void **)&d_csrValA, sizeof(double) * nnzA));
-  checkCudaErrors(cudaMalloc((void **)&d_x, sizeof(double) * colsA));
-  checkCudaErrors(cudaMalloc((void **)&d_b, sizeof(double) * rowsA));
-  checkCudaErrors(cudaMalloc((void **)&d_r, sizeof(double) * rowsA));
+  checkCudaErrors(cudaMalloc((void**)&d_csrRowPtrA, sizeof(int) * (rowsA + 1)));
+  checkCudaErrors(cudaMalloc((void**)&d_csrColIndA, sizeof(int) * nnzA));
+  checkCudaErrors(cudaMalloc((void**)&d_csrValA, sizeof(double) * nnzA));
+  checkCudaErrors(cudaMalloc((void**)&d_x, sizeof(double) * colsA));
+  checkCudaErrors(cudaMalloc((void**)&d_b, sizeof(double) * rowsA));
+  checkCudaErrors(cudaMalloc((void**)&d_r, sizeof(double) * rowsA));
 
   // verify if A has symmetric pattern or not
   checkCudaErrors(cusolverSpXcsrissymHost(handle, rowsA, nnzA, descrA,
@@ -287,11 +286,11 @@ int main(int argc, char *argv[]) {
   printf("        The reordering will overwrite A such that \n");
   printf("            A := A(Q,Q) where Q = symrcm(A) or Q = symamd(A)\n");
   if (NULL != opts.reorder) {
-    h_Q = (int *)malloc(sizeof(int) * colsA);
-    h_csrRowPtrB = (int *)malloc(sizeof(int) * (rowsA + 1));
-    h_csrColIndB = (int *)malloc(sizeof(int) * nnzA);
-    h_csrValB = (double *)malloc(sizeof(double) * nnzA);
-    h_mapBfromA = (int *)malloc(sizeof(int) * nnzA);
+    h_Q = (int*)malloc(sizeof(int) * colsA);
+    h_csrRowPtrB = (int*)malloc(sizeof(int) * (rowsA + 1));
+    h_csrColIndB = (int*)malloc(sizeof(int) * nnzA);
+    h_csrValB = (double*)malloc(sizeof(double) * nnzA);
+    h_mapBfromA = (int*)malloc(sizeof(int) * nnzA);
 
     assert(NULL != h_Q);
     assert(NULL != h_csrRowPtrB);
@@ -321,7 +320,7 @@ int main(int argc, char *argv[]) {
     if (buffer_cpu) {
       free(buffer_cpu);
     }
-    buffer_cpu = (void *)malloc(sizeof(char) * size_perm);
+    buffer_cpu = (void*)malloc(sizeof(char) * size_perm);
     assert(NULL != buffer_cpu);
 
     // h_mapBfromA = Identity

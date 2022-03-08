@@ -26,13 +26,13 @@
 #include <cusparse.h>
 
 // Utilities and system includes
-#include <helper_cuda.h> // helper function CUDA error checking and initialization
-#include <helper_functions.h> // helper for shared functions common to CUDA Samples
+#include <helper_cuda.h>  // helper function CUDA error checking and initialization
+#include <helper_functions.h>  // helper for shared functions common to CUDA Samples
 
-const char *sSDKname = "conjugateGradient";
+const char* sSDKname = "conjugateGradient";
 
 /* genTridiag: generate a random tridiagonal symmetric matrix */
-void genTridiag(int *I, int *J, float *val, int N, int nz) {
+void genTridiag(int* I, int* J, float* val, int N, int nz) {
   I[0] = 0, J[0] = 0, J[1] = 1;
   val[0] = (float)rand() / RAND_MAX + 10.0f;
   val[1] = (float)rand() / RAND_MAX;
@@ -64,13 +64,13 @@ void genTridiag(int *I, int *J, float *val, int N, int nz) {
   I[N] = nz;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   int M = 0, N = 0, nz = 0, *I = NULL, *J = NULL;
-  float *val = NULL;
+  float* val = NULL;
   const float tol = 1e-5f;
   const int max_iter = 10000;
-  float *x;
-  float *rhs;
+  float* x;
+  float* rhs;
   float a, b, na, r0, r1;
   int *d_col, *d_row;
   float *d_val, *d_x, dot;
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
 
   // This will pick the best possible CUDA capable device
   cudaDeviceProp deviceProp;
-  int devID = findCudaDevice(argc, (const char **)argv);
+  int devID = findCudaDevice(argc, (const char**)argv);
 
   if (devID < 0) {
     printf("exiting...\n");
@@ -111,13 +111,13 @@ int main(int argc, char **argv) {
   /* Generate a random tridiagonal symmetric matrix in CSR format */
   M = N = 1048576;
   nz = (N - 2) * 3 + 4;
-  I = (int *)malloc(sizeof(int) * (N + 1));
-  J = (int *)malloc(sizeof(int) * nz);
-  val = (float *)malloc(sizeof(float) * nz);
+  I = (int*)malloc(sizeof(int) * (N + 1));
+  J = (int*)malloc(sizeof(int) * nz);
+  val = (float*)malloc(sizeof(float) * nz);
   genTridiag(I, J, val, N, nz);
 
-  x = (float *)malloc(sizeof(float) * N);
-  rhs = (float *)malloc(sizeof(float) * N);
+  x = (float*)malloc(sizeof(float) * N);
+  rhs = (float*)malloc(sizeof(float) * N);
 
   for (int i = 0; i < N; i++) {
     rhs[i] = 1.0;
@@ -146,13 +146,13 @@ int main(int argc, char **argv) {
   cusparseSetMatType(descr, CUSPARSE_MATRIX_TYPE_GENERAL);
   cusparseSetMatIndexBase(descr, CUSPARSE_INDEX_BASE_ZERO);
 
-  checkCudaErrors(cudaMalloc((void **)&d_col, nz * sizeof(int)));
-  checkCudaErrors(cudaMalloc((void **)&d_row, (N + 1) * sizeof(int)));
-  checkCudaErrors(cudaMalloc((void **)&d_val, nz * sizeof(float)));
-  checkCudaErrors(cudaMalloc((void **)&d_x, N * sizeof(float)));
-  checkCudaErrors(cudaMalloc((void **)&d_r, N * sizeof(float)));
-  checkCudaErrors(cudaMalloc((void **)&d_p, N * sizeof(float)));
-  checkCudaErrors(cudaMalloc((void **)&d_Ax, N * sizeof(float)));
+  checkCudaErrors(cudaMalloc((void**)&d_col, nz * sizeof(int)));
+  checkCudaErrors(cudaMalloc((void**)&d_row, (N + 1) * sizeof(int)));
+  checkCudaErrors(cudaMalloc((void**)&d_val, nz * sizeof(float)));
+  checkCudaErrors(cudaMalloc((void**)&d_x, N * sizeof(float)));
+  checkCudaErrors(cudaMalloc((void**)&d_r, N * sizeof(float)));
+  checkCudaErrors(cudaMalloc((void**)&d_p, N * sizeof(float)));
+  checkCudaErrors(cudaMalloc((void**)&d_Ax, N * sizeof(float)));
 
   cudaMemcpy(d_col, J, nz * sizeof(int), cudaMemcpyHostToDevice);
   cudaMemcpy(d_row, I, (N + 1) * sizeof(int), cudaMemcpyHostToDevice);

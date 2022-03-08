@@ -26,20 +26,20 @@ namespace numeric {
  */
 
 template <class T, class Policies>
-inline const interval<T, Policies> &operator+(const interval<T, Policies> &x) {
+inline const interval<T, Policies>& operator+(const interval<T, Policies>& x) {
   return x;
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> operator-(const interval<T, Policies> &x) {
+inline interval<T, Policies> operator-(const interval<T, Policies>& x) {
   if (interval_lib::detail::test_input(x))
     return interval<T, Policies>::empty();
   return interval<T, Policies>(-x.upper(), -x.lower(), true);
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> &
-interval<T, Policies>::operator+=(const interval<T, Policies> &r) {
+inline interval<T, Policies>& interval<T, Policies>::operator+=(
+    const interval<T, Policies>& r) {
   if (interval_lib::detail::test_input(*this, r))
     set_empty();
   else {
@@ -50,7 +50,7 @@ interval<T, Policies>::operator+=(const interval<T, Policies> &r) {
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> &interval<T, Policies>::operator+=(const T &r) {
+inline interval<T, Policies>& interval<T, Policies>::operator+=(const T& r) {
   if (interval_lib::detail::test_input(*this, r))
     set_empty();
   else {
@@ -61,8 +61,8 @@ inline interval<T, Policies> &interval<T, Policies>::operator+=(const T &r) {
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> &
-interval<T, Policies>::operator-=(const interval<T, Policies> &r) {
+inline interval<T, Policies>& interval<T, Policies>::operator-=(
+    const interval<T, Policies>& r) {
   if (interval_lib::detail::test_input(*this, r))
     set_empty();
   else {
@@ -73,7 +73,7 @@ interval<T, Policies>::operator-=(const interval<T, Policies> &r) {
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> &interval<T, Policies>::operator-=(const T &r) {
+inline interval<T, Policies>& interval<T, Policies>::operator-=(const T& r) {
   if (interval_lib::detail::test_input(*this, r))
     set_empty();
   else {
@@ -84,30 +84,30 @@ inline interval<T, Policies> &interval<T, Policies>::operator-=(const T &r) {
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> &
-interval<T, Policies>::operator*=(const interval<T, Policies> &r) {
+inline interval<T, Policies>& interval<T, Policies>::operator*=(
+    const interval<T, Policies>& r) {
   return *this = *this * r;
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> &interval<T, Policies>::operator*=(const T &r) {
+inline interval<T, Policies>& interval<T, Policies>::operator*=(const T& r) {
   return *this = r * *this;
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> &
-interval<T, Policies>::operator/=(const interval<T, Policies> &r) {
+inline interval<T, Policies>& interval<T, Policies>::operator/=(
+    const interval<T, Policies>& r) {
   return *this = *this / r;
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> &interval<T, Policies>::operator/=(const T &r) {
+inline interval<T, Policies>& interval<T, Policies>::operator/=(const T& r) {
   return *this = *this / r;
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> operator+(const interval<T, Policies> &x,
-                                       const interval<T, Policies> &y) {
+inline interval<T, Policies> operator+(const interval<T, Policies>& x,
+                                       const interval<T, Policies>& y) {
   if (interval_lib::detail::test_input(x, y))
     return interval<T, Policies>::empty();
   typename Policies::rounding rnd;
@@ -116,8 +116,8 @@ inline interval<T, Policies> operator+(const interval<T, Policies> &x,
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> operator+(const T &x,
-                                       const interval<T, Policies> &y) {
+inline interval<T, Policies> operator+(const T& x,
+                                       const interval<T, Policies>& y) {
   if (interval_lib::detail::test_input(x, y))
     return interval<T, Policies>::empty();
   typename Policies::rounding rnd;
@@ -126,14 +126,14 @@ inline interval<T, Policies> operator+(const T &x,
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> operator+(const interval<T, Policies> &x,
-                                       const T &y) {
+inline interval<T, Policies> operator+(const interval<T, Policies>& x,
+                                       const T& y) {
   return y + x;
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> operator-(const interval<T, Policies> &x,
-                                       const interval<T, Policies> &y) {
+inline interval<T, Policies> operator-(const interval<T, Policies>& x,
+                                       const interval<T, Policies>& y) {
   if (interval_lib::detail::test_input(x, y))
     return interval<T, Policies>::empty();
   typename Policies::rounding rnd;
@@ -142,8 +142,8 @@ inline interval<T, Policies> operator-(const interval<T, Policies> &x,
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> operator-(const T &x,
-                                       const interval<T, Policies> &y) {
+inline interval<T, Policies> operator-(const T& x,
+                                       const interval<T, Policies>& y) {
   if (interval_lib::detail::test_input(x, y))
     return interval<T, Policies>::empty();
   typename Policies::rounding rnd;
@@ -152,8 +152,8 @@ inline interval<T, Policies> operator-(const T &x,
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> operator-(const interval<T, Policies> &x,
-                                       const T &y) {
+inline interval<T, Policies> operator-(const interval<T, Policies>& x,
+                                       const T& y) {
   if (interval_lib::detail::test_input(x, y))
     return interval<T, Policies>::empty();
   typename Policies::rounding rnd;
@@ -162,66 +162,64 @@ inline interval<T, Policies> operator-(const interval<T, Policies> &x,
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> operator*(const interval<T, Policies> &x,
-                                       const interval<T, Policies> &y) {
+inline interval<T, Policies> operator*(const interval<T, Policies>& x,
+                                       const interval<T, Policies>& y) {
   BOOST_USING_STD_MIN();
   BOOST_USING_STD_MAX();
   typedef interval<T, Policies> I;
-  if (interval_lib::detail::test_input(x, y))
-    return I::empty();
+  if (interval_lib::detail::test_input(x, y)) return I::empty();
   typename Policies::rounding rnd;
-  const T &xl = x.lower();
-  const T &xu = x.upper();
-  const T &yl = y.lower();
-  const T &yu = y.upper();
+  const T& xl = x.lower();
+  const T& xu = x.upper();
+  const T& yl = y.lower();
+  const T& yu = y.upper();
 
   if (interval_lib::user::is_neg(xl))
     if (interval_lib::user::is_pos(xu))
       if (interval_lib::user::is_neg(yl))
-        if (interval_lib::user::is_pos(yu)) // M * M
+        if (interval_lib::user::is_pos(yu))  // M * M
           return I(min BOOST_PREVENT_MACRO_SUBSTITUTION(rnd.mul_down(xl, yu),
                                                         rnd.mul_down(xu, yl)),
                    max BOOST_PREVENT_MACRO_SUBSTITUTION(rnd.mul_up(xl, yl),
                                                         rnd.mul_up(xu, yu)),
                    true);
-        else // M * N
+        else  // M * N
           return I(rnd.mul_down(xu, yl), rnd.mul_up(xl, yl), true);
-      else if (interval_lib::user::is_pos(yu)) // M * P
+      else if (interval_lib::user::is_pos(yu))  // M * P
         return I(rnd.mul_down(xl, yu), rnd.mul_up(xu, yu), true);
-      else // M * Z
+      else  // M * Z
         return I(static_cast<T>(0), static_cast<T>(0), true);
     else if (interval_lib::user::is_neg(yl))
-      if (interval_lib::user::is_pos(yu)) // N * M
+      if (interval_lib::user::is_pos(yu))  // N * M
         return I(rnd.mul_down(xl, yu), rnd.mul_up(xl, yl), true);
-      else // N * N
+      else  // N * N
         return I(rnd.mul_down(xu, yu), rnd.mul_up(xl, yl), true);
-    else if (interval_lib::user::is_pos(yu)) // N * P
+    else if (interval_lib::user::is_pos(yu))  // N * P
       return I(rnd.mul_down(xl, yu), rnd.mul_up(xu, yl), true);
-    else // N * Z
+    else  // N * Z
       return I(static_cast<T>(0), static_cast<T>(0), true);
   else if (interval_lib::user::is_pos(xu))
     if (interval_lib::user::is_neg(yl))
-      if (interval_lib::user::is_pos(yu)) // P * M
+      if (interval_lib::user::is_pos(yu))  // P * M
         return I(rnd.mul_down(xu, yl), rnd.mul_up(xu, yu), true);
-      else // P * N
+      else  // P * N
         return I(rnd.mul_down(xu, yl), rnd.mul_up(xl, yu), true);
-    else if (interval_lib::user::is_pos(yu)) // P * P
+    else if (interval_lib::user::is_pos(yu))  // P * P
       return I(rnd.mul_down(xl, yl), rnd.mul_up(xu, yu), true);
-    else // P * Z
+    else  // P * Z
       return I(static_cast<T>(0), static_cast<T>(0), true);
-  else // Z * ?
+  else  // Z * ?
     return I(static_cast<T>(0), static_cast<T>(0), true);
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> operator*(const T &x,
-                                       const interval<T, Policies> &y) {
+inline interval<T, Policies> operator*(const T& x,
+                                       const interval<T, Policies>& y) {
   typedef interval<T, Policies> I;
-  if (interval_lib::detail::test_input(x, y))
-    return I::empty();
+  if (interval_lib::detail::test_input(x, y)) return I::empty();
   typename Policies::rounding rnd;
-  const T &yl = y.lower();
-  const T &yu = y.upper();
+  const T& yl = y.lower();
+  const T& yu = y.upper();
   // x is supposed not to be infinite
   if (interval_lib::user::is_neg(x))
     return I(rnd.mul_down(x, yu), rnd.mul_up(x, yl), true);
@@ -232,14 +230,14 @@ inline interval<T, Policies> operator*(const T &x,
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> operator*(const interval<T, Policies> &x,
-                                       const T &y) {
+inline interval<T, Policies> operator*(const interval<T, Policies>& x,
+                                       const T& y) {
   return y * x;
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> operator/(const interval<T, Policies> &x,
-                                       const interval<T, Policies> &y) {
+inline interval<T, Policies> operator/(const interval<T, Policies>& x,
+                                       const interval<T, Policies>& y) {
   if (interval_lib::detail::test_input(x, y))
     return interval<T, Policies>::empty();
   if (zero_in(y))
@@ -257,8 +255,8 @@ inline interval<T, Policies> operator/(const interval<T, Policies> &x,
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> operator/(const T &x,
-                                       const interval<T, Policies> &y) {
+inline interval<T, Policies> operator/(const T& x,
+                                       const interval<T, Policies>& y) {
   if (interval_lib::detail::test_input(x, y))
     return interval<T, Policies>::empty();
   if (zero_in(y))
@@ -276,20 +274,20 @@ inline interval<T, Policies> operator/(const T &x,
 }
 
 template <class T, class Policies>
-inline interval<T, Policies> operator/(const interval<T, Policies> &x,
-                                       const T &y) {
+inline interval<T, Policies> operator/(const interval<T, Policies>& x,
+                                       const T& y) {
   if (interval_lib::detail::test_input(x, y) || interval_lib::user::is_zero(y))
     return interval<T, Policies>::empty();
   typename Policies::rounding rnd;
-  const T &xl = x.lower();
-  const T &xu = x.upper();
+  const T& xl = x.lower();
+  const T& xu = x.upper();
   if (interval_lib::user::is_neg(y))
     return interval<T, Policies>(rnd.div_down(xu, y), rnd.div_up(xl, y), true);
   else
     return interval<T, Policies>(rnd.div_down(xl, y), rnd.div_up(xu, y), true);
 }
 
-} // namespace numeric
-} // namespace boost
+}  // namespace numeric
+}  // namespace boost
 
-#endif // BOOST_NUMERIC_INTERVAL_ARITH_HPP
+#endif  // BOOST_NUMERIC_INTERVAL_ARITH_HPP

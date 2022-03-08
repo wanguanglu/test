@@ -27,15 +27,13 @@
 //! @param  lg  lower limit of Gerschgorin interval
 //! @param  ug  upper limit of Gerschgorin interval
 ////////////////////////////////////////////////////////////////////////////////
-void computeGerschgorin(float *d, float *s, unsigned int n, float &lg,
-                        float &ug) {
-
+void computeGerschgorin(float* d, float* s, unsigned int n, float& lg,
+                        float& ug) {
   lg = FLT_MAX;
   ug = -FLT_MAX;
 
   // compute bounds
   for (unsigned int i = 1; i < (n - 1); ++i) {
-
     // sum over the absolute values of all elements of row i
     float sum_abs_ni = fabsf(s[i - 1]) + fabsf(s[i]);
 

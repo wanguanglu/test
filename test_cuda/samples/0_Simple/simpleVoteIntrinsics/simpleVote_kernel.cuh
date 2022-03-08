@@ -22,7 +22,7 @@
 // If ANY one of the threads (within the warp) of the predicated condition
 // returns a non-zero value, then all threads within this warp will return a
 // non-zero value
-__global__ void VoteAnyKernel1(unsigned int *input, unsigned int *result,
+__global__ void VoteAnyKernel1(unsigned int* input, unsigned int* result,
                                int size) {
   int tx = threadIdx.x;
 
@@ -33,7 +33,7 @@ __global__ void VoteAnyKernel1(unsigned int *input, unsigned int *result,
 // If ALL of the threads (within the warp) of the predicated condition returns
 // a non-zero value, then all threads within this warp will return a non-zero
 // value
-__global__ void VoteAllKernel2(unsigned int *input, unsigned int *result,
+__global__ void VoteAllKernel2(unsigned int* input, unsigned int* result,
                                int size) {
   int tx = threadIdx.x;
 
@@ -42,9 +42,9 @@ __global__ void VoteAllKernel2(unsigned int *input, unsigned int *result,
 
 // Kernel #3 is a directed test for the across-the-warp vote(all) intrinsic.
 // This kernel will test for conditions across warps, and within half warps
-__global__ void VoteAnyKernel3(bool *info, int warp_size) {
+__global__ void VoteAnyKernel3(bool* info, int warp_size) {
   int tx = threadIdx.x;
-  bool *offs = info + (tx * 3);
+  bool* offs = info + (tx * 3);
 
   // The following should hold true for the second and third warp
   *offs = any((tx >= (warp_size * 3) / 2));

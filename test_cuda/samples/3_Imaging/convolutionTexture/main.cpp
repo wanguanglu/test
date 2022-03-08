@@ -31,18 +31,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Main program
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   float *h_Kernel, *h_Input, *h_Buffer, *h_OutputCPU, *h_OutputGPU;
 
-  cudaArray *a_Src;
+  cudaArray* a_Src;
 
   cudaChannelFormatDesc floatTex = cudaCreateChannelDesc<float>();
 
-  float *d_Output;
+  float* d_Output;
 
   float gpuTime;
 
-  StopWatchInterface *hTimer = NULL;
+  StopWatchInterface* hTimer = NULL;
 
   const int imageW = 3072;
   const int imageH = 3072 / 2;
@@ -52,19 +52,19 @@ int main(int argc, char **argv) {
 
   // use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  findCudaDevice(argc, (const char **)argv);
+  findCudaDevice(argc, (const char**)argv);
 
   sdkCreateTimer(&hTimer);
 
   printf("Initializing data...\n");
-  h_Kernel = (float *)malloc(KERNEL_LENGTH * sizeof(float));
-  h_Input = (float *)malloc(imageW * imageH * sizeof(float));
-  h_Buffer = (float *)malloc(imageW * imageH * sizeof(float));
-  h_OutputCPU = (float *)malloc(imageW * imageH * sizeof(float));
-  h_OutputGPU = (float *)malloc(imageW * imageH * sizeof(float));
+  h_Kernel = (float*)malloc(KERNEL_LENGTH * sizeof(float));
+  h_Input = (float*)malloc(imageW * imageH * sizeof(float));
+  h_Buffer = (float*)malloc(imageW * imageH * sizeof(float));
+  h_OutputCPU = (float*)malloc(imageW * imageH * sizeof(float));
+  h_OutputGPU = (float*)malloc(imageW * imageH * sizeof(float));
   checkCudaErrors(cudaMallocArray(&a_Src, &floatTex, imageW, imageH));
   checkCudaErrors(
-      cudaMalloc((void **)&d_Output, imageW * imageH * sizeof(float)));
+      cudaMalloc((void**)&d_Output, imageW * imageH * sizeof(float)));
 
   srand(2009);
 

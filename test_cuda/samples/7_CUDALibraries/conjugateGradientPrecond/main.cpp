@@ -41,15 +41,15 @@
 #include <cusparse.h>
 
 // Utilities and system includes
-#include <helper_cuda.h>      // helper for CUDA error checking
-#include <helper_functions.h> // helper for shared functions common to CUDA Samples
+#include <helper_cuda.h>       // helper for CUDA error checking
+#include <helper_functions.h>  // helper for shared functions common to CUDA Samples
 
-const char *sSDKname = "conjugateGradientPrecond";
+const char* sSDKname = "conjugateGradientPrecond";
 
 /* genLaplace: Generate a matrix representing a second order, regular, Laplacian
  * operator on a 2d domain in Compressed Sparse Row format*/
-void genLaplace(int *row_ptr, int *col_ind, float *val, int M, int N, int nz,
-                float *rhs) {
+void genLaplace(int* row_ptr, int* col_ind, float* val, int M, int N, int nz,
+                float* rhs) {
   assert(M == N);
   int n = (int)sqrt((double)N);
   assert(n * n == N);
@@ -111,7 +111,7 @@ void genLaplace(int *row_ptr, int *col_ind, float *val, int M, int N, int nz,
 /* Solve Ax=b using the conjugate gradient method a) without any
  * preconditioning, b) using an Incomplete Cholesky preconditioner and c) using
  * an ILU0 preconditioner. */
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   const int max_iter = 1000;
   int k, M = 0, N = 0, nz = 0, *I = NULL, *J = NULL;
   int *d_col, *d_row;
@@ -122,9 +122,9 @@ int main(int argc, char **argv) {
   float *d_val, *d_x;
   float *d_zm1, *d_zm2, *d_rm2;
   float *d_r, *d_p, *d_omega, *d_y;
-  float *val = NULL;
-  float *d_valsILU0;
-  float *valsILU0;
+  float* val = NULL;
+  float* d_valsILU0;
+  float* valsILU0;
   float rsum, diff, err = 0.0;
   float qaerr1, qaerr2 = 0.0;
   float dot, numerator, denominator, nalpha;
@@ -136,13 +136,13 @@ int main(int argc, char **argv) {
   printf("conjugateGradientPrecond starting...\n");
 
   /* QA testing mode */
-  if (checkCmdLineFlag(argc, (const char **)argv, "qatest")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "qatest")) {
     qatest = 1;
   }
 
   /* This will pick the best possible CUDA capable device */
   cudaDeviceProp deviceProp;
-  int devID = findCudaDevice(argc, (const char **)argv);
+  int devID = findCudaDevice(argc, (const char**)argv);
   printf("GPU selected Device ID = %d \n", devID);
 
   if (devID < 0) {
@@ -175,15 +175,15 @@ int main(int argc, char **argv) {
    * Row) format */
   M = N = 16384;
   nz = 5 * N - 4 * (int)sqrt((double)N);
-  I = (int *)malloc(sizeof(int) * (N + 1));  // csr row pointers for matrix A
-  J = (int *)malloc(sizeof(int) * nz);       // csr column indices for matrix A
-  val = (float *)malloc(sizeof(float) * nz); // csr values for matrix A
-  x = (float *)malloc(sizeof(float) * N);
-  rhs = (float *)malloc(sizeof(float) * N);
+  I = (int*)malloc(sizeof(int) * (N + 1));   // csr row pointers for matrix A
+  J = (int*)malloc(sizeof(int) * nz);        // csr column indices for matrix A
+  val = (float*)malloc(sizeof(float) * nz);  // csr values for matrix A
+  x = (float*)malloc(sizeof(float) * N);
+  rhs = (float*)malloc(sizeof(float) * N);
 
   for (int i = 0; i < N; i++) {
-    rhs[i] = 0.0; // Initialize RHS
-    x[i] = 0.0;   // Initial approximation of solution
+    rhs[i] = 0.0;  // Initialize RHS
+    x[i] = 0.0;    // Initial approximation of solution
   }
 
   genLaplace(I, J, val, M, N, nz, rhs);
@@ -213,14 +213,14 @@ int main(int argc, char **argv) {
   cusparseSetMatIndexBase(descr, CUSPARSE_INDEX_BASE_ZERO);
 
   /* Allocate required memory */
-  checkCudaErrors(cudaMalloc((void **)&d_col, nz * sizeof(int)));
-  checkCudaErrors(cudaMalloc((void **)&d_row, (N + 1) * sizeof(int)));
-  checkCudaErrors(cudaMalloc((void **)&d_val, nz * sizeof(float)));
-  checkCudaErrors(cudaMalloc((void **)&d_x, N * sizeof(float)));
-  checkCudaErrors(cudaMalloc((void **)&d_y, N * sizeof(float)));
-  checkCudaErrors(cudaMalloc((void **)&d_r, N * sizeof(float)));
-  checkCudaErrors(cudaMalloc((void **)&d_p, N * sizeof(float)));
-  checkCudaErrors(cudaMalloc((void **)&d_omega, N * sizeof(float)));
+  checkCudaErrors(cudaMalloc((void**)&d_col, nz * sizeof(int)));
+  checkCudaErrors(cudaMalloc((void**)&d_row, (N + 1) * sizeof(int)));
+  checkCudaErrors(cudaMalloc((void**)&d_val, nz * sizeof(float)));
+  checkCudaErrors(cudaMalloc((void**)&d_x, N * sizeof(float)));
+  checkCudaErrors(cudaMalloc((void**)&d_y, N * sizeof(float)));
+  checkCudaErrors(cudaMalloc((void**)&d_r, N * sizeof(float)));
+  checkCudaErrors(cudaMalloc((void**)&d_p, N * sizeof(float)));
+  checkCudaErrors(cudaMalloc((void**)&d_omega, N * sizeof(float)));
 
   cudaMemcpy(d_col, J, nz * sizeof(int), cudaMemcpyHostToDevice);
   cudaMemcpy(d_row, I, (N + 1) * sizeof(int), cudaMemcpyHostToDevice);
@@ -309,16 +309,17 @@ int main(int argc, char **argv) {
      Follows the description by Golub & Van Loan, "Matrix Computations 3rd ed.",
      Algorithm 10.3.1  */
 
-  printf("\nConvergence of conjugate gradient using incomplete LU "
-         "preconditioning: \n");
+  printf(
+      "\nConvergence of conjugate gradient using incomplete LU "
+      "preconditioning: \n");
 
   int nzILU0 = 2 * N - 1;
-  valsILU0 = (float *)malloc(nz * sizeof(float));
+  valsILU0 = (float*)malloc(nz * sizeof(float));
 
-  checkCudaErrors(cudaMalloc((void **)&d_valsILU0, nz * sizeof(float)));
-  checkCudaErrors(cudaMalloc((void **)&d_zm1, (N) * sizeof(float)));
-  checkCudaErrors(cudaMalloc((void **)&d_zm2, (N) * sizeof(float)));
-  checkCudaErrors(cudaMalloc((void **)&d_rm2, (N) * sizeof(float)));
+  checkCudaErrors(cudaMalloc((void**)&d_valsILU0, nz * sizeof(float)));
+  checkCudaErrors(cudaMalloc((void**)&d_zm1, (N) * sizeof(float)));
+  checkCudaErrors(cudaMalloc((void**)&d_zm2, (N) * sizeof(float)));
+  checkCudaErrors(cudaMalloc((void**)&d_rm2, (N) * sizeof(float)));
 
   /* create the analysis info object for the A matrix */
   cusparseSolveAnalysisInfo_t infoA = 0;

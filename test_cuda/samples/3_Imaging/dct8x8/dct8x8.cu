@@ -61,18 +61,18 @@ texture<float, 2, cudaReadModeElementType> TexSrc;
 *
 * \return Execution time in milliseconds
 */
-float WrapperGold1(byte *ImgSrc, byte *ImgDst, int Stride, ROI Size) {
+float WrapperGold1(byte* ImgSrc, byte* ImgDst, int Stride, ROI Size) {
   // allocate float buffers for DCT and other data
   int StrideF;
-  float *ImgF1 = MallocPlaneFloat(Size.width, Size.height, &StrideF);
-  float *ImgF2 = MallocPlaneFloat(Size.width, Size.height, &StrideF);
+  float* ImgF1 = MallocPlaneFloat(Size.width, Size.height, &StrideF);
+  float* ImgF2 = MallocPlaneFloat(Size.width, Size.height, &StrideF);
 
   // convert source image to float representation
   CopyByte2Float(ImgSrc, Stride, ImgF1, StrideF, Size);
   AddFloatPlane(-128.0f, ImgF1, StrideF, Size);
 
   // create and start CUDA timer
-  StopWatchInterface *timerGold = 0;
+  StopWatchInterface* timerGold = 0;
   sdkCreateTimer(&timerGold);
   sdkResetTimer(&timerGold);
 
@@ -117,18 +117,18 @@ float WrapperGold1(byte *ImgSrc, byte *ImgDst, int Stride, ROI Size) {
 *
 * \return Execution time in milliseconds
 */
-float WrapperGold2(byte *ImgSrc, byte *ImgDst, int Stride, ROI Size) {
+float WrapperGold2(byte* ImgSrc, byte* ImgDst, int Stride, ROI Size) {
   // allocate float buffers for DCT and other data
   int StrideF;
-  float *ImgF1 = MallocPlaneFloat(Size.width, Size.height, &StrideF);
-  float *ImgF2 = MallocPlaneFloat(Size.width, Size.height, &StrideF);
+  float* ImgF1 = MallocPlaneFloat(Size.width, Size.height, &StrideF);
+  float* ImgF2 = MallocPlaneFloat(Size.width, Size.height, &StrideF);
 
   // convert source image to float representation
   CopyByte2Float(ImgSrc, Stride, ImgF1, StrideF, Size);
   AddFloatPlane(-128.0f, ImgF1, StrideF, Size);
 
   // create and start CUDA timer
-  StopWatchInterface *timerGold = 0;
+  StopWatchInterface* timerGold = 0;
   sdkCreateTimer(&timerGold);
   sdkResetTimer(&timerGold);
 
@@ -173,22 +173,22 @@ float WrapperGold2(byte *ImgSrc, byte *ImgDst, int Stride, ROI Size) {
 *
 * \return Execution time in milliseconds
 */
-float WrapperCUDA1(byte *ImgSrc, byte *ImgDst, int Stride, ROI Size) {
+float WrapperCUDA1(byte* ImgSrc, byte* ImgDst, int Stride, ROI Size) {
   // prepare channel format descriptor for passing texture into kernels
   cudaChannelFormatDesc floattex = cudaCreateChannelDesc<float>();
 
   // allocate device memory
-  cudaArray *Src;
-  float *Dst;
+  cudaArray* Src;
+  float* Dst;
   size_t DstStride;
   checkCudaErrors(cudaMallocArray(&Src, &floattex, Size.width, Size.height));
-  checkCudaErrors(cudaMallocPitch((void **)(&Dst), &DstStride,
+  checkCudaErrors(cudaMallocPitch((void**)(&Dst), &DstStride,
                                   Size.width * sizeof(float), Size.height));
   DstStride /= sizeof(float);
 
   // convert source image to float representation
   int ImgSrcFStride;
-  float *ImgSrcF = MallocPlaneFloat(Size.width, Size.height, &ImgSrcFStride);
+  float* ImgSrcF = MallocPlaneFloat(Size.width, Size.height, &ImgSrcFStride);
   CopyByte2Float(ImgSrc, Stride, ImgSrcF, ImgSrcFStride, Size);
   AddFloatPlane(-128.0f, ImgSrcF, ImgSrcFStride, Size);
 
@@ -202,7 +202,7 @@ float WrapperCUDA1(byte *ImgSrc, byte *ImgDst, int Stride, ROI Size) {
   dim3 grid(Size.width / BLOCK_SIZE, Size.height / BLOCK_SIZE);
 
   // create and start CUDA timer
-  StopWatchInterface *timerCUDA = 0;
+  StopWatchInterface* timerCUDA = 0;
   sdkCreateTimer(&timerCUDA);
   sdkResetTimer(&timerCUDA);
 
@@ -269,10 +269,10 @@ float WrapperCUDA1(byte *ImgSrc, byte *ImgDst, int Stride, ROI Size) {
 * \return Execution time in milliseconds
 */
 
-float WrapperCUDA2(byte *ImgSrc, byte *ImgDst, int Stride, ROI Size) {
+float WrapperCUDA2(byte* ImgSrc, byte* ImgDst, int Stride, ROI Size) {
   // allocate host buffers for DCT and other data
   int StrideF;
-  float *ImgF1 = MallocPlaneFloat(Size.width, Size.height, &StrideF);
+  float* ImgF1 = MallocPlaneFloat(Size.width, Size.height, &StrideF);
 
   // convert source image to float representation
   CopyByte2Float(ImgSrc, Stride, ImgF1, StrideF, Size);
@@ -281,9 +281,9 @@ float WrapperCUDA2(byte *ImgSrc, byte *ImgDst, int Stride, ROI Size) {
   // allocate device memory
   float *src, *dst;
   size_t DeviceStride;
-  checkCudaErrors(cudaMallocPitch((void **)&src, &DeviceStride,
+  checkCudaErrors(cudaMallocPitch((void**)&src, &DeviceStride,
                                   Size.width * sizeof(float), Size.height));
-  checkCudaErrors(cudaMallocPitch((void **)&dst, &DeviceStride,
+  checkCudaErrors(cudaMallocPitch((void**)&dst, &DeviceStride,
                                   Size.width * sizeof(float), Size.height));
   DeviceStride /= sizeof(float);
 
@@ -293,7 +293,7 @@ float WrapperCUDA2(byte *ImgSrc, byte *ImgDst, int Stride, ROI Size) {
       Size.width * sizeof(float), Size.height, cudaMemcpyHostToDevice));
 
   // create and start CUDA timer
-  StopWatchInterface *timerCUDA = 0;
+  StopWatchInterface* timerCUDA = 0;
   sdkCreateTimer(&timerCUDA);
 
   // setup execution parameters
@@ -371,10 +371,10 @@ float WrapperCUDA2(byte *ImgSrc, byte *ImgDst, int Stride, ROI Size) {
 *
 * \return Execution time in milliseconds
 */
-float WrapperCUDAshort(byte *ImgSrc, byte *ImgDst, int Stride, ROI Size) {
+float WrapperCUDAshort(byte* ImgSrc, byte* ImgDst, int Stride, ROI Size) {
   // allocate host buffers for DCT and other data
   int StrideS;
-  short *ImgS1 = MallocPlaneShort(Size.width, Size.height, &StrideS);
+  short* ImgS1 = MallocPlaneShort(Size.width, Size.height, &StrideS);
 
   // convert source image to short representation centered at 128
   for (int i = 0; i < Size.height; i++) {
@@ -384,9 +384,9 @@ float WrapperCUDAshort(byte *ImgSrc, byte *ImgDst, int Stride, ROI Size) {
   }
 
   // allocate device memory
-  short *SrcDst;
+  short* SrcDst;
   size_t DeviceStride;
-  checkCudaErrors(cudaMallocPitch((void **)(&SrcDst), &DeviceStride,
+  checkCudaErrors(cudaMallocPitch((void**)(&SrcDst), &DeviceStride,
                                   Size.width * sizeof(short), Size.height));
   DeviceStride /= sizeof(short);
 
@@ -396,7 +396,7 @@ float WrapperCUDAshort(byte *ImgSrc, byte *ImgDst, int Stride, ROI Size) {
       Size.width * sizeof(short), Size.height, cudaMemcpyHostToDevice));
 
   // create and start CUDA timer
-  StopWatchInterface *timerLibJpeg = 0;
+  StopWatchInterface* timerLibJpeg = 0;
   sdkCreateTimer(&timerLibJpeg);
   sdkResetTimer(&timerLibJpeg);
 
@@ -460,14 +460,14 @@ float WrapperCUDAshort(byte *ImgSrc, byte *ImgDst, int Stride, ROI Size) {
 * \return Status code
 */
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   //
   // Sample initialization
   //
   printf("%s Starting...\n\n", argv[0]);
 
   // initialize CUDA
-  findCudaDevice(argc, (const char **)argv);
+  findCudaDevice(argc, (const char**)argv);
 
   // source and results image filenames
   char SampleImageFname[] = "barbara.bmp";
@@ -477,7 +477,7 @@ int main(int argc, char **argv) {
   char SampleImageFnameResCUDA2[] = "barbara_cuda2.bmp";
   char SampleImageFnameResCUDAshort[] = "barbara_cuda_short.bmp";
 
-  char *pSampleImageFpath = sdkFindFilePath(SampleImageFname, argv[0]);
+  char* pSampleImageFpath = sdkFindFilePath(SampleImageFname, argv[0]);
 
   if (pSampleImageFpath == NULL) {
     printf("dct8x8 could not locate Sample Image <%s>\nExiting...\n",
@@ -514,12 +514,12 @@ int main(int argc, char **argv) {
 
   // allocate image buffers
   int ImgStride;
-  byte *ImgSrc = MallocPlaneByte(ImgWidth, ImgHeight, &ImgStride);
-  byte *ImgDstGold1 = MallocPlaneByte(ImgWidth, ImgHeight, &ImgStride);
-  byte *ImgDstGold2 = MallocPlaneByte(ImgWidth, ImgHeight, &ImgStride);
-  byte *ImgDstCUDA1 = MallocPlaneByte(ImgWidth, ImgHeight, &ImgStride);
-  byte *ImgDstCUDA2 = MallocPlaneByte(ImgWidth, ImgHeight, &ImgStride);
-  byte *ImgDstCUDAshort = MallocPlaneByte(ImgWidth, ImgHeight, &ImgStride);
+  byte* ImgSrc = MallocPlaneByte(ImgWidth, ImgHeight, &ImgStride);
+  byte* ImgDstGold1 = MallocPlaneByte(ImgWidth, ImgHeight, &ImgStride);
+  byte* ImgDstGold2 = MallocPlaneByte(ImgWidth, ImgHeight, &ImgStride);
+  byte* ImgDstCUDA1 = MallocPlaneByte(ImgWidth, ImgHeight, &ImgStride);
+  byte* ImgDstCUDA2 = MallocPlaneByte(ImgWidth, ImgHeight, &ImgStride);
+  byte* ImgDstCUDAshort = MallocPlaneByte(ImgWidth, ImgHeight, &ImgStride);
 
   // load sample image
   LoadBmpAsGray(pSampleImageFpath, ImgStride, ImgSize, ImgSrc);

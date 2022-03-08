@@ -22,7 +22,7 @@
 #include <algorithm>
 #include <vector>
 
-const char *sSDKsample = "newdelete";
+const char* sSDKsample = "newdelete";
 
 #include "container.hpp"
 
@@ -32,7 +32,7 @@ const char *sSDKsample = "newdelete";
 //
 ////////////////////////////////////////////////////////////////////////////
 
-__global__ void vectorCreate(Container<int> **g_container, int max_size) {
+__global__ void vectorCreate(Container<int>** g_container, int max_size) {
   // The Vector object and the data storage are allocated in device heap memory.
   // This makes it persistent for the lifetime of the CUDA context.
   // The grid has only one thread as only a single object instance is needed.
@@ -46,7 +46,7 @@ __global__ void vectorCreate(Container<int> **g_container, int max_size) {
 //
 ////////////////////////////////////////////////////////////////////////////
 
-__global__ void containerFill(Container<int> **g_container) {
+__global__ void containerFill(Container<int>** g_container) {
   // All threads of the grid cooperatively populate the shared Container object
   // with data.
   if (threadIdx.x == 0) {
@@ -54,7 +54,7 @@ __global__ void containerFill(Container<int> **g_container) {
   }
 }
 
-__global__ void containerConsume(Container<int> **g_container, int *d_result) {
+__global__ void containerConsume(Container<int>** g_container, int* d_result) {
   // All threads of the grid cooperatively consume the data from the shared
   // Container object.
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -74,7 +74,7 @@ __global__ void containerConsume(Container<int> **g_container, int *d_result) {
 //
 ////////////////////////////////////////////////////////////////////////////
 
-__global__ void containerDelete(Container<int> **g_container) {
+__global__ void containerDelete(Container<int>** g_container) {
   delete *g_container;
 }
 
@@ -85,10 +85,10 @@ __global__ void containerDelete(Container<int> **g_container) {
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-__global__ void placementNew(int *d_result) {
+__global__ void placementNew(int* d_result) {
   __shared__ unsigned char __align__(8) s_buffer[sizeof(Vector<int>)];
   __shared__ int __align__(8) s_data[1024];
-  __shared__ Vector<int> *s_vector;
+  __shared__ Vector<int>* s_vector;
 
   // The first thread of the block initializes the shared Vector object.
   // The placement new operator enables the Vector object and the data array top
@@ -126,11 +126,10 @@ struct ComplexType_t {
   float d;
 };
 
-__global__ void complexVector(int *d_result) {
-
+__global__ void complexVector(int* d_result) {
   __shared__ unsigned char __align__(8) s_buffer[sizeof(Vector<ComplexType_t>)];
   __shared__ ComplexType_t __align__(8) s_data[1024];
-  __shared__ Vector<ComplexType_t> *s_vector;
+  __shared__ Vector<ComplexType_t>* s_vector;
 
   // The first thread of the block initializes the shared Vector object.
   // The placement new operator enables the Vector object and the data array top
@@ -171,7 +170,7 @@ __global__ void complexVector(int *d_result) {
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-bool checkResult(int *d_result, int N) {
+bool checkResult(int* d_result, int N) {
   std::vector<int> h_result;
   h_result.resize(N);
 
@@ -197,8 +196,8 @@ bool checkResult(int *d_result, int N) {
   return success;
 }
 
-bool testContainer(Container<int> **d_container, int blocks, int threads) {
-  int *d_result;
+bool testContainer(Container<int>** d_container, int blocks, int threads) {
+  int* d_result;
   cudaMalloc(&d_result, blocks * threads * sizeof(int));
 
   containerFill<<<blocks, threads>>>(d_container);
@@ -214,7 +213,7 @@ bool testContainer(Container<int> **d_container, int blocks, int threads) {
 }
 
 bool testPlacementNew(int threads) {
-  int *d_result;
+  int* d_result;
   cudaMalloc(&d_result, threads * sizeof(int));
 
   placementNew<<<1, threads>>>(d_result);
@@ -228,7 +227,7 @@ bool testPlacementNew(int threads) {
 }
 
 bool testComplexType(int threads) {
-  int *d_result;
+  int* d_result;
   cudaMalloc(&d_result, threads * sizeof(int));
 
   complexVector<<<1, threads>>>(d_result);
@@ -247,23 +246,24 @@ bool testComplexType(int threads) {
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   int cuda_device = 0;
 
   printf("%s Starting...\n\n", sSDKsample);
 
   // use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  cuda_device = findCudaDevice(argc, (const char **)argv);
+  cuda_device = findCudaDevice(argc, (const char**)argv);
 
   cudaDeviceProp deviceProp;
   checkCudaErrors(cudaGetDevice(&cuda_device));
   checkCudaErrors(cudaGetDeviceProperties(&deviceProp, cuda_device));
 
   if (deviceProp.major < 2) {
-    printf("> This GPU with Compute Capability %d.%d does not meet minimum "
-           "requirements.\n",
-           deviceProp.major, deviceProp.minor);
+    printf(
+        "> This GPU with Compute Capability %d.%d does not meet minimum "
+        "requirements.\n",
+        deviceProp.major, deviceProp.minor);
     printf("> A GPU with Compute Capability >= 2.0 is required to run %s.\n",
            sSDKsample);
     printf("> Test will not run.  Exiting.\n");
@@ -277,8 +277,8 @@ int main(int argc, char **argv) {
   cudaThreadSetLimit(cudaLimitMallocHeapSize, 128 * (1 << 20));
 #endif
 
-  Container<int> **d_container;
-  cudaMalloc(&d_container, sizeof(Container<int> **));
+  Container<int>** d_container;
+  cudaMalloc(&d_container, sizeof(Container<int>**));
 
   bool bTest = false;
   int test_passed = 0;

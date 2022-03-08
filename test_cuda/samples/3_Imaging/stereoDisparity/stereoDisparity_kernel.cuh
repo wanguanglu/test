@@ -40,13 +40,13 @@ texture<unsigned int, cudaTextureType2D, cudaReadModeElementType> tex2Dright;
 __device__ unsigned int __usad4(unsigned int A, unsigned int B,
                                 unsigned int C = 0) {
   unsigned int result;
-#if (__CUDA_ARCH__ >= 300) // Kepler (SM 3.x) supports a 4 vector SAD SIMD
+#if (__CUDA_ARCH__ >= 300)  // Kepler (SM 3.x) supports a 4 vector SAD SIMD
   asm("vabsdiff4.u32.u32.u32.add"
       " %0, %1, %2, %3;"
       : "=r"(result)
       : "r"(A), "r"(B), "r"(C));
-#else // SM 2.0            // Fermi  (SM 2.x) supports only 1 SAD SIMD, so there
-      // are 4 instructions
+#else  // SM 2.0            // Fermi  (SM 2.x) supports only 1 SAD SIMD, so
+       // there are 4 instructions
   asm("vabsdiff.u32.u32.u32.add"
       " %0, %1.b0, %2.b0, %3;"
       : "=r"(result)
@@ -85,9 +85,9 @@ __device__ unsigned int __usad4(unsigned int A, unsigned int B,
 //! @param minDisparity leftmost search range
 //! @param maxDisparity rightmost search range
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void stereoDisparityKernel(unsigned int *g_img0,
-                                      unsigned int *g_img1,
-                                      unsigned int *g_odata, int w, int h,
+__global__ void stereoDisparityKernel(unsigned int* g_img0,
+                                      unsigned int* g_img1,
+                                      unsigned int* g_odata, int w, int h,
                                       int minDisparity, int maxDisparity) {
   // access thread id
   const int tidx = blockDim.x * blockIdx.x + threadIdx.x;
@@ -183,8 +183,8 @@ __global__ void stereoDisparityKernel(unsigned int *g_img0,
   }
 }
 
-void cpu_gold_stereo(unsigned int *img0, unsigned int *img1,
-                     unsigned int *odata, int w, int h, int minDisparity,
+void cpu_gold_stereo(unsigned int* img0, unsigned int* img1,
+                     unsigned int* odata, int w, int h, int minDisparity,
                      int maxDisparity) {
   for (int y = 0; y < h; y++) {
     for (int x = 0; x < w; x++) {
@@ -200,31 +200,25 @@ void cpu_gold_stereo(unsigned int *img0, unsigned int *img1,
             int yy, xx, xxd;
             yy = y + i;
 
-            if (yy < 0)
-              yy = 0;
+            if (yy < 0) yy = 0;
 
-            if (yy >= h)
-              yy = h - 1;
+            if (yy >= h) yy = h - 1;
 
             xx = x + j;
 
-            if (xx < 0)
-              xx = 0;
+            if (xx < 0) xx = 0;
 
-            if (xx >= w)
-              xx = w - 1;
+            if (xx >= w) xx = w - 1;
 
             xxd = x + j + d;
 
-            if (xxd < 0)
-              xxd = 0;
+            if (xxd < 0) xxd = 0;
 
-            if (xxd >= w)
-              xxd = w - 1;
+            if (xxd >= w) xxd = w - 1;
 
             // sum abs diff across components
-            unsigned char *A = (unsigned char *)&img0[yy * w + xx];
-            unsigned char *B = (unsigned char *)&img1[yy * w + xxd];
+            unsigned char* A = (unsigned char*)&img0[yy * w + xx];
+            unsigned char* B = (unsigned char*)&img1[yy * w + xxd];
             unsigned int absdiff = 0;
 
             for (int k = 0; k < 4; k++) {
@@ -240,11 +234,11 @@ void cpu_gold_stereo(unsigned int *img0, unsigned int *img1,
           bestDisparity = d + 8;
         }
 
-      } // end for disparities
+      }  // end for disparities
 
       // store to best disparity
       odata[y * w + x] = bestDisparity;
     }
   }
 }
-#endif // #ifndef _STEREODISPARITY_KERNEL_H_
+#endif  // #ifndef _STEREODISPARITY_KERNEL_H_

@@ -55,11 +55,11 @@
 
 #include <rendercheck_gl.h>
 
-const char *sSDKsample = "CUDA FFT Ocean Simulation";
+const char* sSDKsample = "CUDA FFT Ocean Simulation";
 
 #define MAX_EPSILON 0.10f
 #define THRESHOLD 0.15f
-#define REFRESH_DELAY 10 // ms
+#define REFRESH_DELAY 10  // ms
 
 ////////////////////////////////////////////////////////////////////////////////
 // constants
@@ -75,7 +75,7 @@ const int frameCompare = 4;
 GLuint posVertexBuffer;
 GLuint heightVertexBuffer, slopeVertexBuffer;
 struct cudaGraphicsResource *cuda_posVB_resource, *cuda_heightVB_resource,
-    *cuda_slopeVB_resource; // handles OpenGL-CUDA exchange
+    *cuda_slopeVB_resource;  // handles OpenGL-CUDA exchange
 
 GLuint indexBuffer;
 GLuint shaderProg;
@@ -94,32 +94,32 @@ bool g_hasDouble = false;
 
 // FFT data
 cufftHandle fftPlan;
-float2 *d_h0 = 0; // heightfield at time 0
-float2 *h_h0 = 0;
-float2 *d_ht = 0; // heightfield at time t
-float2 *d_slope = 0;
+float2* d_h0 = 0;  // heightfield at time 0
+float2* h_h0 = 0;
+float2* d_ht = 0;  // heightfield at time t
+float2* d_slope = 0;
 
 // pointers to device object
-float *g_hptr = NULL;
-float2 *g_sptr = NULL;
+float* g_hptr = NULL;
+float2* g_sptr = NULL;
 
 // simulation parameters
-const float g = 9.81f;       // gravitational constant
-const float A = 1e-7f;       // wave scale factor
-const float patchSize = 100; // patch size
+const float g = 9.81f;        // gravitational constant
+const float A = 1e-7f;        // wave scale factor
+const float patchSize = 100;  // patch size
 float windSpeed = 100.0f;
 float windDir = CUDART_PI_F / 3.0f;
 float dirDepend = 0.07f;
 
-StopWatchInterface *timer = NULL;
+StopWatchInterface* timer = NULL;
 float animTime = 0.0f;
 float prevTime = 0.0f;
 float animationRate = -0.001f;
 
 // Auto-Verification Code
 const int frameCheckNumber = 4;
-int fpsCount = 0; // FPS count for averaging
-int fpsLimit = 1; // FPS limit for sampling
+int fpsCount = 0;  // FPS count for averaging
+int fpsLimit = 1;  // FPS limit for sampling
 unsigned int frameCount = 0;
 unsigned int g_TotalErrors = 0;
 
@@ -127,32 +127,32 @@ unsigned int g_TotalErrors = 0;
 // kernels
 //#include <oceanFFT_kernel.cu>
 
-extern "C" void cudaGenerateSpectrumKernel(float2 *d_h0, float2 *d_ht,
+extern "C" void cudaGenerateSpectrumKernel(float2* d_h0, float2* d_ht,
                                            unsigned int in_width,
                                            unsigned int out_width,
                                            unsigned int out_height,
                                            float animTime, float patchSize);
 
-extern "C" void cudaUpdateHeightmapKernel(float *d_heightMap, float2 *d_ht,
+extern "C" void cudaUpdateHeightmapKernel(float* d_heightMap, float2* d_ht,
                                           unsigned int width,
                                           unsigned int height);
 
-extern "C" void cudaCalculateSlopeKernel(float *h, float2 *slopeOut,
+extern "C" void cudaCalculateSlopeKernel(float* h, float2* slopeOut,
                                          unsigned int width,
                                          unsigned int height);
 
 ////////////////////////////////////////////////////////////////////////////////
 // forward declarations
-void runAutoTest(int argc, char **argv);
-void runGraphicsTest(int argc, char **argv);
+void runAutoTest(int argc, char** argv);
+void runGraphicsTest(int argc, char** argv);
 
 // GL functionality
-bool initGL(int *argc, char **argv);
-void createVBO(GLuint *vbo, int size);
-void deleteVBO(GLuint *vbo);
-void createMeshIndexBuffer(GLuint *id, int w, int h);
-void createMeshPositionVBO(GLuint *id, int w, int h);
-GLuint loadGLSLProgram(const char *vertFileName, const char *fragFileName);
+bool initGL(int* argc, char** argv);
+void createVBO(GLuint* vbo, int size);
+void deleteVBO(GLuint* vbo);
+void createMeshIndexBuffer(GLuint* id, int w, int h);
+void createMeshPositionVBO(GLuint* id, int w, int h);
+GLuint loadGLSLProgram(const char* vertFileName, const char* fragFileName);
 
 // rendering callbacks
 void display();
@@ -164,28 +164,30 @@ void timerEvent(int value);
 
 // Cuda functionality
 void runCuda();
-void runCudaTest(char *exec_path);
-void generate_h0(float2 *h0);
+void runCudaTest(char* exec_path);
+void generate_h0(float2* h0);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
-  printf("NOTE: The CUDA Samples are not meant for performance measurements. "
-         "Results may vary when GPU Boost is enabled.\n\n");
+int main(int argc, char** argv) {
+  printf(
+      "NOTE: The CUDA Samples are not meant for performance measurements. "
+      "Results may vary when GPU Boost is enabled.\n\n");
 
   // check for command line arguments
-  if (checkCmdLineFlag(argc, (const char **)argv, "qatest")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "qatest")) {
     animate = false;
     fpsLimit = frameCheckNumber;
     runAutoTest(argc, argv);
   } else {
-    printf("[%s]\n\n"
-           "Left mouse button          - rotate\n"
-           "Middle mouse button        - pan\n"
-           "Right mouse button         - zoom\n"
-           "'w' key                    - toggle wireframe\n",
-           sSDKsample);
+    printf(
+        "[%s]\n\n"
+        "Left mouse button          - rotate\n"
+        "Middle mouse button        - pan\n"
+        "Right mouse button         - zoom\n"
+        "'w' key                    - toggle wireframe\n",
+        sSDKsample);
 
     runGraphicsTest(argc, argv);
   }
@@ -202,11 +204,11 @@ int main(int argc, char **argv) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Run test
 ////////////////////////////////////////////////////////////////////////////////
-void runAutoTest(int argc, char **argv) {
+void runAutoTest(int argc, char** argv) {
   printf("%s Starting...\n\n", argv[0]);
 
   // Cuda init
-  int dev = findCudaDevice(argc, (const char **)argv);
+  int dev = findCudaDevice(argc, (const char**)argv);
 
   cudaDeviceProp deviceProp;
   checkCudaErrors(cudaGetDeviceProperties(&deviceProp, dev));
@@ -217,14 +219,14 @@ void runAutoTest(int argc, char **argv) {
 
   // allocate memory
   int spectrumSize = spectrumW * spectrumH * sizeof(float2);
-  checkCudaErrors(cudaMalloc((void **)&d_h0, spectrumSize));
-  h_h0 = (float2 *)malloc(spectrumSize);
+  checkCudaErrors(cudaMalloc((void**)&d_h0, spectrumSize));
+  h_h0 = (float2*)malloc(spectrumSize);
   generate_h0(h_h0);
   checkCudaErrors(cudaMemcpy(d_h0, h_h0, spectrumSize, cudaMemcpyHostToDevice));
 
   int outputSize = meshSize * meshSize * sizeof(float2);
-  checkCudaErrors(cudaMalloc((void **)&d_ht, outputSize));
-  checkCudaErrors(cudaMalloc((void **)&d_slope, outputSize));
+  checkCudaErrors(cudaMalloc((void**)&d_ht, outputSize));
+  checkCudaErrors(cudaMalloc((void**)&d_slope, outputSize));
 
   sdkCreateTimer(&timer);
   sdkStartTimer(&timer);
@@ -251,7 +253,7 @@ void runAutoTest(int argc, char **argv) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Run test
 ////////////////////////////////////////////////////////////////////////////////
-void runGraphicsTest(int argc, char **argv) {
+void runGraphicsTest(int argc, char** argv) {
 #if defined(__linux__)
   setenv("DISPLAY", ":0", 0);
 #endif
@@ -259,7 +261,7 @@ void runGraphicsTest(int argc, char **argv) {
   printf("[%s] ", sSDKsample);
   printf("\n");
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
     printf("[%s]\n", argv[0]);
     printf("   Does not explicitly support -device=n in OpenGL mode\n");
     printf("   To use -device=n, the sample must be running w/o OpenGL\n\n");
@@ -288,21 +290,21 @@ void runGraphicsTest(int argc, char **argv) {
     return;
   }
 
-  findCudaGLDevice(argc, (const char **)argv);
+  findCudaGLDevice(argc, (const char**)argv);
 
   // create FFT plan
   checkCudaErrors(cufftPlan2d(&fftPlan, meshSize, meshSize, CUFFT_C2C));
 
   // allocate memory
   int spectrumSize = spectrumW * spectrumH * sizeof(float2);
-  checkCudaErrors(cudaMalloc((void **)&d_h0, spectrumSize));
-  h_h0 = (float2 *)malloc(spectrumSize);
+  checkCudaErrors(cudaMalloc((void**)&d_h0, spectrumSize));
+  h_h0 = (float2*)malloc(spectrumSize);
   generate_h0(h_h0);
   checkCudaErrors(cudaMemcpy(d_h0, h_h0, spectrumSize, cudaMemcpyHostToDevice));
 
   int outputSize = meshSize * meshSize * sizeof(float2);
-  checkCudaErrors(cudaMalloc((void **)&d_ht, outputSize));
-  checkCudaErrors(cudaMalloc((void **)&d_slope, outputSize));
+  checkCudaErrors(cudaMalloc((void**)&d_ht, outputSize));
+  checkCudaErrors(cudaMalloc((void**)&d_slope, outputSize));
 
   sdkCreateTimer(&timer);
   sdkStartTimer(&timer);
@@ -394,7 +396,7 @@ float phillips(float Kx, float Ky, float Vdir, float V, float A,
 }
 
 // Generate base heightfield in frequency space
-void generate_h0(float2 *h0) {
+void generate_h0(float2* h0) {
   for (unsigned int y = 0; y <= meshSize; y++) {
     for (unsigned int x = 0; x <= meshSize; x++) {
       float kx = (-(int)meshSize / 2.0f + x) * (2.0f * CUDART_PI_F / patchSize);
@@ -437,7 +439,7 @@ void runCuda() {
   // update heightmap values in vertex buffer
   checkCudaErrors(cudaGraphicsMapResources(1, &cuda_heightVB_resource, 0));
   checkCudaErrors(cudaGraphicsResourceGetMappedPointer(
-      (void **)&g_hptr, &num_bytes, cuda_heightVB_resource));
+      (void**)&g_hptr, &num_bytes, cuda_heightVB_resource));
 
   cudaUpdateHeightmapKernel(g_hptr, d_ht, meshSize, meshSize);
 
@@ -446,18 +448,18 @@ void runCuda() {
   // calculate slope for shading
   checkCudaErrors(cudaGraphicsMapResources(1, &cuda_slopeVB_resource, 0));
   checkCudaErrors(cudaGraphicsResourceGetMappedPointer(
-      (void **)&g_sptr, &num_bytes, cuda_slopeVB_resource));
+      (void**)&g_sptr, &num_bytes, cuda_slopeVB_resource));
 
   cudaCalculateSlopeKernel(g_hptr, g_sptr, meshSize, meshSize);
 
   checkCudaErrors(cudaGraphicsUnmapResources(1, &cuda_slopeVB_resource, 0));
 }
 
-void runCudaTest(char *exec_path) {
+void runCudaTest(char* exec_path) {
   checkCudaErrors(
-      cudaMalloc((void **)&g_hptr, meshSize * meshSize * sizeof(float)));
+      cudaMalloc((void**)&g_hptr, meshSize * meshSize * sizeof(float)));
   checkCudaErrors(
-      cudaMalloc((void **)&g_sptr, meshSize * meshSize * sizeof(float2)));
+      cudaMalloc((void**)&g_sptr, meshSize * meshSize * sizeof(float2)));
 
   // generate wave spectrum in frequency domain
   cudaGenerateSpectrumKernel(d_h0, d_ht, spectrumW, meshSize, meshSize,
@@ -470,10 +472,10 @@ void runCudaTest(char *exec_path) {
   cudaUpdateHeightmapKernel(g_hptr, d_ht, meshSize, meshSize);
 
   {
-    float *hptr = (float *)malloc(meshSize * meshSize * sizeof(float));
-    cudaMemcpy((void *)hptr, (void *)g_hptr,
-               meshSize * meshSize * sizeof(float), cudaMemcpyDeviceToHost);
-    sdkDumpBin((void *)hptr, meshSize * meshSize * sizeof(float),
+    float* hptr = (float*)malloc(meshSize * meshSize * sizeof(float));
+    cudaMemcpy((void*)hptr, (void*)g_hptr, meshSize * meshSize * sizeof(float),
+               cudaMemcpyDeviceToHost);
+    sdkDumpBin((void*)hptr, meshSize * meshSize * sizeof(float),
                "spatialDomain.bin");
 
     if (!sdkCompareBin2BinFloat("spatialDomain.bin", "ref_spatialDomain.bin",
@@ -489,9 +491,9 @@ void runCudaTest(char *exec_path) {
   cudaCalculateSlopeKernel(g_hptr, g_sptr, meshSize, meshSize);
 
   {
-    float2 *sptr = (float2 *)malloc(meshSize * meshSize * sizeof(float2));
-    cudaMemcpy((void *)sptr, (void *)g_sptr,
-               meshSize * meshSize * sizeof(float2), cudaMemcpyDeviceToHost);
+    float2* sptr = (float2*)malloc(meshSize * meshSize * sizeof(float2));
+    cudaMemcpy((void*)sptr, (void*)g_sptr, meshSize * meshSize * sizeof(float2),
+               cudaMemcpyDeviceToHost);
     sdkDumpBin(sptr, meshSize * meshSize * sizeof(float2), "slopeShading.bin");
 
     if (!sdkCompareBin2BinFloat("slopeShading.bin", "ref_slopeShading.bin",
@@ -642,27 +644,27 @@ void cleanup() {
 ////////////////////////////////////////////////////////////////////////////////
 void keyboard(unsigned char key, int /*x*/, int /*y*/) {
   switch (key) {
-  case (27):
-    cleanup();
-    // cudaDeviceReset causes the driver to clean up all state. While
-    // not mandatory in normal operation, it is good practice.  It is also
-    // needed to ensure correct operation when the application is being
-    // profiled. Calling cudaDeviceReset causes all profile data to be
-    // flushed before the application exits
-    cudaDeviceReset();
-    exit(EXIT_SUCCESS);
+    case (27):
+      cleanup();
+      // cudaDeviceReset causes the driver to clean up all state. While
+      // not mandatory in normal operation, it is good practice.  It is also
+      // needed to ensure correct operation when the application is being
+      // profiled. Calling cudaDeviceReset causes all profile data to be
+      // flushed before the application exits
+      cudaDeviceReset();
+      exit(EXIT_SUCCESS);
 
-  case 'w':
-    wireFrame = !wireFrame;
-    break;
+    case 'w':
+      wireFrame = !wireFrame;
+      break;
 
-  case 'p':
-    drawPoints = !drawPoints;
-    break;
+    case 'p':
+      drawPoints = !drawPoints;
+      break;
 
-  case ' ':
-    animate = !animate;
-    break;
+    case ' ':
+      animate = !animate;
+      break;
   }
 }
 
@@ -714,7 +716,7 @@ void reshape(int w, int h) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Initialize GL
 ////////////////////////////////////////////////////////////////////////////////
-bool initGL(int *argc, char **argv) {
+bool initGL(int* argc, char** argv) {
   // Create GL context
   glutInit(argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
@@ -763,7 +765,7 @@ bool initGL(int *argc, char **argv) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Create VBO
 ////////////////////////////////////////////////////////////////////////////////
-void createVBO(GLuint *vbo, int size) {
+void createVBO(GLuint* vbo, int size) {
   // create buffer object
   glGenBuffers(1, vbo);
   glBindBuffer(GL_ARRAY_BUFFER, *vbo);
@@ -776,13 +778,13 @@ void createVBO(GLuint *vbo, int size) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Delete VBO
 ////////////////////////////////////////////////////////////////////////////////
-void deleteVBO(GLuint *vbo) {
+void deleteVBO(GLuint* vbo) {
   glDeleteBuffers(1, vbo);
   *vbo = 0;
 }
 
 // create index buffer for rendering quad mesh
-void createMeshIndexBuffer(GLuint *id, int w, int h) {
+void createMeshIndexBuffer(GLuint* id, int w, int h) {
   int size = ((w * 2) + 2) * (h - 1) * sizeof(GLuint);
 
   // create index buffer
@@ -791,8 +793,8 @@ void createMeshIndexBuffer(GLuint *id, int w, int h) {
   glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER, size, 0, GL_STATIC_DRAW);
 
   // fill with indices for rendering mesh as triangle strips
-  GLuint *indices =
-      (GLuint *)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
+  GLuint* indices =
+      (GLuint*)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
 
   if (!indices) {
     return;
@@ -814,11 +816,11 @@ void createMeshIndexBuffer(GLuint *id, int w, int h) {
 }
 
 // create fixed vertex buffer to store mesh vertices
-void createMeshPositionVBO(GLuint *id, int w, int h) {
+void createMeshPositionVBO(GLuint* id, int w, int h) {
   createVBO(id, w * h * 4 * sizeof(float));
 
   glBindBuffer(GL_ARRAY_BUFFER, *id);
-  float *pos = (float *)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+  float* pos = (float*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 
   if (!pos) {
     return;
@@ -840,11 +842,11 @@ void createMeshPositionVBO(GLuint *id, int w, int h) {
 }
 
 // Attach shader to a program
-int attachShader(GLuint prg, GLenum type, const char *name) {
+int attachShader(GLuint prg, GLenum type, const char* name) {
   GLuint shader;
-  FILE *fp;
+  FILE* fp;
   int size, compiled;
-  char *src;
+  char* src;
 
   fp = fopen(name, "rb");
 
@@ -854,22 +856,22 @@ int attachShader(GLuint prg, GLenum type, const char *name) {
 
   fseek(fp, 0, SEEK_END);
   size = ftell(fp);
-  src = (char *)malloc(size);
+  src = (char*)malloc(size);
 
   fseek(fp, 0, SEEK_SET);
   fread(src, sizeof(char), size, fp);
   fclose(fp);
 
   shader = glCreateShader(type);
-  glShaderSource(shader, 1, (const char **)&src, (const GLint *)&size);
+  glShaderSource(shader, 1, (const char**)&src, (const GLint*)&size);
   glCompileShader(shader);
-  glGetShaderiv(shader, GL_COMPILE_STATUS, (GLint *)&compiled);
+  glGetShaderiv(shader, GL_COMPILE_STATUS, (GLint*)&compiled);
 
   if (!compiled) {
     char log[2048];
     int len;
 
-    glGetShaderInfoLog(shader, 2048, (GLsizei *)&len, log);
+    glGetShaderInfoLog(shader, 2048, (GLsizei*)&len, log);
     printf("Info log: %s\n", log);
     glDeleteShader(shader);
     return 0;
@@ -884,7 +886,7 @@ int attachShader(GLuint prg, GLenum type, const char *name) {
 }
 
 // Create shader program from vertex shader and fragment shader files
-GLuint loadGLSLProgram(const char *vertFileName, const char *fragFileName) {
+GLuint loadGLSLProgram(const char* vertFileName, const char* fragFileName) {
   GLint linked;
   GLuint program;
 

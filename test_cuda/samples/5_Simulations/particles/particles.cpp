@@ -39,8 +39,8 @@
 #include <cuda_runtime.h>
 
 // CUDA utilities and system includes
-#include <helper_cuda.h> // includes cuda.h and cuda_runtime_api.h
-#include <helper_cuda_gl.h> // includes cuda_gl_interop.h// includes cuda_gl_interop.h
+#include <helper_cuda.h>  // includes cuda.h and cuda_runtime_api.h
+#include <helper_cuda_gl.h>  // includes cuda_gl_interop.h// includes cuda_gl_interop.h
 #include <helper_functions.h>
 
 // Includes
@@ -85,7 +85,7 @@ enum { M_VIEW = 0, M_MOVE };
 
 uint numParticles = 0;
 uint3 gridSize;
-int numIterations = 0; // run until exit
+int numIterations = 0;  // run until exit
 
 // simulation parameters
 float timestep = 0.5f;
@@ -101,30 +101,30 @@ float collideDamping = 0.02f;
 float collideShear = 0.1f;
 float collideAttraction = 0.0f;
 
-ParticleSystem *psystem = 0;
+ParticleSystem* psystem = 0;
 
 // fps
 static int fpsCount = 0;
 static int fpsLimit = 1;
-StopWatchInterface *timer = NULL;
+StopWatchInterface* timer = NULL;
 
-ParticleRenderer *renderer = 0;
+ParticleRenderer* renderer = 0;
 
 float modelView[16];
 
-ParamListGL *params;
+ParamListGL* params;
 
 // Auto-Verification Code
 const int frameCheckNumber = 4;
 unsigned int frameCount = 0;
 unsigned int g_TotalErrors = 0;
-char *g_refFile = NULL;
+char* g_refFile = NULL;
 
-const char *sSDKsample = "CUDA Particles Simulation";
+const char* sSDKsample = "CUDA Particles Simulation";
 
-extern "C" void cudaInit(int argc, char **argv);
-extern "C" void cudaGLInit(int argc, char **argv);
-extern "C" void copyArrayFromDevice(void *host, const void *device,
+extern "C" void cudaInit(int argc, char** argv);
+extern "C" void cudaGLInit(int argc, char** argv);
+extern "C" void copyArrayFromDevice(void* host, const void* device,
                                     unsigned int vbo, int size);
 
 // initialize particle system
@@ -157,7 +157,7 @@ void cleanup() {
 }
 
 // initialize OpenGL
-void initGL(int *argc, char **argv) {
+void initGL(int* argc, char** argv) {
   glutInit(argc, argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
   glutInitWindowSize(width, height);
@@ -186,7 +186,7 @@ void initGL(int *argc, char **argv) {
   glutReportErrors();
 }
 
-void runBenchmark(int iterations, char *exec_path) {
+void runBenchmark(int iterations, char* exec_path) {
   printf("Run %u particles simulation for %d iterations...\n\n", numParticles,
          iterations);
   cudaDeviceSynchronize();
@@ -201,19 +201,19 @@ void runBenchmark(int iterations, char *exec_path) {
   float fAvgSeconds =
       ((float)1.0e-3 * (float)sdkGetTimerValue(&timer) / (float)iterations);
 
-  printf("particles, Throughput = %.4f KParticles/s, Time = %.5f s, Size = %u "
-         "particles, NumDevsUsed = %u, Workgroup = %u\n",
-         (1.0e-3 * numParticles) / fAvgSeconds, fAvgSeconds, numParticles, 1,
-         0);
+  printf(
+      "particles, Throughput = %.4f KParticles/s, Time = %.5f s, Size = %u "
+      "particles, NumDevsUsed = %u, Workgroup = %u\n",
+      (1.0e-3 * numParticles) / fAvgSeconds, fAvgSeconds, numParticles, 1, 0);
 
   if (g_refFile) {
     printf("\nChecking result...\n\n");
-    float *hPos =
-        (float *)malloc(sizeof(float) * 4 * psystem->getNumParticles());
+    float* hPos =
+        (float*)malloc(sizeof(float) * 4 * psystem->getNumParticles());
     copyArrayFromDevice(hPos, psystem->getCudaPosVBO(), 0,
                         sizeof(float) * 4 * psystem->getNumParticles());
 
-    sdkDumpBin((void *)hPos, sizeof(float) * 4 * psystem->getNumParticles(),
+    sdkDumpBin((void*)hPos, sizeof(float) * 4 * psystem->getNumParticles(),
                "particles.bin");
 
     if (!sdkCompareBin2BinFloat("particles.bin", g_refFile,
@@ -299,7 +299,7 @@ void display() {
 
   if (displaySliders) {
     glDisable(GL_DEPTH_TEST);
-    glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO); // invert color
+    glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);  // invert color
     glEnable(GL_BLEND);
     params->Render(0, 0);
     glDisable(GL_BLEND);
@@ -377,20 +377,20 @@ void mouse(int button, int state, int x, int y) {
 }
 
 // transform vector by matrix
-void xform(float *v, float *r, GLfloat *m) {
+void xform(float* v, float* r, GLfloat* m) {
   r[0] = v[0] * m[0] + v[1] * m[4] + v[2] * m[8] + m[12];
   r[1] = v[0] * m[1] + v[1] * m[5] + v[2] * m[9] + m[13];
   r[2] = v[0] * m[2] + v[1] * m[6] + v[2] * m[10] + m[14];
 }
 
 // transform vector by transpose of matrix
-void ixform(float *v, float *r, GLfloat *m) {
+void ixform(float* v, float* r, GLfloat* m) {
   r[0] = v[0] * m[0] + v[1] * m[1] + v[2] * m[2];
   r[1] = v[0] * m[4] + v[1] * m[5] + v[2] * m[6];
   r[2] = v[0] * m[8] + v[1] * m[9] + v[2] * m[10];
 }
 
-void ixformPoint(float *v, float *r, GLfloat *m) {
+void ixformPoint(float* v, float* r, GLfloat* m) {
   float x[4];
   x[0] = v[0] - m[12];
   x[1] = v[1] - m[13];
@@ -414,48 +414,48 @@ void motion(int x, int y) {
   }
 
   switch (mode) {
-  case M_VIEW:
-    if (buttonState == 3) {
-      // left+middle = zoom
-      camera_trans[2] += (dy / 100.0f) * 0.5f * fabs(camera_trans[2]);
-    } else if (buttonState & 2) {
-      // middle = translate
-      camera_trans[0] += dx / 100.0f;
-      camera_trans[1] -= dy / 100.0f;
-    } else if (buttonState & 1) {
-      // left = rotate
-      camera_rot[0] += dy / 5.0f;
-      camera_rot[1] += dx / 5.0f;
-    }
+    case M_VIEW:
+      if (buttonState == 3) {
+        // left+middle = zoom
+        camera_trans[2] += (dy / 100.0f) * 0.5f * fabs(camera_trans[2]);
+      } else if (buttonState & 2) {
+        // middle = translate
+        camera_trans[0] += dx / 100.0f;
+        camera_trans[1] -= dy / 100.0f;
+      } else if (buttonState & 1) {
+        // left = rotate
+        camera_rot[0] += dy / 5.0f;
+        camera_rot[1] += dx / 5.0f;
+      }
 
-    break;
+      break;
 
-  case M_MOVE: {
-    float translateSpeed = 0.003f;
-    float3 p = psystem->getColliderPos();
+    case M_MOVE: {
+      float translateSpeed = 0.003f;
+      float3 p = psystem->getColliderPos();
 
-    if (buttonState == 1) {
-      float v[3], r[3];
-      v[0] = dx * translateSpeed;
-      v[1] = -dy * translateSpeed;
-      v[2] = 0.0f;
-      ixform(v, r, modelView);
-      p.x += r[0];
-      p.y += r[1];
-      p.z += r[2];
-    } else if (buttonState == 2) {
-      float v[3], r[3];
-      v[0] = 0.0f;
-      v[1] = 0.0f;
-      v[2] = dy * translateSpeed;
-      ixform(v, r, modelView);
-      p.x += r[0];
-      p.y += r[1];
-      p.z += r[2];
-    }
+      if (buttonState == 1) {
+        float v[3], r[3];
+        v[0] = dx * translateSpeed;
+        v[1] = -dy * translateSpeed;
+        v[2] = 0.0f;
+        ixform(v, r, modelView);
+        p.x += r[0];
+        p.y += r[1];
+        p.z += r[2];
+      } else if (buttonState == 2) {
+        float v[3], r[3];
+        v[0] = 0.0f;
+        v[1] = 0.0f;
+        v[2] = dy * translateSpeed;
+        ixform(v, r, modelView);
+        p.x += r[0];
+        p.y += r[1];
+        p.z += r[2];
+      }
 
-    psystem->setColliderPos(p);
-  } break;
+      psystem->setColliderPos(p);
+    } break;
   }
 
   ox = x;
@@ -470,92 +470,92 @@ void motion(int x, int y) {
 // commented out to remove unused parameter warnings in Linux
 void key(unsigned char key, int /*x*/, int /*y*/) {
   switch (key) {
-  case ' ':
-    bPause = !bPause;
-    break;
+    case ' ':
+      bPause = !bPause;
+      break;
 
-  case 13:
-    psystem->update(timestep);
+    case 13:
+      psystem->update(timestep);
 
-    if (renderer) {
-      renderer->setVertexBuffer(psystem->getCurrentReadBuffer(),
-                                psystem->getNumParticles());
-    }
+      if (renderer) {
+        renderer->setVertexBuffer(psystem->getCurrentReadBuffer(),
+                                  psystem->getNumParticles());
+      }
 
-    break;
+      break;
 
-  case '\033':
-  case 'q':
+    case '\033':
+    case 'q':
 #if defined(__APPLE__) || defined(MACOSX)
-    exit(EXIT_SUCCESS);
+      exit(EXIT_SUCCESS);
 #else
-    glutDestroyWindow(glutGetWindow());
-    return;
+      glutDestroyWindow(glutGetWindow());
+      return;
 #endif
-  case 'v':
-    mode = M_VIEW;
-    break;
+    case 'v':
+      mode = M_VIEW;
+      break;
 
-  case 'm':
-    mode = M_MOVE;
-    break;
+    case 'm':
+      mode = M_MOVE;
+      break;
 
-  case 'p':
-    displayMode = (ParticleRenderer::DisplayMode)(
-        (displayMode + 1) % ParticleRenderer::PARTICLE_NUM_MODES);
-    break;
+    case 'p':
+      displayMode = (ParticleRenderer::DisplayMode)(
+          (displayMode + 1) % ParticleRenderer::PARTICLE_NUM_MODES);
+      break;
 
-  case 'd':
-    psystem->dumpGrid();
-    break;
+    case 'd':
+      psystem->dumpGrid();
+      break;
 
-  case 'u':
-    psystem->dumpParticles(0, numParticles - 1);
-    break;
+    case 'u':
+      psystem->dumpParticles(0, numParticles - 1);
+      break;
 
-  case 'r':
-    displayEnabled = !displayEnabled;
-    break;
+    case 'r':
+      displayEnabled = !displayEnabled;
+      break;
 
-  case '1':
-    psystem->reset(ParticleSystem::CONFIG_GRID);
-    break;
+    case '1':
+      psystem->reset(ParticleSystem::CONFIG_GRID);
+      break;
 
-  case '2':
-    psystem->reset(ParticleSystem::CONFIG_RANDOM);
-    break;
+    case '2':
+      psystem->reset(ParticleSystem::CONFIG_RANDOM);
+      break;
 
-  case '3':
-    addSphere();
-    break;
+    case '3':
+      addSphere();
+      break;
 
-  case '4': {
-    // shoot ball from camera
-    float pr = psystem->getParticleRadius();
-    float vel[4], velw[4], pos[4], posw[4];
-    vel[0] = 0.0f;
-    vel[1] = 0.0f;
-    vel[2] = -0.05f;
-    vel[3] = 0.0f;
-    ixform(vel, velw, modelView);
+    case '4': {
+      // shoot ball from camera
+      float pr = psystem->getParticleRadius();
+      float vel[4], velw[4], pos[4], posw[4];
+      vel[0] = 0.0f;
+      vel[1] = 0.0f;
+      vel[2] = -0.05f;
+      vel[3] = 0.0f;
+      ixform(vel, velw, modelView);
 
-    pos[0] = 0.0f;
-    pos[1] = 0.0f;
-    pos[2] = -2.5f;
-    pos[3] = 1.0;
-    ixformPoint(pos, posw, modelView);
-    posw[3] = 0.0f;
+      pos[0] = 0.0f;
+      pos[1] = 0.0f;
+      pos[2] = -2.5f;
+      pos[3] = 1.0;
+      ixformPoint(pos, posw, modelView);
+      posw[3] = 0.0f;
 
-    psystem->addSphere(0, posw, velw, ballr, pr * 2.0f);
-  } break;
+      psystem->addSphere(0, posw, velw, ballr, pr * 2.0f);
+    } break;
 
-  case 'w':
-    wireframe = !wireframe;
-    break;
+    case 'w':
+      wireframe = !wireframe;
+      break;
 
-  case 'h':
-    displaySliders = !displaySliders;
-    break;
+    case 'h':
+      displaySliders = !displaySliders;
+      break;
   }
 
   demoMode = false;
@@ -603,7 +603,6 @@ void initParams() {
     collideAttraction = 0.0f;
 
   } else {
-
     // create a new parameter list
     params = new ParamListGL("misc");
     params->AddParam(
@@ -645,31 +644,32 @@ void initMenus() {
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
 #if defined(__linux__)
   setenv("DISPLAY", ":0", 0);
 #endif
 
   printf("%s Starting...\n\n", sSDKsample);
 
-  printf("NOTE: The CUDA Samples are not meant for performance measurements. "
-         "Results may vary when GPU Boost is enabled.\n\n");
+  printf(
+      "NOTE: The CUDA Samples are not meant for performance measurements. "
+      "Results may vary when GPU Boost is enabled.\n\n");
 
   numParticles = NUM_PARTICLES;
   uint gridDim = GRID_SIZE;
   numIterations = 0;
 
   if (argc > 1) {
-    if (checkCmdLineFlag(argc, (const char **)argv, "n")) {
-      numParticles = getCmdLineArgumentInt(argc, (const char **)argv, "n");
+    if (checkCmdLineFlag(argc, (const char**)argv, "n")) {
+      numParticles = getCmdLineArgumentInt(argc, (const char**)argv, "n");
     }
 
-    if (checkCmdLineFlag(argc, (const char **)argv, "grid")) {
-      gridDim = getCmdLineArgumentInt(argc, (const char **)argv, "grid");
+    if (checkCmdLineFlag(argc, (const char**)argv, "grid")) {
+      gridDim = getCmdLineArgumentInt(argc, (const char**)argv, "grid");
     }
 
-    if (checkCmdLineFlag(argc, (const char **)argv, "file")) {
-      getCmdLineArgumentString(argc, (const char **)argv, "file", &g_refFile);
+    if (checkCmdLineFlag(argc, (const char**)argv, "file")) {
+      getCmdLineArgumentString(argc, (const char**)argv, "file", &g_refFile);
       fpsLimit = frameCheckNumber;
       numIterations = 1;
     }
@@ -680,17 +680,16 @@ int main(int argc, char **argv) {
          gridSize.x * gridSize.y * gridSize.z);
   printf("particles: %d\n", numParticles);
 
-  bool benchmark =
-      checkCmdLineFlag(argc, (const char **)argv, "benchmark") != 0;
+  bool benchmark = checkCmdLineFlag(argc, (const char**)argv, "benchmark") != 0;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "i")) {
-    numIterations = getCmdLineArgumentInt(argc, (const char **)argv, "i");
+  if (checkCmdLineFlag(argc, (const char**)argv, "i")) {
+    numIterations = getCmdLineArgumentInt(argc, (const char**)argv, "i");
   }
 
   if (g_refFile) {
     cudaInit(argc, argv);
   } else {
-    if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
+    if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
       printf("[%s]\n", argv[0]);
       printf("   Does not explicitly support -device=n in OpenGL mode\n");
       printf("   To use -device=n, the sample must be running w/o OpenGL\n\n");

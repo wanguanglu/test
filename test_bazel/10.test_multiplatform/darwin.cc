@@ -8,4 +8,4 @@
 
 #include <stdio.h>
 
-int main(int argc, char *argv[]) { printf("in darwin.\n"); }
+int main(int argc, char* argv[]) { printf("in darwin.\n"); }

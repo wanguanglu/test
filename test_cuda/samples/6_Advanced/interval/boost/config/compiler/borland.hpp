@@ -19,11 +19,11 @@
 // last known compiler version:
 #if (__BORLANDC__ > 0x613)
 //#  if defined(BOOST_ASSERT_CONFIG)
-#error                                                                         \
+#error \
     "Unknown compiler version - please run the configure tests and report the results"
 //#  else
 //#     pragma message( "Unknown compiler version - please run the configure
-//tests and report the results") #  endif
+// tests and report the results") #  endif
 #elif (__BORLANDC__ == 0x600)
 #error "CBuilderX preview compiler is no longer supported"
 #endif
@@ -107,7 +107,7 @@
 #endif
 #endif
 
-#if (__BORLANDC__ <= 0x613) // Beman has asked Alisdair for more info
+#if (__BORLANDC__ <= 0x613)  // Beman has asked Alisdair for more info
 // we shouldn't really need this - but too many things choke
 // without it, this needs more investigation:
 #define BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
@@ -178,7 +178,7 @@
 #define BOOST_NO_SCOPED_ENUMS
 #define BOOST_NO_SFINAE_EXPR
 #define BOOST_NO_TEMPLATE_ALIASES
-#define BOOST_NO_UNICODE_LITERALS // UTF-8 still not supported
+#define BOOST_NO_UNICODE_LITERALS  // UTF-8 still not supported
 #define BOOST_NO_VARIADIC_TEMPLATES
 
 #if __BORLANDC__ >= 0x590
@@ -237,7 +237,7 @@
 //
 // ABI fixing headers:
 //
-#if __BORLANDC__ != 0x600 // not implemented for version 6 compiler yet
+#if __BORLANDC__ != 0x600  // not implemented for version 6 compiler yet
 #ifndef BOOST_ABI_PREFIX
 #define BOOST_ABI_PREFIX "boost/config/abi/borland_prefix.hpp"
 #endif

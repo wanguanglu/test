@@ -27,13 +27,13 @@ using namespace std;
 #define STRNCASECMP strncasecmp
 #endif
 
-#define ASSERT(x, msg, retcode)                                                \
-  if (!(x)) {                                                                  \
-    cout << msg << " " << __FILE__ << ":" << __LINE__ << endl;                 \
-    return retcode;                                                            \
+#define ASSERT(x, msg, retcode)                                \
+  if (!(x)) {                                                  \
+    cout << msg << " " << __FILE__ << ":" << __LINE__ << endl; \
+    return retcode;                                            \
   }
 
-__global__ void sequence_gpu(int *d_ptr, int length) {
+__global__ void sequence_gpu(int* d_ptr, int length) {
   int elemID = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (elemID < length) {
@@ -41,13 +41,13 @@ __global__ void sequence_gpu(int *d_ptr, int length) {
   }
 }
 
-void sequence_cpu(int *h_ptr, int length) {
+void sequence_cpu(int* h_ptr, int length) {
   for (int elemID = 0; elemID < length; elemID++) {
     h_ptr[elemID] = elemID;
   }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   printf("%s Starting...\n\n", argv[0]);
 
   cout << "CUDA Runtime API template" << endl;
@@ -56,11 +56,11 @@ int main(int argc, char **argv) {
 
   const int N = 100;
 
-  int *d_ptr;
+  int* d_ptr;
   ASSERT(cudaSuccess == cudaMalloc(&d_ptr, N * sizeof(int)),
          "Device allocation of " << N << " ints failed", -1);
 
-  int *h_ptr;
+  int* h_ptr;
   ASSERT(cudaSuccess == cudaMallocHost(&h_ptr, N * sizeof(int)),
          "Host allocation of " << N << " ints failed", -1);
 
@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
 
   cout << "CUDA and CPU algorithm implementations finished" << endl;
 
-  int *h_d_ptr;
+  int* h_d_ptr;
   ASSERT(cudaSuccess == cudaMallocHost(&h_d_ptr, N * sizeof(int)),
          "Host allocation of " << N << " ints failed", -1);
   ASSERT(cudaSuccess == cudaMemcpy(h_d_ptr, d_ptr, N * sizeof(int),

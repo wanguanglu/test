@@ -16,7 +16,7 @@
 
 #if defined(__GNUC__) || defined(__digital__) || defined(__DECCXX)
 
-#include <float.h> // write_rnd() and read_rnd()
+#include <float.h>  // write_rnd() and read_rnd()
 
 namespace boost {
 namespace numeric {
@@ -44,7 +44,7 @@ struct alpha_rounding_control {
     __asm__ __volatile__("mt_fpcr %0" : : "f"(mode));
   }
 
-  static void get_rounding_mode(rounding_mode &mode) {
+  static void get_rounding_mode(rounding_mode& mode) {
     __asm__ __volatile__("mf_fpcr %0" : "=f"(mode));
   }
 
@@ -62,8 +62,8 @@ struct alpha_rounding_control {
 struct alpha_rounding_control {
   typedef unsigned int rounding_mode;
 
-  static void set_rounding_mode(const rounding_mode &mode) { write_rnd(mode); }
-  static void get_rounding_mode(rounding_mode &mode) { mode = read_rnd(); }
+  static void set_rounding_mode(const rounding_mode& mode) { write_rnd(mode); }
+  static void get_rounding_mode(rounding_mode& mode) { mode = read_rnd(); }
 
   static void downward() { set_rounding_mode(FP_RND_RM); }
   static void upward() { set_rounding_mode(FP_RND_RP); }
@@ -71,7 +71,7 @@ struct alpha_rounding_control {
   static void toward_zero() { set_rounding_mode(FP_RND_RZ); }
 };
 #endif
-} // namespace detail
+}  // namespace detail
 
 extern "C" {
 float rintf(float);
@@ -79,28 +79,30 @@ double rint(double);
 long double rintl(long double);
 }
 
-template <> struct rounding_control<float> : detail::alpha_rounding_control {
+template <>
+struct rounding_control<float> : detail::alpha_rounding_control {
   static float force_rounding(const float r) {
     volatile float _r = r;
     return _r;
   }
-  static float to_int(const float &x) { return rintf(x); }
+  static float to_int(const float& x) { return rintf(x); }
 };
 
-template <> struct rounding_control<double> : detail::alpha_rounding_control {
-  static const double &force_rounding(const double &r) { return r; }
-  static double to_int(const double &r) { return rint(r); }
+template <>
+struct rounding_control<double> : detail::alpha_rounding_control {
+  static const double& force_rounding(const double& r) { return r; }
+  static double to_int(const double& r) { return rint(r); }
 };
 
 template <>
 struct rounding_control<long double> : detail::alpha_rounding_control {
-  static const long double &force_rounding(const long double &r) { return r; }
-  static long double to_int(const long double &r) { return rintl(r); }
+  static const long double& force_rounding(const long double& r) { return r; }
+  static long double to_int(const long double& r) { return rintl(r); }
 };
 
-} // namespace interval_lib
-} // namespace numeric
-} // namespace boost
+}  // namespace interval_lib
+}  // namespace numeric
+}  // namespace boost
 
 #undef BOOST_NUMERIC_INTERVAL_NO_HARDWARE
 #endif

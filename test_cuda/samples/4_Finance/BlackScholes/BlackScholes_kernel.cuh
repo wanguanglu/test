@@ -25,8 +25,7 @@ __device__ inline float cndGPU(float d) {
   float cnd = RSQRT2PI * __expf(-0.5f * d * d) *
               (K * (A1 + K * (A2 + K * (A3 + K * (A4 + K * A5)))));
 
-  if (d > 0)
-    cnd = 1.0f - cnd;
+  if (d > 0) cnd = 1.0f - cnd;
 
   return cnd;
 }
@@ -34,12 +33,12 @@ __device__ inline float cndGPU(float d) {
 ///////////////////////////////////////////////////////////////////////////////
 // Black-Scholes formula for both call and put
 ///////////////////////////////////////////////////////////////////////////////
-__device__ inline void BlackScholesBodyGPU(float &CallResult, float &PutResult,
-                                           float S, // Stock price
-                                           float X, // Option strike
-                                           float T, // Option years
-                                           float R, // Riskless rate
-                                           float V  // Volatility rate
+__device__ inline void BlackScholesBodyGPU(float& CallResult, float& PutResult,
+                                           float S,  // Stock price
+                                           float X,  // Option strike
+                                           float T,  // Option years
+                                           float R,  // Riskless rate
+                                           float V   // Volatility rate
 ) {
   float sqrtT, expRT;
   float d1, d2, CNDD1, CNDD2;
@@ -61,11 +60,11 @@ __device__ inline void BlackScholesBodyGPU(float &CallResult, float &PutResult,
 // Process an array of optN options on GPU
 ////////////////////////////////////////////////////////////////////////////////
 __launch_bounds__(128) __global__
-    void BlackScholesGPU(float2 *__restrict d_CallResult,
-                         float2 *__restrict d_PutResult,
-                         float2 *__restrict d_StockPrice,
-                         float2 *__restrict d_OptionStrike,
-                         float2 *__restrict d_OptionYears, float Riskfree,
+    void BlackScholesGPU(float2* __restrict d_CallResult,
+                         float2* __restrict d_PutResult,
+                         float2* __restrict d_StockPrice,
+                         float2* __restrict d_OptionStrike,
+                         float2* __restrict d_OptionYears, float Riskfree,
                          float Volatility, int optN) {
   ////Thread index
   // const int      tid = blockDim.x * blockIdx.x + threadIdx.x;

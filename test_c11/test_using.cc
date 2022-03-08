@@ -9,4 +9,4 @@
 typedef unsigned int uint_t;
 using uint_t2 = unsigned int;
 
-int main(int argc, char *argv[]) { return 0; }
+int main(int argc, char* argv[]) { return 0; }

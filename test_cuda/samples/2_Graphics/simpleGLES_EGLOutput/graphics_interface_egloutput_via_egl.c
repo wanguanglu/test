@@ -44,23 +44,23 @@ static PFNEGLCREATESTREAMPRODUCERSURFACEKHRPROC
       fflush(stderr);                                                          \
                                                                                \
       switch (err) {                                                           \
-      case GL_INVALID_ENUM:                                                    \
-        printf("GL_INVALID_ENUM\n");                                           \
-        break;                                                                 \
-      case GL_INVALID_VALUE:                                                   \
-        printf("GL_INVALID_VALUE\n");                                          \
-        break;                                                                 \
-      case GL_INVALID_OPERATION:                                               \
-        printf("GL_INVALID_OPERATION\n");                                      \
-        break;                                                                 \
-      case GL_OUT_OF_MEMORY:                                                   \
-        printf("GL_OUT_OF_MEMORY\n");                                          \
-        break;                                                                 \
-      case GL_INVALID_FRAMEBUFFER_OPERATION:                                   \
-        printf("GL_INVALID_FRAMEBUFFER_OPERATION\n");                          \
-        break;                                                                 \
-      default:                                                                 \
-        printf("UKNOWN OPENGL ERROR CODE 0x%x\n", err);                        \
+        case GL_INVALID_ENUM:                                                  \
+          printf("GL_INVALID_ENUM\n");                                         \
+          break;                                                               \
+        case GL_INVALID_VALUE:                                                 \
+          printf("GL_INVALID_VALUE\n");                                        \
+          break;                                                               \
+        case GL_INVALID_OPERATION:                                             \
+          printf("GL_INVALID_OPERATION\n");                                    \
+          break;                                                               \
+        case GL_OUT_OF_MEMORY:                                                 \
+          printf("GL_OUT_OF_MEMORY\n");                                        \
+          break;                                                               \
+        case GL_INVALID_FRAMEBUFFER_OPERATION:                                 \
+          printf("GL_INVALID_FRAMEBUFFER_OPERATION\n");                        \
+          break;                                                               \
+        default:                                                               \
+          printf("UKNOWN OPENGL ERROR CODE 0x%x\n", err);                      \
       };                                                                       \
     }                                                                          \
   }
@@ -69,8 +69,8 @@ EGLDisplay eglDisplay = EGL_NO_DISPLAY;
 EGLSurface eglSurface = EGL_NO_SURFACE;
 EGLContext eglContext = EGL_NO_CONTEXT;
 
-#if 0 // needed for optional API call retrieval (= if libGLESv2.so wouldn't be
-      // linked explicitly) - tedious! consider GLEW. 
+#if 0  // needed for optional API call retrieval (= if libGLESv2.so wouldn't be
+       // linked explicitly) - tedious! consider GLEW. 
 typedef GLenum (* glGetErrorTYPE) (void);
 glGetErrorTYPE my_glGetError; 
 
@@ -85,9 +85,9 @@ glGetProgramivTYPE my_glGetProgramiv;
 #endif
 
 // Extension checking utility
-static bool CheckExtension(const char *exts, const char *ext) {
+static bool CheckExtension(const char* exts, const char* ext) {
   int extLen = (int)strlen(ext);
-  const char *end = exts + strlen(exts);
+  const char* end = exts + strlen(exts);
 
   while (exts < end) {
     while (*exts == ' ') {
@@ -103,7 +103,7 @@ static bool CheckExtension(const char *exts, const char *ext) {
 }
 
 int graphics_setup_window(int xpos, int ypos, int width, int height,
-                          const char *windowname) {
+                          const char* windowname) {
   int device = 0, conn = 1, crtc = -1, plane = -1;
   int xsurfsize = 0, ysurfsize = 0;
   int xoffset = 0, yoffset = 0;
@@ -118,16 +118,16 @@ int graphics_setup_window(int xpos, int ypos, int width, int height,
   EGLStreamKHR egl_str;
   EGLint major, minor;
 
-  const char *drm_name;
+  const char* drm_name;
   int drm_fd;
   uint32_t drm_conn_id, drm_enc_id, drm_crtc_id, drm_plane_id;
   uint32_t crtc_mask;
-  drmModeRes *drm_res_info = NULL;
-  drmModePlaneRes *drm_plane_res_info = NULL;
-  drmModeCrtc *drm_crtc_info = NULL;
-  drmModeConnector *drm_conn_info = NULL;
-  drmModeEncoder *drm_enc_info = NULL;
-  drmModePlane *drm_plane_info = NULL;
+  drmModeRes* drm_res_info = NULL;
+  drmModePlaneRes* drm_plane_res_info = NULL;
+  drmModeCrtc* drm_crtc_info = NULL;
+  drmModeConnector* drm_conn_info = NULL;
+  drmModeEncoder* drm_enc_info = NULL;
+  drmModePlane* drm_plane_info = NULL;
   int drm_mode_index = 0;
 
   bool set_mode = false;
@@ -172,7 +172,7 @@ int graphics_setup_window(int xpos, int ypos, int width, int height,
   drm_name = eglQueryDeviceStringEXT(egl_dev, EGL_DRM_DEVICE_FILE_EXT);
   if (!drm_name) {
     printf("Couldn't obtain device file from 0x%p\n",
-           (void *)(uintptr_t)egl_dev);
+           (void*)(uintptr_t)egl_dev);
     exit(3);
   }
   drm_fd = drmOpen(drm_name, NULL);
@@ -302,7 +302,6 @@ int graphics_setup_window(int xpos, int ypos, int width, int height,
 
   // If dimensions are specified and not using a plane, find closest mode
   if ((xmodesize || ymodesize) && (plane < 0)) {
-
     // Find best fit among available modes
     int best_index = 0;
     int best_fit = 0x7fffffff;
@@ -344,7 +343,6 @@ int graphics_setup_window(int xpos, int ypos, int width, int height,
 
   // If dimensions haven't been specified, figure out good values to use
   if (!xmodesize || !ymodesize) {
-
     // If mode requires reset, just pick the first one available
     //   from the connector
     if (set_mode) {
@@ -390,7 +388,7 @@ int graphics_setup_window(int xpos, int ypos, int width, int height,
 
   // Obtain and initialize EGLDisplay
   eglDisplay =
-      eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT, (void *)egl_dev, NULL);
+      eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT, (void*)egl_dev, NULL);
   if (eglDisplay == EGL_NO_DISPLAY) {
     printf("Couldn't obtain EGLDisplay for device\n");
     exit(8);
@@ -402,8 +400,8 @@ int graphics_setup_window(int xpos, int ypos, int width, int height,
   printf("Obtained EGLDisplay\n");
 
   // Check for stream_consumer_egloutput + output_drm support
-  const char *dpy_exts = eglQueryString(eglDisplay, EGL_EXTENSIONS);
-  const char *dev_exts = eglQueryDeviceStringEXT(egl_dev, EGL_EXTENSIONS);
+  const char* dpy_exts = eglQueryString(eglDisplay, EGL_EXTENSIONS);
+  const char* dev_exts = eglQueryDeviceStringEXT(egl_dev, EGL_EXTENSIONS);
 
   if (!CheckExtension(dpy_exts, "EGL_EXT_output_base")) {
     printf("Missing required extension: EGL_EXT_output_base\n");
@@ -518,8 +516,8 @@ int graphics_setup_window(int xpos, int ypos, int width, int height,
       }
 #endif
 
-#if 0 // obtain API function pointers _manually_ (see function pointer
-      // declarations above)
+#if 0  // obtain API function pointers _manually_ (see function pointer
+       // declarations above)
     my_glGetError = (glGetErrorTYPE) eglGetProcAddress("glGetError"); 
     my_glGetString = (glGetStringTYPE) eglGetProcAddress("glGetString"); 
     my_glGetProgramiv = (glGetProgramivTYPE) eglGetProcAddress("glGetProgramiv"); 
@@ -537,22 +535,19 @@ GL_APICALL void GL_APIENTRY glBindBuffer (GLenum target, GLuint buffer);
   return 1;
 }
 
-void graphics_set_windowtitle(const char *windowname) {
+void graphics_set_windowtitle(const char* windowname) {
   printf(" Window title would have been: %s\n", windowname);
 }
 
 void graphics_swap_buffers() { eglSwapBuffers(eglDisplay, eglSurface); }
 
 void graphics_close_window() {
-
   if (eglDisplay != EGL_NO_DISPLAY) {
     eglMakeCurrent(eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
-    if (eglContext != EGL_NO_CONTEXT)
-      eglDestroyContext(eglDisplay, eglContext);
+    if (eglContext != EGL_NO_CONTEXT) eglDestroyContext(eglDisplay, eglContext);
 
-    if (eglSurface != EGL_NO_SURFACE)
-      eglDestroySurface(eglDisplay, eglSurface);
+    if (eglSurface != EGL_NO_SURFACE) eglDestroySurface(eglDisplay, eglSurface);
 
     eglTerminate(eglDisplay);
   }

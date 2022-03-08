@@ -15,10 +15,10 @@
 
 /* dfloat class declaration */
 class dfloat {
-private:
+ private:
   float val[2];
 
-public:
+ public:
   dfloat() { val[0] = val[1] = 0; }
   dfloat(float a, float b) {
     val[0] = a;
@@ -27,10 +27,10 @@ public:
   dfloat(double b);
   inline float operator[](unsigned idx) const { return val[idx]; }
 };
-inline dfloat operator+(const dfloat &dsa, const dfloat &dsb);
-inline dfloat operator-(const dfloat &dsa, const dfloat &dsb);
-inline dfloat operator*(const dfloat &dsa, const dfloat &dsb);
-inline int operator<(const dfloat &a, float b) { return a[0] < b; }
+inline dfloat operator+(const dfloat& dsa, const dfloat& dsb);
+inline dfloat operator-(const dfloat& dsa, const dfloat& dsb);
+inline dfloat operator*(const dfloat& dsa, const dfloat& dsb);
+inline int operator<(const dfloat& a, float b) { return a[0] < b; }
 
 // The core Mandelbrot calculation function template
 template <class T>
@@ -62,9 +62,9 @@ inline int CalcMandelbrot(const T xPos, const T yPos, const T xJParam,
   }
 
   return i;
-} // CalcMandelbrot
+}  // CalcMandelbrot
 
-inline void updatePixel(uchar4 &dst, const uchar4 &color, int frame) {
+inline void updatePixel(uchar4& dst, const uchar4& color, int frame) {
   int frame1 = frame + 1;
   int frame2 = frame1 / 2;
   dst.x = (dst.x * frame + color.x + frame2) / frame1;
@@ -72,7 +72,7 @@ inline void updatePixel(uchar4 &dst, const uchar4 &color, int frame) {
   dst.z = (dst.z * frame + color.z + frame2) / frame1;
 }
 
-inline void setColor(uchar4 &dst, const uchar4 &colors, int &m,
+inline void setColor(uchar4& dst, const uchar4& colors, int& m,
                      const int animationFrame) {
   if (m == 0) {
     dst.x = 0;
@@ -88,7 +88,7 @@ inline void setColor(uchar4 &dst, const uchar4 &colors, int &m,
 }
 
 template <class T, class T_>
-void runMandelbrotGold0(uchar4 *dst, const int imageW, const int imageH,
+void runMandelbrotGold0(uchar4* dst, const int imageW, const int imageH,
                         const int crunch, const T xOff, const T yOff,
                         const T xJParam, const T yJParam, const T scale,
                         const uchar4 colors, const int frame,
@@ -118,18 +118,18 @@ void runMandelbrotGold0(uchar4 *dst, const int imageW, const int imageH,
         updatePixel(dst[pixel], color, frame);
     }
 
-} // runMandelbrotGold0_
+}  // runMandelbrotGold0_
 
 // Determine if two pixel colors are within tolerance
-inline int CheckColors(const uchar4 &color0, const uchar4 &color1) {
+inline int CheckColors(const uchar4& color0, const uchar4& color1) {
   int x = color1.x - color0.x;
   int y = color1.y - color0.y;
   int z = color1.z - color0.z;
   return (ABS(x) > 10) || (ABS(y) > 10) || (ABS(z) > 10);
-} // CheckColors
+}  // CheckColors
 
 template <class T, class T_>
-void runMandelbrotGold1(uchar4 *dst, const int imageW, const int imageH,
+void runMandelbrotGold1(uchar4* dst, const int imageW, const int imageH,
                         const int crunch, const T xOff, const T yOff,
                         const T xJParam, const T yJParam, const T scale,
                         const uchar4 colors, const int frame,
@@ -142,14 +142,11 @@ void runMandelbrotGold1(uchar4 *dst, const int imageW, const int imageH,
       int count = 0;
 
       // Search for pixels out of tolerance surrounding the current pixel
-      if (ix > 0)
-        count += CheckColors(pixelColor, dst[pixel - 1]);
+      if (ix > 0) count += CheckColors(pixelColor, dst[pixel - 1]);
 
-      if (ix + 1 < imageW)
-        count += CheckColors(pixelColor, dst[pixel + 1]);
+      if (ix + 1 < imageW) count += CheckColors(pixelColor, dst[pixel + 1]);
 
-      if (iy > 0)
-        count += CheckColors(pixelColor, dst[pixel - imageW]);
+      if (iy > 0) count += CheckColors(pixelColor, dst[pixel - imageW]);
 
       if (iy + 1 < imageH)
         count += CheckColors(pixelColor, dst[pixel + imageW]);
@@ -173,10 +170,10 @@ void runMandelbrotGold1(uchar4 *dst, const int imageW, const int imageH,
         updatePixel(dst[pixel], color, frame);
       }
     }
-} // RunMandelbrotGold1_
+}  // RunMandelbrotGold1_
 
 /* Implementation of exported functions */
-void RunMandelbrotGold1(uchar4 *dst, const int imageW, const int imageH,
+void RunMandelbrotGold1(uchar4* dst, const int imageW, const int imageH,
                         const int crunch, const float xOff, const float yOff,
                         const float xJParam, const float yJParam,
                         const float scale, const uchar4 colors, const int frame,
@@ -185,9 +182,9 @@ void RunMandelbrotGold1(uchar4 *dst, const int imageW, const int imageH,
                                    xJParam, yJParam, scale, colors, frame,
                                    animationFrame, isJulia);
 
-} // RunMandelbrotGold1
+}  // RunMandelbrotGold1
 
-void RunMandelbrotDSGold1(uchar4 *dst, const int imageW, const int imageH,
+void RunMandelbrotDSGold1(uchar4* dst, const int imageW, const int imageH,
                           const int crunch, const double xOff,
                           const double yOff, const double xJParam,
                           const double yJParam, const double scale,
@@ -197,9 +194,9 @@ void RunMandelbrotDSGold1(uchar4 *dst, const int imageW, const int imageH,
                                      xJParam, yJParam, scale, colors, frame,
                                      animationFrame, isJulia);
 
-} // RunMandelbrotDSGold1
+}  // RunMandelbrotDSGold1
 
-void RunMandelbrotGold0(uchar4 *dst, const int imageW, const int imageH,
+void RunMandelbrotGold0(uchar4* dst, const int imageW, const int imageH,
                         const int crunch, const float xOff, const float yOff,
                         const float xJParam, const float yJParam,
                         const float scale, const uchar4 colors, const int frame,
@@ -207,9 +204,9 @@ void RunMandelbrotGold0(uchar4 *dst, const int imageW, const int imageH,
   runMandelbrotGold0<float, float>(dst, imageW, imageH, crunch, xOff, yOff,
                                    xJParam, yJParam, scale, colors, frame,
                                    animationFrame, isJulia);
-} // RunMandelbrotGold0
+}  // RunMandelbrotGold0
 
-void RunMandelbrotDSGold0(uchar4 *dst, const int imageW, const int imageH,
+void RunMandelbrotDSGold0(uchar4* dst, const int imageW, const int imageH,
                           const int crunch, const double xOff,
                           const double yOff, const double xJParam,
                           const double yJParam, const double scale,
@@ -218,7 +215,7 @@ void RunMandelbrotDSGold0(uchar4 *dst, const int imageW, const int imageH,
   runMandelbrotGold0<double, dfloat>(dst, imageW, imageH, crunch, xOff, yOff,
                                      xJParam, yJParam, scale, colors, frame,
                                      animationFrame, isJulia);
-} // RunMandelbrotDSGold0
+}  // RunMandelbrotDSGold0
 
 /*dfloat operations implementation */
 
@@ -228,7 +225,7 @@ dfloat::dfloat(double b) {
   val[1] = (float)(b - val[0]);
 }
 
-inline dfloat operator+(const dfloat &dsa, const dfloat &dsb) {
+inline dfloat operator+(const dfloat& dsa, const dfloat& dsb) {
   // Compute dsa + dsb using Knuth's trick.
   float t1 = dsa[0] + dsb[0];
   float e = t1 - dsa[0];
@@ -239,7 +236,7 @@ inline dfloat operator+(const dfloat &dsa, const dfloat &dsb) {
   return dfloat(e, t2 - (e - t1));
 }
 
-inline dfloat operator-(const dfloat &dsa, const dfloat &dsb) {
+inline dfloat operator-(const dfloat& dsa, const dfloat& dsb) {
   // Compute dsa - dsb using Knuth's trick.
   float t1 = dsa[0] - dsb[0];
   float e = t1 - dsa[0];
@@ -250,7 +247,7 @@ inline dfloat operator-(const dfloat &dsa, const dfloat &dsb) {
   return dfloat(e, t2 - (e - t1));
 }
 
-inline dfloat operator*(const dfloat &dsa, const dfloat &dsb) {
+inline dfloat operator*(const dfloat& dsa, const dfloat& dsb) {
   // This splits dsa(1) and dsb(1) into high-order and low-order words.
   float c11 = dsa[0] * dsb[0];
   float c21 = dsa[0] * dsb[0] - c11;

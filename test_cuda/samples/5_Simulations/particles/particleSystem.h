@@ -21,7 +21,7 @@
 
 // Particle system class
 class ParticleSystem {
-public:
+ public:
   ParticleSystem(uint numParticles, uint3 gridSize, bool bUseOpenGL);
   ~ParticleSystem();
 
@@ -35,16 +35,16 @@ public:
   void update(float deltaTime);
   void reset(ParticleConfig config);
 
-  float *getArray(ParticleArray array);
-  void setArray(ParticleArray array, const float *data, int start, int count);
+  float* getArray(ParticleArray array);
+  void setArray(ParticleArray array, const float* data, int start, int count);
 
   int getNumParticles() const { return m_numParticles; }
 
   unsigned int getCurrentReadBuffer() const { return m_posVbo; }
   unsigned int getColorBuffer() const { return m_colorVBO; }
 
-  void *getCudaPosVBO() const { return (void *)m_cudaPosVBO; }
-  void *getCudaColorVBO() const { return (void *)m_cudaColorVBO; }
+  void* getCudaPosVBO() const { return (void*)m_cudaPosVBO; }
+  void* getCudaColorVBO() const { return (void*)m_cudaColorVBO; }
 
   void dumpGrid();
   void dumpParticles(uint start, uint count);
@@ -68,63 +68,63 @@ public:
   float3 getWorldOrigin() { return m_params.worldOrigin; }
   float3 getCellSize() { return m_params.cellSize; }
 
-  void addSphere(int index, float *pos, float *vel, int r, float spacing);
+  void addSphere(int index, float* pos, float* vel, int r, float spacing);
 
-protected: // methods
+ protected:  // methods
   ParticleSystem() {}
   uint createVBO(uint size);
 
   void _initialize(int numParticles);
   void _finalize();
 
-  void initGrid(uint *size, float spacing, float jitter, uint numParticles);
+  void initGrid(uint* size, float spacing, float jitter, uint numParticles);
 
-protected: // data
+ protected:  // data
   bool m_bInitialized, m_bUseOpenGL;
   uint m_numParticles;
 
   // CPU data
-  float *m_hPos; // particle positions
-  float *m_hVel; // particle velocities
+  float* m_hPos;  // particle positions
+  float* m_hVel;  // particle velocities
 
-  uint *m_hParticleHash;
-  uint *m_hCellStart;
-  uint *m_hCellEnd;
+  uint* m_hParticleHash;
+  uint* m_hCellStart;
+  uint* m_hCellEnd;
 
   // GPU data
-  float *m_dPos;
-  float *m_dVel;
+  float* m_dPos;
+  float* m_dVel;
 
-  float *m_dSortedPos;
-  float *m_dSortedVel;
+  float* m_dSortedPos;
+  float* m_dSortedVel;
 
   // grid data for sorting method
-  uint *m_dGridParticleHash;  // grid hash value for each particle
-  uint *m_dGridParticleIndex; // particle index for each particle
-  uint *m_dCellStart;         // index of start of each cell in sorted list
-  uint *m_dCellEnd;           // index of end of cell
+  uint* m_dGridParticleHash;   // grid hash value for each particle
+  uint* m_dGridParticleIndex;  // particle index for each particle
+  uint* m_dCellStart;          // index of start of each cell in sorted list
+  uint* m_dCellEnd;            // index of end of cell
 
   uint m_gridSortBits;
 
-  uint m_posVbo;   // vertex buffer object for particle positions
-  uint m_colorVBO; // vertex buffer object for colors
+  uint m_posVbo;    // vertex buffer object for particle positions
+  uint m_colorVBO;  // vertex buffer object for colors
 
-  float *m_cudaPosVBO;   // these are the CUDA deviceMem Pos
-  float *m_cudaColorVBO; // these are the CUDA deviceMem Color
+  float* m_cudaPosVBO;    // these are the CUDA deviceMem Pos
+  float* m_cudaColorVBO;  // these are the CUDA deviceMem Color
 
-  struct cudaGraphicsResource
-      *m_cuda_posvbo_resource; // handles OpenGL-CUDA exchange
-  struct cudaGraphicsResource
-      *m_cuda_colorvbo_resource; // handles OpenGL-CUDA exchange
+  struct cudaGraphicsResource*
+      m_cuda_posvbo_resource;  // handles OpenGL-CUDA exchange
+  struct cudaGraphicsResource*
+      m_cuda_colorvbo_resource;  // handles OpenGL-CUDA exchange
 
   // params
   SimParams m_params;
   uint3 m_gridSize;
   uint m_numGridCells;
 
-  StopWatchInterface *m_timer;
+  StopWatchInterface* m_timer;
 
   uint m_solverIterations;
 };
 
-#endif // __PARTICLESYSTEM_H__
+#endif  // __PARTICLESYSTEM_H__

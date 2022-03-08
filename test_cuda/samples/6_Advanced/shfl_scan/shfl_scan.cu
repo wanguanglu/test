@@ -37,7 +37,7 @@
 // final sum in global memory and prefix summing that via another kernel call,
 // then uniformly adding across the input data via the uniform_add<<<>>> kernel.
 
-__global__ void shfl_scan_test(int *data, int width, int *partial_sums = NULL) {
+__global__ void shfl_scan_test(int* data, int width, int* partial_sums = NULL) {
   extern __shared__ int sums[];
   int id = ((blockIdx.x * blockDim.x) + threadIdx.x);
   int lane_id = id % warpSize;
@@ -60,8 +60,7 @@ __global__ void shfl_scan_test(int *data, int width, int *partial_sums = NULL) {
   for (int i = 1; i <= width; i *= 2) {
     int n = __shfl_up(value, i, width);
 
-    if (lane_id >= i)
-      value += n;
+    if (lane_id >= i) value += n;
   }
 
   // value now holds the scan value for the individual thread
@@ -84,8 +83,7 @@ __global__ void shfl_scan_test(int *data, int width, int *partial_sums = NULL) {
     for (int i = 1; i <= width; i *= 2) {
       int n = __shfl_up(warp_sum, i, width);
 
-      if (lane_id >= i)
-        warp_sum += n;
+      if (lane_id >= i) warp_sum += n;
     }
 
     sums[lane_id] = warp_sum;
@@ -113,12 +111,11 @@ __global__ void shfl_scan_test(int *data, int width, int *partial_sums = NULL) {
 }
 
 // Uniform add: add partial sums array
-__global__ void uniform_add(int *data, int *partial_sums, int len) {
+__global__ void uniform_add(int* data, int* partial_sums, int len) {
   __shared__ int buf;
   int id = ((blockIdx.x * blockDim.x) + threadIdx.x);
 
-  if (id > len)
-    return;
+  if (id > len) return;
 
   if (threadIdx.x == 0) {
     buf = partial_sums[blockIdx.x];
@@ -135,7 +132,7 @@ static unsigned int iDivUp(unsigned int dividend, unsigned int divisor) {
 
 // This function verifies the shuffle scan result, for the simple
 // prefix sum case.
-bool CPUverify(int *h_data, int *h_result, int n_elements) {
+bool CPUverify(int* h_data, int* h_result, int n_elements) {
   // cpu verify
   for (int i = 0; i < n_elements - 1; i++) {
     h_data[i + 1] = h_data[i] + h_data[i + 1];
@@ -150,10 +147,9 @@ bool CPUverify(int *h_data, int *h_result, int n_elements) {
   printf("CPU verify result diff (GPUvsCPU) = %d\n", diff);
   bool bTestResult = false;
 
-  if (diff == 0)
-    bTestResult = true;
+  if (diff == 0) bTestResult = true;
 
-  StopWatchInterface *hTimer = NULL;
+  StopWatchInterface* hTimer = NULL;
   sdkCreateTimer(&hTimer);
   sdkResetTimer(&hTimer);
   sdkStartTimer(&hTimer);
@@ -170,7 +166,7 @@ bool CPUverify(int *h_data, int *h_result, int n_elements) {
 }
 
 // this verifies the row scan result for synthetic data of all 1's
-unsigned int verifyDataRowSums(unsigned int *h_image, int w, int h) {
+unsigned int verifyDataRowSums(unsigned int* h_image, int w, int h) {
   unsigned int diff = 0;
 
   for (int j = 0; j < h; j++) {
@@ -183,7 +179,7 @@ unsigned int verifyDataRowSums(unsigned int *h_image, int w, int h) {
   return diff;
 }
 
-bool shuffle_simple_test(int argc, char **argv) {
+bool shuffle_simple_test(int argc, char** argv) {
   int *h_data, *h_partial_sums, *h_result;
   int *d_data, *d_partial_sums;
   const int n_elements = 65536;
@@ -194,7 +190,7 @@ bool shuffle_simple_test(int argc, char **argv) {
 
   // use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  cuda_device = findCudaDevice(argc, (const char **)argv);
+  cuda_device = findCudaDevice(argc, (const char**)argv);
 
   cudaDeviceProp deviceProp;
   checkCudaErrors(cudaGetDevice(&cuda_device));
@@ -211,8 +207,8 @@ bool shuffle_simple_test(int argc, char **argv) {
     exit(EXIT_WAIVED);
   }
 
-  checkCudaErrors(cudaMallocHost((void **)&h_data, sizeof(int) * n_elements));
-  checkCudaErrors(cudaMallocHost((void **)&h_result, sizeof(int) * n_elements));
+  checkCudaErrors(cudaMallocHost((void**)&h_data, sizeof(int) * n_elements));
+  checkCudaErrors(cudaMallocHost((void**)&h_result, sizeof(int) * n_elements));
 
   // initialize data:
   printf("Computing Simple Sum test\n");
@@ -246,11 +242,11 @@ bool shuffle_simple_test(int argc, char **argv) {
   float et = 0;
   float inc = 0;
 
-  checkCudaErrors(cudaMalloc((void **)&d_data, sz));
-  checkCudaErrors(cudaMalloc((void **)&d_partial_sums, partial_sz));
+  checkCudaErrors(cudaMalloc((void**)&d_data, sz));
+  checkCudaErrors(cudaMalloc((void**)&d_partial_sums, partial_sz));
   checkCudaErrors(cudaMemset(d_partial_sums, 0, partial_sz));
 
-  checkCudaErrors(cudaMallocHost((void **)&h_partial_sums, partial_sz));
+  checkCudaErrors(cudaMallocHost((void**)&h_partial_sums, partial_sz));
   checkCudaErrors(cudaMemcpy(d_data, h_data, sz, cudaMemcpyHostToDevice));
 
   checkCudaErrors(cudaEventRecord(start, 0));
@@ -286,9 +282,9 @@ bool shuffle_simple_test(int argc, char **argv) {
 // This function tests creation of an integral image using
 // synthetic data, of size 1920x1080 pixels greyscale.
 bool shuffle_integral_image_test() {
-  char *d_data;
-  unsigned int *h_image;
-  unsigned int *d_integral_image;
+  char* d_data;
+  unsigned int* h_image;
+  unsigned int* d_integral_image;
   int w = 1920;
   int h = 1080;
   int n_elements = w * h;
@@ -297,7 +293,7 @@ bool shuffle_integral_image_test() {
   printf("\nComputing Integral Image Test on size %d x %d synthetic data\n", w,
          h);
   printf("---------------------------------------------------\n");
-  checkCudaErrors(cudaMallocHost((void **)&h_image, sz));
+  checkCudaErrors(cudaMallocHost((void**)&h_image, sz));
   // fill test "image" with synthetic 1's data
   memset(h_image, 0, sz);
 
@@ -307,9 +303,9 @@ bool shuffle_integral_image_test() {
   int gridSize = h;
 
   // Create a synthetic image for testing
-  checkCudaErrors(cudaMalloc((void **)&d_data, sz));
+  checkCudaErrors(cudaMalloc((void**)&d_data, sz));
   checkCudaErrors(
-      cudaMalloc((void **)&d_integral_image, n_elements * sizeof(int) * 4));
+      cudaMalloc((void**)&d_integral_image, n_elements * sizeof(int) * 4));
   checkCudaErrors(cudaMemset(d_data, 1, sz));
   checkCudaErrors(cudaMemset(d_integral_image, 0, sz));
 
@@ -321,8 +317,8 @@ bool shuffle_integral_image_test() {
 
   // Execute scan line prefix sum kernel, and time it
   cudaEventRecord(start);
-  shfl_intimage_rows<<<gridSize, blockSize>>>((uint4 *)d_data,
-                                              (uint4 *)d_integral_image);
+  shfl_intimage_rows<<<gridSize, blockSize>>>((uint4*)d_data,
+                                              (uint4*)d_integral_image);
   cudaEventRecord(stop);
   checkCudaErrors(cudaEventSynchronize(stop));
   checkCudaErrors(cudaEventElapsedTime(&et, start, stop));
@@ -339,7 +335,7 @@ bool shuffle_integral_image_test() {
   dim3 testGrid(w / blockSz.x, 1);
 
   cudaEventRecord(start);
-  shfl_vertical_shfl<<<testGrid, blockSz>>>((unsigned int *)d_integral_image, w,
+  shfl_vertical_shfl<<<testGrid, blockSz>>>((unsigned int*)d_integral_image, w,
                                             h);
   cudaEventRecord(stop);
   checkCudaErrors(cudaEventSynchronize(stop));
@@ -362,7 +358,7 @@ bool shuffle_integral_image_test() {
   return (finalSum == w * h) ? true : false;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   // Initialization.  The shuffle intrinsic is not available on SM < 3.0
   // so waive the test if the hardware is not present.
   int cuda_device = 0;
@@ -371,7 +367,7 @@ int main(int argc, char *argv[]) {
 
   // use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  cuda_device = findCudaDevice(argc, (const char **)argv);
+  cuda_device = findCudaDevice(argc, (const char**)argv);
 
   cudaDeviceProp deviceProp;
   checkCudaErrors(cudaGetDevice(&cuda_device));

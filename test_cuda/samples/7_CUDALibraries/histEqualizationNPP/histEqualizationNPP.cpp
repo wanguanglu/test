@@ -38,7 +38,7 @@
 #define STRNCASECMP strncasecmp
 #endif
 
-inline int cudaDeviceInit(int argc, const char **argv) {
+inline int cudaDeviceInit(int argc, const char** argv) {
   int deviceCount;
   checkCudaErrors(cudaGetDeviceCount(&deviceCount));
 
@@ -59,8 +59,8 @@ inline int cudaDeviceInit(int argc, const char **argv) {
   return dev;
 }
 
-bool printfNPPinfo(int argc, char *argv[]) {
-  const NppLibraryVersion *libVer = nppGetLibVersion();
+bool printfNPPinfo(int argc, char* argv[]) {
+  const NppLibraryVersion* libVer = nppGetLibVersion();
 
   printf("NPP Library Version %d.%d.%d\n", libVer->major, libVer->minor,
          libVer->build);
@@ -79,22 +79,22 @@ bool printfNPPinfo(int argc, char *argv[]) {
   return bVal;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   printf("%s Starting...\n\n", argv[0]);
 
   try {
     std::string sFilename;
-    char *filePath;
+    char* filePath;
 
-    cudaDeviceInit(argc, (const char **)argv);
+    cudaDeviceInit(argc, (const char**)argv);
 
     if (printfNPPinfo(argc, argv) == false) {
       cudaDeviceReset();
       exit(EXIT_SUCCESS);
     }
 
-    if (checkCmdLineFlag(argc, (const char **)argv, "input")) {
-      getCmdLineArgumentString(argc, (const char **)argv, "input", &filePath);
+    if (checkCmdLineFlag(argc, (const char**)argv, "input")) {
+      getCmdLineArgumentString(argc, (const char**)argv, "input", &filePath);
     } else {
       filePath = sdkFindFilePath("Lena.pgm", argv[0]);
     }
@@ -137,9 +137,9 @@ int main(int argc, char *argv[]) {
 
     dstFileName += "_histEqualization.pgm";
 
-    if (checkCmdLineFlag(argc, (const char **)argv, "output")) {
-      char *outputFilePath;
-      getCmdLineArgumentString(argc, (const char **)argv, "output",
+    if (checkCmdLineFlag(argc, (const char**)argv, "output")) {
+      char* outputFilePath;
+      getCmdLineArgumentString(argc, (const char**)argv, "output",
                                &outputFilePath);
       dstFileName = outputFilePath;
     }
@@ -153,27 +153,27 @@ int main(int argc, char *argv[]) {
     //
 
     const int binCount = 255;
-    const int levelCount = binCount + 1; // levels array has one more element
+    const int levelCount = binCount + 1;  // levels array has one more element
 
-    Npp32s *histDevice = 0;
-    Npp32s *levelsDevice = 0;
+    Npp32s* histDevice = 0;
+    Npp32s* levelsDevice = 0;
 
-    NPP_CHECK_CUDA(cudaMalloc((void **)&histDevice, binCount * sizeof(Npp32s)));
+    NPP_CHECK_CUDA(cudaMalloc((void**)&histDevice, binCount * sizeof(Npp32s)));
     NPP_CHECK_CUDA(
-        cudaMalloc((void **)&levelsDevice, levelCount * sizeof(Npp32s)));
+        cudaMalloc((void**)&levelsDevice, levelCount * sizeof(Npp32s)));
 
     //
     // compute histogram
     //
 
     NppiSize oSizeROI = {(int)oDeviceSrc.width(),
-                         (int)oDeviceSrc.height()}; // full image
+                         (int)oDeviceSrc.height()};  // full image
     // create device scratch buffer for nppiHistogram
     int nDeviceBufferSize;
     nppiHistogramEvenGetBufferSize_8u_C1R(oSizeROI, levelCount,
                                           &nDeviceBufferSize);
-    Npp8u *pDeviceBuffer;
-    NPP_CHECK_CUDA(cudaMalloc((void **)&pDeviceBuffer, nDeviceBufferSize));
+    Npp8u* pDeviceBuffer;
+    NPP_CHECK_CUDA(cudaMalloc((void**)&pDeviceBuffer, nDeviceBufferSize));
 
     // compute levels values on host
     Npp32s levelsHost[levelCount];
@@ -191,7 +191,7 @@ int main(int argc, char *argv[]) {
 
     // fill LUT
     {
-      Npp32s *pHostHistogram = histHost;
+      Npp32s* pHostHistogram = histHost;
       Npp32s totalSum = 0;
 
       for (; pHostHistogram < histHost + binCount; ++pHostHistogram) {
@@ -207,7 +207,7 @@ int main(int argc, char *argv[]) {
       float multiplier = 1.0f / float(totalSum) * 0xFF;
 
       Npp32s runningSum = 0;
-      Npp32s *pLookupTable = lutHost;
+      Npp32s* pLookupTable = lutHost;
 
       for (pHostHistogram = histHost; pHostHistogram < histHost + binCount;
            ++pHostHistogram) {
@@ -216,7 +216,7 @@ int main(int argc, char *argv[]) {
         runningSum += *pHostHistogram;
       }
 
-      lutHost[binCount] = 0xFF; // last element is always 1
+      lutHost[binCount] = 0xFF;  // last element is always 1
     }
 
     //
@@ -228,13 +228,13 @@ int main(int argc, char *argv[]) {
 #if CUDART_VERSION >= 5000
     // Note for CUDA 5.0, that nppiLUT_Linear_8u_C1R requires these pointers to
     // be in GPU device memory
-    Npp32s *lutDevice = 0;
-    Npp32s *lvlsDevice = 0;
+    Npp32s* lutDevice = 0;
+    Npp32s* lvlsDevice = 0;
 
     NPP_CHECK_CUDA(
-        cudaMalloc((void **)&lutDevice, sizeof(Npp32s) * (levelCount)));
+        cudaMalloc((void**)&lutDevice, sizeof(Npp32s) * (levelCount)));
     NPP_CHECK_CUDA(
-        cudaMalloc((void **)&lvlsDevice, sizeof(Npp32s) * (levelCount)));
+        cudaMalloc((void**)&lvlsDevice, sizeof(Npp32s) * (levelCount)));
 
     NPP_CHECK_CUDA(cudaMemcpy(lutDevice, lutHost, sizeof(Npp32s) * (levelCount),
                               cudaMemcpyHostToDevice));
@@ -245,7 +245,7 @@ int main(int argc, char *argv[]) {
     NPP_CHECK_NPP(nppiLUT_Linear_8u_C1R(
         oDeviceSrc.data(), oDeviceSrc.pitch(), oDeviceDst.data(),
         oDeviceDst.pitch(), oSizeROI,
-        lutDevice, // value and level arrays are in GPU device memory
+        lutDevice,  // value and level arrays are in GPU device memory
         lvlsDevice, levelCount));
 
     NPP_CHECK_CUDA(cudaFree(lutDevice));
@@ -254,7 +254,7 @@ int main(int argc, char *argv[]) {
     NPP_CHECK_NPP(nppiLUT_Linear_8u_C1R(
         oDeviceSrc.data(), oDeviceSrc.pitch(), oDeviceDst.data(),
         oDeviceDst.pitch(), oSizeROI,
-        lutHost, // value and level arrays are in host memory
+        lutHost,  // value and level arrays are in host memory
         levelsHost, levelCount));
 #endif
 
@@ -274,7 +274,7 @@ int main(int argc, char *argv[]) {
     std::cout << "Saved image file " << dstFileName << std::endl;
     cudaDeviceReset();
     exit(EXIT_SUCCESS);
-  } catch (npp::Exception &rException) {
+  } catch (npp::Exception& rException) {
     std::cerr << "Program error! The following exception occurred: \n";
     std::cerr << rException << std::endl;
     std::cerr << "Aborting." << std::endl;

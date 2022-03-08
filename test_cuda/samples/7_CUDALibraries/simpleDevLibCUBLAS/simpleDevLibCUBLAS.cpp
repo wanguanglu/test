@@ -37,8 +37,8 @@
 #define N (275)
 
 /* Host implementation of a simple version of sgemm */
-static void simple_sgemm(int n, float alpha, const float *A, const float *B,
-                         float beta, float *C) {
+static void simple_sgemm(int n, float alpha, const float* A, const float* B,
+                         float beta, float* C) {
   int i;
   int j;
   int k;
@@ -57,7 +57,7 @@ static void simple_sgemm(int n, float alpha, const float *A, const float *B,
 }
 
 /* Checks result against reference and returns relative error */
-static float check_result(const float *result, const float *reference,
+static float check_result(const float* result, const float* reference,
                           int size) {
   float error_norm = 0.0f;
   float ref_norm = 0.0f;
@@ -87,20 +87,20 @@ static float check_result(const float *result, const float *reference,
 }
 
 /* Declaration of the function that computes sgemm using CUBLAS device API */
-extern "C" void device_cublas_sgemm(int n, float alpha, const float *d_A,
-                                    const float *d_B, float beta, float *d_C);
+extern "C" void device_cublas_sgemm(int n, float alpha, const float* d_A,
+                                    const float* d_B, float beta, float* d_C);
 
 /* Main */
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   cublasStatus_t status;
-  float *h_A;
-  float *h_B;
-  float *h_C;
-  float *h_C_rnd;
-  float *h_C_ref;
-  float *d_A = 0;
-  float *d_B = 0;
-  float *d_C = 0;
+  float* h_A;
+  float* h_B;
+  float* h_C;
+  float* h_C_rnd;
+  float* h_C_ref;
+  float* d_A = 0;
+  float* d_B = 0;
+  float* d_C = 0;
   float alpha = 1.0f;
   float beta = 0.0f;
   int n2 = N * N;
@@ -117,7 +117,7 @@ int main(int argc, char **argv) {
   /* Initialize CUBLAS */
   printf("simpleDevLibCUBLAS test running...\n");
 
-  dev_id = findCudaDevice(argc, (const char **)argv);
+  dev_id = findCudaDevice(argc, (const char**)argv);
   checkCudaErrors(cudaGetDeviceProperties(&device_prop, dev_id));
 
   if ((device_prop.major << 4) + device_prop.minor >= 0x35) {
@@ -131,8 +131,9 @@ int main(int argc, char **argv) {
       }
   */
   else {
-    fprintf(stderr, "simpleDevLibCUBLAS examples requires Compute Capability "
-                    "of SM 3.5 or higher\n");
+    fprintf(stderr,
+            "simpleDevLibCUBLAS examples requires Compute Capability "
+            "of SM 3.5 or higher\n");
 
     // cudaDeviceReset causes the driver to clean up all state. While
     // not mandatory in normal operation, it is good practice.  It is also
@@ -158,7 +159,7 @@ int main(int argc, char **argv) {
   }
 
   /* Allocate host memory for the matrices */
-  h_A = (float *)malloc(n2 * sizeof(h_A[0]));
+  h_A = (float*)malloc(n2 * sizeof(h_A[0]));
 
   if (h_A == 0) {
     fprintf(stderr, "!!!! host memory allocation error (A)\n");
@@ -172,7 +173,7 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
-  h_B = (float *)malloc(n2 * sizeof(h_B[0]));
+  h_B = (float*)malloc(n2 * sizeof(h_B[0]));
 
   if (h_B == 0) {
     fprintf(stderr, "!!!! host memory allocation error (B)\n");
@@ -186,7 +187,7 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
-  h_C_rnd = (float *)malloc(n2 * sizeof(h_C_rnd[0]));
+  h_C_rnd = (float*)malloc(n2 * sizeof(h_C_rnd[0]));
 
   if (h_C_rnd == 0) {
     fprintf(stderr, "!!!! host memory allocation error (C_rnd)\n");
@@ -200,7 +201,7 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
-  h_C = (float *)malloc(n2 * sizeof(h_C_ref[0]));
+  h_C = (float*)malloc(n2 * sizeof(h_C_ref[0]));
 
   if (h_C == 0) {
     fprintf(stderr, "!!!! host memory allocation error (C)\n");
@@ -223,7 +224,7 @@ int main(int argc, char **argv) {
   }
 
   /* Allocate device memory for the matrices */
-  if (cudaMalloc((void **)&d_A, n2 * sizeof(d_A[0])) != cudaSuccess) {
+  if (cudaMalloc((void**)&d_A, n2 * sizeof(d_A[0])) != cudaSuccess) {
     fprintf(stderr, "!!!! device memory allocation error (allocate A)\n");
 
     // cudaDeviceReset causes the driver to clean up all state. While
@@ -235,7 +236,7 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
-  if (cudaMalloc((void **)&d_B, n2 * sizeof(d_B[0])) != cudaSuccess) {
+  if (cudaMalloc((void**)&d_B, n2 * sizeof(d_B[0])) != cudaSuccess) {
     fprintf(stderr, "!!!! device memory allocation error (allocate B)\n");
 
     // cudaDeviceReset causes the driver to clean up all state. While
@@ -247,7 +248,7 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
-  if (cudaMalloc((void **)&d_C, n2 * sizeof(d_C[0])) != cudaSuccess) {
+  if (cudaMalloc((void**)&d_C, n2 * sizeof(d_C[0])) != cudaSuccess) {
     fprintf(stderr, "!!!! device memory allocation error (allocate C)\n");
 
     // cudaDeviceReset causes the driver to clean up all state. While
@@ -327,7 +328,7 @@ int main(int argc, char **argv) {
   }
 
   /* Allocate host memory for reading back the result from device memory */
-  h_C = (float *)malloc(n2 * sizeof(h_C[0]));
+  h_C = (float*)malloc(n2 * sizeof(h_C[0]));
 
   if (h_C == 0) {
     fprintf(stderr, "!!!! host memory allocation error (C)\n");

@@ -61,7 +61,7 @@
 #define VERSION_MAJOR (CUDART_VERSION / 1000)
 #define VERSION_MINOR (CUDART_VERSION % 100) / 10
 
-const char *sSDKsample = "threadFenceReduction";
+const char* sSDKsample = "threadFenceReduction";
 
 #if CUDART_VERSION >= 2020
 #include "threadFenceReduction_kernel.cuh"
@@ -71,21 +71,21 @@ const char *sSDKsample = "threadFenceReduction";
 
 ////////////////////////////////////////////////////////////////////////////////
 // declaration, forward
-bool runTest(int argc, char **argv);
+bool runTest(int argc, char** argv);
 
 extern "C" {
-void reduce(int size, int threads, int blocks, float *d_idata, float *d_odata);
-void reduceSinglePass(int size, int threads, int blocks, float *d_idata,
-                      float *d_odata);
+void reduce(int size, int threads, int blocks, float* d_idata, float* d_odata);
+void reduceSinglePass(int size, int threads, int blocks, float* d_idata,
+                      float* d_odata);
 }
 
 #if CUDART_VERSION < 2020
-void reduce(int size, int threads, int blocks, float *d_idata, float *d_odata) {
+void reduce(int size, int threads, int blocks, float* d_idata, float* d_odata) {
   printf("reduce(), compiler not supported, aborting tests\n");
 }
 
-void reduceSinglePass(int size, int threads, int blocks, float *d_idata,
-                      float *d_odata) {
+void reduceSinglePass(int size, int threads, int blocks, float* d_idata,
+                      float* d_odata) {
   printf("reduceSinglePass(), compiler not supported, aborting tests\n");
 }
 #endif
@@ -93,7 +93,7 @@ void reduceSinglePass(int size, int threads, int blocks, float *d_idata,
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   cudaDeviceProp deviceProp;
   deviceProp.major = 0;
   deviceProp.minor = 0;
@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
 
   printf("%s Starting...\n\n", sSDKsample);
 
-  dev = findCudaDevice(argc, (const char **)argv);
+  dev = findCudaDevice(argc, (const char**)argv);
 
   checkCudaErrors(cudaGetDeviceProperties(&deviceProp, dev));
 
@@ -134,7 +134,8 @@ int main(int argc, char **argv) {
 //! @param data       pointer to input data
 //! @param size       number of input data elements
 ////////////////////////////////////////////////////////////////////////////////
-template <class T> T reduceCPU(T *data, int size) {
+template <class T>
+T reduceCPU(T* data, int size) {
   T sum = data[0];
   T c = (T)0.0;
 
@@ -162,8 +163,8 @@ unsigned int nextPow2(unsigned int x) {
 // Compute the number of threads and blocks to use for the reduction
 // We set threads / block to the minimum of maxThreads and n/2.
 ////////////////////////////////////////////////////////////////////////////////
-void getNumBlocksAndThreads(int n, int maxBlocks, int maxThreads, int &blocks,
-                            int &threads) {
+void getNumBlocksAndThreads(int n, int maxBlocks, int maxThreads, int& blocks,
+                            int& threads) {
   if (n == 1) {
     threads = 1;
     blocks = 1;
@@ -182,8 +183,8 @@ void getNumBlocksAndThreads(int n, int maxBlocks, int maxThreads, int &blocks,
 float benchmarkReduce(int n, int numThreads, int numBlocks, int maxThreads,
                       int maxBlocks, int testIterations, bool multiPass,
                       bool cpuFinalReduction, int cpuFinalThreshold,
-                      StopWatchInterface *timer, float *h_odata, float *d_idata,
-                      float *d_odata) {
+                      StopWatchInterface* timer, float* h_odata, float* d_idata,
+                      float* d_odata) {
   float gpu_result = 0;
   bool bNeedReadback = true;
   cudaError_t error;
@@ -276,7 +277,7 @@ void shmoo(int minN, int maxN, int maxThreads, int maxBlocks) {
   // create random input data on CPU
   unsigned int bytes = maxN * sizeof(float);
 
-  float *h_idata = (float *)malloc(bytes);
+  float* h_idata = (float*)malloc(bytes);
 
   for (int i = 0; i < maxN; i++) {
     // Keep the numbers small so we don't get truncation error in the sum
@@ -286,14 +287,14 @@ void shmoo(int minN, int maxN, int maxThreads, int maxBlocks) {
   int maxNumBlocks = min(65535, maxN / maxThreads);
 
   // allocate mem for the result on host side
-  float *h_odata = (float *)malloc(maxNumBlocks * sizeof(float));
+  float* h_odata = (float*)malloc(maxNumBlocks * sizeof(float));
 
   // allocate device memory and data
-  float *d_idata = NULL;
-  float *d_odata = NULL;
+  float* d_idata = NULL;
+  float* d_odata = NULL;
 
-  checkCudaErrors(cudaMalloc((void **)&d_idata, bytes));
-  checkCudaErrors(cudaMalloc((void **)&d_odata, maxNumBlocks * sizeof(float)));
+  checkCudaErrors(cudaMalloc((void**)&d_idata, bytes));
+  checkCudaErrors(cudaMalloc((void**)&d_odata, maxNumBlocks * sizeof(float)));
 
   // copy data directly to device memory
   checkCudaErrors(cudaMemcpy(d_idata, h_idata, bytes, cudaMemcpyHostToDevice));
@@ -304,7 +305,7 @@ void shmoo(int minN, int maxN, int maxThreads, int maxBlocks) {
   reduce(maxN, maxThreads, maxNumBlocks, d_idata, d_odata);
   int testIterations = 100;
 
-  StopWatchInterface *timer = NULL;
+  StopWatchInterface* timer = NULL;
   sdkCreateTimer(&timer);
 
   // print headers
@@ -342,39 +343,39 @@ void shmoo(int minN, int maxN, int maxThreads, int maxBlocks) {
 ////////////////////////////////////////////////////////////////////////////////
 // The main function which runs the reduction test.
 ////////////////////////////////////////////////////////////////////////////////
-bool runTest(int argc, char **argv) {
-  int size = 1 << 20;   // number of elements to reduce
-  int maxThreads = 128; // number of threads per block
+bool runTest(int argc, char** argv) {
+  int size = 1 << 20;    // number of elements to reduce
+  int maxThreads = 128;  // number of threads per block
   int maxBlocks = 64;
   bool cpuFinalReduction = false;
   int cpuFinalThreshold = 1;
   bool multipass = false;
   bool bTestResult = false;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "b")) {
-    size = getCmdLineArgumentInt(argc, (const char **)argv, "b");
+  if (checkCmdLineFlag(argc, (const char**)argv, "b")) {
+    size = getCmdLineArgumentInt(argc, (const char**)argv, "b");
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "threads")) {
-    maxThreads = getCmdLineArgumentInt(argc, (const char **)argv, "threads");
+  if (checkCmdLineFlag(argc, (const char**)argv, "threads")) {
+    maxThreads = getCmdLineArgumentInt(argc, (const char**)argv, "threads");
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "maxblocks")) {
-    maxBlocks = getCmdLineArgumentInt(argc, (const char **)argv, "maxblocks");
+  if (checkCmdLineFlag(argc, (const char**)argv, "maxblocks")) {
+    maxBlocks = getCmdLineArgumentInt(argc, (const char**)argv, "maxblocks");
   }
 
   printf("%d elements\n", size);
   printf("%d threads (max)\n", maxThreads);
 
-  cpuFinalReduction = checkCmdLineFlag(argc, (const char **)argv, "cpufinal");
-  multipass = checkCmdLineFlag(argc, (const char **)argv, "multipass");
+  cpuFinalReduction = checkCmdLineFlag(argc, (const char**)argv, "cpufinal");
+  multipass = checkCmdLineFlag(argc, (const char**)argv, "multipass");
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "cputhresh")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "cputhresh")) {
     cpuFinalThreshold =
-        getCmdLineArgumentInt(argc, (const char **)argv, "cputhresh");
+        getCmdLineArgumentInt(argc, (const char**)argv, "cputhresh");
   }
 
-  bool runShmoo = checkCmdLineFlag(argc, (const char **)argv, "shmoo");
+  bool runShmoo = checkCmdLineFlag(argc, (const char**)argv, "shmoo");
 
   if (runShmoo) {
     shmoo(1, 33554432, maxThreads, maxBlocks);
@@ -382,7 +383,7 @@ bool runTest(int argc, char **argv) {
     // create random input data on CPU
     unsigned int bytes = size * sizeof(float);
 
-    float *h_idata = (float *)malloc(bytes);
+    float* h_idata = (float*)malloc(bytes);
 
     for (int i = 0; i < size; i++) {
       // Keep the numbers small so we don't get truncation error in the sum
@@ -398,16 +399,16 @@ bool runTest(int argc, char **argv) {
     }
 
     // allocate mem for the result on host side
-    float *h_odata = (float *)malloc(numBlocks * sizeof(float));
+    float* h_odata = (float*)malloc(numBlocks * sizeof(float));
 
     printf("%d blocks\n", numBlocks);
 
     // allocate device memory and data
-    float *d_idata = NULL;
-    float *d_odata = NULL;
+    float* d_idata = NULL;
+    float* d_odata = NULL;
 
-    checkCudaErrors(cudaMalloc((void **)&d_idata, bytes));
-    checkCudaErrors(cudaMalloc((void **)&d_odata, numBlocks * sizeof(float)));
+    checkCudaErrors(cudaMalloc((void**)&d_idata, bytes));
+    checkCudaErrors(cudaMalloc((void**)&d_odata, numBlocks * sizeof(float)));
 
     // copy data directly to device memory
     checkCudaErrors(
@@ -419,7 +420,7 @@ bool runTest(int argc, char **argv) {
     reduce(size, numThreads, numBlocks, d_idata, d_odata);
     int testIterations = 100;
 
-    StopWatchInterface *timer = 0;
+    StopWatchInterface* timer = 0;
     sdkCreateTimer(&timer);
 
     float gpu_result = 0;

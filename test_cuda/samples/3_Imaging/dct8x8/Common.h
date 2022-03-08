@@ -24,8 +24,8 @@
 #include <stdlib.h>
 
 #include <cuda_runtime.h>
-#include <helper_cuda.h> // helper functions for CUDA timing and initialization
-#include <helper_functions.h> // helper functions for timing, string parsing
+#include <helper_cuda.h>  // helper functions for CUDA timing and initialization
+#include <helper_functions.h>  // helper functions for timing, string parsing
 
 /**
  *  The dimension of pixels block

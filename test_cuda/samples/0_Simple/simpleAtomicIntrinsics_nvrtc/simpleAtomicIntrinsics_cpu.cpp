@@ -17,7 +17,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // export C interface
-extern "C" int computeGold(int *gpuData, const int len);
+extern "C" int computeGold(int* gpuData, const int len);
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Compute reference data set
@@ -27,7 +27,7 @@ extern "C" int computeGold(int *gpuData, const int len);
 //! @param len        number of elements in reference / idata
 ////////////////////////////////////////////////////////////////////////////////
 
-int computeGold(int *gpuData, const int len) {
+int computeGold(int* gpuData, const int len) {
   int val = 0;
 
   for (int i = 0; i < len; ++i) {

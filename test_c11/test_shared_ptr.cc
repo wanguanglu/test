@@ -24,7 +24,7 @@ void test1() {
 
 void test2() {
   std::shared_ptr<int> a = std::make_shared<int>(1);
-  const std::shared_ptr<int> &b = a;
+  const std::shared_ptr<int>& b = a;
   std::cout << "use count of a " << a.use_count() << std::endl;
   *b = 0;
   std::cout << "a = " << *a << std::endl;
@@ -37,7 +37,7 @@ void test2() {
   d = c;
 }
 
-void use(std::shared_ptr<int> &ptr) {
+void use(std::shared_ptr<int>& ptr) {
   auto ptr_2 = ptr;
   std::cout << "use count of ptr " << ptr.use_count() << std::endl;
   std::cout << "use count of ptr_2 " << ptr_2.use_count() << std::endl;
@@ -49,4 +49,4 @@ void test3() {
   std::cout << "use count of ptr " << ptr.use_count() << std::endl;
 }
 
-int main(int argc, char *argv[]) { test3(); }
+int main(int argc, char* argv[]) { test3(); }

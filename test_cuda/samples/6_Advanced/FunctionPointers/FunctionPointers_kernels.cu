@@ -18,7 +18,7 @@
 // Texture reference for reading image
 texture<unsigned char, 2> tex;
 extern __shared__ unsigned char LocalBlock[];
-static cudaArray *array = NULL;
+static cudaArray* array = NULL;
 
 #define RADIUS 1
 
@@ -45,15 +45,15 @@ typedef unsigned char (*pointFunction_t)(unsigned char, float);
 
 __device__ blockFunction_t blockFunction;
 
-__device__ unsigned char ComputeSobel(unsigned char ul, // upper left
-                                      unsigned char um, // upper middle
-                                      unsigned char ur, // upper right
-                                      unsigned char ml, // middle left
-                                      unsigned char mm, // middle (unused)
-                                      unsigned char mr, // middle right
-                                      unsigned char ll, // lower left
-                                      unsigned char lm, // lower middle
-                                      unsigned char lr, // lower right
+__device__ unsigned char ComputeSobel(unsigned char ul,  // upper left
+                                      unsigned char um,  // upper middle
+                                      unsigned char ur,  // upper right
+                                      unsigned char ml,  // middle left
+                                      unsigned char mm,  // middle (unused)
+                                      unsigned char mr,  // middle right
+                                      unsigned char ll,  // lower left
+                                      unsigned char lm,  // lower middle
+                                      unsigned char lr,  // lower right
                                       float fScale) {
   short Horz = ur + 2 * mr + lr - ul - 2 * ml - ll;
   short Vert = ul + 2 * um + ur - ll - 2 * lm - lr;
@@ -68,17 +68,16 @@ __device__ unsigned char (*varFunction)(unsigned char, unsigned char,
                                         unsigned char, unsigned char,
                                         unsigned char, float x) = NULL;
 
-__device__ unsigned char ComputeBox(unsigned char ul, // upper left
-                                    unsigned char um, // upper middle
-                                    unsigned char ur, // upper right
-                                    unsigned char ml, // middle left
-                                    unsigned char mm, // middle...middle
-                                    unsigned char mr, // middle right
-                                    unsigned char ll, // lower left
-                                    unsigned char lm, // lower middle
-                                    unsigned char lr, // lower right
+__device__ unsigned char ComputeBox(unsigned char ul,  // upper left
+                                    unsigned char um,  // upper middle
+                                    unsigned char ur,  // upper right
+                                    unsigned char ml,  // middle left
+                                    unsigned char mm,  // middle...middle
+                                    unsigned char mr,  // middle right
+                                    unsigned char ll,  // lower left
+                                    unsigned char lm,  // lower middle
+                                    unsigned char lr,  // lower right
                                     float fscale) {
-
   short Sum = (short)(ul + um + ur + ml + mm + mr + ll + lm + lr) / 9;
   Sum *= fscale;
   return (unsigned char)((Sum < 0) ? 0 : ((Sum > 255) ? 255 : Sum));
@@ -119,7 +118,7 @@ pointFunction_t h_pointFunction_table[2];
 // Following the block operation, a per-pixel operation,
 // pointed to by pPointFunction is performed before the final
 // pixel is produced.
-__global__ void SobelShared(uchar4 *pSobelOriginal, unsigned short SobelPitch,
+__global__ void SobelShared(uchar4* pSobelOriginal, unsigned short SobelPitch,
 #ifndef FIXED_BLOCKWIDTH
                             short BlockWidth, short SharedPitch,
 #endif
@@ -166,14 +165,13 @@ __global__ void SobelShared(uchar4 *pSobelOriginal, unsigned short SobelPitch,
 
   __syncthreads();
 
-  u >>= 2; // index as uchar4 from here
-  uchar4 *pSobel = (uchar4 *)(((char *)pSobelOriginal) + v * SobelPitch);
+  u >>= 2;  // index as uchar4 from here
+  uchar4* pSobel = (uchar4*)(((char*)pSobelOriginal) + v * SobelPitch);
   SharedIdx = threadIdx.y * SharedPitch;
 
   blockFunction = blockFunction_table[blockOperation];
 
   for (ib = threadIdx.x; ib < BlockWidth; ib += blockDim.x) {
-
     uchar4 out;
 
     unsigned char pix00 = LocalBlock[SharedIdx + 4 * ib + 0 * SharedPitch + 0];
@@ -222,10 +220,10 @@ __global__ void SobelShared(uchar4 *pSobelOriginal, unsigned short SobelPitch,
   __syncthreads();
 }
 
-__global__ void SobelCopyImage(Pixel *pSobelOriginal, unsigned int Pitch, int w,
+__global__ void SobelCopyImage(Pixel* pSobelOriginal, unsigned int Pitch, int w,
                                int h, float fscale) {
-  unsigned char *pSobel =
-      (unsigned char *)(((char *)pSobelOriginal) + blockIdx.x * Pitch);
+  unsigned char* pSobel =
+      (unsigned char*)(((char*)pSobelOriginal) + blockIdx.x * Pitch);
 
   for (int i = threadIdx.x; i < w; i += blockDim.x) {
     pSobel[i] = min(
@@ -236,11 +234,11 @@ __global__ void SobelCopyImage(Pixel *pSobelOriginal, unsigned int Pitch, int w,
 // Perform block and pointer filtering using texture lookups.
 // The block and point operations are determined by the
 // input argument (see comment above for "SobelShared" function)
-__global__ void SobelTex(Pixel *pSobelOriginal, unsigned int Pitch, int w,
+__global__ void SobelTex(Pixel* pSobelOriginal, unsigned int Pitch, int w,
                          int h, float fScale, int blockOperation,
                          pointFunction_t pPointOperation) {
-  unsigned char *pSobel =
-      (unsigned char *)(((char *)pSobelOriginal) + blockIdx.x * Pitch);
+  unsigned char* pSobel =
+      (unsigned char*)(((char*)pSobelOriginal) + blockIdx.x * Pitch);
   unsigned char tmp = 0;
 
   for (int i = threadIdx.x; i < w; i += blockDim.x) {
@@ -264,7 +262,7 @@ __global__ void SobelTex(Pixel *pSobelOriginal, unsigned int Pitch, int w,
   }
 }
 
-extern "C" void setupTexture(int iw, int ih, Pixel *data, int Bpp) {
+extern "C" void setupTexture(int iw, int ih, Pixel* data, int Bpp) {
   cudaChannelFormatDesc desc;
 
   if (Bpp == 1) {
@@ -315,41 +313,42 @@ void setupFunctionTables() {
 // blockFunction_table on the device side pPointOp is itself a function pointer
 // passed as a kernel argument, retrieved from a host side copy of the function
 // table
-extern "C" void sobelFilter(Pixel *odata, int iw, int ih,
+extern "C" void sobelFilter(Pixel* odata, int iw, int ih,
                             enum SobelDisplayMode mode, float fScale,
                             int blockOperation, int pointOperation) {
   checkCudaErrors(cudaBindTextureToArray(tex, array));
   pointFunction_t pPointOp = h_pointFunction_table[pointOperation];
 
   switch (mode) {
-  case SOBELDISPLAY_IMAGE:
-    SobelCopyImage<<<ih, 384>>>(odata, iw, iw, ih, fScale);
-    break;
+    case SOBELDISPLAY_IMAGE:
+      SobelCopyImage<<<ih, 384>>>(odata, iw, iw, ih, fScale);
+      break;
 
-  case SOBELDISPLAY_SOBELTEX:
-    SobelTex<<<ih, 384>>>(odata, iw, iw, ih, fScale, blockOperation, pPointOp);
-    break;
+    case SOBELDISPLAY_SOBELTEX:
+      SobelTex<<<ih, 384>>>(odata, iw, iw, ih, fScale, blockOperation,
+                            pPointOp);
+      break;
 
-  case SOBELDISPLAY_SOBELSHARED: {
-    dim3 threads(16, 4);
+    case SOBELDISPLAY_SOBELSHARED: {
+      dim3 threads(16, 4);
 #ifndef FIXED_BLOCKWIDTH
-    int BlockWidth = 80; // must be divisible by 16 for coalescing
+      int BlockWidth = 80;  // must be divisible by 16 for coalescing
 #endif
-    dim3 blocks = dim3(iw / (4 * BlockWidth) + (0 != iw % (4 * BlockWidth)),
-                       ih / threads.y + (0 != ih % threads.y));
-    int SharedPitch = ~0x3f & (4 * (BlockWidth + 2 * RADIUS) + 0x3f);
-    int sharedMem = SharedPitch * (threads.y + 2 * RADIUS);
+      dim3 blocks = dim3(iw / (4 * BlockWidth) + (0 != iw % (4 * BlockWidth)),
+                         ih / threads.y + (0 != ih % threads.y));
+      int SharedPitch = ~0x3f & (4 * (BlockWidth + 2 * RADIUS) + 0x3f);
+      int sharedMem = SharedPitch * (threads.y + 2 * RADIUS);
 
-    // for the shared kernel, width must be divisible by 4
-    iw &= ~3;
+      // for the shared kernel, width must be divisible by 4
+      iw &= ~3;
 
-    SobelShared<<<blocks, threads, sharedMem>>>((uchar4 *)odata, iw,
+      SobelShared<<<blocks, threads, sharedMem>>>((uchar4*)odata, iw,
 #ifndef FIXED_BLOCKWIDTH
-                                                BlockWidth, SharedPitch,
+                                                  BlockWidth, SharedPitch,
 #endif
-                                                iw, ih, fScale, blockOperation,
-                                                pPointOp);
-  } break;
+                                                  iw, ih, fScale,
+                                                  blockOperation, pPointOp);
+    } break;
   }
 
   checkCudaErrors(cudaUnbindTexture(tex));

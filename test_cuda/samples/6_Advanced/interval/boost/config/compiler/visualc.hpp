@@ -21,10 +21,10 @@
 #endif
 
 // turn off the warnings before we #include anything
-#pragma warning(disable : 4503) // warning: decorated name length exceeded
+#pragma warning(disable : 4503)  // warning: decorated name length exceeded
 
-#if _MSC_VER < 1300             // 1200 == VC++ 6.0, 1200-1202 == eVC++4
-#pragma warning(disable : 4786) // ident trunc to '255' chars in debug info
+#if _MSC_VER < 1300              // 1200 == VC++ 6.0, 1200-1202 == eVC++4
+#pragma warning(disable : 4786)  // ident trunc to '255' chars in debug info
 #define BOOST_NO_DEPENDENT_TYPES_IN_TEMPLATE_VALUE_PARAMETERS
 #define BOOST_NO_VOID_RETURNS
 #define BOOST_NO_EXCEPTION_STD_NAMESPACE
@@ -37,12 +37,12 @@
 //
 #endif
 
-#if (_MSC_VER <= 1300) // 1300 == VC++ 7.0
+#if (_MSC_VER <= 1300)  // 1300 == VC++ 7.0
 
-#if !defined(_MSC_EXTENSIONS) &&                                               \
-    !defined(                                                                  \
-        BOOST_NO_DEPENDENT_TYPES_IN_TEMPLATE_VALUE_PARAMETERS) // VC7 bug with
-                                                               // /Za
+#if !defined(_MSC_EXTENSIONS) && \
+    !defined(                    \
+        BOOST_NO_DEPENDENT_TYPES_IN_TEMPLATE_VALUE_PARAMETERS)  // VC7 bug with
+                                                                // /Za
 #define BOOST_NO_DEPENDENT_TYPES_IN_TEMPLATE_VALUE_PARAMETERS
 #endif
 
@@ -90,20 +90,20 @@
 #define BOOST_NO_SWPRINTF
 #endif
 
-#if _MSC_VER <= 1400 // 1400 == VC++ 8.0
+#if _MSC_VER <= 1400  // 1400 == VC++ 8.0
 #define BOOST_NO_MEMBER_TEMPLATE_FRIENDS
 #endif
 
-#if _MSC_VER <= 1600 // 1600 == VC++ 10.0
+#if _MSC_VER <= 1600  // 1600 == VC++ 10.0
 #define BOOST_NO_TWO_PHASE_NAME_LOOKUP
 #endif
 
-#if _MSC_VER == 1500 // 1500 == VC++ 9.0
-                     // A bug in VC9:
+#if _MSC_VER == 1500  // 1500 == VC++ 9.0
+                      // A bug in VC9:
 #define BOOST_NO_ADL_BARRIER
 #endif
 
-#if _MSC_VER <= 1500 || !defined(BOOST_STRICT_CONFIG) // 1500 == VC++ 9.0
+#if _MSC_VER <= 1500 || !defined(BOOST_STRICT_CONFIG)  // 1500 == VC++ 9.0
 #define BOOST_NO_INITIALIZER_LISTS
 #endif
 
@@ -167,7 +167,7 @@
 #define BOOST_NO_LAMBDAS
 #define BOOST_NO_RVALUE_REFERENCES
 #define BOOST_NO_STATIC_ASSERT
-#endif // _MSC_VER < 1600
+#endif  // _MSC_VER < 1600
 
 // C++0x features not supported by any versions
 #define BOOST_NO_CHAR16_T
@@ -207,7 +207,7 @@
 #if defined(UNDER_CE)
 #if _MSC_VER < 1200
 // Note: these are so far off, they are not really supported
-#elif _MSC_VER < 1300 // eVC++ 4 comes with 1200-1202
+#elif _MSC_VER < 1300  // eVC++ 4 comes with 1200-1202
 #define BOOST_COMPILER_VERSION evc4 .0
 #elif _MSC_VER == 1400
 #define BOOST_COMPILER_VERSION evc8
@@ -217,10 +217,10 @@
 #define BOOST_COMPILER_VERSION evc10
 #else
 #if defined(BOOST_ASSERT_CONFIG)
-#error                                                                         \
+#error \
     "Unknown EVC++ compiler version - please run the configure tests and report the results"
 #else
-#pragma message(                                                               \
+#pragma message( \
     "Unknown EVC++ compiler version - please run the configure tests and report the results")
 #endif
 #endif
@@ -245,7 +245,7 @@
 #endif
 #endif
 
-#define BOOST_COMPILER                                                         \
+#define BOOST_COMPILER \
   "Microsoft Visual C++ version " BOOST_STRINGIZE(BOOST_COMPILER_VERSION)
 
 //
@@ -258,10 +258,10 @@
 // last known and checked version is 1600 (VC10, aka 2010):
 #if (_MSC_VER > 1600)
 #if defined(BOOST_ASSERT_CONFIG)
-#error                                                                         \
+#error \
     "Unknown compiler version - please run the configure tests and report the results"
 #else
-#pragma message(                                                               \
+#pragma message( \
     "Unknown compiler version - please run the configure tests and report the results")
 #endif
 #endif

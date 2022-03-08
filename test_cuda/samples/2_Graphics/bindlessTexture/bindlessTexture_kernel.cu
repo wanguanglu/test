@@ -53,13 +53,13 @@ float highestLod = 1.0f;
 
 //////////////////////////////////////////////////////////////////////////
 
-__host__ __device__ __inline__ uint2
-encodeTextureObject(cudaTextureObject_t obj) {
+__host__ __device__ __inline__ uint2 encodeTextureObject(
+    cudaTextureObject_t obj) {
   return make_uint2((uint)(obj & 0xFFFFFFFF), (uint)(obj >> 32));
 }
 
-__host__ __device__ __inline__ cudaTextureObject_t
-decodeTextureObject(uint2 obj) {
+__host__ __device__ __inline__ cudaTextureObject_t decodeTextureObject(
+    uint2 obj) {
   return (((cudaTextureObject_t)obj.x) | ((cudaTextureObject_t)obj.y) << 32);
 }
 
@@ -78,7 +78,7 @@ texture<uint2, 2, cudaReadModeElementType> atlasTexture;
 // the atlas texture stores the 64 bit cudaTextureObjects
 // we use it for "virtual" texturing
 
-__global__ void d_render(uchar4 *d_output, uint imageW, uint imageH,
+__global__ void d_render(uchar4* d_output, uint imageW, uint imageH,
                          float lod) {
   uint x = blockIdx.x * blockDim.x + threadIdx.x;
   uint y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -106,7 +106,7 @@ __global__ void d_render(uchar4 *d_output, uint imageW, uint imageH,
 }
 
 extern "C" void renderAtlasImage(dim3 gridSize, dim3 blockSize,
-                                 uchar4 *d_output, uint imageW, uint imageH,
+                                 uchar4* d_output, uint imageW, uint imageH,
                                  float lod) {
   // psuedo animate lod
   lod = fmodf(lod, highestLod * 2);
@@ -263,7 +263,7 @@ uint getMipMapLevels(cudaExtent size) {
 // Initalization
 
 extern "C" void randomizeAtlas() {
-  uint2 *h_data = (uint2 *)atlasImage.h_data;
+  uint2* h_data = (uint2*)atlasImage.h_data;
 
   // assign random texture object handles to our atlas image tiles
   for (size_t i = 0; i < atlasImage.size.width * atlasImage.size.height; i++) {
@@ -289,7 +289,7 @@ extern "C" void randomizeAtlas() {
 
 extern "C" void deinitAtlasAndImages() {
   for (size_t i = 0; i < contentImages.size(); i++) {
-    Image &image = contentImages[i];
+    Image& image = contentImages[i];
 
     if (image.h_data) {
       free(image.h_data);
@@ -315,13 +315,13 @@ extern "C" void deinitAtlasAndImages() {
   }
 }
 
-extern "C" void initAtlasAndImages(const Image *images, size_t numImages,
+extern "C" void initAtlasAndImages(const Image* images, size_t numImages,
                                    cudaExtent atlasSize) {
   // create individual textures
   contentImages.resize(numImages);
 
   for (size_t i = 0; i < numImages; i++) {
-    Image &image = contentImages[i];
+    Image& image = contentImages[i];
     image.size = images[i].size;
     image.size.depth = 0;
     image.type = cudaResourceTypeMipmappedArray;
@@ -388,9 +388,10 @@ extern "C" void initAtlasAndImages(const Image *images, size_t numImages,
   atlasImage.size = atlasSize;
 
   // set texture parameters
-  atlasTexture.normalized = 1; // access with normalized texture coordinates
-  atlasTexture.filterMode = cudaFilterModePoint; // and without any filtering
-                                                 // (we want raw 2x32bit values)
+  atlasTexture.normalized = 1;  // access with normalized texture coordinates
+  atlasTexture.filterMode =
+      cudaFilterModePoint;  // and without any filtering
+                            // (we want raw 2x32bit values)
   atlasTexture.addressMode[0] = cudaAddressModeClamp;
   atlasTexture.addressMode[1] = cudaAddressModeClamp;
   atlasTexture.addressMode[2] = cudaAddressModeClamp;
@@ -404,4 +405,4 @@ extern "C" void initAtlasAndImages(const Image *images, size_t numImages,
       cudaBindTextureToArray(atlasTexture, atlasImage.dataArray, channelDesc));
 }
 
-#endif // #ifndef _SIMPLETEXTURE3D_KERNEL_CU_
+#endif  // #ifndef _SIMPLETEXTURE3D_KERNEL_CU_

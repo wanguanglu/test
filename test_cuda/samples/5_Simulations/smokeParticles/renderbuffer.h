@@ -84,7 +84,7 @@ Usage Notes:
         STENCIL_INDEX16_EXT
 */
 class Renderbuffer {
-public:
+ public:
   /// Ctors/Dtors
   Renderbuffer();
   Renderbuffer(GLenum internalFormat, int width, int height);
@@ -97,7 +97,7 @@ public:
 
   static GLint GetMaxSize();
 
-private:
+ private:
   GLuint m_bufId;
   static GLuint _CreateBufferId();
 };

@@ -19,7 +19,7 @@ texture<float, 2, cudaReadModeElementType> tex;
 //! Transform an image using texture lookups
 //! @param g_odata  output data in global memory
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" __global__ void transformKernel(float *g_odata, int width,
+extern "C" __global__ void transformKernel(float* g_odata, int width,
                                            int height, float theta) {
   // calculate normalized texture coordinates
   unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -37,4 +37,4 @@ extern "C" __global__ void transformKernel(float *g_odata, int width,
   g_odata[y * width + x] = tex2D(tex, tu + 0.5f, tv + 0.5f);
 }
 
-#endif // #ifndef _SIMPLETEXTURE_KERNEL_H_
+#endif  // #ifndef _SIMPLETEXTURE_KERNEL_H_

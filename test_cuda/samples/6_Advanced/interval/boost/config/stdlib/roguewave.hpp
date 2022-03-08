@@ -30,13 +30,13 @@
 #ifndef _RWSTD_VER
 #define BOOST_STDLIB "Rogue Wave standard library version (Unknown version)"
 #elif _RWSTD_VER < 0x04010200
-#define BOOST_STDLIB                                                           \
+#define BOOST_STDLIB \
   "Rogue Wave standard library version " BOOST_STRINGIZE(_RWSTD_VER)
 #else
 #ifdef _RWSTD_VER_STR
 #define BOOST_STDLIB "Apache STDCXX standard library version " _RWSTD_VER_STR
 #else
-#define BOOST_STDLIB                                                           \
+#define BOOST_STDLIB \
   "Apache STDCXX standard library version " BOOST_STRINGIZE(_RWSTD_VER)
 #endif
 #endif
@@ -53,7 +53,7 @@
 // Sun CC 5.5 patch 113817-07 adds long long specialization, but does not change
 // the library version number
 // (http://sunsolve6.sun.com/search/document.do?assetkey=1-21-113817):
-#if BOOST_RWSTD_VER <= 0x020101 &&                                             \
+#if BOOST_RWSTD_VER <= 0x020101 && \
     (!defined(__SUNPRO_CC) || (__SUNPRO_CC < 0x550))
 #define BOOST_NO_LONG_LONG_NUMERIC_LIMITS
 #endif
@@ -68,7 +68,7 @@
 //
 // No std::iterator if it can't figure out default template args:
 //
-#if defined(_RWSTD_NO_SIMPLE_DEFAULT_TEMPLATES) ||                             \
+#if defined(_RWSTD_NO_SIMPLE_DEFAULT_TEMPLATES) || \
     defined(RWSTD_NO_SIMPLE_DEFAULT_TEMPLATES) || (BOOST_RWSTD_VER < 0x020000)
 #define BOOST_NO_STD_ITERATOR
 #endif
@@ -76,7 +76,7 @@
 //
 // No iterator traits without partial specialization:
 //
-#if defined(_RWSTD_NO_CLASS_PARTIAL_SPEC) ||                                   \
+#if defined(_RWSTD_NO_CLASS_PARTIAL_SPEC) || \
     defined(RWSTD_NO_CLASS_PARTIAL_SPEC)
 #define BOOST_NO_STD_ITERATOR_TRAITS
 #endif
@@ -179,6 +179,6 @@
 #define BOOST_NO_0X_HDR_THREAD
 #define BOOST_NO_0X_HDR_TUPLE
 #define BOOST_NO_0X_HDR_TYPE_TRAITS
-#define BOOST_NO_STD_UNORDERED // deprecated; see following
+#define BOOST_NO_STD_UNORDERED  // deprecated; see following
 #define BOOST_NO_0X_HDR_UNORDERED_MAP
 #define BOOST_NO_0X_HDR_UNORDERED_SET

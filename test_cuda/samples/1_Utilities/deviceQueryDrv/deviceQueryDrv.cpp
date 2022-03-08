@@ -25,7 +25,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   CUdevice dev;
   int major = 0, minor = 0;
   int deviceCount = 0;
@@ -117,9 +117,10 @@ int main(int argc, char **argv) {
 
     int clockRate;
     getCudaAttribute<int>(&clockRate, CU_DEVICE_ATTRIBUTE_CLOCK_RATE, dev);
-    printf("  GPU Max Clock rate:                            %.0f MHz (%0.2f "
-           "GHz)\n",
-           clockRate * 1e-3f, clockRate * 1e-6f);
+    printf(
+        "  GPU Max Clock rate:                            %.0f MHz (%0.2f "
+        "GHz)\n",
+        clockRate * 1e-3f, clockRate * 1e-6f);
     int memoryClock;
     getCudaAttribute<int>(&memoryClock, CU_DEVICE_ATTRIBUTE_MEMORY_CLOCK_RATE,
                           dev);
@@ -151,10 +152,11 @@ int main(int argc, char **argv) {
                           CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT, dev);
     getCudaAttribute<int>(&maxTex3D[2],
                           CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH, dev);
-    printf("  Max Texture Dimension Sizes                    1D=(%d) 2D=(%d, "
-           "%d) 3D=(%d, %d, %d)\n",
-           maxTex1D, maxTex2D[0], maxTex2D[1], maxTex3D[0], maxTex3D[1],
-           maxTex3D[2]);
+    printf(
+        "  Max Texture Dimension Sizes                    1D=(%d) 2D=(%d, "
+        "%d) 3D=(%d, %d, %d)\n",
+        maxTex1D, maxTex2D[0], maxTex2D[1], maxTex3D[0], maxTex3D[1],
+        maxTex3D[2]);
 
     int maxTex1DLayered[2];
     getCudaAttribute<int>(&maxTex1DLayered[0],
@@ -177,9 +179,10 @@ int main(int argc, char **argv) {
     getCudaAttribute<int>(&maxTex2DLayered[2],
                           CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_LAYERS,
                           dev);
-    printf("  Maximum Layered 2D Texture Size, (num) layers  2D=(%d, %d), %d "
-           "layers\n",
-           maxTex2DLayered[0], maxTex2DLayered[1], maxTex2DLayered[2]);
+    printf(
+        "  Maximum Layered 2D Texture Size, (num) layers  2D=(%d, %d), %d "
+        "layers\n",
+        maxTex2DLayered[0], maxTex2DLayered[1], maxTex2DLayered[2]);
 
     int totalConstantMemory;
     getCudaAttribute<int>(&totalConstantMemory,
@@ -244,9 +247,10 @@ int main(int argc, char **argv) {
     int asyncEngineCount;
     getCudaAttribute<int>(&asyncEngineCount,
                           CU_DEVICE_ATTRIBUTE_ASYNC_ENGINE_COUNT, dev);
-    printf("  Concurrent copy and kernel execution:          %s with %d copy "
-           "engine(s)\n",
-           (gpuOverlap ? "Yes" : "No"), asyncEngineCount);
+    printf(
+        "  Concurrent copy and kernel execution:          %s with %d copy "
+        "engine(s)\n",
+        (gpuOverlap ? "Yes" : "No"), asyncEngineCount);
 
     int kernelExecTimeoutEnabled;
     getCudaAttribute<int>(&kernelExecTimeoutEnabled,
@@ -301,7 +305,7 @@ int main(int argc, char **argv) {
     printf("  Device PCI Domain ID / Bus ID / location ID:   %d / %d / %d\n",
            pciDomainID, pciBusID, pciDeviceID);
 
-    const char *sComputeMode[] = {
+    const char* sComputeMode[] = {
         "Default (multiple host threads can use ::cudaSetDevice() with device "
         "simultaneously)",
         "Exclusive (only one host thread in one process is able to use "
@@ -321,7 +325,7 @@ int main(int argc, char **argv) {
 
   // If there are 2 or more GPUs, query to determine whether RDMA is supported
   if (deviceCount >= 2) {
-    int gpuid[64]; // we want to find the first two GPUs that can support P2P
+    int gpuid[64];  // we want to find the first two GPUs that can support P2P
     int gpu_p2p_count = 0;
     int tccDriver = 0;
 
@@ -356,10 +360,11 @@ int main(int argc, char **argv) {
               cuDeviceCanAccessPeer(&can_access_peer, gpuid[i], gpuid[j]));
           checkCudaErrors(cuDeviceGetName(deviceName0, 256, gpuid[i]));
           checkCudaErrors(cuDeviceGetName(deviceName1, 256, gpuid[j]));
-          printf("> Peer-to-Peer (P2P) access from %s (GPU%d) -> %s (GPU%d) : "
-                 "%s\n",
-                 deviceName0, gpuid[i], deviceName1, gpuid[j],
-                 can_access_peer ? "Yes" : "No");
+          printf(
+              "> Peer-to-Peer (P2P) access from %s (GPU%d) -> %s (GPU%d) : "
+              "%s\n",
+              deviceName0, gpuid[i], deviceName1, gpuid[j],
+              can_access_peer ? "Yes" : "No");
         }
       }
     }

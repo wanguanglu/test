@@ -17,15 +17,15 @@
 // A structure of 2D points (structure of arrays).
 ////////////////////////////////////////////////////////////////////////////////
 class Points {
-  float *m_x;
-  float *m_y;
+  float* m_x;
+  float* m_y;
 
-public:
+ public:
   // Constructor.
   __host__ __device__ Points() : m_x(NULL), m_y(NULL) {}
 
   // Constructor.
-  __host__ __device__ Points(float *x, float *y) : m_x(x), m_y(y) {}
+  __host__ __device__ Points(float* x, float* y) : m_x(x), m_y(y) {}
 
   // Get a point.
   __host__ __device__ __forceinline__ float2 get_point(int idx) const {
@@ -33,13 +33,13 @@ public:
   }
 
   // Set a point.
-  __host__ __device__ __forceinline__ void set_point(int idx, const float2 &p) {
+  __host__ __device__ __forceinline__ void set_point(int idx, const float2& p) {
     m_x[idx] = p.x;
     m_y[idx] = p.y;
   }
 
   // Set the pointers.
-  __host__ __device__ __forceinline__ void set(float *x, float *y) {
+  __host__ __device__ __forceinline__ void set(float* x, float* y) {
     m_x = x;
     m_y = y;
   }
@@ -53,7 +53,7 @@ class Bounding_box {
   float2 m_p_min;
   float2 m_p_max;
 
-public:
+ public:
   // Constructor. Create a unit box.
   __host__ __device__ Bounding_box() {
     m_p_min = make_float2(0.0f, 0.0f);
@@ -61,22 +61,22 @@ public:
   }
 
   // Compute the center of the bounding-box.
-  __host__ __device__ void compute_center(float2 &center) const {
+  __host__ __device__ void compute_center(float2& center) const {
     center.x = 0.5f * (m_p_min.x + m_p_max.x);
     center.y = 0.5f * (m_p_min.y + m_p_max.y);
   }
 
   // The points of the box.
-  __host__ __device__ __forceinline__ const float2 &get_max() const {
+  __host__ __device__ __forceinline__ const float2& get_max() const {
     return m_p_max;
   }
 
-  __host__ __device__ __forceinline__ const float2 &get_min() const {
+  __host__ __device__ __forceinline__ const float2& get_min() const {
     return m_p_min;
   }
 
   // Does a box contain a point.
-  __host__ __device__ bool contains(const float2 &p) const {
+  __host__ __device__ bool contains(const float2& p) const {
     return p.x >= m_p_min.x && p.x < m_p_max.x && p.y >= m_p_min.y &&
            p.y < m_p_max.y;
   }
@@ -102,7 +102,7 @@ class Quadtree_node {
   // The range of points.
   int m_begin, m_end;
 
-public:
+ public:
   // Constructor.
   __host__ __device__ Quadtree_node() : m_id(0), m_begin(0), m_end(0) {}
 
@@ -113,13 +113,15 @@ public:
   __host__ __device__ void set_id(int new_id) { m_id = new_id; }
 
   // The bounding box.
-  __host__ __device__ __forceinline__ const Bounding_box &bounding_box() const {
+  __host__ __device__ __forceinline__ const Bounding_box& bounding_box() const {
     return m_bounding_box;
   }
 
   // Set the bounding box.
-  __host__ __device__ __forceinline__ void
-  set_bounding_box(float min_x, float min_y, float max_x, float max_y) {
+  __host__ __device__ __forceinline__ void set_bounding_box(float min_x,
+                                                            float min_y,
+                                                            float max_x,
+                                                            float max_y) {
     m_bounding_box.set(min_x, min_y, max_x, max_y);
   }
 
@@ -159,14 +161,18 @@ struct Parameters {
 
   // Constructor set to default values.
   __host__ __device__ Parameters(int max_depth, int min_points_per_node)
-      : point_selector(0), num_nodes_at_this_level(1), depth(0),
-        max_depth(max_depth), min_points_per_node(min_points_per_node) {}
+      : point_selector(0),
+        num_nodes_at_this_level(1),
+        depth(0),
+        max_depth(max_depth),
+        min_points_per_node(min_points_per_node) {}
 
   // Copy constructor. Changes the values for next iteration.
-  __host__ __device__ Parameters(const Parameters &params, bool)
+  __host__ __device__ Parameters(const Parameters& params, bool)
       : point_selector((params.point_selector + 1) % 2),
         num_nodes_at_this_level(4 * params.num_nodes_at_this_level),
-        depth(params.depth + 1), max_depth(params.max_depth),
+        depth(params.depth + 1),
+        max_depth(params.max_depth),
         min_points_per_node(params.min_points_per_node) {}
 };
 
@@ -221,7 +227,7 @@ struct Parameters {
 // will apply the same algorithm.
 ////////////////////////////////////////////////////////////////////////////////
 template <int NUM_THREADS_PER_BLOCK>
-__global__ void build_quadtree_kernel(Quadtree_node *nodes, Points *points,
+__global__ void build_quadtree_kernel(Quadtree_node* nodes, Points* points,
                                       Parameters params) {
   // The number of warps in a block.
   const int NUM_WARPS_PER_BLOCK = NUM_THREADS_PER_BLOCK / warpSize;
@@ -231,10 +237,10 @@ __global__ void build_quadtree_kernel(Quadtree_node *nodes, Points *points,
 
   // s_num_pts[4][NUM_WARPS_PER_BLOCK];
   // Addresses of shared memory.
-  volatile int *s_num_pts[4];
+  volatile int* s_num_pts[4];
 
   for (int i = 0; i < 4; ++i)
-    s_num_pts[i] = (volatile int *)&smem[i * NUM_WARPS_PER_BLOCK];
+    s_num_pts[i] = (volatile int*)&smem[i * NUM_WARPS_PER_BLOCK];
 
   // Compute the coordinates of the threads in the block.
   const int warp_id = threadIdx.x / warpSize;
@@ -243,10 +249,10 @@ __global__ void build_quadtree_kernel(Quadtree_node *nodes, Points *points,
   // Mask for compaction.
   int lane_mask_lt =
       (1 << lane_id) -
-      1; // Same as: asm( "mov.u32 %0, %%lanemask_lt;" : "=r"(lane_mask_lt) );
+      1;  // Same as: asm( "mov.u32 %0, %%lanemask_lt;" : "=r"(lane_mask_lt) );
 
   // The current node.
-  Quadtree_node &node = nodes[blockIdx.x];
+  Quadtree_node& node = nodes[blockIdx.x];
   node.set_id(node.id() + blockIdx.x);
 
   // The number of points in the node.
@@ -263,15 +269,14 @@ __global__ void build_quadtree_kernel(Quadtree_node *nodes, Points *points,
       int it = node.points_begin(), end = node.points_end();
 
       for (it += threadIdx.x; it < end; it += NUM_THREADS_PER_BLOCK)
-        if (it < end)
-          points[0].set_point(it, points[1].get_point(it));
+        if (it < end) points[0].set_point(it, points[1].get_point(it));
     }
 
     return;
   }
 
   // Compute the center of the bounding box of the points.
-  const Bounding_box &bbox = node.bounding_box();
+  const Bounding_box& bbox = node.bounding_box();
   float2 center;
   bbox.compute_center(center);
 
@@ -297,7 +302,7 @@ __global__ void build_quadtree_kernel(Quadtree_node *nodes, Points *points,
   }
 
   // Input points.
-  const Points &in_points = points[params.point_selector];
+  const Points& in_points = points[params.point_selector];
 
   // Compute the number of points.
   for (int range_it = range_begin + lane_id; __any(range_it < range_end);
@@ -313,26 +318,22 @@ __global__ void build_quadtree_kernel(Quadtree_node *nodes, Points *points,
     int num_pts =
         __popc(__ballot(is_active && p.x < center.x && p.y >= center.y));
 
-    if (num_pts > 0 && lane_id == 0)
-      s_num_pts[0][warp_id] += num_pts;
+    if (num_pts > 0 && lane_id == 0) s_num_pts[0][warp_id] += num_pts;
 
     // Count top-right points.
     num_pts = __popc(__ballot(is_active && p.x >= center.x && p.y >= center.y));
 
-    if (num_pts > 0 && lane_id == 0)
-      s_num_pts[1][warp_id] += num_pts;
+    if (num_pts > 0 && lane_id == 0) s_num_pts[1][warp_id] += num_pts;
 
     // Count bottom-left points.
     num_pts = __popc(__ballot(is_active && p.x < center.x && p.y < center.y));
 
-    if (num_pts > 0 && lane_id == 0)
-      s_num_pts[2][warp_id] += num_pts;
+    if (num_pts > 0 && lane_id == 0) s_num_pts[2][warp_id] += num_pts;
 
     // Count bottom-right points.
     num_pts = __popc(__ballot(is_active && p.x >= center.x && p.y < center.y));
 
-    if (num_pts > 0 && lane_id == 0)
-      s_num_pts[3][warp_id] += num_pts;
+    if (num_pts > 0 && lane_id == 0) s_num_pts[3][warp_id] += num_pts;
   }
 
   // Make sure warps have finished counting.
@@ -351,12 +352,10 @@ __global__ void build_quadtree_kernel(Quadtree_node *nodes, Points *points,
     for (int offset = 1; offset < NUM_WARPS_PER_BLOCK; offset *= 2) {
       int n = __shfl_up(num_pts, offset, NUM_WARPS_PER_BLOCK);
 
-      if (lane_id >= offset)
-        num_pts += n;
+      if (lane_id >= offset) num_pts += n;
     }
 
-    if (lane_id < NUM_WARPS_PER_BLOCK)
-      s_num_pts[warp_id][lane_id] = num_pts;
+    if (lane_id < NUM_WARPS_PER_BLOCK) s_num_pts[warp_id][lane_id] = num_pts;
   }
 
   __syncthreads();
@@ -368,8 +367,7 @@ __global__ void build_quadtree_kernel(Quadtree_node *nodes, Points *points,
     for (int row = 1; row < 4; ++row) {
       int tmp = s_num_pts[row][NUM_WARPS_PER_BLOCK - 1];
 
-      if (lane_id < NUM_WARPS_PER_BLOCK)
-        s_num_pts[row][lane_id] += sum;
+      if (lane_id < NUM_WARPS_PER_BLOCK) s_num_pts[row][lane_id] += sum;
 
       sum += tmp;
     }
@@ -391,7 +389,7 @@ __global__ void build_quadtree_kernel(Quadtree_node *nodes, Points *points,
   //
 
   // Output points.
-  Points &out_points = points[(params.point_selector + 1) % 2];
+  Points& out_points = points[(params.point_selector + 1) % 2];
 
   // Reorder points.
   for (int range_it = range_begin + lane_id; __any(range_it < range_end);
@@ -408,44 +406,36 @@ __global__ void build_quadtree_kernel(Quadtree_node *nodes, Points *points,
     int vote = __ballot(pred);
     int dest = s_num_pts[0][warp_id] + __popc(vote & lane_mask_lt);
 
-    if (pred)
-      out_points.set_point(dest, p);
+    if (pred) out_points.set_point(dest, p);
 
-    if (lane_id == 0)
-      s_num_pts[0][warp_id] += __popc(vote);
+    if (lane_id == 0) s_num_pts[0][warp_id] += __popc(vote);
 
     // Count top-right points.
     pred = is_active && p.x >= center.x && p.y >= center.y;
     vote = __ballot(pred);
     dest = s_num_pts[1][warp_id] + __popc(vote & lane_mask_lt);
 
-    if (pred)
-      out_points.set_point(dest, p);
+    if (pred) out_points.set_point(dest, p);
 
-    if (lane_id == 0)
-      s_num_pts[1][warp_id] += __popc(vote);
+    if (lane_id == 0) s_num_pts[1][warp_id] += __popc(vote);
 
     // Count bottom-left points.
     pred = is_active && p.x < center.x && p.y < center.y;
     vote = __ballot(pred);
     dest = s_num_pts[2][warp_id] + __popc(vote & lane_mask_lt);
 
-    if (pred)
-      out_points.set_point(dest, p);
+    if (pred) out_points.set_point(dest, p);
 
-    if (lane_id == 0)
-      s_num_pts[2][warp_id] += __popc(vote);
+    if (lane_id == 0) s_num_pts[2][warp_id] += __popc(vote);
 
     // Count bottom-right points.
     pred = is_active && p.x >= center.x && p.y < center.y;
     vote = __ballot(pred);
     dest = s_num_pts[3][warp_id] + __popc(vote & lane_mask_lt);
 
-    if (pred)
-      out_points.set_point(dest, p);
+    if (pred) out_points.set_point(dest, p);
 
-    if (lane_id == 0)
-      s_num_pts[3][warp_id] += __popc(vote);
+    if (lane_id == 0) s_num_pts[3][warp_id] += __popc(vote);
   }
 
   __syncthreads();
@@ -457,7 +447,7 @@ __global__ void build_quadtree_kernel(Quadtree_node *nodes, Points *points,
   // The last thread launches new blocks.
   if (threadIdx.x == NUM_THREADS_PER_BLOCK - 1) {
     // The children.
-    Quadtree_node *children = &nodes[params.num_nodes_at_this_level];
+    Quadtree_node* children = &nodes[params.num_nodes_at_this_level];
 
     // The offsets of the children at their level.
     int child_offset = 4 * node.id();
@@ -469,18 +459,18 @@ __global__ void build_quadtree_kernel(Quadtree_node *nodes, Points *points,
     children[child_offset + 3].set_id(4 * node.id() + 12);
 
     // Points of the bounding-box.
-    const float2 &p_min = bbox.get_min();
-    const float2 &p_max = bbox.get_max();
+    const float2& p_min = bbox.get_min();
+    const float2& p_max = bbox.get_max();
 
     // Set the bounding boxes of the children.
     children[child_offset + 0].set_bounding_box(p_min.x, center.y, center.x,
-                                                p_max.y); // Top-left.
+                                                p_max.y);  // Top-left.
     children[child_offset + 1].set_bounding_box(center.x, center.y, p_max.x,
-                                                p_max.y); // Top-right.
+                                                p_max.y);  // Top-right.
     children[child_offset + 2].set_bounding_box(p_min.x, p_min.y, center.x,
-                                                center.y); // Bottom-left.
+                                                center.y);  // Bottom-left.
     children[child_offset + 3].set_bounding_box(center.x, p_min.y, p_max.x,
-                                                center.y); // Bottom-right.
+                                                center.y);  // Bottom-right.
 
     // Set the ranges of the children.
     children[child_offset + 0].set_range(node.points_begin(),
@@ -502,9 +492,9 @@ __global__ void build_quadtree_kernel(Quadtree_node *nodes, Points *points,
 ////////////////////////////////////////////////////////////////////////////////
 // Make sure a Quadtree is properly defined.
 ////////////////////////////////////////////////////////////////////////////////
-bool check_quadtree(const Quadtree_node *nodes, int idx, int num_pts,
-                    Points *pts, Parameters params) {
-  const Quadtree_node &node = nodes[idx];
+bool check_quadtree(const Quadtree_node* nodes, int idx, int num_pts,
+                    Points* pts, Parameters params) {
+  const Quadtree_node& node = nodes[idx];
   int num_points = node.num_points();
 
   if (params.depth == params.max_depth ||
@@ -520,8 +510,7 @@ bool check_quadtree(const Quadtree_node *nodes, int idx, int num_pts,
     num_points_in_children +=
         nodes[params.num_nodes_at_this_level + 4 * idx + 3].num_points();
 
-    if (num_points_in_children != node.num_points())
-      return false;
+    if (num_points_in_children != node.num_points()) return false;
 
     return check_quadtree(&nodes[params.num_nodes_at_this_level], 4 * idx + 0,
                           num_pts, pts, Parameters(params, true)) &&
@@ -533,16 +522,14 @@ bool check_quadtree(const Quadtree_node *nodes, int idx, int num_pts,
                           num_pts, pts, Parameters(params, true));
   }
 
-  const Bounding_box &bbox = node.bounding_box();
+  const Bounding_box& bbox = node.bounding_box();
 
   for (int it = node.points_begin(); it < node.points_end(); ++it) {
-    if (it >= num_pts)
-      return false;
+    if (it >= num_pts) return false;
 
     float2 p = pts->get_point(it);
 
-    if (!bbox.contains(p))
-      return false;
+    if (!bbox.contains(p)) return false;
   }
 
   return true;
@@ -604,8 +591,8 @@ bool cdpQuadtree(int warp_size) {
                      thrust::raw_pointer_cast(&y_d1[0]));
 
   // Allocate memory to store points.
-  Points *points;
-  checkCudaErrors(cudaMalloc((void **)&points, 2 * sizeof(Points)));
+  Points* points;
+  checkCudaErrors(cudaMalloc((void**)&points, 2 * sizeof(Points)));
   checkCudaErrors(cudaMemcpy(points, points_init, 2 * sizeof(Points),
                              cudaMemcpyHostToDevice));
 
@@ -619,9 +606,9 @@ bool cdpQuadtree(int warp_size) {
   // Allocate memory to store the tree.
   Quadtree_node root;
   root.set_range(0, num_points);
-  Quadtree_node *nodes;
+  Quadtree_node* nodes;
   checkCudaErrors(
-      cudaMalloc((void **)&nodes, max_nodes * sizeof(Quadtree_node)));
+      cudaMalloc((void**)&nodes, max_nodes * sizeof(Quadtree_node)));
   checkCudaErrors(
       cudaMemcpy(nodes, &root, sizeof(Quadtree_node), cudaMemcpyHostToDevice));
 
@@ -631,7 +618,7 @@ bool cdpQuadtree(int warp_size) {
   // Build the quadtree.
   Parameters params(max_depth, min_points_per_node);
   std::cout << "Launching CDP kernel to build the quadtree" << std::endl;
-  const int NUM_THREADS_PER_BLOCK = 128; // Do not use less than 128 threads.
+  const int NUM_THREADS_PER_BLOCK = 128;  // Do not use less than 128 threads.
   const int NUM_WARPS_PER_BLOCK = NUM_THREADS_PER_BLOCK / warp_size;
   const size_t smem_size = 4 * NUM_WARPS_PER_BLOCK * sizeof(int);
   build_quadtree_kernel<NUM_THREADS_PER_BLOCK>
@@ -646,7 +633,7 @@ bool cdpQuadtree(int warp_size) {
                   thrust::raw_pointer_cast(&y_h[0]));
 
   // Copy nodes to CPU.
-  Quadtree_node *host_nodes = new Quadtree_node[max_nodes];
+  Quadtree_node* host_nodes = new Quadtree_node[max_nodes];
   checkCudaErrors(cudaMemcpy(host_nodes, nodes,
                              max_nodes * sizeof(Quadtree_node),
                              cudaMemcpyDeviceToHost));
@@ -668,10 +655,10 @@ bool cdpQuadtree(int warp_size) {
 ////////////////////////////////////////////////////////////////////////////////
 // Main entry point.
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   // Find/set the device.
   // The test requires an architecture SM35 or greater (CDP capable).
-  int cuda_device = findCudaDevice(argc, (const char **)argv);
+  int cuda_device = findCudaDevice(argc, (const char**)argv);
   cudaDeviceProp deviceProps;
   checkCudaErrors(cudaGetDeviceProperties(&deviceProps, cuda_device));
   int cdpCapable = (deviceProps.major == 3 && deviceProps.minor >= 5) ||

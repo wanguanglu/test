@@ -88,8 +88,9 @@ int myrand(void) {
 
 // Simple memory pool class. It is nothing more than array of fixed-sized
 // arrays.
-template <typename T> class DeviceMemoryPool {
-public:
+template <typename T>
+class DeviceMemoryPool {
+ public:
   // The parameters of the constructor are as follows:
   // 1) uint chunkSize --- size of the particular array;
   // 2) uint chunksCount --- number of fixed-sized arrays.
@@ -98,21 +99,21 @@ public:
 
     try {
       basePtr_ = thrust::device_malloc(chunkRawSize_ * chunksCount);
-    } catch (thrust::system_error &e) {
+    } catch (thrust::system_error& e) {
       cout << "Pool memory allocation failed (" << e.what() << ")" << endl;
       exit(EXIT_FAILURE);
     }
 
     for (uint chunkIndex = 0; chunkIndex < chunksCount; ++chunkIndex) {
-      chunks_.push_back(thrust::device_ptr<T>(reinterpret_cast<T *>(
-          static_cast<char *>(basePtr_.get()) + chunkRawSize_ * chunkIndex)));
+      chunks_.push_back(thrust::device_ptr<T>(reinterpret_cast<T*>(
+          static_cast<char*>(basePtr_.get()) + chunkRawSize_ * chunkIndex)));
     }
   }
 
   ~DeviceMemoryPool() {
     try {
       thrust::device_free(basePtr_);
-    } catch (thrust::system_error &e) {
+    } catch (thrust::system_error& e) {
       cout << "Pool memory allocation failed (" << e.what() << ")" << endl;
       exit(EXIT_FAILURE);
     }
@@ -131,11 +132,11 @@ public:
   // of available arrays of the memory pool.
   // It should be noted that it is user who is responsible for returning
   // the previously requested memory to the appropriate pool.
-  inline void put(const thrust::device_ptr<T> &ptr) { chunks_.push_back(ptr); }
+  inline void put(const thrust::device_ptr<T>& ptr) { chunks_.push_back(ptr); }
 
   uint totalFreeChunks() const { return chunks_.size(); }
 
-private:
+ private:
   uint chunkSize_, chunkRawSize_;
   thrust::device_ptr<void> basePtr_;
 
@@ -168,7 +169,7 @@ struct Graph {
 // Each level of the tree corresponds to the segmentation.
 // See "Level" class for the details.
 class Pyramid {
-public:
+ public:
   void addLevel(uint totalSuperNodes, uint totalNodes,
                 thrust::device_ptr<uint> superVerticesOffsets,
                 thrust::device_ptr<uint> verticesIDs) {
@@ -188,16 +189,15 @@ public:
 
     for (LevelsIterator level = levels_.rbegin(); level != levels_.rend();
          ++level, ++levelIndex) {
-
       sprintf(filename, format, levelIndex);
       dumpLevel(level, width, height, filename);
     }
   }
 
-private:
+ private:
   // Level of the segmentation tree.
   class Level {
-  public:
+   public:
     Level(uint totalSuperNodes, uint totalNodes)
         : superNodesOffsets_(totalSuperNodes), nodes_(totalNodes) {}
 
@@ -212,7 +212,7 @@ private:
                                  cudaMemcpyDeviceToHost));
     }
 
-  private:
+   private:
     friend class Pyramid;
 
     // The pair of the following vectors describes the
@@ -233,20 +233,19 @@ private:
   // Dumps level to the file "level_n.ppm" where n
   // is index of the level. Segments are drawn in random colors.
   void dumpLevel(LevelsIterator level, uint width, uint height,
-                 const char *filename) const {
+                 const char* filename) const {
     deque<std::pair<uint, uint>> nodesQueue;
 
     uint totalSegments;
 
     {
-      const vector<uint> &superNodesOffsets = level->superNodesOffsets_;
-      const vector<uint> &nodes = level->nodes_;
+      const vector<uint>& superNodesOffsets = level->superNodesOffsets_;
+      const vector<uint>& nodes = level->nodes_;
 
       totalSegments = static_cast<uint>(superNodesOffsets.size());
 
       for (uint superNodeIndex = 0, nodeIndex = 0;
            superNodeIndex < superNodesOffsets.size(); ++superNodeIndex) {
-
         uint superNodeEnd = superNodeIndex + 1 < superNodesOffsets.size()
                                 ? superNodesOffsets[superNodeIndex + 1]
                                 : static_cast<uint>(nodes.size());
@@ -263,8 +262,8 @@ private:
     while (level != levels_.rend()) {
       uint superNodesCount = static_cast<uint>(nodesQueue.size());
 
-      const vector<uint> &superNodesOffsets = level->superNodesOffsets_;
-      const vector<uint> &nodes = level->nodes_;
+      const vector<uint>& superNodesOffsets = level->superNodesOffsets_;
+      const vector<uint>& nodes = level->nodes_;
 
       while (superNodesCount--) {
         std::pair<uint, uint> currentNode = nodesQueue.front();
@@ -278,7 +277,6 @@ private:
 
         for (uint nodeIndex = superNodeBegin; nodeIndex < superNodeEnd;
              ++nodeIndex) {
-
           nodesQueue.push_back(
               std::make_pair(nodes[nodeIndex], currentNode.second));
         }
@@ -295,7 +293,7 @@ private:
       colors[colorIndex * 3 + 2] = myrand() % 256;
     }
 
-    uchar *image = new uchar[width * height * 3];
+    uchar* image = new uchar[width * height * 3];
 
     while (!nodesQueue.empty()) {
       std::pair<uint, uint> currentNode = nodesQueue.front();
@@ -319,7 +317,7 @@ private:
 
 // The class that encapsulates the main algorithm.
 class SegmentationTreeBuilder {
-public:
+ public:
   SegmentationTreeBuilder() : verticesCount_(0), edgesCount_(0) {}
 
   ~SegmentationTreeBuilder() {}
@@ -327,7 +325,7 @@ public:
   // Repeatedly invokes the step of the algorithm
   // until the limiting segmentation is found.
   // Returns time (in ms) spent on building the tree.
-  float run(const Graph &graph, Pyramid &segmentations) {
+  float run(const Graph& graph, Pyramid& segmentations) {
     cudaEvent_t start, stop;
 
     cudaEventCreate(&start);
@@ -349,7 +347,7 @@ public:
     // Initialize internal variables
     try {
       initalizeData(graph, pools);
-    } catch (thrust::system_error &e) {
+    } catch (thrust::system_error& e) {
       cout << "Initialization failed (" << e.what() << ")" << endl;
       exit(EXIT_FAILURE);
     }
@@ -361,7 +359,7 @@ public:
       do {
         status = invokeStep(pools, segmentations);
       } while (status != ALGORITHM_FINISHED);
-    } catch (thrust::system_error &e) {
+    } catch (thrust::system_error& e) {
       cout << "Algorithm failed (" << e.what() << ")" << endl;
       exit(EXIT_FAILURE);
     }
@@ -375,7 +373,7 @@ public:
     return elapsedTime;
   }
 
-private:
+ private:
   void printMemoryUsage() {
     size_t availableMemory, totalMemory, usedMemory;
 
@@ -398,7 +396,7 @@ private:
   static const uint kUintEdgesPoolsRequired = 8;
   static const uint kFloatEdgesPoolsRequired = 4;
 
-  void initalizeData(const Graph &graph, MemoryPoolsCollection &pools) {
+  void initalizeData(const Graph& graph, MemoryPoolsCollection& pools) {
     // Get memory for the internal variables
     verticesCount_ = static_cast<uint>(graph.vertices.size());
     edgesCount_ = static_cast<uint>(graph.edges.size());
@@ -427,8 +425,8 @@ private:
 
   // Calculates grid parameters of the consecutive kernel calls
   // based on the number of elements in the array.
-  void calculateThreadsDistribution(uint totalElements, uint &blocksCount,
-                                    uint &threadsPerBlockCount) {
+  void calculateThreadsDistribution(uint totalElements, uint& blocksCount,
+                                    uint& threadsPerBlockCount) {
     if (totalElements > kMaxThreadsPerBlock) {
       blocksCount =
           (totalElements + kMaxThreadsPerBlock - 1) / kMaxThreadsPerBlock;
@@ -442,8 +440,8 @@ private:
 
   enum AlgorithmStatus { ALGORITHM_NOT_FINISHED, ALGORITHM_FINISHED };
 
-  AlgorithmStatus invokeStep(MemoryPoolsCollection &pools,
-                             Pyramid &segmentations) {
+  AlgorithmStatus invokeStep(MemoryPoolsCollection& pools,
+                             Pyramid& segmentations) {
     uint blocksCount, threadsPerBlockCount;
 
     calculateThreadsDistribution(edgesCount_, blocksCount,
@@ -547,7 +545,7 @@ private:
     thrust::adjacent_difference(dSuccessors, dSuccessors + verticesCount_,
                                 dVerticesFlags_, thrust::not_equal_to<uint>());
 
-    cudaMemset((void *)dVerticesFlags_.get(), 0, sizeof(uint));
+    cudaMemset((void*)dVerticesFlags_.get(), 0, sizeof(uint));
 
     // Assign new indices to the successors (the indices of vertices
     // at the new level).
@@ -572,7 +570,7 @@ private:
     } else if (newVerticesCount == 1) {
       thrust::device_ptr<uint> dDummyVerticesOffsets = pools.uintVertices.get();
 
-      cudaMemset((void *)dDummyVerticesOffsets.get(), 0, sizeof(uint));
+      cudaMemset((void*)dDummyVerticesOffsets.get(), 0, sizeof(uint));
 
       thrust::device_ptr<uint> dDummyVerticesIDs = pools.uintVertices.get();
 
@@ -629,7 +627,7 @@ private:
             dNewStartpoints + edgesCount_, dSurvivedEdgesIDs + edgesCount_)));
 
     // Find the group of contracted edges.
-    uint *invalidEdgesPtr =
+    uint* invalidEdgesPtr =
         thrust::find_if(dNewStartpoints, dNewStartpoints + edgesCount_,
                         IsGreaterEqualThan<uint>(newVerticesCount))
             .get();
@@ -643,8 +641,8 @@ private:
     thrust::adjacent_difference(dNewStartpoints, dNewStartpoints + edgesCount_,
                                 dEdgesFlags, thrust::not_equal_to<uint>());
 
-    cudaMemset((void *)dEdgesFlags.get(), 0, sizeof(uint));
-    cudaMemset((void *)dEdgesFlags.get(), 1, 1);
+    cudaMemset((void*)dEdgesFlags.get(), 0, sizeof(uint));
+    cudaMemset((void*)dEdgesFlags.get(), 1, 1);
 
     pools.uintEdges.put(dNewStartpoints);
 
@@ -725,30 +723,30 @@ private:
 };
 
 // Loads PPM image.
-int loadImage(const char *filename, const char *executablePath,
-              vector<uchar3> &data, uint &width, uint &height) {
-  const char *imagePath = sdkFindFilePath(filename, executablePath);
+int loadImage(const char* filename, const char* executablePath,
+              vector<uchar3>& data, uint& width, uint& height) {
+  const char* imagePath = sdkFindFilePath(filename, executablePath);
 
   if (imagePath == NULL) {
     return -1;
   }
 
-  uchar *dataHandle = NULL;
+  uchar* dataHandle = NULL;
   unsigned int channels;
 
   if (!__loadPPM(imagePath, &dataHandle, &width, &height, &channels)) {
     return -1;
   }
 
-  data.assign(reinterpret_cast<uchar3 *>(dataHandle),
-              reinterpret_cast<uchar3 *>(dataHandle) + width * height);
+  data.assign(reinterpret_cast<uchar3*>(dataHandle),
+              reinterpret_cast<uchar3*>(dataHandle) + width * height);
 
-  free(reinterpret_cast<void *>(dataHandle));
+  free(reinterpret_cast<void*>(dataHandle));
 
   return 0;
 }
 
-inline float distance(const uchar3 &first, const uchar3 &second) {
+inline float distance(const uchar3& first, const uchar3& second) {
   int dx = static_cast<int>(first.x) - static_cast<int>(second.x);
   int dy = static_cast<int>(first.y) - static_cast<int>(second.y);
   int dz = static_cast<int>(first.z) - static_cast<int>(second.z);
@@ -759,8 +757,8 @@ inline float distance(const uchar3 &first, const uchar3 &second) {
 }
 
 // Builds a net-graph for the image with 4-connected pixels.
-void buildGraph(const vector<uchar3> &image, uint width, uint height,
-                Graph &graph) {
+void buildGraph(const vector<uchar3>& image, uint width, uint height,
+                Graph& graph) {
   uint totalNodes = static_cast<uint>(image.size());
 
   graph.vertices.resize(totalNodes);
@@ -772,13 +770,13 @@ void buildGraph(const vector<uchar3> &image, uint width, uint height,
   for (uint y = 0; y < height; ++y) {
     for (uint x = 0; x < width; ++x) {
       uint nodeIndex = y * width + x;
-      const uchar3 &centerPixel = image[nodeIndex];
+      const uchar3& centerPixel = image[nodeIndex];
 
       graph.vertices[nodeIndex] = edgesProcessed;
 
       if (y > 0) {
         uint lowerNodeIndex = (y - 1) * width + x;
-        const uchar3 &lowerPixel = image[lowerNodeIndex];
+        const uchar3& lowerPixel = image[lowerNodeIndex];
 
         graph.edges.push_back(lowerNodeIndex);
         graph.weights.push_back(distance(centerPixel, lowerPixel));
@@ -788,7 +786,7 @@ void buildGraph(const vector<uchar3> &image, uint width, uint height,
 
       if (y + 1 < height) {
         uint upperNodeIndex = (y + 1) * width + x;
-        const uchar3 &upperPixel = image[upperNodeIndex];
+        const uchar3& upperPixel = image[upperNodeIndex];
 
         graph.edges.push_back(upperNodeIndex);
         graph.weights.push_back(distance(centerPixel, upperPixel));
@@ -798,7 +796,7 @@ void buildGraph(const vector<uchar3> &image, uint width, uint height,
 
       if (x > 0) {
         uint leftNodeIndex = y * width + x - 1;
-        const uchar3 &leftPixel = image[leftNodeIndex];
+        const uchar3& leftPixel = image[leftNodeIndex];
 
         graph.edges.push_back(leftNodeIndex);
         graph.weights.push_back(distance(centerPixel, leftPixel));
@@ -808,7 +806,7 @@ void buildGraph(const vector<uchar3> &image, uint width, uint height,
 
       if (x + 1 < width) {
         uint rightNodeIndex = y * width + x + 1;
-        const uchar3 &rightPixel = image[rightNodeIndex];
+        const uchar3& rightPixel = image[rightNodeIndex];
 
         graph.edges.push_back(rightNodeIndex);
         graph.weights.push_back(distance(centerPixel, rightPixel));
@@ -819,19 +817,19 @@ void buildGraph(const vector<uchar3> &image, uint width, uint height,
   }
 }
 
-static char *kDefaultImageName = (char *)"test.ppm";
+static char* kDefaultImageName = (char*)"test.ppm";
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   vector<uchar3> image;
   uint imageWidth, imageHeight;
-  char *imageName;
+  char* imageName;
 
   printf("%s Starting...\n\n", argv[0]);
 
-  imageName = (char *)kDefaultImageName;
+  imageName = (char*)kDefaultImageName;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "file")) {
-    getCmdLineArgumentString(argc, (const char **)argv, "file", &imageName);
+  if (checkCmdLineFlag(argc, (const char**)argv, "file")) {
+    getCmdLineArgumentString(argc, (const char**)argv, "file", &imageName);
   }
 
   if (loadImage(imageName, argv[0], image, imageWidth, imageHeight) != 0) {
@@ -839,7 +837,7 @@ int main(int argc, char **argv) {
     exit(EXIT_FAILURE);
   }
 
-  findCudaDevice(argc, (const char **)argv);
+  findCudaDevice(argc, (const char**)argv);
 
   Graph graph;
   buildGraph(image, imageWidth, imageHeight, graph);

@@ -27,7 +27,7 @@
 #endif
 
 // if we don't have a compiler config set, try and find one:
-#if !defined(BOOST_COMPILER_CONFIG) && !defined(BOOST_NO_COMPILER_CONFIG) &&   \
+#if !defined(BOOST_COMPILER_CONFIG) && !defined(BOOST_NO_COMPILER_CONFIG) && \
     !defined(BOOST_NO_CONFIG)
 #include <boost/config/select_compiler_config.hpp>
 #endif
@@ -37,7 +37,7 @@
 #endif
 
 // if we don't have a std library config set, try and find one:
-#if !defined(BOOST_STDLIB_CONFIG) && !defined(BOOST_NO_STDLIB_CONFIG) &&       \
+#if !defined(BOOST_STDLIB_CONFIG) && !defined(BOOST_NO_STDLIB_CONFIG) && \
     !defined(BOOST_NO_CONFIG)
 #include <boost/config/select_stdlib_config.hpp>
 #endif
@@ -47,7 +47,7 @@
 #endif
 
 // if we don't have a platform config set, try and find one:
-#if !defined(BOOST_PLATFORM_CONFIG) && !defined(BOOST_NO_PLATFORM_CONFIG) &&   \
+#if !defined(BOOST_PLATFORM_CONFIG) && !defined(BOOST_NO_PLATFORM_CONFIG) && \
     !defined(BOOST_NO_CONFIG)
 #include <boost/config/select_platform_config.hpp>
 #endif
@@ -59,4 +59,4 @@
 // get config suffix code:
 #include <boost/config/suffix.hpp>
 
-#endif // BOOST_CONFIG_HPP
+#endif  // BOOST_CONFIG_HPP

@@ -19,7 +19,7 @@
  *
  */
 
-const static char *sSDKsample = "Interval Computing";
+const static char* sSDKsample = "Interval Computing";
 
 #include "cpu_interval.h"
 #include "cuda_interval.h"
@@ -28,19 +28,19 @@ const static char *sSDKsample = "Interval Computing";
 #include <iostream>
 #include <stdio.h>
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   int implementation_choice = 0;
 
   printf("[%s]  starting ...\n\n", sSDKsample);
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "n")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "n")) {
     implementation_choice =
-        getCmdLineArgumentInt(argc, (const char **)argv, "n");
+        getCmdLineArgumentInt(argc, (const char**)argv, "n");
   }
 
   // Pick the best GPU available, or if the developer selects one at the command
   // line
-  int devID = findCudaDevice(argc, (const char **)argv);
+  int devID = findCudaDevice(argc, (const char**)argv);
   cudaDeviceProp deviceProp;
   cudaGetDeviceProperties(&deviceProp, devID);
   printf("> GPU Device has Compute Capabilities SM %d.%d\n\n", deviceProp.major,
@@ -49,9 +49,10 @@ int main(int argc, char *argv[]) {
   int version = (deviceProp.major * 0x10 + deviceProp.minor);
 
   if (version < 0x13) {
-    printf("%s: requires minimum of Compute Capability 1.3 or higher, waiving "
-           "test...\n",
-           sSDKsample);
+    printf(
+        "%s: requires minimum of Compute Capability 1.3 or higher, waiving "
+        "test...\n",
+        sSDKsample);
 
     // cudaDeviceReset causes the driver to clean up all state. While
     // not mandatory in normal operation, it is good practice.  It is also
@@ -63,39 +64,39 @@ int main(int argc, char *argv[]) {
   }
 
   switch (implementation_choice) {
-  case 0:
-    printf("GPU naive implementation\n");
-    break;
+    case 0:
+      printf("GPU naive implementation\n");
+      break;
 
-  case 1:
-    printf("GPU optimized implementation\n");
-    break;
+    case 1:
+      printf("GPU optimized implementation\n");
+      break;
 
-  case 2:
-    if (deviceProp.major >= 2) {
-      printf("GPU recursive implementation (requires Compute SM 2.0+)\n");
-    } else {
-      printf(
-          "GPU naive implementation is used instead of the recursive "
-          "implementation, which requires a GPU with CUDA capability 2.0+\n");
-      implementation_choice = 0;
-    }
+    case 2:
+      if (deviceProp.major >= 2) {
+        printf("GPU recursive implementation (requires Compute SM 2.0+)\n");
+      } else {
+        printf(
+            "GPU naive implementation is used instead of the recursive "
+            "implementation, which requires a GPU with CUDA capability 2.0+\n");
+        implementation_choice = 0;
+      }
 
-    break;
+      break;
 
-  default:
-    printf("GPU naive implementation\n");
+    default:
+      printf("GPU naive implementation\n");
   }
 
-  interval_gpu<T> *d_result;
-  int *d_nresults;
-  int *h_nresults = new int[THREADS];
+  interval_gpu<T>* d_result;
+  int* d_nresults;
+  int* h_nresults = new int[THREADS];
   cudaEvent_t start, stop;
 
   CHECKED_CALL(cudaSetDevice(devID));
-  CHECKED_CALL(cudaMalloc((void **)&d_result,
+  CHECKED_CALL(cudaMalloc((void**)&d_result,
                           THREADS * DEPTH_RESULT * sizeof(*d_result)));
-  CHECKED_CALL(cudaMalloc((void **)&d_nresults, THREADS * sizeof(*d_nresults)));
+  CHECKED_CALL(cudaMalloc((void**)&d_nresults, THREADS * sizeof(*d_nresults)));
   CHECKED_CALL(cudaEventCreate(&start));
   CHECKED_CALL(cudaEventCreate(&stop));
 
@@ -128,7 +129,7 @@ int main(int argc, char *argv[]) {
   CHECKED_CALL(cudaEventRecord(stop, 0));
   CHECKED_CALL(cudaDeviceSynchronize());
 
-  I_CPU *h_result = new I_CPU[THREADS * DEPTH_RESULT];
+  I_CPU* h_result = new I_CPU[THREADS * DEPTH_RESULT];
   CHECKED_CALL(cudaMemcpy(h_result, d_result,
                           THREADS * DEPTH_RESULT * sizeof(*d_result),
                           cudaMemcpyDeviceToHost));
@@ -158,8 +159,8 @@ int main(int argc, char *argv[]) {
 
   // Compute the results using a CPU implementation based on the Boost library
   I_CPU i_cpu(0.01f, 4.0f);
-  I_CPU *h_result_cpu = new I_CPU[THREADS * DEPTH_RESULT];
-  int *h_nresults_cpu = new int[THREADS];
+  I_CPU* h_result_cpu = new I_CPU[THREADS * DEPTH_RESULT];
+  int* h_nresults_cpu = new int[THREADS];
   test_interval_newton_cpu<I_CPU>(h_result_cpu, h_nresults_cpu, i_cpu);
 
   // Compare the CPU and GPU results

@@ -19,7 +19,7 @@
 #error This header only works on x86 CPUs.
 #endif
 
-#include <float.h> // Borland C++ rounding control
+#include <float.h>  // Borland C++ rounding control
 
 namespace boost {
 namespace numeric {
@@ -36,7 +36,7 @@ struct borland_workaround {
 };
 
 static borland_workaround borland_workaround_exec;
-#endif // BOOST_NUMERIC_INTERVAL_KEEP_EXCEPTIONS_FOR_BCC
+#endif  // BOOST_NUMERIC_INTERVAL_KEEP_EXCEPTIONS_FOR_BCC
 
 __inline double rint(double) {
   __emit__(0xD9);
@@ -45,18 +45,18 @@ __inline double rint(double) {
 
 struct x86_rounding {
   typedef unsigned int rounding_mode;
-  static void get_rounding_mode(rounding_mode &mode) {
+  static void get_rounding_mode(rounding_mode& mode) {
     mode = _control87(0, 0);
   }
   static void set_rounding_mode(const rounding_mode mode) {
     _control87(mode, 0xffff);
   }
-  static double to_int(const double &x) { return rint(x); }
+  static double to_int(const double& x) { return rint(x); }
 };
 
-} // namespace detail
-} // namespace interval_lib
-} // namespace numeric
-} // namespace boost
+}  // namespace detail
+}  // namespace interval_lib
+}  // namespace numeric
+}  // namespace boost
 
 #endif /* BOOST_NUMERIC_INTERVAL_DETAIL_BCC_ROUNDING_CONTROL_HPP */

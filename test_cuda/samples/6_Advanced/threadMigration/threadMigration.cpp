@@ -88,24 +88,21 @@ bool gbAutoQuit = false;
 
 ////////////////////////////////////////////////////////////////////////////////
 // declaration, forward
-bool runTest(int argc, char **argv);
+bool runTest(int argc, char** argv);
 
-#define CLEANUP_ON_ERROR(dptr, hcuModule, hcuContext, status)                  \
-  if (dptr)                                                                    \
-    cuMemFree(dptr);                                                           \
-  if (hcuModule)                                                               \
-    cuModuleUnload(hcuModule);                                                 \
-  if (hcuContext)                                                              \
-    cuCtxDestroy(hcuContext);                                                  \
+#define CLEANUP_ON_ERROR(dptr, hcuModule, hcuContext, status) \
+  if (dptr) cuMemFree(dptr);                                  \
+  if (hcuModule) cuModuleUnload(hcuModule);                   \
+  if (hcuContext) cuCtxDestroy(hcuContext);                   \
   return status;
 
-#define THREAD_QUIT                                                            \
-  printf("Error\n");                                                           \
+#define THREAD_QUIT  \
+  printf("Error\n"); \
   return 0;
 
-bool inline findModulePath(const char *module_file, string &module_path,
-                           char **argv, string &ptx_source) {
-  char *actual_path = sdkFindFilePath(module_file, argv[0]);
+bool inline findModulePath(const char* module_file, string& module_path,
+                           char** argv, string& ptx_source) {
+  char* actual_path = sdkFindFilePath(module_file, argv[0]);
 
   if (actual_path) {
     module_path = actual_path;
@@ -121,11 +118,11 @@ bool inline findModulePath(const char *module_file, string &module_path,
     printf("> findModulePath found file at <%s>\n", module_path.c_str());
 
     if (module_path.rfind(".ptx") != string::npos) {
-      FILE *fp;
+      FILE* fp;
       FOPEN(fp, module_path.c_str(), "rb");
       fseek(fp, 0, SEEK_END);
       int file_size = ftell(fp);
-      char *buf = new char[file_size + 1];
+      char* buf = new char[file_size + 1];
       fseek(fp, 0, SEEK_SET);
       fread(buf, sizeof(char), file_size, fp);
       fclose(fp);
@@ -140,8 +137,8 @@ bool inline findModulePath(const char *module_file, string &module_path,
 
 // This sample uses the Driver API interface.  The CUDA context needs
 // to be setup and the CUDA module (CUBIN) is built by NVCC
-static CUresult InitCUDAContext(CUDAContext *pContext, CUdevice hcuDevice,
-                                int deviceID, char **argv) {
+static CUresult InitCUDAContext(CUDAContext* pContext, CUdevice hcuDevice,
+                                int deviceID, char** argv) {
   CUcontext hcuContext = 0;
   CUmodule hcuModule = 0;
   CUfunction hcuFunction = 0;
@@ -178,26 +175,26 @@ static CUresult InitCUDAContext(CUDAContext *pContext, CUdevice hcuDevice,
   if (module_path.rfind(".ptx") != string::npos) {
     // in this branch we use compilation with parameters
     const unsigned int jitNumOptions = 3;
-    CUjit_option *jitOptions = new CUjit_option[jitNumOptions];
-    void **jitOptVals = new void *[jitNumOptions];
+    CUjit_option* jitOptions = new CUjit_option[jitNumOptions];
+    void** jitOptVals = new void*[jitNumOptions];
 
     // set up size of compilation log buffer
     jitOptions[0] = CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES;
     int jitLogBufferSize = 1024;
-    jitOptVals[0] = (void *)(size_t)jitLogBufferSize;
+    jitOptVals[0] = (void*)(size_t)jitLogBufferSize;
 
     // set up pointer to the compilation log buffer
     jitOptions[1] = CU_JIT_INFO_LOG_BUFFER;
-    char *jitLogBuffer = new char[jitLogBufferSize];
+    char* jitLogBuffer = new char[jitLogBufferSize];
     jitOptVals[1] = jitLogBuffer;
 
     // set up pointer to set the Maximum # of registers for a particular kernel
     jitOptions[2] = CU_JIT_MAX_REGISTERS;
     int jitRegCount = 32;
-    jitOptVals[2] = (void *)(size_t)jitRegCount;
+    jitOptVals[2] = (void*)(size_t)jitRegCount;
 
     status = cuModuleLoadDataEx(&hcuModule, ptx_source.c_str(), jitNumOptions,
-                                jitOptions, (void **)jitOptVals);
+                                jitOptions, (void**)jitOptVals);
     printf("> PTX JIT log:\n%s\n", jitLogBuffer);
 
   } else {
@@ -243,13 +240,13 @@ static CUresult InitCUDAContext(CUDAContext *pContext, CUdevice hcuDevice,
 // ThreadProc launches the CUDA kernel on a CUDA context.
 // We have more than one thread that talks to a CUDA context
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-DWORD WINAPI ThreadProc(CUDAContext *pParams)
+DWORD WINAPI ThreadProc(CUDAContext* pParams)
 #else
-void *ThreadProc(CUDAContext *pParams)
+void* ThreadProc(CUDAContext* pParams)
 #endif
 {
   int wrong = 0;
-  int *pInt = 0;
+  int* pInt = 0;
 
   printf("<CUDA Device=%d, Context=%p, Thread=%d> - ThreadProc() Launched...\n",
          pParams->deviceID, pParams->hcuContext, pParams->threadNum);
@@ -268,7 +265,7 @@ void *ThreadProc(CUDAContext *pParams)
   if (1) {
     // This is the new CUDA 4.0 API for Kernel Parameter passing and Kernel
     // Launching (simpler method)
-    void *args[5] = {&pParams->dptr};
+    void* args[5] = {&pParams->dptr};
 
     // new CUDA 4.0 Driver API Kernel launch call
     status = cuLaunchKernel(pParams->hcuFunction, 1, 1, 1, 32, 1, 1, 0, NULL,
@@ -286,16 +283,16 @@ void *ThreadProc(CUDAContext *pParams)
 
     // pass in launch parameters (not actually de-referencing CUdeviceptr).
     // CUdeviceptr is storing the value of the parameters
-    *((CUdeviceptr *)&argBuffer[offset]) = pParams->dptr;
+    *((CUdeviceptr*)&argBuffer[offset]) = pParams->dptr;
     offset += sizeof(CUdeviceptr);
 
-    void *kernel_launch_config[5] = {CU_LAUNCH_PARAM_BUFFER_POINTER, argBuffer,
+    void* kernel_launch_config[5] = {CU_LAUNCH_PARAM_BUFFER_POINTER, argBuffer,
                                      CU_LAUNCH_PARAM_BUFFER_SIZE, &offset,
                                      CU_LAUNCH_PARAM_END};
 
     // new CUDA 4.0 Driver API Kernel launch call
     status = cuLaunchKernel(pParams->hcuFunction, 1, 1, 1, 32, 1, 1, 0, 0, NULL,
-                            (void **)&kernel_launch_config);
+                            (void**)&kernel_launch_config);
 
     if (CUDA_SUCCESS != status) {
       fprintf(stderr, "cuLaunch failed %d\n", status);
@@ -303,10 +300,9 @@ void *ThreadProc(CUDAContext *pParams)
     }
   }
 
-  pInt = (int *)malloc(NUM_INTS * sizeof(int));
+  pInt = (int*)malloc(NUM_INTS * sizeof(int));
 
-  if (!pInt)
-    return 0;
+  if (!pInt) return 0;
 
   if (CUDA_SUCCESS ==
       cuMemcpyDtoH(pInt, pParams->dptr, NUM_INTS * sizeof(int))) {
@@ -321,8 +317,7 @@ void *ThreadProc(CUDAContext *pParams)
 
     ENTERCRITICALSECTION
 
-    if (!wrong)
-      ThreadLaunchCount += 1;
+    if (!wrong) ThreadLaunchCount += 1;
 
     LEAVECRITICALSECTION
   }
@@ -362,7 +357,7 @@ bool FinalErrorCheck(int ThreadIndex, int NumThreads, int deviceCount) {
   }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   printf("Starting threadMigration\n");
 
   bool bTestResult = runTest(argc, argv);
@@ -370,7 +365,7 @@ int main(int argc, char **argv) {
   exit(bTestResult ? EXIT_SUCCESS : EXIT_FAILURE);
 }
 
-bool runTest(int argc, char **argv) {
+bool runTest(int argc, char** argv) {
   printf("[ threadMigration ] API test...\n");
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
   InitializeCriticalSection(&g_cs);
@@ -383,14 +378,14 @@ bool runTest(int argc, char **argv) {
   if (argc > 1) {
     // If we are doing the QAtest or automated testing, we quit without
     // prompting
-    if (checkCmdLineFlag(argc, (const char **)argv, "qatest") ||
-        checkCmdLineFlag(argc, (const char **)argv, "noprompt")) {
+    if (checkCmdLineFlag(argc, (const char**)argv, "qatest") ||
+        checkCmdLineFlag(argc, (const char**)argv, "noprompt")) {
       gbAutoQuit = true;
     }
 
-    if (checkCmdLineFlag(argc, (const char **)argv, "numthreads")) {
+    if (checkCmdLineFlag(argc, (const char**)argv, "numthreads")) {
       NumThreads =
-          getCmdLineArgumentInt(argc, (const char **)argv, "numthreads");
+          getCmdLineArgumentInt(argc, (const char**)argv, "numthreads");
 
       if (NumThreads < 1 || NumThreads > 15) {
         printf(
@@ -405,13 +400,11 @@ bool runTest(int argc, char **argv) {
   CUresult status;
   status = cuInit(0);
 
-  if (CUDA_SUCCESS != status)
-    return false;
+  if (CUDA_SUCCESS != status) return false;
 
   status = cuDeviceGetCount(&deviceCount);
 
-  if (CUDA_SUCCESS != status)
-    return false;
+  if (CUDA_SUCCESS != status) return false;
 
   printf("> %d CUDA device(s), %d Thread(s)/device to launched\n\n",
          deviceCount, NumThreads);
@@ -427,13 +420,11 @@ bool runTest(int argc, char **argv) {
     char szName[256];
     status = cuDeviceGet(&hcuDevice, iDevice);
 
-    if (CUDA_SUCCESS != status)
-      return false;
+    if (CUDA_SUCCESS != status) return false;
 
     status = cuDeviceGetName(szName, 256, hcuDevice);
 
-    if (CUDA_SUCCESS != status)
-      return false;
+    if (CUDA_SUCCESS != status) return false;
 
     CUdevprop devProps;
 
@@ -461,9 +452,9 @@ bool runTest(int argc, char **argv) {
         rghThreads[ThreadIndex] = CreateThread(
             NULL, 0, (LPTHREAD_START_ROUTINE)ThreadProc,
             &g_ThreadParams[ThreadIndex], 0, &rgdwThreadIds[ThreadIndex]);
-#else // Assume we are running linux
+#else  // Assume we are running linux
         pthread_create(&rghThreads[ThreadIndex], NULL,
-                       (void *(*)(void *))ThreadProc,
+                       (void* (*)(void*))ThreadProc,
                        &g_ThreadParams[ThreadIndex]);
 #endif
         ThreadIndex += 1;

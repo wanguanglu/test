@@ -44,9 +44,9 @@
 #include <cuda_runtime.h>
 
 template <typename T_ELEM>
-int loadMMSparseMatrix(char *filename, char elem_type, bool csrFormat, int *m,
-                       int *n, int *nnz, T_ELEM **aVal, int **aRowInd,
-                       int **aColInd, int extendSymMatrix);
+int loadMMSparseMatrix(char* filename, char elem_type, bool csrFormat, int* m,
+                       int* n, int* nnz, T_ELEM** aVal, int** aRowInd,
+                       int** aColInd, int extendSymMatrix);
 
 void UsageRF(void) {
   printf("<options>\n");
@@ -60,16 +60,16 @@ void UsageRF(void) {
   exit(0);
 }
 
-void parseCommandLineArguments(int argc, char *argv[], struct testOpts &opts) {
+void parseCommandLineArguments(int argc, char* argv[], struct testOpts& opts) {
   memset(&opts, 0, sizeof(opts));
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "-h")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "-h")) {
     UsageRF();
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "P")) {
-    char *reorderType = NULL;
-    getCmdLineArgumentString(argc, (const char **)argv, "P", &reorderType);
+  if (checkCmdLineFlag(argc, (const char**)argv, "P")) {
+    char* reorderType = NULL;
+    getCmdLineArgumentString(argc, (const char**)argv, "P", &reorderType);
 
     if (reorderType) {
       if ((STRCASECMP(reorderType, "symrcm") != 0) &&
@@ -83,12 +83,12 @@ void parseCommandLineArguments(int argc, char *argv[], struct testOpts &opts) {
   }
 
   if (!opts.reorder) {
-    opts.reorder = "symrcm"; // Setting default reordering to be symrcm.
+    opts.reorder = "symrcm";  // Setting default reordering to be symrcm.
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "file")) {
-    char *fileName = 0;
-    getCmdLineArgumentString(argc, (const char **)argv, "file", &fileName);
+  if (checkCmdLineFlag(argc, (const char**)argv, "file")) {
+    char* fileName = 0;
+    getCmdLineArgumentString(argc, (const char**)argv, "file", &fileName);
 
     if (fileName) {
       opts.sparse_mat_filename = fileName;
@@ -99,55 +99,55 @@ void parseCommandLineArguments(int argc, char *argv[], struct testOpts &opts) {
   }
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   struct testOpts opts;
-  cusolverRfHandle_t cusolverRfH = NULL; // refactorization
+  cusolverRfHandle_t cusolverRfH = NULL;  // refactorization
   cusolverSpHandle_t cusolverSpH =
-      NULL; // reordering, permutation and 1st LU factorization
-  cusparseHandle_t cusparseH = NULL; // residual evaluation
+      NULL;  // reordering, permutation and 1st LU factorization
+  cusparseHandle_t cusparseH = NULL;  // residual evaluation
   cudaStream_t stream = NULL;
-  cusparseMatDescr_t descrA = NULL; // A is a base-0 general matrix
+  cusparseMatDescr_t descrA = NULL;  // A is a base-0 general matrix
 
   csrluInfoHost_t info =
-      NULL; // opaque info structure for LU with parital pivoting
+      NULL;  // opaque info structure for LU with parital pivoting
 
-  int rowsA = 0; // number of rows of A
-  int colsA = 0; // number of columns of A
-  int nnzA = 0;  // number of nonzeros of A
-  int baseA = 0; // base index in CSR format
-                 // cusolverRf only works for base-0
+  int rowsA = 0;  // number of rows of A
+  int colsA = 0;  // number of columns of A
+  int nnzA = 0;   // number of nonzeros of A
+  int baseA = 0;  // base index in CSR format
+                  // cusolverRf only works for base-0
 
   // cusolverRf only works for square matrix,
   // assume n = rowsA = colsA
 
   // CSR(A) from I/O
-  int *h_csrRowPtrA = NULL; // <int> n+1
-  int *h_csrColIndA = NULL; // <int> nnzA
-  double *h_csrValA = NULL; // <double> nnzA
+  int* h_csrRowPtrA = NULL;  // <int> n+1
+  int* h_csrColIndA = NULL;  // <int> nnzA
+  double* h_csrValA = NULL;  // <double> nnzA
 
-  int *h_Qreorder = NULL; // <int> n
-                          // reorder to reduce zero fill-in
-                          // Qreorder = symrcm(A) or Qreroder = symamd(A)
+  int* h_Qreorder = NULL;  // <int> n
+                           // reorder to reduce zero fill-in
+                           // Qreorder = symrcm(A) or Qreroder = symamd(A)
   // B = Q*A*Q^T
-  int *h_csrRowPtrB = NULL; // <int> n+1
-  int *h_csrColIndB = NULL; // <int> nnzA
-  double *h_csrValB = NULL; // <double> nnzA
-  int *h_mapBfromA = NULL;  // <int> nnzA
+  int* h_csrRowPtrB = NULL;  // <int> n+1
+  int* h_csrColIndB = NULL;  // <int> nnzA
+  double* h_csrValB = NULL;  // <double> nnzA
+  int* h_mapBfromA = NULL;   // <int> nnzA
 
-  double *h_x = NULL; // <double> n,  x = A \ b
-  double *h_b = NULL; // <double> n, b = ones(m,1)
-  double *h_r = NULL; // <double> n, r = b - A*x
+  double* h_x = NULL;  // <double> n,  x = A \ b
+  double* h_b = NULL;  // <double> n, b = ones(m,1)
+  double* h_r = NULL;  // <double> n, r = b - A*x
 
   // solve B*(Qx) = Q*b
-  double *h_xhat = NULL; // <double> n, Q*x_hat = x
-  double *h_bhat = NULL; // <double> n, b_hat = Q*b
+  double* h_xhat = NULL;  // <double> n, Q*x_hat = x
+  double* h_bhat = NULL;  // <double> n, b_hat = Q*b
 
   size_t size_perm = 0;
   size_t size_internal = 0;
-  size_t size_lu = 0;      // size of working space for csrlu
-  void *buffer_cpu = NULL; // working space for
-                           // - permutation: B = Q*A*Q^T
-                           // - LU with partial pivoting in cusolverSp
+  size_t size_lu = 0;       // size of working space for csrlu
+  void* buffer_cpu = NULL;  // working space for
+                            // - permutation: B = Q*A*Q^T
+                            // - LU with partial pivoting in cusolverSp
 
   // cusolverSp computes LU with partial pivoting
   //     Plu*B*Qlu^T = L*U
@@ -155,34 +155,34 @@ int main(int argc, char *argv[]) {
   //
   // nnzL and nnzU are not known until factorization is done.
   // However upper bound of L+U is known after symbolic analysis of LU.
-  int *h_Plu = NULL; // <int> n
-  int *h_Qlu = NULL; // <int> n
+  int* h_Plu = NULL;  // <int> n
+  int* h_Qlu = NULL;  // <int> n
 
   int nnzL = 0;
-  int *h_csrRowPtrL = NULL; // <int> n+1
-  int *h_csrColIndL = NULL; // <int> nnzL
-  double *h_csrValL = NULL; // <double> nnzL
+  int* h_csrRowPtrL = NULL;  // <int> n+1
+  int* h_csrColIndL = NULL;  // <int> nnzL
+  double* h_csrValL = NULL;  // <double> nnzL
 
   int nnzU = 0;
-  int *h_csrRowPtrU = NULL; // <int> n+1
-  int *h_csrColIndU = NULL; // <int> nnzU
-  double *h_csrValU = NULL; // <double> nnzU
+  int* h_csrRowPtrU = NULL;  // <int> n+1
+  int* h_csrColIndU = NULL;  // <int> nnzU
+  double* h_csrValU = NULL;  // <double> nnzU
 
-  int *h_P = NULL; // <int> n, P = Plu * Qreorder
-  int *h_Q = NULL; // <int> n, Q = Qlu * Qreorder
+  int* h_P = NULL;  // <int> n, P = Plu * Qreorder
+  int* h_Q = NULL;  // <int> n, Q = Qlu * Qreorder
 
-  int *d_csrRowPtrA = NULL; // <int> n+1
-  int *d_csrColIndA = NULL; // <int> nnzA
-  double *d_csrValA = NULL; // <double> nnzA
-  double *d_x = NULL;       // <double> n, x = A \ b
-  double *d_b = NULL;       // <double> n, a copy of h_b
-  double *d_r = NULL;       // <double> n, r = b - A*x
+  int* d_csrRowPtrA = NULL;  // <int> n+1
+  int* d_csrColIndA = NULL;  // <int> nnzA
+  double* d_csrValA = NULL;  // <double> nnzA
+  double* d_x = NULL;        // <double> n, x = A \ b
+  double* d_b = NULL;        // <double> n, a copy of h_b
+  double* d_r = NULL;        // <double> n, r = b - A*x
 
-  int *d_P = NULL; // <int> n, P*A*Q^T = L*U
-  int *d_Q = NULL; // <int> n
+  int* d_P = NULL;  // <int> n, P*A*Q^T = L*U
+  int* d_Q = NULL;  // <int> n
 
-  double *d_T = NULL; // working space in cusolverRfSolve
-                      // |d_T| = n * nrhs
+  double* d_T = NULL;  // working space in cusolverRfSolve
+                       // |d_T| = n * nrhs
 
   // the constants used in residual evaluation, r = b - A*x
   const double minus_one = -1.0;
@@ -201,13 +201,13 @@ int main(int argc, char *argv[]) {
   const double pivot_threshold = 1.0;
   // the constants used in cusolverRf
   const cusolverRfFactorization_t fact_alg =
-      CUSOLVERRF_FACTORIZATION_ALG0; // default
+      CUSOLVERRF_FACTORIZATION_ALG0;  // default
   const cusolverRfTriangularSolve_t solve_alg =
-      CUSOLVERRF_TRIANGULAR_SOLVE_ALG1; // default
+      CUSOLVERRF_TRIANGULAR_SOLVE_ALG1;  // default
 
-  double x_inf = 0.0; // |x|
-  double r_inf = 0.0; // |r|
-  double A_inf = 0.0; // |A|
+  double x_inf = 0.0;  // |x|
+  double r_inf = 0.0;  // |r|
+  double A_inf = 0.0;  // |A|
   int errors = 0;
 
   double start, stop;
@@ -227,7 +227,7 @@ int main(int argc, char *argv[]) {
   printf("step 1.1: preparation\n");
   printf("step 1.1: read matrix market format\n");
 
-  findCudaDevice(argc, (const char **)argv);
+  findCudaDevice(argc, (const char**)argv);
 
   if (opts.sparse_mat_filename == NULL) {
     opts.sparse_mat_filename = sdkFindFilePath("lap2D_5pt_n100.mtx", argv[0]);
@@ -242,7 +242,7 @@ int main(int argc, char *argv[]) {
                                    &h_csrColIndA, true)) {
       return 1;
     }
-    baseA = h_csrRowPtrA[0]; // baseA = {0,1}
+    baseA = h_csrRowPtrA[0];  // baseA = {0,1}
   }
 
   if (rowsA != colsA) {
@@ -280,18 +280,18 @@ int main(int argc, char *argv[]) {
     checkCudaErrors(cusparseSetMatIndexBase(descrA, CUSPARSE_INDEX_BASE_ZERO));
   }
 
-  h_Qreorder = (int *)malloc(sizeof(int) * colsA);
+  h_Qreorder = (int*)malloc(sizeof(int) * colsA);
 
-  h_csrRowPtrB = (int *)malloc(sizeof(int) * (rowsA + 1));
-  h_csrColIndB = (int *)malloc(sizeof(int) * nnzA);
-  h_csrValB = (double *)malloc(sizeof(double) * nnzA);
-  h_mapBfromA = (int *)malloc(sizeof(int) * nnzA);
+  h_csrRowPtrB = (int*)malloc(sizeof(int) * (rowsA + 1));
+  h_csrColIndB = (int*)malloc(sizeof(int) * nnzA);
+  h_csrValB = (double*)malloc(sizeof(double) * nnzA);
+  h_mapBfromA = (int*)malloc(sizeof(int) * nnzA);
 
-  h_x = (double *)malloc(sizeof(double) * colsA);
-  h_b = (double *)malloc(sizeof(double) * rowsA);
-  h_r = (double *)malloc(sizeof(double) * rowsA);
-  h_xhat = (double *)malloc(sizeof(double) * colsA);
-  h_bhat = (double *)malloc(sizeof(double) * rowsA);
+  h_x = (double*)malloc(sizeof(double) * colsA);
+  h_b = (double*)malloc(sizeof(double) * rowsA);
+  h_r = (double*)malloc(sizeof(double) * rowsA);
+  h_xhat = (double*)malloc(sizeof(double) * colsA);
+  h_bhat = (double*)malloc(sizeof(double) * rowsA);
 
   assert(NULL != h_Qreorder);
 
@@ -306,16 +306,15 @@ int main(int argc, char *argv[]) {
   assert(NULL != h_xhat);
   assert(NULL != h_bhat);
 
-  checkCudaErrors(
-      cudaMalloc((void **)&d_csrRowPtrA, sizeof(int) * (rowsA + 1)));
-  checkCudaErrors(cudaMalloc((void **)&d_csrColIndA, sizeof(int) * nnzA));
-  checkCudaErrors(cudaMalloc((void **)&d_csrValA, sizeof(double) * nnzA));
-  checkCudaErrors(cudaMalloc((void **)&d_x, sizeof(double) * colsA));
-  checkCudaErrors(cudaMalloc((void **)&d_b, sizeof(double) * rowsA));
-  checkCudaErrors(cudaMalloc((void **)&d_r, sizeof(double) * rowsA));
-  checkCudaErrors(cudaMalloc((void **)&d_P, sizeof(int) * rowsA));
-  checkCudaErrors(cudaMalloc((void **)&d_Q, sizeof(int) * colsA));
-  checkCudaErrors(cudaMalloc((void **)&d_T, sizeof(double) * rowsA * 1));
+  checkCudaErrors(cudaMalloc((void**)&d_csrRowPtrA, sizeof(int) * (rowsA + 1)));
+  checkCudaErrors(cudaMalloc((void**)&d_csrColIndA, sizeof(int) * nnzA));
+  checkCudaErrors(cudaMalloc((void**)&d_csrValA, sizeof(double) * nnzA));
+  checkCudaErrors(cudaMalloc((void**)&d_x, sizeof(double) * colsA));
+  checkCudaErrors(cudaMalloc((void**)&d_b, sizeof(double) * rowsA));
+  checkCudaErrors(cudaMalloc((void**)&d_r, sizeof(double) * rowsA));
+  checkCudaErrors(cudaMalloc((void**)&d_P, sizeof(int) * rowsA));
+  checkCudaErrors(cudaMalloc((void**)&d_Q, sizeof(int) * colsA));
+  checkCudaErrors(cudaMalloc((void**)&d_T, sizeof(double) * rowsA * 1));
 
   printf("step 1.2: set right hand side vector (b) to 1\n");
   for (int row = 0; row < rowsA; row++) {
@@ -357,7 +356,7 @@ int main(int argc, char *argv[]) {
   if (buffer_cpu) {
     free(buffer_cpu);
   }
-  buffer_cpu = (void *)malloc(sizeof(char) * size_perm);
+  buffer_cpu = (void*)malloc(sizeof(char) * size_perm);
   assert(NULL != buffer_cpu);
 
   // h_mapBfromA = Identity
@@ -381,8 +380,9 @@ int main(int argc, char *argv[]) {
   printf("step 4.1: create opaque info structure\n");
   checkCudaErrors(cusolverSpCreateCsrluInfoHost(&info));
 
-  printf("step 4.2: analyze LU(B) to know structure of Q and R, and upper "
-         "bound for nnz(L+U)\n");
+  printf(
+      "step 4.2: analyze LU(B) to know structure of Q and R, and upper "
+      "bound for nnz(L+U)\n");
   start = second();
   start = second();
 
@@ -400,7 +400,7 @@ int main(int argc, char *argv[]) {
   if (buffer_cpu) {
     free(buffer_cpu);
   }
-  buffer_cpu = (void *)malloc(sizeof(char) * size_lu);
+  buffer_cpu = (void*)malloc(sizeof(char) * size_lu);
   assert(NULL != buffer_cpu);
 
   printf("step 4.4: compute Ppivot*B = L*U \n");
@@ -486,16 +486,16 @@ int main(int argc, char *argv[]) {
 
   checkCudaErrors(cusolverSpXcsrluNnzHost(cusolverSpH, &nnzL, &nnzU, info));
 
-  h_Plu = (int *)malloc(sizeof(int) * rowsA);
-  h_Qlu = (int *)malloc(sizeof(int) * colsA);
+  h_Plu = (int*)malloc(sizeof(int) * rowsA);
+  h_Qlu = (int*)malloc(sizeof(int) * colsA);
 
-  h_csrValL = (double *)malloc(sizeof(double) * nnzL);
-  h_csrRowPtrL = (int *)malloc(sizeof(int) * (rowsA + 1));
-  h_csrColIndL = (int *)malloc(sizeof(int) * nnzL);
+  h_csrValL = (double*)malloc(sizeof(double) * nnzL);
+  h_csrRowPtrL = (int*)malloc(sizeof(int) * (rowsA + 1));
+  h_csrColIndL = (int*)malloc(sizeof(int) * nnzL);
 
-  h_csrValU = (double *)malloc(sizeof(double) * nnzU);
-  h_csrRowPtrU = (int *)malloc(sizeof(int) * (rowsA + 1));
-  h_csrColIndU = (int *)malloc(sizeof(int) * nnzU);
+  h_csrValU = (double*)malloc(sizeof(double) * nnzU);
+  h_csrRowPtrU = (int*)malloc(sizeof(int) * (rowsA + 1));
+  h_csrColIndU = (int*)malloc(sizeof(int) * nnzU);
 
   assert(NULL != h_Plu);
   assert(NULL != h_Qlu);
@@ -529,8 +529,8 @@ int main(int argc, char *argv[]) {
    */
   printf("step 5: form P*A*Q^T = L*U\n");
 
-  h_P = (int *)malloc(sizeof(int) * rowsA);
-  h_Q = (int *)malloc(sizeof(int) * colsA);
+  h_P = (int*)malloc(sizeof(int) * rowsA);
+  h_Q = (int*)malloc(sizeof(int) * colsA);
   assert(NULL != h_P);
   assert(NULL != h_Q);
 

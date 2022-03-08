@@ -37,7 +37,7 @@
 // Helper functions and utilities to work with CUDA
 #include <helper_functions.h>
 
-void constantInit(float *data, int size, float val) {
+void constantInit(float* data, int size, float val) {
   for (int i = 0; i < size; ++i) {
     data[i] = val;
   }
@@ -46,15 +46,15 @@ void constantInit(float *data, int size, float val) {
 /**
  * Run a simple test of matrix multiplication using CUDA
  */
-int matrixMultiply(int argc, char **argv, int block_size, dim3 &dimsA,
-                   dim3 &dimsB) {
+int matrixMultiply(int argc, char** argv, int block_size, dim3& dimsA,
+                   dim3& dimsB) {
   // Allocate host memory for matrices A and B
   unsigned int size_A = dimsA.x * dimsA.y;
   unsigned int mem_size_A = sizeof(float) * size_A;
-  float *h_A = (float *)malloc(mem_size_A);
+  float* h_A = (float*)malloc(mem_size_A);
   unsigned int size_B = dimsB.x * dimsB.y;
   unsigned int mem_size_B = sizeof(float) * size_B;
-  float *h_B = (float *)malloc(mem_size_B);
+  float* h_B = (float*)malloc(mem_size_B);
 
   // Initialize host memory
   const float valB = 0.01f;
@@ -75,7 +75,7 @@ int matrixMultiply(int argc, char **argv, int block_size, dim3 &dimsA,
   // Allocate host matrix C
   dim3 dimsC(dimsB.x, dimsA.y, 1);
   unsigned int mem_size_C = dimsC.x * dimsC.y * sizeof(float);
-  float *h_C = (float *)malloc(mem_size_C);
+  float* h_C = (float*)malloc(mem_size_C);
 
   if (h_C == NULL) {
     fprintf(stderr, "Failed to allocate host matrix C!\n");
@@ -106,8 +106,8 @@ int matrixMultiply(int argc, char **argv, int block_size, dim3 &dimsA,
         cuModuleGetFunction(&kernel_addr, module, "matrixMulCUDA_block32"));
   }
 
-  void *arr[] = {(void *)&d_C, (void *)&d_A, (void *)&d_B, (void *)&dimsA.x,
-                 (void *)&dimsB.x};
+  void* arr[] = {(void*)&d_C, (void*)&d_A, (void*)&d_B, (void*)&dimsA.x,
+                 (void*)&dimsB.x};
 
   // Execute the kernel
   int nIter = 300;
@@ -133,7 +133,7 @@ int matrixMultiply(int argc, char **argv, int block_size, dim3 &dimsA,
   // test relative error by the formula
   //     |<x, y>_cpu - <x,y>_gpu|/<|x|, |y|>  < eps
 
-  double eps = 1.e-6; // machine zero
+  double eps = 1.e-6;  // machine zero
 
   for (int i = 0; i < (int)(dimsC.x * dimsC.y); i++) {
     double abs_err = fabs(h_C[i] - (dimsA.x * valB));
@@ -150,8 +150,9 @@ int matrixMultiply(int argc, char **argv, int block_size, dim3 &dimsA,
 
   printf("%s\n", correct ? "Result = PASS" : "Result = FAIL");
 
-  printf("\nNOTE: The CUDA Samples are not meant for performance measurements. "
-         "Results may vary when GPU Boost is enabled.\n");
+  printf(
+      "\nNOTE: The CUDA Samples are not meant for performance measurements. "
+      "Results may vary when GPU Boost is enabled.\n");
 
   // Clean up memory
   free(h_A);
@@ -173,13 +174,11 @@ int matrixMultiply(int argc, char **argv, int block_size, dim3 &dimsA,
  * Program main
  */
 
-int main(int argc, char **argv) {
-
+int main(int argc, char** argv) {
   printf("[Matrix Multiply Using CUDA] - Starting...\n");
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "help") ||
-      checkCmdLineFlag(argc, (const char **)argv, "?")) {
-
+  if (checkCmdLineFlag(argc, (const char**)argv, "help") ||
+      checkCmdLineFlag(argc, (const char**)argv, "?")) {
     printf("Usage -device=n (n >= 0 for deviceID)\n");
     printf("      -wA=WidthA -hA=HeightA (Width x Height of Matrix A)\n");
     printf("      -wB=WidthB -hB=HeightB (Width x Height of Matrix B)\n");
@@ -201,23 +200,23 @@ int main(int argc, char **argv) {
   // dim3 dimsB(32,32,1);
 
   // width of Matrix A
-  if (checkCmdLineFlag(argc, (const char **)argv, "wA")) {
-    dimsA.x = getCmdLineArgumentInt(argc, (const char **)argv, "wA");
+  if (checkCmdLineFlag(argc, (const char**)argv, "wA")) {
+    dimsA.x = getCmdLineArgumentInt(argc, (const char**)argv, "wA");
   }
 
   // height of Matrix A
-  if (checkCmdLineFlag(argc, (const char **)argv, "hA")) {
-    dimsA.y = getCmdLineArgumentInt(argc, (const char **)argv, "hA");
+  if (checkCmdLineFlag(argc, (const char**)argv, "hA")) {
+    dimsA.y = getCmdLineArgumentInt(argc, (const char**)argv, "hA");
   }
 
   // width of Matrix B
-  if (checkCmdLineFlag(argc, (const char **)argv, "wB")) {
-    dimsB.x = getCmdLineArgumentInt(argc, (const char **)argv, "wB");
+  if (checkCmdLineFlag(argc, (const char**)argv, "wB")) {
+    dimsB.x = getCmdLineArgumentInt(argc, (const char**)argv, "wB");
   }
 
   // height of Matrix B
-  if (checkCmdLineFlag(argc, (const char **)argv, "hB")) {
-    dimsB.y = getCmdLineArgumentInt(argc, (const char **)argv, "hB");
+  if (checkCmdLineFlag(argc, (const char**)argv, "hB")) {
+    dimsB.y = getCmdLineArgumentInt(argc, (const char**)argv, "hB");
   }
 
   if (dimsA.x != dimsB.y) {

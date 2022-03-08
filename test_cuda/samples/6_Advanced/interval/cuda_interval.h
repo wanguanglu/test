@@ -16,16 +16,17 @@
 #include "interval.h"
 
 // Stack in local memory. Managed independently for each thread.
-template <class T, int N> class local_stack {
-private:
+template <class T, int N>
+class local_stack {
+ private:
   T buf[N];
   int tos;
 
-public:
+ public:
   __device__ local_stack() : tos(-1) {}
-  __device__ T const &top() const { return buf[tos]; }
-  __device__ T &top() { return buf[tos]; }
-  __device__ void push(T const &v) { buf[++tos] = v; }
+  __device__ T const& top() const { return buf[tos]; }
+  __device__ T& top() { return buf[tos]; }
+  __device__ void push(T const& v) { buf[++tos] = v; }
   __device__ T pop() { return buf[tos--]; }
   __device__ bool full() { return tos == (N - 1); }
   __device__ bool empty() { return tos == -1; }
@@ -35,18 +36,19 @@ public:
 // Same function as local_stack, but accessible from the host.
 // Interleaved between threads by blocks of THREADS elements.
 // Independent stack for each thread, no sharing of data between threads.
-template <class T, int N, int THREADS> class global_stack {
-private:
-  T *buf;
+template <class T, int N, int THREADS>
+class global_stack {
+ private:
+  T* buf;
   int free_index;
 
-public:
+ public:
   // buf should point to an allocated global buffer of
   // size N * THREADS * sizeof(T)
-  __device__ global_stack(T *buf, int thread_id)
+  __device__ global_stack(T* buf, int thread_id)
       : buf(buf), free_index(thread_id) {}
 
-  __device__ void push(T const &v) {
+  __device__ void push(T const& v) {
     buf[free_index] = v;
     free_index += THREADS;
   }
@@ -62,7 +64,7 @@ public:
 // The function F of which we want to find roots, defined on intervals
 // Should typically depend on thread_id (indexing an array of coefficients...)
 template <class T>
-__device__ interval_gpu<T> f(interval_gpu<T> const &x, int thread_id) {
+__device__ interval_gpu<T> f(interval_gpu<T> const& x, int thread_id) {
   typedef interval_gpu<T> I;
   T alpha = -T(thread_id) / T(THREADS);
   return square(x - I(1)) + I(alpha) * x;
@@ -70,7 +72,7 @@ __device__ interval_gpu<T> f(interval_gpu<T> const &x, int thread_id) {
 
 // First derivative of F, also defined on intervals
 template <class T>
-__device__ interval_gpu<T> fd(interval_gpu<T> const &x, int thread_id) {
+__device__ interval_gpu<T> fd(interval_gpu<T> const& x, int thread_id) {
   typedef interval_gpu<T> I;
   T alpha = -T(thread_id) / T(THREADS);
   return I(2) * x + I(alpha - 2);
@@ -78,7 +80,7 @@ __device__ interval_gpu<T> fd(interval_gpu<T> const &x, int thread_id) {
 
 // Is this interval small enough to stop iterating?
 template <class T>
-__device__ bool is_minimal(interval_gpu<T> const &x, int thread_id) {
+__device__ bool is_minimal(interval_gpu<T> const& x, int thread_id) {
   T const epsilon_x = 1e-6f;
   T const epsilon_y = 1e-6f;
   return !empty(x) && (width(x) <= epsilon_x * abs(median(x)) ||
@@ -88,9 +90,9 @@ __device__ bool is_minimal(interval_gpu<T> const &x, int thread_id) {
 // In some cases, Newton iterations converge slowly.
 // Bisecting the interval accelerates convergence.
 template <class T>
-__device__ bool should_bisect(interval_gpu<T> const &x,
-                              interval_gpu<T> const &x1,
-                              interval_gpu<T> const &x2, T alpha) {
+__device__ bool should_bisect(interval_gpu<T> const& x,
+                              interval_gpu<T> const& x1,
+                              interval_gpu<T> const& x2, T alpha) {
   T wmax = alpha * width(x);
   return (!empty(x1) && width(x1) > wmax) || (!empty(x2) && width(x2) > wmax);
 }
@@ -100,13 +102,13 @@ __device__ bool should_bisect(interval_gpu<T> const &x,
 // Always keep the next interval to work on in registers
 // (avoids excessive spilling to local mem)
 template <class T, int THREADS, int DEPTH_RESULT>
-__device__ void
-newton_interval(global_stack<interval_gpu<T>, DEPTH_RESULT, THREADS> &result,
-                interval_gpu<T> const &ix0, int thread_id) {
+__device__ void newton_interval(
+    global_stack<interval_gpu<T>, DEPTH_RESULT, THREADS>& result,
+    interval_gpu<T> const& ix0, int thread_id) {
   typedef interval_gpu<T> I;
   int const DEPTH_WORK = 128;
 
-  T const alpha = .99f; // Threshold before switching to bisection
+  T const alpha = .99f;  // Threshold before switching to bisection
 
   // Intervals to be processed
   local_stack<I, DEPTH_WORK> work;
@@ -167,10 +169,10 @@ newton_interval(global_stack<interval_gpu<T>, DEPTH_RESULT, THREADS> &result,
     } else {
       // No solution
       // Do we still have work to do in the stack?
-      if (work.empty()) // If not, we are done
+      if (work.empty())  // If not, we are done
         break;
       else
-        ix = work.pop(); // Otherwise, pick an interval to work on
+        ix = work.pop();  // Otherwise, pick an interval to work on
     }
   }
 }
@@ -178,10 +180,10 @@ newton_interval(global_stack<interval_gpu<T>, DEPTH_RESULT, THREADS> &result,
 // Recursive implementation
 template <class T, int THREADS, int DEPTH_RESULT>
 __device__ void newton_interval_rec(
-    global_stack<interval_gpu<T>, DEPTH_RESULT, THREADS> &result,
-    interval_gpu<T> const &ix, int thread_id) {
+    global_stack<interval_gpu<T>, DEPTH_RESULT, THREADS>& result,
+    interval_gpu<T> const& ix, int thread_id) {
   typedef interval_gpu<T> I;
-  T const alpha = .99f; // Threshold before switching to bisection
+  T const alpha = .99f;  // Threshold before switching to bisection
 
   if (is_minimal(ix, thread_id)) {
     result.push(ix);
@@ -224,11 +226,11 @@ __device__ void newton_interval_rec(
 // Naive implementation, no attempt to keep the top of the stack in registers
 template <class T, int THREADS, int DEPTH_RESULT>
 __device__ void newton_interval_naive(
-    global_stack<interval_gpu<T>, DEPTH_RESULT, THREADS> &result,
-    interval_gpu<T> const &ix0, int thread_id) {
+    global_stack<interval_gpu<T>, DEPTH_RESULT, THREADS>& result,
+    interval_gpu<T> const& ix0, int thread_id) {
   typedef interval_gpu<T> I;
   int const DEPTH_WORK = 128;
-  T const alpha = .99f; // Threshold before switching to bisection
+  T const alpha = .99f;  // Threshold before switching to bisection
 
   // Intervals to be processed
   local_stack<I, DEPTH_WORK> work;
@@ -278,7 +280,7 @@ __device__ void newton_interval_naive(
 }
 
 template <class T>
-__global__ void test_interval_newton(interval_gpu<T> *buffer, int *nresults,
+__global__ void test_interval_newton(interval_gpu<T>* buffer, int* nresults,
                                      interval_gpu<T> i,
                                      int implementation_choice) {
   int thread_id = blockIdx.x * BLOCK_SIZE + threadIdx.x;
@@ -288,23 +290,23 @@ __global__ void test_interval_newton(interval_gpu<T> *buffer, int *nresults,
   global_stack<I, DEPTH_RESULT, THREADS> result(buffer, thread_id);
 
   switch (implementation_choice) {
-  case 0:
-    newton_interval_naive<T, THREADS>(result, i, thread_id);
-    break;
+    case 0:
+      newton_interval_naive<T, THREADS>(result, i, thread_id);
+      break;
 
-  case 1:
-    newton_interval<T, THREADS>(result, i, thread_id);
-    break;
+    case 1:
+      newton_interval<T, THREADS>(result, i, thread_id);
+      break;
 
 #if (__CUDA_ARCH__ >= 200)
 
-  case 2:
-    newton_interval_rec<T, THREADS>(result, i, thread_id);
-    break;
+    case 2:
+      newton_interval_rec<T, THREADS>(result, i, thread_id);
+      break;
 #endif
 
-  default:
-    newton_interval_naive<T, THREADS>(result, i, thread_id);
+    default:
+      newton_interval_naive<T, THREADS>(result, i, thread_id);
   }
 
   nresults[thread_id] = result.size();

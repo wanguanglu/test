@@ -43,10 +43,10 @@
 //! @param  precision  desired precision of eigenvalues
 ////////////////////////////////////////////////////////////////////////////////
 __global__ void bisectKernelLarge_MultIntervals(
-    float *g_d, float *g_s, const unsigned int n, unsigned int *blocks_mult,
-    unsigned int *blocks_mult_sum, float *g_left, float *g_right,
-    unsigned int *g_left_count, unsigned int *g_right_count, float *g_lambda,
-    unsigned int *g_pos, float precision) {
+    float* g_d, float* g_s, const unsigned int n, unsigned int* blocks_mult,
+    unsigned int* blocks_mult_sum, float* g_left, float* g_right,
+    unsigned int* g_left_count, unsigned int* g_right_count, float* g_lambda,
+    unsigned int* g_pos, float precision) {
   const unsigned int tid = threadIdx.x;
 
   // left and right limits of interval
@@ -60,7 +60,7 @@ __global__ void bisectKernelLarge_MultIntervals(
   // helper array for chunk compaction of second chunk
   __shared__ unsigned int s_compaction_list[2 * MAX_THREADS_BLOCK + 1];
   // compaction list helper for exclusive scan
-  unsigned int *s_compaction_list_exc = s_compaction_list + 1;
+  unsigned int* s_compaction_list_exc = s_compaction_list + 1;
 
   // flag if all threads are converged
   __shared__ unsigned int all_threads_converged;
@@ -90,7 +90,6 @@ __global__ void bisectKernelLarge_MultIntervals(
 
   // initialize common start conditions
   if (0 == tid) {
-
     c_block_start = blocks_mult[blockIdx.x];
     c_block_end = blocks_mult[blockIdx.x + 1];
     c_block_offset_output = blocks_mult_sum[blockIdx.x];
@@ -107,7 +106,6 @@ __global__ void bisectKernelLarge_MultIntervals(
 
   // read data into shared memory
   if (tid < num_threads_active) {
-
     s_left[tid] = g_left[c_block_start + tid];
     s_right[tid] = g_right[c_block_start + tid];
     s_left_count[tid] = g_left_count[c_block_start + tid];
@@ -143,17 +141,14 @@ __global__ void bisectKernelLarge_MultIntervals(
     __syncthreads();
 
     if (tid < num_threads_active) {
-
       // store intervals
       if (left != right) {
-
         storeNonEmptyIntervals(tid, num_threads_active, s_left, s_right,
                                s_left_count, s_right_count, left, mid, right,
                                left_count, mid_count, right_count, precision,
                                compact_second_chunk, s_compaction_list_exc,
                                is_active_second);
       } else {
-
         storeIntervalConverged(
             s_left, s_right, s_left_count, s_right_count, left, mid, right,
             left_count, mid_count, right_count, s_compaction_list_exc,
@@ -166,7 +161,6 @@ __global__ void bisectKernelLarge_MultIntervals(
     // compact second chunk of intervals if any of the threads generated
     // two child intervals
     if (1 == compact_second_chunk) {
-
       createIndicesCompaction(s_compaction_list_exc, num_threads_compaction);
 
       compactIntervals(s_left, s_right, s_left_count, s_right_count, mid, right,
@@ -193,11 +187,10 @@ __global__ void bisectKernelLarge_MultIntervals(
 
     __syncthreads();
 
-  } // end until all threads converged
+  }  // end until all threads converged
 
   // write data back to global memory
   if (tid < num_threads_active) {
-
     unsigned int addr = c_block_offset_output + tid;
 
     g_lambda[addr] = s_left[tid];
@@ -205,4 +198,4 @@ __global__ void bisectKernelLarge_MultIntervals(
   }
 }
 
-#endif // #ifndef _BISECT_KERNEL_LARGE_MULTI_H_
+#endif  // #ifndef _BISECT_KERNEL_LARGE_MULTI_H_

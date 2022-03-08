@@ -64,9 +64,9 @@ const int MAX_PATH_LEN = 1024;
 enum severity_level { debug, trace, notice, warning, error, fatal };
 
 template <typename CharT, typename TraitsT>
-inline std::basic_ostream<CharT, TraitsT> &
-operator<<(std::basic_ostream<CharT, TraitsT> &strm, severity_level lvl) {
-  static const char *const str[] = {"DEBUG",   "TRACE", "NOTICE",
+inline std::basic_ostream<CharT, TraitsT>& operator<<(
+    std::basic_ostream<CharT, TraitsT>& strm, severity_level lvl) {
+  static const char* const str[] = {"DEBUG",   "TRACE", "NOTICE",
                                     "WARNING", "ERROR", "FATAL"};
 
   if (static_cast<std::size_t>(lvl) < (sizeof(str) / sizeof(*str))) {
@@ -84,26 +84,26 @@ operator<<(std::basic_ostream<CharT, TraitsT> &strm, severity_level lvl) {
  *         0  OK
  *         -1 ERROR
  */
-int init_log(const char *log_dir, const char *log_file);
+int init_log(const char* log_dir, const char* log_file);
 
-#define DEBUG_LOG                                                              \
-  BOOST_LOG_SEV(glorey::log::g_log::get(), glorey::log::debug)                 \
+#define DEBUG_LOG                                              \
+  BOOST_LOG_SEV(glorey::log::g_log::get(), glorey::log::debug) \
       << "[" << __FILE__ << ":" << __LINE__ << "] "
-#define TRACE_LOG                                                              \
-  BOOST_LOG_SEV(glorey::log::g_log::get(), glorey::log::trace)                 \
+#define TRACE_LOG                                              \
+  BOOST_LOG_SEV(glorey::log::g_log::get(), glorey::log::trace) \
       << "[" << __FILE__ << ":" << __LINE__ << "] "
-#define NOTICE_LOG                                                             \
-  BOOST_LOG_SEV(glorey::log::g_log::get(), glorey::log::notice)                \
+#define NOTICE_LOG                                              \
+  BOOST_LOG_SEV(glorey::log::g_log::get(), glorey::log::notice) \
       << "[" << __FILE__ << ":" << __LINE__ << "] "
-#define WARNING_LOG                                                            \
-  BOOST_LOG_SEV(glorey::log::g_log::get(), glorey::log::warning)               \
+#define WARNING_LOG                                              \
+  BOOST_LOG_SEV(glorey::log::g_log::get(), glorey::log::warning) \
       << "[" << __FILE__ << ":" << __LINE__ << "] "
-#define ERROR_LOG                                                              \
-  BOOST_LOG_SEV(glorey::log::g_log::get(), glorey::log::error)                 \
+#define ERROR_LOG                                              \
+  BOOST_LOG_SEV(glorey::log::g_log::get(), glorey::log::error) \
       << "[" << __FILE__ << ":" << __LINE__ << "] "
-#define FATAL_LOG                                                              \
-  BOOST_LOG_SEV(glorey::log::g_log::get(), glorey::log::fatal)                 \
+#define FATAL_LOG                                              \
+  BOOST_LOG_SEV(glorey::log::g_log::get(), glorey::log::fatal) \
       << "[" << __FILE__ << ":" << __LINE__ << "] "
 
-} // namespace log
-} // namespace glorey
+}  // namespace log
+}  // namespace glorey

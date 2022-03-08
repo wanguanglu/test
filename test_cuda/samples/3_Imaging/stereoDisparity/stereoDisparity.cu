@@ -24,34 +24,34 @@
 #include <cuda_runtime.h>
 
 // includes, project
-#include <helper_cuda.h> // helper for checking cuda initialization and error checking
-#include <helper_functions.h> // helper for shared that are common to CUDA Samples
-#include <helper_string.h>    // helper functions for string parsing
+#include <helper_cuda.h>  // helper for checking cuda initialization and error checking
+#include <helper_functions.h>  // helper for shared that are common to CUDA Samples
+#include <helper_string.h>     // helper functions for string parsing
 
-static const char *sSDKsample = "[stereoDisparity]\0";
+static const char* sSDKsample = "[stereoDisparity]\0";
 
 int iDivUp(int a, int b) { return ((a % b) != 0) ? (a / b + 1) : (a / b); }
 
 ////////////////////////////////////////////////////////////////////////////////
 // declaration, forward
-void runTest(int argc, char **argv);
+void runTest(int argc, char** argv);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) { runTest(argc, argv); }
+int main(int argc, char** argv) { runTest(argc, argv); }
 
 ////////////////////////////////////////////////////////////////////////////////
 //! CUDA Sample for calculating depth maps
 ////////////////////////////////////////////////////////////////////////////////
-void runTest(int argc, char **argv) {
+void runTest(int argc, char** argv) {
   cudaDeviceProp deviceProp;
   deviceProp.major = 0;
   deviceProp.minor = 0;
   int dev = 0;
 
   // This will pick the best possible CUDA capable device
-  dev = findCudaDevice(argc, (const char **)argv);
+  dev = findCudaDevice(argc, (const char**)argv);
 
   checkCudaErrors(cudaGetDeviceProperties(&deviceProp, dev));
 
@@ -67,7 +67,7 @@ void runTest(int argc, char **argv) {
     exit(EXIT_SUCCESS);
   }
 
-  StopWatchInterface *timer;
+  StopWatchInterface* timer;
   sdkCreateTimer(&timer);
 
   // Search parameters
@@ -78,11 +78,11 @@ void runTest(int argc, char **argv) {
   // allocate mem for the images on host side
   // initialize pointers to NULL to request lib call to allocate as needed
   // PPM images are loaded into 4 byte/pixel memory (RGBX)
-  unsigned char *h_img0 = NULL;
-  unsigned char *h_img1 = NULL;
+  unsigned char* h_img0 = NULL;
+  unsigned char* h_img1 = NULL;
   unsigned int w, h;
-  char *fname0 = sdkFindFilePath("stereo.im0.640x533.ppm", argv[0]);
-  char *fname1 = sdkFindFilePath("stereo.im1.640x533.ppm", argv[0]);
+  char* fname0 = sdkFindFilePath("stereo.im0.640x533.ppm", argv[0]);
+  char* fname1 = sdkFindFilePath("stereo.im1.640x533.ppm", argv[0]);
 
   printf("Loaded <%s> as image 0\n", fname0);
 
@@ -102,18 +102,17 @@ void runTest(int argc, char **argv) {
   unsigned int memSize = sizeof(int) * numData;
 
   // allocate mem for the result on host side
-  unsigned int *h_odata = (unsigned int *)malloc(memSize);
+  unsigned int* h_odata = (unsigned int*)malloc(memSize);
 
   // initialize the memory
-  for (unsigned int i = 0; i < numData; i++)
-    h_odata[i] = 0;
+  for (unsigned int i = 0; i < numData; i++) h_odata[i] = 0;
 
   // allocate device memory for result
   unsigned int *d_odata, *d_img0, *d_img1;
 
-  checkCudaErrors(cudaMalloc((void **)&d_odata, memSize));
-  checkCudaErrors(cudaMalloc((void **)&d_img0, memSize));
-  checkCudaErrors(cudaMalloc((void **)&d_img1, memSize));
+  checkCudaErrors(cudaMalloc((void**)&d_odata, memSize));
+  checkCudaErrors(cudaMalloc((void**)&d_img0, memSize));
+  checkCudaErrors(cudaMalloc((void**)&d_img1, memSize));
 
   // copy host memory to device to initialize to zeros
   checkCudaErrors(cudaMemcpy(d_img0, h_img0, memSize, cudaMemcpyHostToDevice));
@@ -195,9 +194,9 @@ void runTest(int argc, char **argv) {
   printf("GPU Checksum = %u, ", checkSum);
 
   // write out the resulting disparity image.
-  unsigned char *dispOut = (unsigned char *)malloc(numData);
+  unsigned char* dispOut = (unsigned char*)malloc(numData);
   int mult = 20;
-  const char *fnameOut = "output_GPU.pgm";
+  const char* fnameOut = "output_GPU.pgm";
 
   for (unsigned int i = 0; i < numData; i++) {
     dispOut[i] = (int)h_odata[i] * mult;
@@ -208,8 +207,8 @@ void runTest(int argc, char **argv) {
 
   // compute reference solution
   printf("Computing CPU reference...\n");
-  cpu_gold_stereo((unsigned int *)h_img0, (unsigned int *)h_img1,
-                  (unsigned int *)h_odata, w, h, minDisp, maxDisp);
+  cpu_gold_stereo((unsigned int*)h_img0, (unsigned int*)h_img1,
+                  (unsigned int*)h_odata, w, h, minDisp, maxDisp);
   unsigned int cpuCheckSum = 0;
 
   for (unsigned int i = 0; i < w * h; i++) {
@@ -217,7 +216,7 @@ void runTest(int argc, char **argv) {
   }
 
   printf("CPU Checksum = %u, ", cpuCheckSum);
-  const char *cpuFnameOut = "output_CPU.pgm";
+  const char* cpuFnameOut = "output_CPU.pgm";
 
   for (unsigned int i = 0; i < numData; i++) {
     dispOut[i] = (int)h_odata[i] * mult;
@@ -231,17 +230,13 @@ void runTest(int argc, char **argv) {
   checkCudaErrors(cudaFree(d_img0));
   checkCudaErrors(cudaFree(d_img1));
 
-  if (h_odata != NULL)
-    free(h_odata);
+  if (h_odata != NULL) free(h_odata);
 
-  if (h_img0 != NULL)
-    free(h_img0);
+  if (h_img0 != NULL) free(h_img0);
 
-  if (h_img1 != NULL)
-    free(h_img1);
+  if (h_img1 != NULL) free(h_img1);
 
-  if (dispOut != NULL)
-    free(dispOut);
+  if (dispOut != NULL) free(dispOut);
 
   sdkDeleteTimer(&timer);
 

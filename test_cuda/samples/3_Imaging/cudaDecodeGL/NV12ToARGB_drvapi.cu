@@ -26,7 +26,7 @@ __constant__ uint32 constAlpha;
 #define MUL(x, y) (x * y)
 __constant__ float constHueColorSpaceMat[9];
 
-__device__ void YUV2RGB(uint32 *yuvi, float *red, float *green, float *blue) {
+__device__ void YUV2RGB(uint32* yuvi, float* red, float* green, float* blue) {
   float luma, chromaCb, chromaCr;
 
   // Prepare for hue adjustment
@@ -79,15 +79,15 @@ __device__ uint32 RGBAPACK_10bit(float red, float green, float blue,
 }
 
 // CUDA kernel for outputing the final ARGB output from NV12;
-extern "C" __global__ void Passthru_drvapi(uint32 *srcImage,
+extern "C" __global__ void Passthru_drvapi(uint32* srcImage,
                                            size_t nSourcePitch,
-                                           uint32 *dstImage, size_t nDestPitch,
+                                           uint32* dstImage, size_t nDestPitch,
                                            uint32 width, uint32 height) {
   int32 x, y;
   uint32 yuv101010Pel[2];
   uint32 processingPitch = ((width) + 63) & ~63;
   uint32 dstImagePitch = nDestPitch >> 2;
-  uint8 *srcImageU8 = (uint8 *)srcImage;
+  uint8* srcImageU8 = (uint8*)srcImage;
 
   processingPitch = nSourcePitch;
 
@@ -96,11 +96,9 @@ extern "C" __global__ void Passthru_drvapi(uint32 *srcImage,
   x = blockIdx.x * (blockDim.x << 1) + (threadIdx.x << 1);
   y = blockIdx.y * blockDim.y + threadIdx.y;
 
-  if (x >= width)
-    return; // x = width - 1;
+  if (x >= width) return;  // x = width - 1;
 
-  if (y >= height)
-    return; // y = height - 1;
+  if (y >= height) return;  // y = height - 1;
 
   // Read 2 Luma components at a time, so we don't waste processing since CbCr
   // are decimated this way. if we move to texture we could read 4 luminance
@@ -122,14 +120,16 @@ extern "C" __global__ void Passthru_drvapi(uint32 *srcImage,
 }
 
 // CUDA kernel for outputing the final ARGB output from NV12;
-extern "C" __global__ void
-NV12ToARGB_drvapi(uint32 *srcImage, size_t nSourcePitch, uint32 *dstImage,
-                  size_t nDestPitch, uint32 width, uint32 height) {
+extern "C" __global__ void NV12ToARGB_drvapi(uint32* srcImage,
+                                             size_t nSourcePitch,
+                                             uint32* dstImage,
+                                             size_t nDestPitch, uint32 width,
+                                             uint32 height) {
   int32 x, y;
   uint32 yuv101010Pel[2];
   uint32 processingPitch = ((width) + 63) & ~63;
   uint32 dstImagePitch = nDestPitch >> 2;
-  uint8 *srcImageU8 = (uint8 *)srcImage;
+  uint8* srcImageU8 = (uint8*)srcImage;
 
   processingPitch = nSourcePitch;
 
@@ -138,11 +138,9 @@ NV12ToARGB_drvapi(uint32 *srcImage, size_t nSourcePitch, uint32 *dstImage,
   x = blockIdx.x * (blockDim.x << 1) + (threadIdx.x << 1);
   y = blockIdx.y * blockDim.y + threadIdx.y;
 
-  if (x >= width)
-    return; // x = width - 1;
+  if (x >= width) return;  // x = width - 1;
 
-  if (y >= height)
-    return; // y = height - 1;
+  if (y >= height) return;  // y = height - 1;
 
   // Read 2 Luma components at a time, so we don't waste processing since CbCr
   // are decimated this way. if we move to texture we could read 4 luminance
@@ -153,7 +151,7 @@ NV12ToARGB_drvapi(uint32 *srcImage, size_t nSourcePitch, uint32 *dstImage,
   uint32 chromaOffset = processingPitch * height;
   int32 y_chroma = y >> 1;
 
-  if (y & 1) // odd scanline ?
+  if (y & 1)  // odd scanline ?
   {
     uint32 chromaCb;
     uint32 chromaCr;
@@ -161,7 +159,7 @@ NV12ToARGB_drvapi(uint32 *srcImage, size_t nSourcePitch, uint32 *dstImage,
     chromaCb = srcImageU8[chromaOffset + y_chroma * processingPitch + x];
     chromaCr = srcImageU8[chromaOffset + y_chroma * processingPitch + x + 1];
 
-    if (y_chroma < ((height >> 1) - 1)) // interpolate chroma vertically
+    if (y_chroma < ((height >> 1) - 1))  // interpolate chroma vertically
     {
       chromaCb =
           (chromaCb +

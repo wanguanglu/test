@@ -33,10 +33,10 @@
 //! @param  lu_eig_count  number of eigenvalues that are smaller than \a lu
 //! @param  epsilon  desired accuracy of eigenvalues to compute
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void bisectKernel(float *g_d, float *g_s, const unsigned int n,
-                             float *g_left, float *g_right,
-                             unsigned int *g_left_count,
-                             unsigned int *g_right_count, const float lg,
+__global__ void bisectKernel(float* g_d, float* g_s, const unsigned int n,
+                             float* g_left, float* g_right,
+                             unsigned int* g_left_count,
+                             unsigned int* g_right_count, const float lg,
                              const float ug, const unsigned int lg_eig_count,
                              const unsigned int ug_eig_count, float epsilon) {
   // intervals (store left and right because the subdivision tree is in general
@@ -65,7 +65,7 @@ __global__ void bisectKernel(float *g_d, float *g_s, const unsigned int n,
   __shared__ unsigned int num_threads_compaction;
 
   // helper for exclusive scan
-  unsigned int *s_compaction_list_exc = s_compaction_list + 1;
+  unsigned int* s_compaction_list_exc = s_compaction_list + 1;
 
   // variables for currently processed interval
   // left and right limit of active interval
@@ -104,7 +104,6 @@ __global__ void bisectKernel(float *g_d, float *g_s, const unsigned int n,
   // for all active threads read intervals from the last level
   // the number of (worst case) active threads per level l is 2^l
   while (true) {
-
     all_threads_converged = 1;
     __syncthreads();
 
@@ -145,9 +144,7 @@ __global__ void bisectKernel(float *g_d, float *g_s, const unsigned int n,
     // exactly one child)  unnecessary to perform a compaction of the second
     // chunk
     if (threadIdx.x < num_threads_active) {
-
       if (left != right) {
-
         // store intervals
         storeNonEmptyIntervals(threadIdx.x, num_threads_active, s_left, s_right,
                                s_left_count, s_right_count, left, mid, right,
@@ -155,7 +152,6 @@ __global__ void bisectKernel(float *g_d, float *g_s, const unsigned int n,
                                compact_second_chunk, s_compaction_list_exc,
                                is_active_second);
       } else {
-
         storeIntervalConverged(
             s_left, s_right, s_left_count, s_right_count, left, mid, right,
             left_count, mid_count, right_count, s_compaction_list_exc,
@@ -170,7 +166,6 @@ __global__ void bisectKernel(float *g_d, float *g_s, const unsigned int n,
     // scan of (num_threads_active / 2) elements, thus at most
     // (num_threads_active / 4) threads are needed
     if (compact_second_chunk > 0) {
-
       createIndicesCompaction(s_compaction_list_exc, num_threads_compaction);
 
       compactIntervals(s_left, s_right, s_left_count, s_right_count, mid, right,
@@ -181,7 +176,6 @@ __global__ void bisectKernel(float *g_d, float *g_s, const unsigned int n,
     __syncthreads();
 
     if (0 == threadIdx.x) {
-
       // update number of active threads with result of reduction
       num_threads_active += s_compaction_list[num_threads_active];
 
@@ -201,7 +195,6 @@ __global__ void bisectKernel(float *g_d, float *g_s, const unsigned int n,
 
   // at most n valid intervals
   if (threadIdx.x < n) {
-
     // intervals converged so left and right limit are identical
     g_left[threadIdx.x] = s_left[threadIdx.x];
     // left count is sufficient to have global order
@@ -209,4 +202,4 @@ __global__ void bisectKernel(float *g_d, float *g_s, const unsigned int n,
   }
 }
 
-#endif // #ifndef _BISECT_KERNEL_SMALL_H_
+#endif  // #ifndef _BISECT_KERNEL_SMALL_H_

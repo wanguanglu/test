@@ -9,7 +9,7 @@
  *
  */
 
-__global__ void Copy(TColor *dst, int imageW, int imageH) {
+__global__ void Copy(TColor* dst, int imageW, int imageH) {
   const int ix = blockDim.x * blockIdx.x + threadIdx.x;
   const int iy = blockDim.y * blockIdx.y + threadIdx.y;
   // Add half of a texel to always address exact texel centers
@@ -22,7 +22,7 @@ __global__ void Copy(TColor *dst, int imageW, int imageH) {
   }
 }
 
-extern "C" void cuda_Copy(TColor *d_dst, int imageW, int imageH) {
+extern "C" void cuda_Copy(TColor* d_dst, int imageW, int imageH) {
   dim3 threads(BLOCKDIM_X, BLOCKDIM_Y);
   dim3 grid(iDivUp(imageW, BLOCKDIM_X), iDivUp(imageH, BLOCKDIM_Y));
 

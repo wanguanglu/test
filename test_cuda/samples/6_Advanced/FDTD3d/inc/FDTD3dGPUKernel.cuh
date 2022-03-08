@@ -16,7 +16,7 @@
 
 __constant__ float stencil[RADIUS + 1];
 
-__global__ void FiniteDifferencesKernel(float *output, const float *input,
+__global__ void FiniteDifferencesKernel(float* output, const float* input,
                                         const int dimx, const int dimy,
                                         const int dimz) {
   bool validr = true;
@@ -49,29 +49,24 @@ __global__ void FiniteDifferencesKernel(float *output, const float *input,
   const int ty = ltidy + RADIUS;
 
   // Check in bounds
-  if ((gtidx >= dimx + RADIUS) || (gtidy >= dimy + RADIUS))
-    validr = false;
+  if ((gtidx >= dimx + RADIUS) || (gtidy >= dimy + RADIUS)) validr = false;
 
-  if ((gtidx >= dimx) || (gtidy >= dimy))
-    validw = false;
+  if ((gtidx >= dimx) || (gtidy >= dimy)) validw = false;
 
   // Preload the "infront" and "behind" data
   for (int i = RADIUS - 2; i >= 0; i--) {
-    if (validr)
-      behind[i] = input[inputIndex];
+    if (validr) behind[i] = input[inputIndex];
 
     inputIndex += stride_z;
   }
 
-  if (validr)
-    current = input[inputIndex];
+  if (validr) current = input[inputIndex];
 
   outputIndex = inputIndex;
   inputIndex += stride_z;
 
   for (int i = 0; i < RADIUS; i++) {
-    if (validr)
-      infront[i] = input[inputIndex];
+    if (validr) infront[i] = input[inputIndex];
 
     inputIndex += stride_z;
   }
@@ -81,18 +76,15 @@ __global__ void FiniteDifferencesKernel(float *output, const float *input,
 
   for (int iz = 0; iz < dimz; iz++) {
     // Advance the slice (move the thread-front)
-    for (int i = RADIUS - 1; i > 0; i--)
-      behind[i] = behind[i - 1];
+    for (int i = RADIUS - 1; i > 0; i--) behind[i] = behind[i - 1];
 
     behind[0] = current;
     current = infront[0];
 #pragma unroll 4
 
-    for (int i = 0; i < RADIUS - 1; i++)
-      infront[i] = infront[i + 1];
+    for (int i = 0; i < RADIUS - 1; i++) infront[i] = infront[i + 1];
 
-    if (validr)
-      infront[RADIUS - 1] = input[inputIndex];
+    if (validr) infront[RADIUS - 1] = input[inputIndex];
 
     inputIndex += stride_z;
     outputIndex += stride_z;
@@ -132,7 +124,6 @@ __global__ void FiniteDifferencesKernel(float *output, const float *input,
     }
 
     // Store the output value
-    if (validw)
-      output[outputIndex] = value;
+    if (validw) output[outputIndex] = value;
   }
 }

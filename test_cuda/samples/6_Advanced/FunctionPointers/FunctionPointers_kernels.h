@@ -31,10 +31,10 @@ enum BLOCK_ENUM { THRESHOLD_FILTER = 0, NULL_FILTER, LAST_BLOCK_FILTER };
 
 extern enum SobelDisplayMode g_SobelDisplayMode;
 
-extern "C" void sobelFilter(Pixel *odata, int iw, int ih,
+extern "C" void sobelFilter(Pixel* odata, int iw, int ih,
                             enum SobelDisplayMode mode, float fScale,
                             int blockOperation, int pointOperation);
-extern "C" void setupTexture(int iw, int ih, Pixel *data, int Bpp);
+extern "C" void setupTexture(int iw, int ih, Pixel* data, int Bpp);
 extern "C" void deleteTexture(void);
 extern "C" void initFilter(void);
 void setupFunctionTables();

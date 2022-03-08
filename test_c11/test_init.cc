@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   int a = {};
   std::cout << a << std::endl;
 

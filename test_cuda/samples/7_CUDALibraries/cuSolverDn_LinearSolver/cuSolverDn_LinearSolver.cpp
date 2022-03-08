@@ -52,9 +52,9 @@
 #include "helper_cusolver.h"
 
 template <typename T_ELEM>
-int loadMMSparseMatrix(char *filename, char elem_type, bool csrFormat, int *m,
-                       int *n, int *nnz, T_ELEM **aVal, int **aRowInd,
-                       int **aColInd, int extendSymMatrix);
+int loadMMSparseMatrix(char* filename, char elem_type, bool csrFormat, int* m,
+                       int* n, int* nnz, T_ELEM** aVal, int** aRowInd,
+                       int** aColInd, int extendSymMatrix);
 
 void UsageDN(void) {
   printf("<options>\n");
@@ -74,18 +74,18 @@ void UsageDN(void) {
  *  solve A*x = b by Cholesky factorization
  *
  */
-int linearSolverCHOL(cusolverDnHandle_t handle, int n, const double *Acopy,
-                     int lda, const double *b, double *x) {
+int linearSolverCHOL(cusolverDnHandle_t handle, int n, const double* Acopy,
+                     int lda, const double* b, double* x) {
   int bufferSize = 0;
-  int *info = NULL;
-  double *buffer = NULL;
-  double *A = NULL;
+  int* info = NULL;
+  double* buffer = NULL;
+  double* A = NULL;
   int h_info = 0;
   double start, stop;
   double time_solve;
   cublasFillMode_t uplo = CUBLAS_FILL_MODE_LOWER;
 
-  checkCudaErrors(cusolverDnDpotrf_bufferSize(handle, uplo, n, (double *)Acopy,
+  checkCudaErrors(cusolverDnDpotrf_bufferSize(handle, uplo, n, (double*)Acopy,
                                               lda, &bufferSize));
 
   checkCudaErrors(cudaMalloc(&info, sizeof(int)));
@@ -138,19 +138,19 @@ int linearSolverCHOL(cusolverDnHandle_t handle, int n, const double *Acopy,
  *  solve A*x = b by LU with partial pivoting
  *
  */
-int linearSolverLU(cusolverDnHandle_t handle, int n, const double *Acopy,
-                   int lda, const double *b, double *x) {
+int linearSolverLU(cusolverDnHandle_t handle, int n, const double* Acopy,
+                   int lda, const double* b, double* x) {
   int bufferSize = 0;
-  int *info = NULL;
-  double *buffer = NULL;
-  double *A = NULL;
-  int *ipiv = NULL; // pivoting sequence
+  int* info = NULL;
+  double* buffer = NULL;
+  double* A = NULL;
+  int* ipiv = NULL;  // pivoting sequence
   int h_info = 0;
   double start, stop;
   double time_solve;
 
-  checkCudaErrors(cusolverDnDgetrf_bufferSize(handle, n, n, (double *)Acopy,
-                                              lda, &bufferSize));
+  checkCudaErrors(cusolverDnDgetrf_bufferSize(handle, n, n, (double*)Acopy, lda,
+                                              &bufferSize));
 
   checkCudaErrors(cudaMalloc(&info, sizeof(int)));
   checkCudaErrors(cudaMalloc(&buffer, sizeof(double) * bufferSize));
@@ -203,14 +203,14 @@ int linearSolverLU(cusolverDnHandle_t handle, int n, const double *Acopy,
  *  solve A*x = b by QR
  *
  */
-int linearSolverQR(cusolverDnHandle_t handle, int n, const double *Acopy,
-                   int lda, const double *b, double *x) {
-  cublasHandle_t cublasHandle = NULL; // used in residual evaluation
+int linearSolverQR(cusolverDnHandle_t handle, int n, const double* Acopy,
+                   int lda, const double* b, double* x) {
+  cublasHandle_t cublasHandle = NULL;  // used in residual evaluation
   int bufferSize = 0;
-  int *info = NULL;
-  double *buffer = NULL;
-  double *A = NULL;
-  double *tau = NULL;
+  int* info = NULL;
+  double* buffer = NULL;
+  double* A = NULL;
+  double* tau = NULL;
   int h_info = 0;
   double start, stop;
   double time_solve;
@@ -218,13 +218,13 @@ int linearSolverQR(cusolverDnHandle_t handle, int n, const double *Acopy,
 
   checkCudaErrors(cublasCreate(&cublasHandle));
 
-  checkCudaErrors(cusolverDnDgeqrf_bufferSize(handle, n, n, (double *)Acopy,
-                                              lda, &bufferSize));
+  checkCudaErrors(cusolverDnDgeqrf_bufferSize(handle, n, n, (double*)Acopy, lda,
+                                              &bufferSize));
 
   checkCudaErrors(cudaMalloc(&info, sizeof(int)));
   checkCudaErrors(cudaMalloc(&buffer, sizeof(double) * bufferSize));
   checkCudaErrors(cudaMalloc(&A, sizeof(double) * lda * n));
-  checkCudaErrors(cudaMalloc((void **)&tau, sizeof(double) * n));
+  checkCudaErrors(cudaMalloc((void**)&tau, sizeof(double) * n));
 
   // prepare a copy of A because getrf will overwrite A with L
   checkCudaErrors(
@@ -283,16 +283,16 @@ int linearSolverQR(cusolverDnHandle_t handle, int n, const double *Acopy,
   return 0;
 }
 
-void parseCommandLineArguments(int argc, char *argv[], struct testOpts &opts) {
+void parseCommandLineArguments(int argc, char* argv[], struct testOpts& opts) {
   memset(&opts, 0, sizeof(opts));
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "-h")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "-h")) {
     UsageDN();
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "R")) {
-    char *solverType = NULL;
-    getCmdLineArgumentString(argc, (const char **)argv, "R", &solverType);
+  if (checkCmdLineFlag(argc, (const char**)argv, "R")) {
+    char* solverType = NULL;
+    getCmdLineArgumentString(argc, (const char**)argv, "R", &solverType);
 
     if (solverType) {
       if ((STRCASECMP(solverType, "chol") != 0) &&
@@ -306,9 +306,9 @@ void parseCommandLineArguments(int argc, char *argv[], struct testOpts &opts) {
     }
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "file")) {
-    char *fileName = 0;
-    getCmdLineArgumentString(argc, (const char **)argv, "file", &fileName);
+  if (checkCmdLineFlag(argc, (const char**)argv, "file")) {
+    char* fileName = 0;
+    getCmdLineArgumentString(argc, (const char**)argv, "file", &fileName);
 
     if (fileName) {
       opts.sparse_mat_filename = fileName;
@@ -318,37 +318,37 @@ void parseCommandLineArguments(int argc, char *argv[], struct testOpts &opts) {
     }
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "lda")) {
-    opts.lda = getCmdLineArgumentInt(argc, (const char **)argv, "lda");
+  if (checkCmdLineFlag(argc, (const char**)argv, "lda")) {
+    opts.lda = getCmdLineArgumentInt(argc, (const char**)argv, "lda");
   }
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   struct testOpts opts;
   cusolverDnHandle_t handle = NULL;
-  cublasHandle_t cublasHandle = NULL; // used in residual evaluation
+  cublasHandle_t cublasHandle = NULL;  // used in residual evaluation
   cudaStream_t stream = NULL;
 
-  int rowsA = 0; // number of rows of A
-  int colsA = 0; // number of columns of A
-  int nnzA = 0;  // number of nonzeros of A
-  int baseA = 0; // base index in CSR format
-  int lda = 0;   // leading dimension in dense matrix
+  int rowsA = 0;  // number of rows of A
+  int colsA = 0;  // number of columns of A
+  int nnzA = 0;   // number of nonzeros of A
+  int baseA = 0;  // base index in CSR format
+  int lda = 0;    // leading dimension in dense matrix
 
   // CSR(A) from I/O
-  int *h_csrRowPtrA = NULL;
-  int *h_csrColIndA = NULL;
-  double *h_csrValA = NULL;
+  int* h_csrRowPtrA = NULL;
+  int* h_csrColIndA = NULL;
+  double* h_csrValA = NULL;
 
-  double *h_A = NULL; // dense matrix from CSR(A)
-  double *h_x = NULL; // a copy of d_x
-  double *h_b = NULL; // b = ones(m,1)
-  double *h_r = NULL; // r = b - A*x, a copy of d_r
+  double* h_A = NULL;  // dense matrix from CSR(A)
+  double* h_x = NULL;  // a copy of d_x
+  double* h_b = NULL;  // b = ones(m,1)
+  double* h_r = NULL;  // r = b - A*x, a copy of d_r
 
-  double *d_A = NULL; // a copy of h_A
-  double *d_x = NULL; // x = A \ b
-  double *d_b = NULL; // a copy of h_b
-  double *d_r = NULL; // r = b - A*x
+  double* d_A = NULL;  // a copy of h_A
+  double* d_x = NULL;  // x = A \ b
+  double* d_b = NULL;  // a copy of h_b
+  double* d_r = NULL;  // r = b - A*x
 
   // the constants are used in residual evaluation, r = b - A*x
   const double minus_one = -1.0;
@@ -362,11 +362,11 @@ int main(int argc, char *argv[]) {
   parseCommandLineArguments(argc, argv, opts);
 
   if (NULL == opts.testFunc) {
-    opts.testFunc = "chol"; // By default running Cholesky as NO solver selected
-                            // with -R option.
+    opts.testFunc = "chol";  // By default running Cholesky as NO solver
+                             // selected with -R option.
   }
 
-  findCudaDevice(argc, (const char **)argv);
+  findCudaDevice(argc, (const char**)argv);
 
   printf("step 1: read matrix market format\n");
 
@@ -390,7 +390,7 @@ int main(int argc, char *argv[]) {
                                  &h_csrColIndA, true)) {
     exit(EXIT_FAILURE);
   }
-  baseA = h_csrRowPtrA[0]; // baseA = {0,1}
+  baseA = h_csrRowPtrA[0];  // baseA = {0,1}
 
   printf("sparse matrix A is %d x %d with %d nonzeros, base=%d\n", rowsA, colsA,
          nnzA, baseA);
@@ -408,10 +408,10 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  h_A = (double *)malloc(sizeof(double) * lda * colsA);
-  h_x = (double *)malloc(sizeof(double) * colsA);
-  h_b = (double *)malloc(sizeof(double) * rowsA);
-  h_r = (double *)malloc(sizeof(double) * rowsA);
+  h_A = (double*)malloc(sizeof(double) * lda * colsA);
+  h_x = (double*)malloc(sizeof(double) * colsA);
+  h_b = (double*)malloc(sizeof(double) * rowsA);
+  h_r = (double*)malloc(sizeof(double) * rowsA);
   assert(NULL != h_A);
   assert(NULL != h_x);
   assert(NULL != h_b);
@@ -460,10 +460,10 @@ int main(int argc, char *argv[]) {
   checkCudaErrors(cusolverDnSetStream(handle, stream));
   checkCudaErrors(cublasSetStream(cublasHandle, stream));
 
-  checkCudaErrors(cudaMalloc((void **)&d_A, sizeof(double) * lda * colsA));
-  checkCudaErrors(cudaMalloc((void **)&d_x, sizeof(double) * colsA));
-  checkCudaErrors(cudaMalloc((void **)&d_b, sizeof(double) * rowsA));
-  checkCudaErrors(cudaMalloc((void **)&d_r, sizeof(double) * rowsA));
+  checkCudaErrors(cudaMalloc((void**)&d_A, sizeof(double) * lda * colsA));
+  checkCudaErrors(cudaMalloc((void**)&d_x, sizeof(double) * colsA));
+  checkCudaErrors(cudaMalloc((void**)&d_b, sizeof(double) * rowsA));
+  checkCudaErrors(cudaMalloc((void**)&d_r, sizeof(double) * rowsA));
 
   printf("step 4: prepare data on device\n");
   checkCudaErrors(cudaMemcpy(d_A, h_A, sizeof(double) * lda * colsA,

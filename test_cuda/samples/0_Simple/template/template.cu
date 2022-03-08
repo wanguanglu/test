@@ -26,13 +26,13 @@
 
 // includes, project
 #include <helper_cuda.h>
-#include <helper_functions.h> // helper functions for SDK examples
+#include <helper_functions.h>  // helper functions for SDK examples
 
 ////////////////////////////////////////////////////////////////////////////////
 // declaration, forward
-void runTest(int argc, char **argv);
+void runTest(int argc, char** argv);
 
-extern "C" void computeGold(float *reference, float *idata,
+extern "C" void computeGold(float* reference, float* idata,
                             const unsigned int len);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ extern "C" void computeGold(float *reference, float *idata,
 //! @param g_idata  input data in global memory
 //! @param g_odata  output data in global memory
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void testKernel(float *g_idata, float *g_odata) {
+__global__ void testKernel(float* g_idata, float* g_odata) {
   // shared memory
   // the size is determined by the host application
   extern __shared__ float sdata[];
@@ -65,21 +65,21 @@ __global__ void testKernel(float *g_idata, float *g_odata) {
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) { runTest(argc, argv); }
+int main(int argc, char** argv) { runTest(argc, argv); }
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Run a simple test for CUDA
 ////////////////////////////////////////////////////////////////////////////////
-void runTest(int argc, char **argv) {
+void runTest(int argc, char** argv) {
   bool bTestResult = true;
 
   printf("%s Starting...\n\n", argv[0]);
 
   // use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  int devID = findCudaDevice(argc, (const char **)argv);
+  int devID = findCudaDevice(argc, (const char**)argv);
 
-  StopWatchInterface *timer = 0;
+  StopWatchInterface* timer = 0;
   sdkCreateTimer(&timer);
   sdkStartTimer(&timer);
 
@@ -87,7 +87,7 @@ void runTest(int argc, char **argv) {
   unsigned int mem_size = sizeof(float) * num_threads;
 
   // allocate host memory
-  float *h_idata = (float *)malloc(mem_size);
+  float* h_idata = (float*)malloc(mem_size);
 
   // initalize the memory
   for (unsigned int i = 0; i < num_threads; ++i) {
@@ -95,15 +95,15 @@ void runTest(int argc, char **argv) {
   }
 
   // allocate device memory
-  float *d_idata;
-  checkCudaErrors(cudaMalloc((void **)&d_idata, mem_size));
+  float* d_idata;
+  checkCudaErrors(cudaMalloc((void**)&d_idata, mem_size));
   // copy host memory to device
   checkCudaErrors(
       cudaMemcpy(d_idata, h_idata, mem_size, cudaMemcpyHostToDevice));
 
   // allocate device memory for result
-  float *d_odata;
-  checkCudaErrors(cudaMalloc((void **)&d_odata, mem_size));
+  float* d_odata;
+  checkCudaErrors(cudaMalloc((void**)&d_odata, mem_size));
 
   // setup execution parameters
   dim3 grid(1, 1, 1);
@@ -116,7 +116,7 @@ void runTest(int argc, char **argv) {
   getLastCudaError("Kernel execution failed");
 
   // allocate mem for the result on host side
-  float *h_odata = (float *)malloc(mem_size);
+  float* h_odata = (float*)malloc(mem_size);
   // copy result from device to host
   checkCudaErrors(cudaMemcpy(h_odata, d_odata, sizeof(float) * num_threads,
                              cudaMemcpyDeviceToHost));
@@ -126,11 +126,11 @@ void runTest(int argc, char **argv) {
   sdkDeleteTimer(&timer);
 
   // compute reference solution
-  float *reference = (float *)malloc(mem_size);
+  float* reference = (float*)malloc(mem_size);
   computeGold(reference, h_idata, num_threads);
 
   // check result
-  if (checkCmdLineFlag(argc, (const char **)argv, "regression")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "regression")) {
     // write file for regression test
     sdkWriteFile("./data/regression.dat", h_odata, num_threads, 0.0f, false);
   } else {

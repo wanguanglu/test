@@ -26,20 +26,25 @@
 
 template <typename T>
 BodySystemCPU<T>::BodySystemCPU(int numBodies)
-    : m_numBodies(numBodies), m_bInitialized(false), m_force(0),
-      m_softeningSquared(.00125f), m_damping(0.995f) {
+    : m_numBodies(numBodies),
+      m_bInitialized(false),
+      m_force(0),
+      m_softeningSquared(.00125f),
+      m_damping(0.995f) {
   m_pos = 0;
   m_vel = 0;
 
   _initialize(numBodies);
 }
 
-template <typename T> BodySystemCPU<T>::~BodySystemCPU() {
+template <typename T>
+BodySystemCPU<T>::~BodySystemCPU() {
   _finalize();
   m_numBodies = 0;
 }
 
-template <typename T> void BodySystemCPU<T>::_initialize(int numBodies) {
+template <typename T>
+void BodySystemCPU<T>::_initialize(int numBodies) {
   assert(!m_bInitialized);
 
   m_numBodies = numBodies;
@@ -55,7 +60,8 @@ template <typename T> void BodySystemCPU<T>::_initialize(int numBodies) {
   m_bInitialized = true;
 }
 
-template <typename T> void BodySystemCPU<T>::_finalize() {
+template <typename T>
+void BodySystemCPU<T>::_finalize() {
   assert(m_bInitialized);
 
   delete[] m_pos;
@@ -66,9 +72,8 @@ template <typename T> void BodySystemCPU<T>::_finalize() {
 }
 
 template <typename T>
-void BodySystemCPU<T>::loadTipsyFile(const std::string &filename) {
-  if (m_bInitialized)
-    _finalize();
+void BodySystemCPU<T>::loadTipsyFile(const std::string& filename) {
+  if (m_bInitialized) _finalize();
 
   vector<typename vec4<T>::Type> positions;
   vector<typename vec4<T>::Type> velocities;
@@ -86,7 +91,8 @@ void BodySystemCPU<T>::loadTipsyFile(const std::string &filename) {
   memcpy(m_vel, &velocities[0], sizeof(vec4<T>) * nBodies);
 }
 
-template <typename T> void BodySystemCPU<T>::update(T deltaTime) {
+template <typename T>
+void BodySystemCPU<T>::update(T deltaTime) {
   assert(m_bInitialized);
 
   _integrateNBodySystem(deltaTime);
@@ -94,48 +100,55 @@ template <typename T> void BodySystemCPU<T>::update(T deltaTime) {
   // std::swap(m_currentRead, m_currentWrite);
 }
 
-template <typename T> T *BodySystemCPU<T>::getArray(BodyArray array) {
+template <typename T>
+T* BodySystemCPU<T>::getArray(BodyArray array) {
   assert(m_bInitialized);
 
-  T *data = 0;
+  T* data = 0;
 
   switch (array) {
-  default:
-  case BODYSYSTEM_POSITION:
-    data = m_pos;
-    break;
+    default:
+    case BODYSYSTEM_POSITION:
+      data = m_pos;
+      break;
 
-  case BODYSYSTEM_VELOCITY:
-    data = m_vel;
-    break;
+    case BODYSYSTEM_VELOCITY:
+      data = m_vel;
+      break;
   }
 
   return data;
 }
 
 template <typename T>
-void BodySystemCPU<T>::setArray(BodyArray array, const T *data) {
+void BodySystemCPU<T>::setArray(BodyArray array, const T* data) {
   assert(m_bInitialized);
 
-  T *target = 0;
+  T* target = 0;
 
   switch (array) {
-  default:
-  case BODYSYSTEM_POSITION:
-    target = m_pos;
-    break;
+    default:
+    case BODYSYSTEM_POSITION:
+      target = m_pos;
+      break;
 
-  case BODYSYSTEM_VELOCITY:
-    target = m_vel;
-    break;
+    case BODYSYSTEM_VELOCITY:
+      target = m_vel;
+      break;
   }
 
   memcpy(target, data, m_numBodies * 4 * sizeof(T));
 }
 
-template <typename T> T sqrt_T(T x) { return sqrt(x); }
+template <typename T>
+T sqrt_T(T x) {
+  return sqrt(x);
+}
 
-template <> float sqrt_T<float>(float x) { return sqrtf(x); }
+template <>
+float sqrt_T<float>(float x) {
+  return sqrtf(x);
+}
 
 template <typename T>
 void bodyBodyInteraction(T accel[3], T posMass0[4], T posMass1[4],
@@ -164,7 +177,8 @@ void bodyBodyInteraction(T accel[3], T posMass0[4], T posMass1[4],
   accel[2] += r[2] * s;
 }
 
-template <typename T> void BodySystemCPU<T>::_computeNBodyGravitation() {
+template <typename T>
+void BodySystemCPU<T>::_computeNBodyGravitation() {
 #ifdef OPENMP
 #pragma omp parallel for
 #endif

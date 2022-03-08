@@ -33,10 +33,10 @@
 #include "SobelFilter_kernels.h"
 
 // includes, project
-#include <helper_cuda.h> // includes for cuda initialization and error checking
-#include <helper_functions.h> // includes for SDK helper functions
+#include <helper_cuda.h>  // includes for cuda initialization and error checking
+#include <helper_functions.h>  // includes for SDK helper functions
 
-const char *filterMode[] = {"No Filtering", "Sobel Texture",
+const char* filterMode[] = {"No Filtering", "Sobel Texture",
                             "Sobel SMEM+Texture", NULL};
 
 //
@@ -51,46 +51,46 @@ const char *filterMode[] = {"No Filtering", "Sobel Texture",
 // S: display Sobel edge detection (computed with texture and shared memory)
 
 void cleanup(void);
-void initializeData(char *file);
+void initializeData(char* file);
 
 #define MAX_EPSILON_ERROR 5.0f
-#define REFRESH_DELAY 10 // ms
+#define REFRESH_DELAY 10  // ms
 
-const char *sSDKsample = "CUDA Sobel Edge-Detection";
+const char* sSDKsample = "CUDA Sobel Edge-Detection";
 
-static int wWidth = 512;  // Window width
-static int wHeight = 512; // Window height
-static int imWidth = 0;   // Image width
-static int imHeight = 0;  // Image height
+static int wWidth = 512;   // Window width
+static int wHeight = 512;  // Window height
+static int imWidth = 0;    // Image width
+static int imHeight = 0;   // Image height
 
 // Code to handle Auto verification
 const int frameCheckNumber = 4;
-int fpsCount = 0; // FPS count for averaging
-int fpsLimit = 8; // FPS limit for sampling
+int fpsCount = 0;  // FPS count for averaging
+int fpsLimit = 8;  // FPS limit for sampling
 unsigned int frameCount = 0;
 unsigned int g_TotalErrors = 0;
-StopWatchInterface *timer = NULL;
+StopWatchInterface* timer = NULL;
 unsigned int g_Bpp;
 unsigned int g_Index = 0;
 
 bool g_bQAReadback = false;
 
 // Display Data
-static GLuint pbo_buffer = 0; // Front and back CA buffers
-struct cudaGraphicsResource
-    *cuda_pbo_resource; // CUDA Graphics Resource (to transfer PBO)
+static GLuint pbo_buffer = 0;  // Front and back CA buffers
+struct cudaGraphicsResource*
+    cuda_pbo_resource;  // CUDA Graphics Resource (to transfer PBO)
 
-static GLuint texid = 0;      // Texture for display
-unsigned char *pixels = NULL; // Image pixel data on the host
-float imageScale = 1.f;       // Image exposure
+static GLuint texid = 0;       // Texture for display
+unsigned char* pixels = NULL;  // Image pixel data on the host
+float imageScale = 1.f;        // Image exposure
 enum SobelDisplayMode g_SobelDisplayMode;
 
-int *pArgc = NULL;
-char **pArgv = NULL;
+int* pArgc = NULL;
+char** pArgv = NULL;
 
-extern "C" void runAutoTest(int argc, char **argv);
+extern "C" void runAutoTest(int argc, char** argv);
 
-#define OFFSET(i) ((char *)NULL + (i))
+#define OFFSET(i) ((char*)NULL + (i))
 #define MAX(a, b) ((a > b) ? a : b)
 
 void computeFPS() {
@@ -115,13 +115,13 @@ void display(void) {
   sdkStartTimer(&timer);
 
   // Sobel operation
-  Pixel *data = NULL;
+  Pixel* data = NULL;
 
   // map PBO to get CUDA device pointer
   checkCudaErrors(cudaGraphicsMapResources(1, &cuda_pbo_resource, 0));
   size_t num_bytes;
   checkCudaErrors(cudaGraphicsResourceGetMappedPointer(
-      (void **)&data, &num_bytes, cuda_pbo_resource));
+      (void**)&data, &num_bytes, cuda_pbo_resource));
   // printf("CUDA mapped PBO: May access %ld bytes\n", num_bytes);
 
   sobelFilter(data, imWidth, imHeight, g_SobelDisplayMode, imageScale);
@@ -171,51 +171,51 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
   char temp[256];
 
   switch (key) {
-  case 27:
-  case 'q':
-  case 'Q':
-    printf("Shutting down...\n");
+    case 27:
+    case 'q':
+    case 'Q':
+      printf("Shutting down...\n");
 #if defined(__APPLE__) || defined(MACOSX)
-    exit(EXIT_SUCCESS);
+      exit(EXIT_SUCCESS);
 #else
-    glutDestroyWindow(glutGetWindow());
-    return;
+      glutDestroyWindow(glutGetWindow());
+      return;
 #endif
-    break;
+      break;
 
-  case '-':
-    imageScale -= 0.1f;
-    printf("brightness = %4.2f\n", imageScale);
-    break;
+    case '-':
+      imageScale -= 0.1f;
+      printf("brightness = %4.2f\n", imageScale);
+      break;
 
-  case '=':
-    imageScale += 0.1f;
-    printf("brightness = %4.2f\n", imageScale);
-    break;
+    case '=':
+      imageScale += 0.1f;
+      printf("brightness = %4.2f\n", imageScale);
+      break;
 
-  case 'i':
-  case 'I':
-    g_SobelDisplayMode = SOBELDISPLAY_IMAGE;
-    sprintf(temp, "CUDA Edge Detection (%s)", filterMode[g_SobelDisplayMode]);
-    glutSetWindowTitle(temp);
-    break;
+    case 'i':
+    case 'I':
+      g_SobelDisplayMode = SOBELDISPLAY_IMAGE;
+      sprintf(temp, "CUDA Edge Detection (%s)", filterMode[g_SobelDisplayMode]);
+      glutSetWindowTitle(temp);
+      break;
 
-  case 's':
-  case 'S':
-    g_SobelDisplayMode = SOBELDISPLAY_SOBELSHARED;
-    sprintf(temp, "CUDA Edge Detection (%s)", filterMode[g_SobelDisplayMode]);
-    glutSetWindowTitle(temp);
-    break;
+    case 's':
+    case 'S':
+      g_SobelDisplayMode = SOBELDISPLAY_SOBELSHARED;
+      sprintf(temp, "CUDA Edge Detection (%s)", filterMode[g_SobelDisplayMode]);
+      glutSetWindowTitle(temp);
+      break;
 
-  case 't':
-  case 'T':
-    g_SobelDisplayMode = SOBELDISPLAY_SOBELTEX;
-    sprintf(temp, "CUDA Edge Detection (%s)", filterMode[g_SobelDisplayMode]);
-    glutSetWindowTitle(temp);
-    break;
+    case 't':
+    case 'T':
+      g_SobelDisplayMode = SOBELDISPLAY_SOBELTEX;
+      sprintf(temp, "CUDA Edge Detection (%s)", filterMode[g_SobelDisplayMode]);
+      glutSetWindowTitle(temp);
+      break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }
 
@@ -246,7 +246,7 @@ void cleanup(void) {
   cudaDeviceReset();
 }
 
-void initializeData(char *file) {
+void initializeData(char* file) {
   GLint bsize;
   unsigned int w, h;
   size_t file_length = strlen(file);
@@ -321,11 +321,10 @@ void initializeData(char *file) {
   }
 }
 
-void loadDefaultImage(char *loc_exec) {
-
+void loadDefaultImage(char* loc_exec) {
   printf("Reading image: lena.pgm\n");
-  const char *image_filename = "lena.pgm";
-  char *image_path = sdkFindFilePath(image_filename, loc_exec);
+  const char* image_filename = "lena.pgm";
+  char* image_path = sdkFindFilePath(image_filename, loc_exec);
 
   if (image_path == NULL) {
     printf("Failed to read image file: <%s>\n", image_filename);
@@ -336,7 +335,7 @@ void loadDefaultImage(char *loc_exec) {
   free(image_path);
 }
 
-void initGL(int *argc, char **argv) {
+void initGL(int* argc, char** argv) {
   glutInit(argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
   glutInitWindowSize(wWidth, wHeight);
@@ -355,51 +354,51 @@ void initGL(int *argc, char **argv) {
   }
 }
 
-void runAutoTest(int argc, char *argv[]) {
+void runAutoTest(int argc, char* argv[]) {
   printf("[%s] (automated testing w/ readback)\n", sSDKsample);
-  int devID = findCudaDevice(argc, (const char **)argv);
+  int devID = findCudaDevice(argc, (const char**)argv);
 
   loadDefaultImage(argv[0]);
 
-  Pixel *d_result;
+  Pixel* d_result;
   checkCudaErrors(
-      cudaMalloc((void **)&d_result, imWidth * imHeight * sizeof(Pixel)));
+      cudaMalloc((void**)&d_result, imWidth * imHeight * sizeof(Pixel)));
 
-  char *ref_file = NULL;
+  char* ref_file = NULL;
   char dump_file[256];
 
   int mode = 0;
-  mode = getCmdLineArgumentInt(argc, (const char **)argv, "mode");
-  getCmdLineArgumentString(argc, (const char **)argv, "file", &ref_file);
+  mode = getCmdLineArgumentInt(argc, (const char**)argv, "mode");
+  getCmdLineArgumentString(argc, (const char**)argv, "file", &ref_file);
 
   switch (mode) {
-  case 0:
-    g_SobelDisplayMode = SOBELDISPLAY_IMAGE;
-    sprintf(dump_file, "lena_orig.pgm");
-    break;
+    case 0:
+      g_SobelDisplayMode = SOBELDISPLAY_IMAGE;
+      sprintf(dump_file, "lena_orig.pgm");
+      break;
 
-  case 1:
-    g_SobelDisplayMode = SOBELDISPLAY_SOBELTEX;
-    sprintf(dump_file, "lena_tex.pgm");
-    break;
+    case 1:
+      g_SobelDisplayMode = SOBELDISPLAY_SOBELTEX;
+      sprintf(dump_file, "lena_tex.pgm");
+      break;
 
-  case 2:
-    g_SobelDisplayMode = SOBELDISPLAY_SOBELSHARED;
-    sprintf(dump_file, "lena_shared.pgm");
-    break;
+    case 2:
+      g_SobelDisplayMode = SOBELDISPLAY_SOBELSHARED;
+      sprintf(dump_file, "lena_shared.pgm");
+      break;
 
-  default:
-    printf("Invalid Filter Mode File\n");
-    exit(EXIT_FAILURE);
-    break;
+    default:
+      printf("Invalid Filter Mode File\n");
+      exit(EXIT_FAILURE);
+      break;
   }
 
   printf("AutoTest: %s <%s>\n", sSDKsample, filterMode[g_SobelDisplayMode]);
   sobelFilter(d_result, imWidth, imHeight, g_SobelDisplayMode, imageScale);
   checkCudaErrors(cudaDeviceSynchronize());
 
-  unsigned char *h_result =
-      (unsigned char *)malloc(imWidth * imHeight * sizeof(Pixel));
+  unsigned char* h_result =
+      (unsigned char*)malloc(imWidth * imHeight * sizeof(Pixel));
   checkCudaErrors(cudaMemcpy(h_result, d_result,
                              imWidth * imHeight * sizeof(Pixel),
                              cudaMemcpyDeviceToHost));
@@ -422,7 +421,7 @@ void runAutoTest(int argc, char *argv[]) {
   exit(EXIT_SUCCESS);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   pArgc = &argc;
   pArgv = argv;
 
@@ -432,25 +431,27 @@ int main(int argc, char **argv) {
 
   printf("%s Starting...\n\n", sSDKsample);
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "help")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "help")) {
     printf("\nUsage: SobelFilter <options>\n");
     printf("\t\t-mode=n (0=original, 1=texture, 2=smem + texture)\n");
     printf("\t\t-file=ref_orig.pgm (ref_tex.pgm, ref_shared.pgm)\n\n");
     exit(EXIT_SUCCESS);
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "file")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "file")) {
     g_bQAReadback = true;
     runAutoTest(argc, argv);
   }
 
   // use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
-    printf("   This SDK does not explicitly support -device=n when running "
-           "with OpenGL.\n");
-    printf("   When specifying -device=n (n=0,1,2,....) the sample must not "
-           "use OpenGL.\n");
+  if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
+    printf(
+        "   This SDK does not explicitly support -device=n when running "
+        "with OpenGL.\n");
+    printf(
+        "   When specifying -device=n (n=0,1,2,....) the sample must not "
+        "use OpenGL.\n");
     printf("   See details below to run without OpenGL:\n\n");
     printf(" > %s -device=n\n\n", argv[0]);
     printf("exiting...\n");

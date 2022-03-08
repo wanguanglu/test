@@ -19,7 +19,7 @@
 #include <windows.h>
 
 typedef HANDLE CUTThread;
-typedef unsigned(WINAPI *CUT_THREADROUTINE)(void *);
+typedef unsigned(WINAPI* CUT_THREADROUTINE)(void*);
 
 #define CUT_THREADPROC unsigned WINAPI
 #define CUT_THREADEND return 0
@@ -29,7 +29,7 @@ typedef unsigned(WINAPI *CUT_THREADROUTINE)(void *);
 #include <pthread.h>
 
 typedef pthread_t CUTThread;
-typedef void *(*CUT_THREADROUTINE)(void *);
+typedef void* (*CUT_THREADROUTINE)(void*);
 
 #define CUT_THREADPROC void
 #define CUT_THREADEND
@@ -40,16 +40,16 @@ extern "C" {
 #endif
 
 // Create thread.
-CUTThread cutStartThread(CUT_THREADROUTINE, void *data);
+CUTThread cutStartThread(CUT_THREADROUTINE, void* data);
 
 // Wait for thread to finish.
 void cutEndThread(CUTThread thread);
 
 // Wait for multiple threads.
-void cutWaitForThreads(const CUTThread *threads, int num);
+void cutWaitForThreads(const CUTThread* threads, int num);
 
 #ifdef __cplusplus
-} // extern "C"
+}  // extern "C"
 #endif
 
-#endif // MULTITHREADING_H
+#endif  // MULTITHREADING_H

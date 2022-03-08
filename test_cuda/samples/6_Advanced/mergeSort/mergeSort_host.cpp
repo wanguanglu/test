@@ -18,7 +18,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Helper functions
 ////////////////////////////////////////////////////////////////////////////////
-static void checkOrder(uint *data, uint N, uint sortDir) {
+static void checkOrder(uint* data, uint N, uint sortDir) {
   if (N <= 1) {
     return;
   }
@@ -48,7 +48,7 @@ static uint nextPowerOfTwo(uint x) {
   return ++x;
 }
 
-static uint binarySearchInclusive(uint val, uint *data, uint L, uint sortDir) {
+static uint binarySearchInclusive(uint val, uint* data, uint L, uint sortDir) {
   if (L == 0) {
     return 0;
   }
@@ -67,7 +67,7 @@ static uint binarySearchInclusive(uint val, uint *data, uint L, uint sortDir) {
   return pos;
 }
 
-static uint binarySearchExclusive(uint val, uint *data, uint L, uint sortDir) {
+static uint binarySearchExclusive(uint val, uint* data, uint L, uint sortDir) {
   if (L == 0) {
     return 0;
   }
@@ -89,7 +89,7 @@ static uint binarySearchExclusive(uint val, uint *data, uint L, uint sortDir) {
 ////////////////////////////////////////////////////////////////////////////////
 // Merge step 1: find sample ranks in each segment
 ////////////////////////////////////////////////////////////////////////////////
-static void generateSampleRanks(uint *ranksA, uint *ranksB, uint *srcKey,
+static void generateSampleRanks(uint* ranksA, uint* ranksB, uint* srcKey,
                                 uint stride, uint N, uint sortDir) {
   uint lastSegmentElements = N % (2 * stride);
   uint sampleCount =
@@ -126,7 +126,7 @@ static void generateSampleRanks(uint *ranksA, uint *ranksB, uint *srcKey,
 ////////////////////////////////////////////////////////////////////////////////
 // Merge step 2: merge ranks and indices to derive elementary intervals
 ////////////////////////////////////////////////////////////////////////////////
-static void mergeRanksAndIndices(uint *limits, uint *ranks, uint stride,
+static void mergeRanksAndIndices(uint* limits, uint* ranks, uint stride,
                                  uint N) {
   uint lastSegmentElements = N % (2 * stride);
   uint sampleCount =
@@ -169,8 +169,8 @@ static void mergeRanksAndIndices(uint *limits, uint *ranks, uint stride,
 ////////////////////////////////////////////////////////////////////////////////
 // Merge step 3: merge elementary intervals (each interval is <= SAMPLE_STRIDE)
 ////////////////////////////////////////////////////////////////////////////////
-static void merge(uint *dstKey, uint *dstVal, uint *srcAKey, uint *srcAVal,
-                  uint *srcBKey, uint *srcBVal, uint lenA, uint lenB,
+static void merge(uint* dstKey, uint* dstVal, uint* srcAKey, uint* srcAVal,
+                  uint* srcBKey, uint* srcBVal, uint lenA, uint lenB,
                   uint sortDir) {
   checkOrder(srcAKey, lenA, sortDir);
   checkOrder(srcBKey, lenB, sortDir);
@@ -190,8 +190,8 @@ static void merge(uint *dstKey, uint *dstVal, uint *srcAKey, uint *srcAVal,
   }
 }
 
-static void mergeElementaryIntervals(uint *dstKey, uint *dstVal, uint *srcKey,
-                                     uint *srcVal, uint *limitsA, uint *limitsB,
+static void mergeElementaryIntervals(uint* dstKey, uint* dstVal, uint* srcKey,
+                                     uint* srcVal, uint* limitsA, uint* limitsB,
                                      uint stride, uint N, uint sortDir) {
   uint lastSegmentElements = N % (2 * stride);
   uint mergePairs = (lastSegmentElements > stride)
@@ -232,7 +232,7 @@ static void mergeElementaryIntervals(uint *dstKey, uint *dstVal, uint *srcKey,
 ////////////////////////////////////////////////////////////////////////////////
 // Retarded bubble sort
 ////////////////////////////////////////////////////////////////////////////////
-static void bubbleSort(uint *key, uint *val, uint N, uint sortDir) {
+static void bubbleSort(uint* key, uint* val, uint N, uint sortDir) {
   if (N <= 1) {
     return;
   }
@@ -262,8 +262,8 @@ static void bubbleSort(uint *key, uint *val, uint N, uint sortDir) {
 ////////////////////////////////////////////////////////////////////////////////
 // Interface function
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void mergeSortHost(uint *dstKey, uint *dstVal, uint *bufKey,
-                              uint *bufVal, uint *srcKey, uint *srcVal, uint N,
+extern "C" void mergeSortHost(uint* dstKey, uint* dstVal, uint* bufKey,
+                              uint* bufVal, uint* srcKey, uint* srcVal, uint N,
                               uint sortDir) {
   uint *ikey, *ival, *okey, *oval;
   uint stageCount = 0;
@@ -293,10 +293,10 @@ extern "C" void mergeSortHost(uint *dstKey, uint *dstVal, uint *bufKey,
   }
 
   printf("Merge...\n");
-  uint *ranksA = (uint *)malloc(getSampleCount(N) * sizeof(uint));
-  uint *ranksB = (uint *)malloc(getSampleCount(N) * sizeof(uint));
-  uint *limitsA = (uint *)malloc(getSampleCount(N) * sizeof(uint));
-  uint *limitsB = (uint *)malloc(getSampleCount(N) * sizeof(uint));
+  uint* ranksA = (uint*)malloc(getSampleCount(N) * sizeof(uint));
+  uint* ranksB = (uint*)malloc(getSampleCount(N) * sizeof(uint));
+  uint* limitsA = (uint*)malloc(getSampleCount(N) * sizeof(uint));
+  uint* limitsB = (uint*)malloc(getSampleCount(N) * sizeof(uint));
   memset(ranksA, 0xFF, getSampleCount(N) * sizeof(uint));
   memset(ranksB, 0xFF, getSampleCount(N) * sizeof(uint));
   memset(limitsA, 0xFF, getSampleCount(N) * sizeof(uint));
@@ -325,7 +325,7 @@ extern "C" void mergeSortHost(uint *dstKey, uint *dstVal, uint *bufKey,
              lastSegmentElements * sizeof(uint));
     }
 
-    uint *t;
+    uint* t;
     t = ikey;
     ikey = okey;
     okey = t;

@@ -51,7 +51,7 @@
 
 #define MAX_EPSILON_ERROR 1.0f
 
-const char *sSDKname = "fluidsGL";
+const char* sSDKname = "fluidsGL";
 // CUDA example code that implements the frequency space version of
 // Jos Stam's paper 'Stable Fluids' in 2D. This application uses the
 // CUDA FFT library (CUFFT) to perform velocity diffusion and to
@@ -66,29 +66,29 @@ void reshape(int x, int y);
 // CUFFT plan handle
 cufftHandle planr2c;
 cufftHandle planc2r;
-static cData *vxfield = NULL;
-static cData *vyfield = NULL;
+static cData* vxfield = NULL;
+static cData* vyfield = NULL;
 
-cData *hvfield = NULL;
-cData *dvfield = NULL;
+cData* hvfield = NULL;
+cData* dvfield = NULL;
 static int wWidth = MAX(512, DIM);
 static int wHeight = MAX(512, DIM);
 
 static int clicked = 0;
 static int fpsCount = 0;
 static int fpsLimit = 1;
-StopWatchInterface *timer = NULL;
+StopWatchInterface* timer = NULL;
 
 // Particle data
-GLuint vbo = 0;                                 // OpenGL vertex buffer object
-struct cudaGraphicsResource *cuda_vbo_resource; // handles OpenGL-CUDA exchange
-static cData *particles = NULL; // particle positions in host memory
+GLuint vbo = 0;                                  // OpenGL vertex buffer object
+struct cudaGraphicsResource* cuda_vbo_resource;  // handles OpenGL-CUDA exchange
+static cData* particles = NULL;  // particle positions in host memory
 static int lastx = 0, lasty = 0;
 
 // Texture pitch
-size_t tPitch = 0; // Now this is compatible with gcc in 64-bit
+size_t tPitch = 0;  // Now this is compatible with gcc in 64-bit
 
-char *ref_file = NULL;
+char* ref_file = NULL;
 bool g_bQAAddTestForce = true;
 int g_iFrameToCompare = 100;
 int g_TotalErrors = 0;
@@ -96,31 +96,30 @@ int g_TotalErrors = 0;
 bool g_bExitESC = false;
 
 // CheckFBO/BackBuffer class objects
-CheckRender *g_CheckRender = NULL;
+CheckRender* g_CheckRender = NULL;
 
-void autoTest(char **);
+void autoTest(char**);
 
-extern "C" void addForces(cData *v, int dx, int dy, int spx, int spy, float fx,
+extern "C" void addForces(cData* v, int dx, int dy, int spx, int spy, float fx,
                           float fy, int r);
-extern "C" void advectVelocity(cData *v, float *vx, float *vy, int dx, int pdx,
+extern "C" void advectVelocity(cData* v, float* vx, float* vy, int dx, int pdx,
                                int dy, float dt);
-extern "C" void diffuseProject(cData *vx, cData *vy, int dx, int dy, float dt,
+extern "C" void diffuseProject(cData* vx, cData* vy, int dx, int dy, float dt,
                                float visc);
-extern "C" void updateVelocity(cData *v, float *vx, float *vy, int dx, int pdx,
+extern "C" void updateVelocity(cData* v, float* vx, float* vy, int dx, int pdx,
                                int dy);
-extern "C" void advectParticles(GLuint vbo, cData *v, int dx, int dy, float dt);
+extern "C" void advectParticles(GLuint vbo, cData* v, int dx, int dy, float dt);
 
 void simulateFluids(void) {
   // simulate fluid
-  advectVelocity(dvfield, (float *)vxfield, (float *)vyfield, DIM, RPADW, DIM,
+  advectVelocity(dvfield, (float*)vxfield, (float*)vyfield, DIM, RPADW, DIM,
                  DT);
   diffuseProject(vxfield, vyfield, CPADW, DIM, DT, VIS);
-  updateVelocity(dvfield, (float *)vxfield, (float *)vyfield, DIM, RPADW, DIM);
+  updateVelocity(dvfield, (float*)vxfield, (float*)vyfield, DIM, RPADW, DIM);
   advectParticles(vbo, dvfield, DIM, DIM, DT);
 }
 
 void display(void) {
-
   if (!ref_file) {
     sdkStartTimer(&timer);
     simulateFluids();
@@ -167,8 +166,8 @@ void display(void) {
   glutPostRedisplay();
 }
 
-void autoTest(char **argv) {
-  CFrameBufferObject *fbo =
+void autoTest(char** argv) {
+  CFrameBufferObject* fbo =
       new CFrameBufferObject(wWidth, wHeight, 4, false, GL_TEXTURE_2D);
   g_CheckRender = new CheckFBO(wWidth, wHeight, 4, fbo);
   g_CheckRender->setPixelFormat(GL_RGBA);
@@ -240,7 +239,7 @@ float myrand(void) {
   }
 }
 
-void initParticles(cData *p, int dx, int dy) {
+void initParticles(cData* p, int dx, int dy) {
   int i, j;
 
   for (i = 0; i < dy; i++) {
@@ -253,39 +252,39 @@ void initParticles(cData *p, int dx, int dy) {
 
 void keyboard(unsigned char key, int x, int y) {
   switch (key) {
-  case 27:
-    g_bExitESC = true;
+    case 27:
+      g_bExitESC = true;
 #if defined(__APPLE__) || defined(MACOSX)
-    exit(EXIT_SUCCESS);
+      exit(EXIT_SUCCESS);
 #else
-    glutDestroyWindow(glutGetWindow());
-    return;
+      glutDestroyWindow(glutGetWindow());
+      return;
 #endif
-    break;
+      break;
 
-  case 'r':
-    memset(hvfield, 0, sizeof(cData) * DS);
-    cudaMemcpy(dvfield, hvfield, sizeof(cData) * DS, cudaMemcpyHostToDevice);
+    case 'r':
+      memset(hvfield, 0, sizeof(cData) * DS);
+      cudaMemcpy(dvfield, hvfield, sizeof(cData) * DS, cudaMemcpyHostToDevice);
 
-    initParticles(particles, DIM, DIM);
+      initParticles(particles, DIM, DIM);
 
-    cudaGraphicsUnregisterResource(cuda_vbo_resource);
+      cudaGraphicsUnregisterResource(cuda_vbo_resource);
 
-    getLastCudaError("cudaGraphicsUnregisterBuffer failed");
+      getLastCudaError("cudaGraphicsUnregisterBuffer failed");
 
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
-    glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(cData) * DS, particles,
-                    GL_DYNAMIC_DRAW_ARB);
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+      glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
+      glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(cData) * DS, particles,
+                      GL_DYNAMIC_DRAW_ARB);
+      glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
-    cudaGraphicsGLRegisterBuffer(&cuda_vbo_resource, vbo,
-                                 cudaGraphicsMapFlagsNone);
+      cudaGraphicsGLRegisterBuffer(&cuda_vbo_resource, vbo,
+                                   cudaGraphicsMapFlagsNone);
 
-    getLastCudaError("cudaGraphicsGLRegisterBuffer failed");
-    break;
+      getLastCudaError("cudaGraphicsGLRegisterBuffer failed");
+      break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }
 
@@ -360,7 +359,7 @@ void cleanup(void) {
   }
 }
 
-int initGL(int *argc, char **argv) {
+int initGL(int* argc, char** argv) {
   glutInit(argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
   glutInitWindowSize(wWidth, wHeight);
@@ -382,7 +381,7 @@ int initGL(int *argc, char **argv) {
   return true;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   int devID;
   cudaDeviceProp deviceProps;
 
@@ -392,8 +391,9 @@ int main(int argc, char **argv) {
 
   printf("%s Starting...\n\n", sSDKname);
 
-  printf("NOTE: The CUDA Samples are not meant for performance measurements. "
-         "Results may vary when GPU Boost is enabled.\n\n");
+  printf(
+      "NOTE: The CUDA Samples are not meant for performance measurements. "
+      "Results may vary when GPU Boost is enabled.\n\n");
 
   // First initialize OpenGL context, so we can properly set the GL for CUDA.
   // This is necessary in order to achieve optimal performance with OpenGL/CUDA
@@ -404,7 +404,7 @@ int main(int argc, char **argv) {
 
   // use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  devID = findCudaGLDevice(argc, (const char **)argv);
+  devID = findCudaGLDevice(argc, (const char**)argv);
 
   // get number of SMs on this GPU
   checkCudaErrors(cudaGetDeviceProperties(&deviceProps, devID));
@@ -412,8 +412,8 @@ int main(int argc, char **argv) {
          deviceProps.multiProcessorCount);
 
   // automated build testing harness
-  if (checkCmdLineFlag(argc, (const char **)argv, "file")) {
-    getCmdLineArgumentString(argc, (const char **)argv, "file", &ref_file);
+  if (checkCmdLineFlag(argc, (const char**)argv, "file")) {
+    getCmdLineArgumentString(argc, (const char**)argv, "file", &ref_file);
   }
 
   // Allocate and initialize host data
@@ -422,22 +422,22 @@ int main(int argc, char **argv) {
   sdkCreateTimer(&timer);
   sdkResetTimer(&timer);
 
-  hvfield = (cData *)malloc(sizeof(cData) * DS);
+  hvfield = (cData*)malloc(sizeof(cData) * DS);
   memset(hvfield, 0, sizeof(cData) * DS);
 
   // Allocate and initialize device data
-  cudaMallocPitch((void **)&dvfield, &tPitch, sizeof(cData) * DIM, DIM);
+  cudaMallocPitch((void**)&dvfield, &tPitch, sizeof(cData) * DIM, DIM);
 
   cudaMemcpy(dvfield, hvfield, sizeof(cData) * DS, cudaMemcpyHostToDevice);
   // Temporary complex velocity field data
-  cudaMalloc((void **)&vxfield, sizeof(cData) * PDS);
-  cudaMalloc((void **)&vyfield, sizeof(cData) * PDS);
+  cudaMalloc((void**)&vxfield, sizeof(cData) * PDS);
+  cudaMalloc((void**)&vyfield, sizeof(cData) * PDS);
 
   setupTexture(DIM, DIM);
   bindTexture();
 
   // Create particle array
-  particles = (cData *)malloc(sizeof(cData) * DS);
+  particles = (cData*)malloc(sizeof(cData) * DS);
   memset(particles, 0, sizeof(cData) * DS);
 
   initParticles(particles, DIM, DIM);
@@ -457,8 +457,7 @@ int main(int argc, char **argv) {
 
   glGetBufferParameterivARB(GL_ARRAY_BUFFER_ARB, GL_BUFFER_SIZE_ARB, &bsize);
 
-  if (bsize != (sizeof(cData) * DS))
-    goto EXTERR;
+  if (bsize != (sizeof(cData) * DS)) goto EXTERR;
 
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 

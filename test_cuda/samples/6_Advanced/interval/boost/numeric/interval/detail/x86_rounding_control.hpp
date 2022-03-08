@@ -51,21 +51,23 @@ struct x86_rounding_control : x86_rounding {
   static void upward() { set_rounding_mode(rnd_mode.upward); }
   static void toward_zero() { set_rounding_mode(rnd_mode.toward_zero); }
 };
-#endif // BOOST_NUMERIC_INTERVAL_USE_C99_SUBSYSTEM
+#endif  // BOOST_NUMERIC_INTERVAL_USE_C99_SUBSYSTEM
 
-} // namespace detail
+}  // namespace detail
 
-template <> struct rounding_control<float> : detail::x86_rounding_control {
-  static float force_rounding(const float &r) {
+template <>
+struct rounding_control<float> : detail::x86_rounding_control {
+  static float force_rounding(const float& r) {
     volatile float r_ = r;
     return r_;
   }
 };
 
-template <> struct rounding_control<double> : detail::x86_rounding_control {
+template <>
+struct rounding_control<double> : detail::x86_rounding_control {
   /*static double force_rounding(double r)
   { asm volatile ("" : "+m"(r) : ); return r; }*/
-  static double force_rounding(const double &r) {
+  static double force_rounding(const double& r) {
     volatile double r_ = r;
     return r_;
   }
@@ -73,11 +75,12 @@ template <> struct rounding_control<double> : detail::x86_rounding_control {
 
 namespace detail {
 
-template <bool> struct x86_rounding_control_long_double;
+template <bool>
+struct x86_rounding_control_long_double;
 
 template <>
 struct x86_rounding_control_long_double<false> : x86_rounding_control {
-  static long double force_rounding(long double const &r) {
+  static long double force_rounding(long double const& r) {
     volatile long double r_ = r;
     return r_;
   }
@@ -85,18 +88,18 @@ struct x86_rounding_control_long_double<false> : x86_rounding_control {
 
 template <>
 struct x86_rounding_control_long_double<true> : x86_rounding_control {
-  static long double const &force_rounding(long double const &r) { return r; }
+  static long double const& force_rounding(long double const& r) { return r; }
 };
 
-} // namespace detail
+}  // namespace detail
 
 template <>
 struct rounding_control<long double>
     : detail::x86_rounding_control_long_double<(sizeof(long double) >= 10)> {};
 
-} // namespace interval_lib
-} // namespace numeric
-} // namespace boost
+}  // namespace interval_lib
+}  // namespace numeric
+}  // namespace boost
 
 #undef BOOST_NUMERIC_INTERVAL_NO_HARDWARE
 

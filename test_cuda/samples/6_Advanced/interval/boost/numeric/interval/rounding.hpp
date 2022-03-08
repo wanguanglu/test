@@ -18,15 +18,16 @@ namespace interval_lib {
  * Default rounding_control class (does nothing)
  */
 
-template <class T> struct rounding_control {
+template <class T>
+struct rounding_control {
   typedef int rounding_mode;
-  static void get_rounding_mode(rounding_mode &) {}
+  static void get_rounding_mode(rounding_mode&) {}
   static void set_rounding_mode(rounding_mode) {}
   static void upward() {}
   static void downward() {}
   static void to_nearest() {}
-  static const T &to_int(const T &x) { return x; }
-  static const T &force_rounding(const T &x) { return x; }
+  static const T& to_int(const T& x) { return x; }
+  static const T& force_rounding(const T& x) { return x; }
 };
 
 /*
@@ -44,7 +45,8 @@ struct rounded_arith_std;
 template <class T, class Rounding = rounding_control<T>>
 struct rounded_arith_opp;
 
-template <class T, class Rounding> struct rounded_transc_dummy;
+template <class T, class Rounding>
+struct rounded_transc_dummy;
 
 template <class T, class Rounding = rounded_arith_exact<T>>
 struct rounded_transc_exact;
@@ -61,13 +63,15 @@ struct rounded_transc_opp;
 
 namespace detail {
 
-template <class Rounding> struct save_state_unprotected : Rounding {
+template <class Rounding>
+struct save_state_unprotected : Rounding {
   typedef save_state_unprotected<Rounding> unprotected_rounding;
 };
 
-} // namespace detail
+}  // namespace detail
 
-template <class Rounding> struct save_state : Rounding {
+template <class Rounding>
+struct save_state : Rounding {
   typename Rounding::rounding_mode mode;
   save_state() {
     this->get_rounding_mode(mode);
@@ -77,15 +81,16 @@ template <class Rounding> struct save_state : Rounding {
   typedef detail::save_state_unprotected<Rounding> unprotected_rounding;
 };
 
-template <class Rounding> struct save_state_nothing : Rounding {
+template <class Rounding>
+struct save_state_nothing : Rounding {
   typedef save_state_nothing<Rounding> unprotected_rounding;
 };
 
 template <class T>
 struct rounded_math : save_state_nothing<rounded_arith_exact<T>> {};
 
-} // namespace interval_lib
-} // namespace numeric
-} // namespace boost
+}  // namespace interval_lib
+}  // namespace numeric
+}  // namespace boost
 
-#endif // BOOST_NUMERIC_INTERVAL_ROUNDING_HPP
+#endif  // BOOST_NUMERIC_INTERVAL_ROUNDING_HPP

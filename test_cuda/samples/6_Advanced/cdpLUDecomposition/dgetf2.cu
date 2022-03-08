@@ -60,21 +60,20 @@ DOUBLE PRECISION   A( LDA, * )
 #include <stdio.h>
 
 /* Input error reporting function, C version */
-__device__ void report_error(const char *strName, int info) {
+__device__ void report_error(const char* strName, int info) {
   printf(" ** On entry to %s parameter number %d had an illegal value\n",
          strName, info);
 }
 
 __device__ __noinline__ void dgetf2(cublasHandle_t cb_handle, int m, int n,
-                                    double *A, int lda, int *ipiv, int *info) {
+                                    double* A, int lda, int* ipiv, int* info) {
   cublasStatus_t status;
 
   // The flag set by one thread to indicate a failure.
   __shared__ int s_info;
 
   // Initialize to 0.
-  if (threadIdx.x == 0)
-    s_info = 0;
+  if (threadIdx.x == 0) s_info = 0;
 
   __syncthreads();
 
@@ -118,7 +117,7 @@ __device__ __noinline__ void dgetf2(cublasHandle_t cb_handle, int m, int n,
         s_info = 1;
       }
 
-      jp += j - 1; // cublasIdamax_v2 is 1-indexed (so remove 1).
+      jp += j - 1;  // cublasIdamax_v2 is 1-indexed (so remove 1).
       ipiv[j] = jp;
     }
 

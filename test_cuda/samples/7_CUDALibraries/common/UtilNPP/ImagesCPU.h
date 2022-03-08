@@ -23,7 +23,7 @@ namespace npp {
 
 template <typename D, unsigned int N, class A>
 class ImageCPU : public npp::ImagePacked<D, N, A> {
-public:
+ public:
   ImageCPU() { ; }
 
   ImageCPU(unsigned int nWidth, unsigned int nHeight)
@@ -31,22 +31,22 @@ public:
     ;
   }
 
-  explicit ImageCPU(const npp::Image::Size &rSize)
+  explicit ImageCPU(const npp::Image::Size& rSize)
       : ImagePacked<D, N, A>(rSize) {
     ;
   }
 
-  ImageCPU(const ImageCPU<D, N, A> &rImage) : Image(rImage) { ; }
+  ImageCPU(const ImageCPU<D, N, A>& rImage) : Image(rImage) { ; }
 
   virtual ~ImageCPU() { ; }
 
-  ImageCPU &operator=(const ImageCPU<D, N, A> &rImage) {
+  ImageCPU& operator=(const ImageCPU<D, N, A>& rImage) {
     ImagePacked<D, N, A>::operator=(rImage);
 
     return *this;
   }
 
-  npp::Pixel<D, N> &operator()(unsigned int iX, unsigned int iY) {
+  npp::Pixel<D, N>& operator()(unsigned int iX, unsigned int iY) {
     return *ImagePacked<D, N, A>::pixels(iX, iY);
   }
 
@@ -76,6 +76,6 @@ typedef ImageCPU<Npp32f, 1, npp::ImageAllocatorCPU<Npp32f, 1>> ImageCPU_32f_C1;
 typedef ImageCPU<Npp32f, 3, npp::ImageAllocatorCPU<Npp32f, 3>> ImageCPU_32f_C3;
 typedef ImageCPU<Npp32f, 4, npp::ImageAllocatorCPU<Npp32f, 4>> ImageCPU_32f_C4;
 
-} // namespace npp
+}  // namespace npp
 
-#endif // NV_IMAGE_IPP_H
+#endif  // NV_IMAGE_IPP_H

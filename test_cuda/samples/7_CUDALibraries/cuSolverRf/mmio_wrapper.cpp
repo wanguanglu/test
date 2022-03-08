@@ -15,53 +15,86 @@
 #endif
 
 /* various __inline__ __device__  function to initialize a T_ELEM */
-template <typename T_ELEM> __inline__ T_ELEM cuGet(int);
-template <> __inline__ float cuGet<float>(int x) { return float(x); }
-
-template <> __inline__ double cuGet<double>(int x) { return double(x); }
-
-template <> __inline__ cuComplex cuGet<cuComplex>(int x) {
-  return (make_cuComplex(float(x), 0.0f));
+template <typename T_ELEM>
+__inline__ T_ELEM cuGet(int);
+template <>
+__inline__ float cuGet<float>(int x) {
+  return float(x);
 }
 
-template <> __inline__ cuDoubleComplex cuGet<cuDoubleComplex>(int x) {
-  return (make_cuDoubleComplex(double(x), 0.0));
-}
-
-template <typename T_ELEM> __inline__ T_ELEM cuGet(int, int);
-template <> __inline__ float cuGet<float>(int x, int y) { return float(x); }
-
-template <> __inline__ double cuGet<double>(int x, int y) { return double(x); }
-
-template <> __inline__ cuComplex cuGet<cuComplex>(int x, int y) {
-  return make_cuComplex(float(x), float(y));
-}
-
-template <> __inline__ cuDoubleComplex cuGet<cuDoubleComplex>(int x, int y) {
-  return (make_cuDoubleComplex(double(x), double(y)));
-}
-
-template <typename T_ELEM> __inline__ T_ELEM cuGet(float);
-template <> __inline__ float cuGet<float>(float x) { return float(x); }
-
-template <> __inline__ double cuGet<double>(float x) { return double(x); }
-
-template <> __inline__ cuComplex cuGet<cuComplex>(float x) {
-  return (make_cuComplex(float(x), 0.0f));
-}
-
-template <> __inline__ cuDoubleComplex cuGet<cuDoubleComplex>(float x) {
-  return (make_cuDoubleComplex(double(x), 0.0));
-}
-
-template <typename T_ELEM> __inline__ T_ELEM cuGet(float, float);
-template <> __inline__ float cuGet<float>(float x, float y) { return float(x); }
-
-template <> __inline__ double cuGet<double>(float x, float y) {
+template <>
+__inline__ double cuGet<double>(int x) {
   return double(x);
 }
 
-template <> __inline__ cuComplex cuGet<cuComplex>(float x, float y) {
+template <>
+__inline__ cuComplex cuGet<cuComplex>(int x) {
+  return (make_cuComplex(float(x), 0.0f));
+}
+
+template <>
+__inline__ cuDoubleComplex cuGet<cuDoubleComplex>(int x) {
+  return (make_cuDoubleComplex(double(x), 0.0));
+}
+
+template <typename T_ELEM>
+__inline__ T_ELEM cuGet(int, int);
+template <>
+__inline__ float cuGet<float>(int x, int y) {
+  return float(x);
+}
+
+template <>
+__inline__ double cuGet<double>(int x, int y) {
+  return double(x);
+}
+
+template <>
+__inline__ cuComplex cuGet<cuComplex>(int x, int y) {
+  return make_cuComplex(float(x), float(y));
+}
+
+template <>
+__inline__ cuDoubleComplex cuGet<cuDoubleComplex>(int x, int y) {
+  return (make_cuDoubleComplex(double(x), double(y)));
+}
+
+template <typename T_ELEM>
+__inline__ T_ELEM cuGet(float);
+template <>
+__inline__ float cuGet<float>(float x) {
+  return float(x);
+}
+
+template <>
+__inline__ double cuGet<double>(float x) {
+  return double(x);
+}
+
+template <>
+__inline__ cuComplex cuGet<cuComplex>(float x) {
+  return (make_cuComplex(float(x), 0.0f));
+}
+
+template <>
+__inline__ cuDoubleComplex cuGet<cuDoubleComplex>(float x) {
+  return (make_cuDoubleComplex(double(x), 0.0));
+}
+
+template <typename T_ELEM>
+__inline__ T_ELEM cuGet(float, float);
+template <>
+__inline__ float cuGet<float>(float x, float y) {
+  return float(x);
+}
+
+template <>
+__inline__ double cuGet<double>(float x, float y) {
+  return double(x);
+}
+
+template <>
+__inline__ cuComplex cuGet<cuComplex>(float x, float y) {
   return (make_cuComplex(float(x), float(y)));
 }
 
@@ -70,29 +103,42 @@ __inline__ cuDoubleComplex cuGet<cuDoubleComplex>(float x, float y) {
   return (make_cuDoubleComplex(double(x), double(y)));
 }
 
-template <typename T_ELEM> __inline__ T_ELEM cuGet(double);
-template <> __inline__ float cuGet<float>(double x) { return float(x); }
-
-template <> __inline__ double cuGet<double>(double x) { return double(x); }
-
-template <> __inline__ cuComplex cuGet<cuComplex>(double x) {
-  return (make_cuComplex(float(x), 0.0f));
-}
-
-template <> __inline__ cuDoubleComplex cuGet<cuDoubleComplex>(double x) {
-  return (make_cuDoubleComplex(double(x), 0.0));
-}
-
-template <typename T_ELEM> __inline__ T_ELEM cuGet(double, double);
-template <> __inline__ float cuGet<float>(double x, double y) {
+template <typename T_ELEM>
+__inline__ T_ELEM cuGet(double);
+template <>
+__inline__ float cuGet<float>(double x) {
   return float(x);
 }
 
-template <> __inline__ double cuGet<double>(double x, double y) {
+template <>
+__inline__ double cuGet<double>(double x) {
   return double(x);
 }
 
-template <> __inline__ cuComplex cuGet<cuComplex>(double x, double y) {
+template <>
+__inline__ cuComplex cuGet<cuComplex>(double x) {
+  return (make_cuComplex(float(x), 0.0f));
+}
+
+template <>
+__inline__ cuDoubleComplex cuGet<cuDoubleComplex>(double x) {
+  return (make_cuDoubleComplex(double(x), 0.0));
+}
+
+template <typename T_ELEM>
+__inline__ T_ELEM cuGet(double, double);
+template <>
+__inline__ float cuGet<float>(double x, double y) {
+  return float(x);
+}
+
+template <>
+__inline__ double cuGet<double>(double x, double y) {
+  return double(x);
+}
+
+template <>
+__inline__ cuComplex cuGet<cuComplex>(double x, double y) {
   return (make_cuComplex(float(x), float(y)));
 }
 
@@ -101,7 +147,7 @@ __inline__ cuDoubleComplex cuGet<cuDoubleComplex>(double x, double y) {
   return (make_cuDoubleComplex(double(x), double(y)));
 }
 
-static void compress_index(const int *Ind, int nnz, int m, int *Ptr, int base) {
+static void compress_index(const int* Ind, int nnz, int m, int* Ptr, int base) {
   int i;
 
   /* initialize everything to zero */
@@ -122,10 +168,10 @@ static void compress_index(const int *Ind, int nnz, int m, int *Ptr, int base) {
 struct cooFormat {
   int i;
   int j;
-  int p; // permutation
+  int p;  // permutation
 };
 
-int cmp_cooFormat_csr(struct cooFormat *s, struct cooFormat *t) {
+int cmp_cooFormat_csr(struct cooFormat* s, struct cooFormat* t) {
   if (s->i < t->i) {
     return -1;
   } else if (s->i > t->i) {
@@ -135,7 +181,7 @@ int cmp_cooFormat_csr(struct cooFormat *s, struct cooFormat *t) {
   }
 }
 
-int cmp_cooFormat_csc(struct cooFormat *s, struct cooFormat *t) {
+int cmp_cooFormat_csc(struct cooFormat* s, struct cooFormat* t) {
   if (s->j < t->j) {
     return -1;
   } else if (s->j > t->j) {
@@ -145,15 +191,15 @@ int cmp_cooFormat_csc(struct cooFormat *s, struct cooFormat *t) {
   }
 }
 
-typedef int (*FUNPTR)(const void *, const void *);
-typedef int (*FUNPTR2)(struct cooFormat *s, struct cooFormat *t);
+typedef int (*FUNPTR)(const void*, const void*);
+typedef int (*FUNPTR2)(struct cooFormat* s, struct cooFormat* t);
 
 static FUNPTR2 fptr_array[2] = {
     cmp_cooFormat_csr,
     cmp_cooFormat_csc,
 };
 
-static int verify_pattern(int m, int nnz, int *csrRowPtr, int *csrColInd) {
+static int verify_pattern(int m, int nnz, int* csrRowPtr, int* csrColInd) {
   int i, col, start, end, base_index;
   int error_found = 0;
 
@@ -203,17 +249,17 @@ static int verify_pattern(int m, int nnz, int *csrRowPtr, int *csrColInd) {
 }
 
 template <typename T_ELEM>
-int loadMMSparseMatrix(char *filename, char elem_type, bool csrFormat, int *m,
-                       int *n, int *nnz, T_ELEM **aVal, int **aRowInd,
-                       int **aColInd, int extendSymMatrix) {
+int loadMMSparseMatrix(char* filename, char elem_type, bool csrFormat, int* m,
+                       int* n, int* nnz, T_ELEM** aVal, int** aRowInd,
+                       int** aColInd, int extendSymMatrix) {
   MM_typecode matcode;
-  double *tempVal;
+  double* tempVal;
   int *tempRowInd, *tempColInd;
-  double *tval;
+  double* tval;
   int *trow, *tcol;
   int *csrRowPtr, *cscColPtr;
   int i, j, error, base, count;
-  struct cooFormat *work;
+  struct cooFormat* work;
 
   /* read the matrix */
   error = mm_read_mtx_crd(filename, m, n, nnz, &trow, &tcol, &tval, &matcode);
@@ -247,12 +293,12 @@ int loadMMSparseMatrix(char *filename, char elem_type, bool csrFormat, int *m,
       }
     }
     // allocate space for the symmetrized matrix
-    tempRowInd = (int *)malloc((*nnz + count) * sizeof(int));
-    tempColInd = (int *)malloc((*nnz + count) * sizeof(int));
+    tempRowInd = (int*)malloc((*nnz + count) * sizeof(int));
+    tempColInd = (int*)malloc((*nnz + count) * sizeof(int));
     if (mm_is_real(matcode) || mm_is_integer(matcode)) {
-      tempVal = (double *)malloc((*nnz + count) * sizeof(double));
+      tempVal = (double*)malloc((*nnz + count) * sizeof(double));
     } else {
-      tempVal = (double *)malloc(2 * (*nnz + count) * sizeof(double));
+      tempVal = (double*)malloc(2 * (*nnz + count) * sizeof(double));
     }
     // copy the elements regular and transposed locations
     for (j = 0, i = 0; i < (*nnz); i++) {
@@ -300,7 +346,7 @@ int loadMMSparseMatrix(char *filename, char elem_type, bool csrFormat, int *m,
   // please use COO format (tempRowInd, tempColInd, tempVal)
 
   // use qsort to sort COO format
-  work = (struct cooFormat *)malloc(sizeof(struct cooFormat) * (*nnz));
+  work = (struct cooFormat*)malloc(sizeof(struct cooFormat) * (*nnz));
   if (NULL == work) {
     fprintf(stderr, "!!!! allocation error, malloc failed\n");
     return 1;
@@ -308,7 +354,7 @@ int loadMMSparseMatrix(char *filename, char elem_type, bool csrFormat, int *m,
   for (i = 0; i < (*nnz); i++) {
     work[i].i = tempRowInd[i];
     work[i].j = tempColInd[i];
-    work[i].p = i; // permutation is identity
+    work[i].p = i;  // permutation is identity
   }
 
   if (csrFormat) {
@@ -355,27 +401,25 @@ int loadMMSparseMatrix(char *filename, char elem_type, bool csrFormat, int *m,
   /* compress the appropriate indices */
   if (csrFormat) {
     /* CSR format (assuming row-major format) */
-    csrRowPtr = (int *)malloc(((*m) + 1) * sizeof(csrRowPtr[0]));
-    if (!csrRowPtr)
-      return 1;
+    csrRowPtr = (int*)malloc(((*m) + 1) * sizeof(csrRowPtr[0]));
+    if (!csrRowPtr) return 1;
     compress_index(tempRowInd, *nnz, *m, csrRowPtr, base);
 
     *aRowInd = csrRowPtr;
-    *aColInd = (int *)malloc((*nnz) * sizeof(int));
+    *aColInd = (int*)malloc((*nnz) * sizeof(int));
   } else {
     /* CSC format (assuming column-major format) */
-    cscColPtr = (int *)malloc(((*n) + 1) * sizeof(cscColPtr[0]));
-    if (!cscColPtr)
-      return 1;
+    cscColPtr = (int*)malloc(((*n) + 1) * sizeof(cscColPtr[0]));
+    if (!cscColPtr) return 1;
     compress_index(tempColInd, *nnz, *n, cscColPtr, base);
 
     *aColInd = cscColPtr;
-    *aRowInd = (int *)malloc((*nnz) * sizeof(int));
+    *aRowInd = (int*)malloc((*nnz) * sizeof(int));
   }
 
   /* transfrom the matrix values of type double into one of the cusparse library
    * types */
-  *aVal = (T_ELEM *)malloc((*nnz) * sizeof(T_ELEM));
+  *aVal = (T_ELEM*)malloc((*nnz) * sizeof(T_ELEM));
 
   for (i = 0; i < (*nnz); i++) {
     if (csrFormat) {
@@ -413,22 +457,22 @@ int loadMMSparseMatrix(char *filename, char elem_type, bool csrFormat, int *m,
 }
 
 /* specific instantiation */
-template int loadMMSparseMatrix<float>(char *filename, char elem_type,
-                                       bool csrFormat, int *m, int *n, int *nnz,
-                                       float **aVal, int **aRowInd,
-                                       int **aColInd, int extendSymMatrix);
+template int loadMMSparseMatrix<float>(char* filename, char elem_type,
+                                       bool csrFormat, int* m, int* n, int* nnz,
+                                       float** aVal, int** aRowInd,
+                                       int** aColInd, int extendSymMatrix);
 
-template int loadMMSparseMatrix<double>(char *filename, char elem_type,
-                                        bool csrFormat, int *m, int *n,
-                                        int *nnz, double **aVal, int **aRowInd,
-                                        int **aColInd, int extendSymMatrix);
+template int loadMMSparseMatrix<double>(char* filename, char elem_type,
+                                        bool csrFormat, int* m, int* n,
+                                        int* nnz, double** aVal, int** aRowInd,
+                                        int** aColInd, int extendSymMatrix);
 
-template int loadMMSparseMatrix<cuComplex>(char *filename, char elem_type,
-                                           bool csrFormat, int *m, int *n,
-                                           int *nnz, cuComplex **aVal,
-                                           int **aRowInd, int **aColInd,
+template int loadMMSparseMatrix<cuComplex>(char* filename, char elem_type,
+                                           bool csrFormat, int* m, int* n,
+                                           int* nnz, cuComplex** aVal,
+                                           int** aRowInd, int** aColInd,
                                            int extendSymMatrix);
 
 template int loadMMSparseMatrix<cuDoubleComplex>(
-    char *filename, char elem_type, bool csrFormat, int *m, int *n, int *nnz,
-    cuDoubleComplex **aVal, int **aRowInd, int **aColInd, int extendSymMatrix);
+    char* filename, char elem_type, bool csrFormat, int* m, int* n, int* nnz,
+    cuDoubleComplex** aVal, int** aRowInd, int** aColInd, int extendSymMatrix);

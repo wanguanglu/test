@@ -17,7 +17,7 @@
 
 typedef struct {
   int codecs;
-  const char *name;
+  const char* name;
 } _sVideoFormats;
 
 static _sVideoFormats eVideoFormats[] = {
@@ -50,20 +50,20 @@ class VideoParser;
 // The user can register call-back methods for handling chucks of demuxed
 // audio and video data.
 class VideoSource {
-public:
+ public:
   // Default constructor.
   // Parameters:
   //      pFrameQueue - A frame queue object that the decoding
   //          thread and the main render thread use to exchange
   //          decoded frames.
-  VideoSource(const std::string sFileName, FrameQueue *pFrameQueue);
+  VideoSource(const std::string sFileName, FrameQueue* pFrameQueue);
 
   // Destructor
   ~VideoSource();
 
   // This reloads the video source file
-  void ReloadVideo(const std::string sFileName, FrameQueue *pFrameQueue,
-                   VideoParser *pVideoParser);
+  void ReloadVideo(const std::string sFileName, FrameQueue* pFrameQueue,
+                   VideoParser* pVideoParser);
 
   CUVIDEOFORMAT
   format() const;
@@ -74,7 +74,7 @@ public:
   // user-data struct, that gets passed into the source's callbacks. That
   // way we can feed the CUDA video parser with the video-data chunks delivered
   // by this source.
-  void setParser(VideoParser &rVideoParser);
+  void setParser(VideoParser& rVideoParser);
 
   // Begin processing the video stream.
   void start();
@@ -86,20 +86,20 @@ public:
   bool isStarted();
 
   // Retrieve source dimensions (width, height) from the video
-  void getSourceDimensions(unsigned int &width, unsigned int &height);
+  void getSourceDimensions(unsigned int& width, unsigned int& height);
 
   // Retrieve display dimensions (width, height) for the video
-  void getDisplayDimensions(unsigned int &width, unsigned int &height);
+  void getDisplayDimensions(unsigned int& width, unsigned int& height);
 
   // Retrieve information about the video (is this progressive?)
-  void getProgressive(bool &progressive);
+  void getProgressive(bool& progressive);
 
-private:
+ private:
   // This struct contains the data we need inside the source's
   // video callback in order to processes the video data.
   struct VideoSourceData {
     CUvideoparser hVideoParser;
-    FrameQueue *pFrameQueue;
+    FrameQueue* pFrameQueue;
   };
 
   // Callback for handling packages of demuxed video data.
@@ -112,24 +112,24 @@ private:
   //
   // NOTE: called from a different thread that doesn't not have a cuda context
   //
-  static int CUDAAPI HandleVideoData(void *pUserData,
-                                     CUVIDSOURCEDATAPACKET *pPacket);
+  static int CUDAAPI HandleVideoData(void* pUserData,
+                                     CUVIDSOURCEDATAPACKET* pPacket);
 
   // Default constructor. Don't implement.
   VideoSource();
 
   // Copy constructor. Don't implement.
-  VideoSource(const VideoSource &);
+  VideoSource(const VideoSource&);
 
   // Assignment operator. Don't implement.
-  void operator=(const VideoSource &);
+  void operator=(const VideoSource&);
 
-  VideoSourceData oSourceData_; // Instance of the user-data struct we use in
-                                // the video-data handle callback.
-  CUvideosource hVideoSource_;  // Handle to the CUDA video-source object.
+  VideoSourceData oSourceData_;  // Instance of the user-data struct we use in
+                                 // the video-data handle callback.
+  CUvideosource hVideoSource_;   // Handle to the CUDA video-source object.
 };
 
-std::ostream &operator<<(std::ostream &rOutputStream,
-                         const CUVIDEOFORMAT &rCudaVideoFormat);
+std::ostream& operator<<(std::ostream& rOutputStream,
+                         const CUVIDEOFORMAT& rCudaVideoFormat);
 
-#endif // VIDEOSOURCE_H
+#endif  // VIDEOSOURCE_H

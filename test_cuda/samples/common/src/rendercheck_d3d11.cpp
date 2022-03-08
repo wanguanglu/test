@@ -26,23 +26,23 @@
 #include <helper_functions.h>
 #include <rendercheck_d3d11.h>
 
-HRESULT CheckRenderD3D11::ActiveRenderTargetToPPM(ID3D11Device *pDevice,
-                                                  const char *zFileName) {
-  ID3D11DeviceContext *pDeviceCtxt;
+HRESULT CheckRenderD3D11::ActiveRenderTargetToPPM(ID3D11Device* pDevice,
+                                                  const char* zFileName) {
+  ID3D11DeviceContext* pDeviceCtxt;
   pDevice->GetImmediateContext(&pDeviceCtxt);
-  ID3D11RenderTargetView *pRTV = NULL;
+  ID3D11RenderTargetView* pRTV = NULL;
   pDeviceCtxt->OMGetRenderTargets(1, &pRTV, NULL);
 
-  ID3D11Resource *pSourceResource = NULL;
+  ID3D11Resource* pSourceResource = NULL;
   pRTV->GetResource(&pSourceResource);
 
   return ResourceToPPM(pDevice, pSourceResource, zFileName);
 }
 
-HRESULT CheckRenderD3D11::ResourceToPPM(ID3D11Device *pDevice,
-                                        ID3D11Resource *pResource,
-                                        const char *zFileName) {
-  ID3D11DeviceContext *pDeviceCtxt;
+HRESULT CheckRenderD3D11::ResourceToPPM(ID3D11Device* pDevice,
+                                        ID3D11Resource* pResource,
+                                        const char* zFileName) {
+  ID3D11DeviceContext* pDeviceCtxt;
   pDevice->GetImmediateContext(&pDeviceCtxt);
   D3D11_RESOURCE_DIMENSION rType;
   pResource->GetType(&rType);
@@ -52,8 +52,8 @@ HRESULT CheckRenderD3D11::ResourceToPPM(ID3D11Device *pDevice,
     return E_FAIL;
   }
 
-  ID3D11Texture2D *pSourceTexture = (ID3D11Texture2D *)pResource;
-  ID3D11Texture2D *pTargetTexture = NULL;
+  ID3D11Texture2D* pSourceTexture = (ID3D11Texture2D*)pResource;
+  ID3D11Texture2D* pTargetTexture = NULL;
 
   D3D11_TEXTURE2D_DESC desc;
   pSourceTexture->GetDesc(&desc);
@@ -62,8 +62,9 @@ HRESULT CheckRenderD3D11::ResourceToPPM(ID3D11Device *pDevice,
   desc.Usage = D3D11_USAGE_STAGING;
 
   if (FAILED(pDevice->CreateTexture2D(&desc, NULL, &pTargetTexture))) {
-    printf("SurfaceToPPM: Unable to create target Texture resoruce! "
-           "Aborting... \n");
+    printf(
+        "SurfaceToPPM: Unable to create target Texture resoruce! "
+        "Aborting... \n");
     return E_FAIL;
   }
 
@@ -73,12 +74,11 @@ HRESULT CheckRenderD3D11::ResourceToPPM(ID3D11Device *pDevice,
   pDeviceCtxt->Map(pTargetTexture, 0, D3D11_MAP_READ, 0, &mappedTex2D);
 
   // Need to convert from dx pitch to pitch=width
-  unsigned char *pPPMData = new unsigned char[desc.Width * desc.Height * 4];
+  unsigned char* pPPMData = new unsigned char[desc.Width * desc.Height * 4];
 
   for (unsigned int iHeight = 0; iHeight < desc.Height; iHeight++) {
     memcpy(&(pPPMData[iHeight * desc.Width * 4]),
-           (unsigned char *)(mappedTex2D.pData) +
-               iHeight * mappedTex2D.RowPitch,
+           (unsigned char*)(mappedTex2D.pData) + iHeight * mappedTex2D.RowPitch,
            desc.Width * 4);
   }
 
@@ -93,15 +93,16 @@ HRESULT CheckRenderD3D11::ResourceToPPM(ID3D11Device *pDevice,
   return S_OK;
 }
 
-bool CheckRenderD3D11::PPMvsPPM(const char *src_file, const char *ref_file,
-                                const char *exec_path, const float epsilon,
+bool CheckRenderD3D11::PPMvsPPM(const char* src_file, const char* ref_file,
+                                const char* exec_path, const float epsilon,
                                 const float threshold) {
-  char *ref_file_path = sdkFindFilePath(ref_file, exec_path);
+  char* ref_file_path = sdkFindFilePath(ref_file, exec_path);
 
   if (ref_file_path == NULL) {
-    printf("CheckRenderD3D11::PPMvsPPM unable to find <%s> in <%s> Aborting "
-           "comparison!\n",
-           ref_file, exec_path);
+    printf(
+        "CheckRenderD3D11::PPMvsPPM unable to find <%s> in <%s> Aborting "
+        "comparison!\n",
+        ref_file, exec_path);
     printf(">>> Check info.xml and [project//data] folder <%s> <<<\n",
            ref_file);
     printf("Aborting comparison!\n");

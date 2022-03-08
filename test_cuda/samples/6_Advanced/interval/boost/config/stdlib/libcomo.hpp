@@ -54,7 +54,7 @@
 #define BOOST_NO_0X_HDR_THREAD
 #define BOOST_NO_0X_HDR_TUPLE
 #define BOOST_NO_0X_HDR_TYPE_TRAITS
-#define BOOST_NO_STD_UNORDERED // deprecated; see following
+#define BOOST_NO_STD_UNORDERED  // deprecated; see following
 #define BOOST_NO_0X_HDR_UNORDERED_MAP
 #define BOOST_NO_0X_HDR_UNORDERED_SET
 
@@ -66,5 +66,5 @@
 //
 #define BOOST_HAS_SGI_TYPE_TRAITS
 
-#define BOOST_STDLIB                                                           \
+#define BOOST_STDLIB \
   "Comeau standard library " BOOST_STRINGIZE(__LIBCOMO_VERSION__)

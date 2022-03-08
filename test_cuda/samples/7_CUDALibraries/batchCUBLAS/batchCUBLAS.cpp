@@ -31,7 +31,7 @@
 #include "batchCUBLAS.h"
 #include <helper_cuda.h>
 
-const char *sSDKname = "batchCUBLAS";
+const char* sSDKname = "batchCUBLAS";
 
 //============================================================================================
 // Device information utilities
@@ -81,10 +81,10 @@ size_t getDeviceMemory(void) {
 //============================================================================================
 
 template <typename T_ELEM>
-void fillupMatrix(T_ELEM *A, int lda, int rows, int cols, int seed = 0);
+void fillupMatrix(T_ELEM* A, int lda, int rows, int cols, int seed = 0);
 
 template <typename T_ELEM>
-void fillupMatrix(T_ELEM *A, int lda, int rows, int cols, int seed) {
+void fillupMatrix(T_ELEM* A, int lda, int rows, int cols, int seed) {
   for (int j = 0; j < cols; j++) {
     for (int i = 0; i < rows; i++) {
       A[i + lda * j] = cuGet<T_ELEM>(
@@ -94,17 +94,17 @@ void fillupMatrix(T_ELEM *A, int lda, int rows, int cols, int seed) {
   }
 }
 /* Explicit instantiation */
-template void fillupMatrix<float>(float *A, int lda, int rows, int cols,
+template void fillupMatrix<float>(float* A, int lda, int rows, int cols,
                                   int seed);
-template void fillupMatrix<double>(double *A, int lda, int rows, int cols,
+template void fillupMatrix<double>(double* A, int lda, int rows, int cols,
                                    int seed);
 
 /* For debugging */
-void printCuType(const char *str, float A) {
+void printCuType(const char* str, float A) {
   fprintf(stdout, "%s (0x%08x, %g)", str, floatAsUInt(A), A);
 }
 
-void printCuType(const char *str, double A) {
+void printCuType(const char* str, double A) {
   fprintf(stdout, "%s (0x%016llx, %g)", str, doubleAsULL(A), A);
 }
 
@@ -121,35 +121,23 @@ void printCuType(const char *str, double A) {
 #define BENCH_MATRIX_K (128)
 #define BENCH_MATRIX_N (128)
 
-#define CLEANUP()                                                              \
-  do {                                                                         \
-    if (A)                                                                     \
-      free(A);                                                                 \
-    if (B)                                                                     \
-      free(B);                                                                 \
-    if (C)                                                                     \
-      free(C);                                                                 \
-    for (int i = 0; i < opts.N; ++i) {                                         \
-      if (devPtrA[i])                                                          \
-        cudaFree(devPtrA[i]);                                                  \
-      if (devPtrB[i])                                                          \
-        cudaFree(devPtrB[i]);                                                  \
-      if (devPtrC[i])                                                          \
-        cudaFree(devPtrC[i]);                                                  \
-    }                                                                          \
-    if (devPtrA)                                                               \
-      free(devPtrA);                                                           \
-    if (devPtrB)                                                               \
-      free(devPtrB);                                                           \
-    if (devPtrC)                                                               \
-      free(devPtrC);                                                           \
-    if (devPtrA_dev)                                                           \
-      cudaFree(devPtrA_dev);                                                   \
-    if (devPtrB_dev)                                                           \
-      cudaFree(devPtrB_dev);                                                   \
-    if (devPtrC_dev)                                                           \
-      cudaFree(devPtrC_dev);                                                   \
-    fflush(stdout);                                                            \
+#define CLEANUP()                           \
+  do {                                      \
+    if (A) free(A);                         \
+    if (B) free(B);                         \
+    if (C) free(C);                         \
+    for (int i = 0; i < opts.N; ++i) {      \
+      if (devPtrA[i]) cudaFree(devPtrA[i]); \
+      if (devPtrB[i]) cudaFree(devPtrB[i]); \
+      if (devPtrC[i]) cudaFree(devPtrC[i]); \
+    }                                       \
+    if (devPtrA) free(devPtrA);             \
+    if (devPtrB) free(devPtrB);             \
+    if (devPtrC) free(devPtrC);             \
+    if (devPtrA_dev) cudaFree(devPtrA_dev); \
+    if (devPtrB_dev) cudaFree(devPtrB_dev); \
+    if (devPtrC_dev) cudaFree(devPtrC_dev); \
+    fflush(stdout);                         \
   } while (0)
 
 enum testMethod { tmRegular, tmStream, tmBatched };
@@ -159,11 +147,12 @@ struct gemmOpts {
   int n;
   int k;
   testMethod test_method;
-  char *elem_type;
-  int N; // number of multiplications
+  char* elem_type;
+  int N;  // number of multiplications
 };
 
-template <typename T_ELEM> struct gemmTestParams {
+template <typename T_ELEM>
+struct gemmTestParams {
   cublasOperation_t transa;
   cublasOperation_t transb;
   int m;
@@ -180,9 +169,9 @@ template <typename T_ELEM> struct gemmTestParams {
 static inline cublasStatus_t cublasXgemm(cublasHandle_t handle,
                                          cublasOperation_t transa,
                                          cublasOperation_t transb, int m, int n,
-                                         int k, float *alpha, const float *A,
-                                         int lda, float *B, int ldb,
-                                         float *beta, float *C, int ldc) {
+                                         int k, float* alpha, const float* A,
+                                         int lda, float* B, int ldb,
+                                         float* beta, float* C, int ldc) {
   return cublasSgemm(handle, transa, transb, m, n, k, alpha, A, lda, B, ldb,
                      beta, C, ldc);
 }
@@ -190,19 +179,18 @@ static inline cublasStatus_t cublasXgemm(cublasHandle_t handle,
 static inline cublasStatus_t cublasXgemm(cublasHandle_t handle,
                                          cublasOperation_t transa,
                                          cublasOperation_t transb, int m, int n,
-                                         int k, double *alpha, const double *A,
-                                         int lda, double *B, int ldb,
-                                         double *beta, double *C, int ldc) {
+                                         int k, double* alpha, const double* A,
+                                         int lda, double* B, int ldb,
+                                         double* beta, double* C, int ldc) {
   return cublasDgemm(handle, transa, transb, m, n, k, alpha, A, lda, B, ldb,
                      beta, C, ldc);
 }
 
-static inline cublasStatus_t
-cublasXgemmBatched(cublasHandle_t handle, cublasOperation_t transa,
-                   cublasOperation_t transb, int m, int n, int k, float *alpha,
-                   const float *Aarray[], int lda, const float *Barray[],
-                   int ldb, float *beta, float *Carray[], int ldc,
-                   int batchCount) {
+static inline cublasStatus_t cublasXgemmBatched(
+    cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb,
+    int m, int n, int k, float* alpha, const float* Aarray[], int lda,
+    const float* Barray[], int ldb, float* beta, float* Carray[], int ldc,
+    int batchCount) {
 #if CUDART_VERSION >= 4010
   return cublasSgemmBatched(handle, transa, transb, m, n, k, alpha, Aarray, lda,
                             Barray, ldb, beta, Carray, ldc, batchCount);
@@ -211,12 +199,11 @@ cublasXgemmBatched(cublasHandle_t handle, cublasOperation_t transa,
 #endif
 }
 
-static inline cublasStatus_t
-cublasXgemmBatched(cublasHandle_t handle, cublasOperation_t transa,
-                   cublasOperation_t transb, int m, int n, int k, double *alpha,
-                   const double *Aarray[], int lda, const double *Barray[],
-                   int ldb, double *beta, double *Carray[], int ldc,
-                   int batchCount) {
+static inline cublasStatus_t cublasXgemmBatched(
+    cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb,
+    int m, int n, int k, double* alpha, const double* Aarray[], int lda,
+    const double* Barray[], int ldb, double* beta, double* Carray[], int ldc,
+    int batchCount) {
 #if CUDART_VERSION >= 4010
   return cublasDgemmBatched(handle, transa, transb, m, n, k, alpha, Aarray, lda,
                             Barray, ldb, beta, Carray, ldc, batchCount);
@@ -229,11 +216,11 @@ cublasXgemmBatched(cublasHandle_t handle, cublasOperation_t transa,
 // Primary Application code
 //============================================================================================
 
-static int processArgs(int argc, char *argv[], struct gemmOpts *opts) {
+static int processArgs(int argc, char* argv[], struct gemmOpts* opts) {
   int error = 0;
   int oldError;
   memset(opts, 0, sizeof(*opts));
-  static char default_type[] = "d"; // default double
+  static char default_type[] = "d";  // default double
   opts->elem_type = default_type;
   opts->N = 10;
 
@@ -242,24 +229,24 @@ static int processArgs(int argc, char *argv[], struct gemmOpts *opts) {
 
     if (*argv[0] == SWITCH_CHAR) {
       switch (*(argv[0] + 1)) {
-      case 'm':
-        opts->m = (int)atol(argv[0] + 2);
-        break;
+        case 'm':
+          opts->m = (int)atol(argv[0] + 2);
+          break;
 
-      case 'n':
-        opts->n = (int)atol(argv[0] + 2);
-        break;
+        case 'n':
+          opts->n = (int)atol(argv[0] + 2);
+          break;
 
-      case 'k':
-        opts->k = (int)atol(argv[0] + 2);
-        break;
+        case 'k':
+          opts->k = (int)atol(argv[0] + 2);
+          break;
 
-      case 'N':
-        opts->N = (int)atol(argv[0] + 2);
-        break;
+        case 'N':
+          opts->N = (int)atol(argv[0] + 2);
+          break;
 
-      default:
-        break;
+        default:
+          break;
       }
     }
 
@@ -275,9 +262,9 @@ static int processArgs(int argc, char *argv[], struct gemmOpts *opts) {
 }
 
 template <typename T_ELEM>
-static int TESTGEN(gemm)(const struct gemmOpts *opts, int matrixM, int matrixN,
-                         int matrixK, int &numTests,
-                         struct gemmTestParams<T_ELEM> *params) {
+static int TESTGEN(gemm)(const struct gemmOpts* opts, int matrixM, int matrixN,
+                         int matrixK, int& numTests,
+                         struct gemmTestParams<T_ELEM>* params) {
   static T_ELEM alpha[] = {cuGet<T_ELEM>(0, 0), cuGet<T_ELEM>(-1, -1),
                            cuGet<T_ELEM>(1, -2), cuGet<T_ELEM>(2, -1),
                            cuGet<T_ELEM>(0, -3)};
@@ -326,7 +313,7 @@ static int TESTGEN(gemm)(const struct gemmOpts *opts, int matrixM, int matrixN,
 }
 
 template <typename T_ELEM>
-void fillupMatrixDebug(T_ELEM *A, int lda, int rows, int cols) {
+void fillupMatrixDebug(T_ELEM* A, int lda, int rows, int cols) {
   for (int j = 0; j < cols; j++) {
     for (int i = 0; i < rows; i++) {
       A[i + lda * j] = cuGet<T_ELEM>(i + j);
@@ -335,20 +322,20 @@ void fillupMatrixDebug(T_ELEM *A, int lda, int rows, int cols) {
 }
 
 template <typename T_ELEM>
-int test_gemm_loop(struct gemmOpts &opts, float err, double max_relative_error,
+int test_gemm_loop(struct gemmOpts& opts, float err, double max_relative_error,
                    cublasHandle_t handle) {
   struct gemmTestParams<T_ELEM> params;
-  cudaStream_t *streamArray = 0;
+  cudaStream_t* streamArray = 0;
   cublasStatus_t status1, status2, status3;
-  T_ELEM *A = NULL;
-  T_ELEM *B = NULL;
-  T_ELEM *C = NULL;
-  T_ELEM **devPtrA = 0;
-  T_ELEM **devPtrB = 0;
-  T_ELEM **devPtrC = 0;
-  T_ELEM **devPtrA_dev = NULL;
-  T_ELEM **devPtrB_dev = NULL;
-  T_ELEM **devPtrC_dev = NULL;
+  T_ELEM* A = NULL;
+  T_ELEM* B = NULL;
+  T_ELEM* C = NULL;
+  T_ELEM** devPtrA = 0;
+  T_ELEM** devPtrB = 0;
+  T_ELEM** devPtrC = 0;
+  T_ELEM** devPtrA_dev = NULL;
+  T_ELEM** devPtrB_dev = NULL;
+  T_ELEM** devPtrC_dev = NULL;
   int matrixM, matrixN, matrixK;
   int rowsA, rowsB, rowsC;
   int colsA, colsB, colsC;
@@ -373,17 +360,17 @@ int test_gemm_loop(struct gemmOpts &opts, float err, double max_relative_error,
   matrixSizeB = rowsB * colsB;
   matrixSizeC = rowsC * colsC;
 
-  devPtrA = (T_ELEM **)malloc(opts.N * sizeof(*devPtrA));
-  devPtrB = (T_ELEM **)malloc(opts.N * sizeof(*devPtrB));
-  devPtrC = (T_ELEM **)malloc(opts.N * sizeof(*devPtrC));
+  devPtrA = (T_ELEM**)malloc(opts.N * sizeof(*devPtrA));
+  devPtrB = (T_ELEM**)malloc(opts.N * sizeof(*devPtrB));
+  devPtrC = (T_ELEM**)malloc(opts.N * sizeof(*devPtrC));
 
   for (int i = 0; i < opts.N; i++) {
     cudaError_t err1 =
-        cudaMalloc((void **)&devPtrA[i], matrixSizeA * sizeof(devPtrA[0][0]));
+        cudaMalloc((void**)&devPtrA[i], matrixSizeA * sizeof(devPtrA[0][0]));
     cudaError_t err2 =
-        cudaMalloc((void **)&devPtrB[i], matrixSizeB * sizeof(devPtrB[0][0]));
+        cudaMalloc((void**)&devPtrB[i], matrixSizeB * sizeof(devPtrB[0][0]));
     cudaError_t err3 =
-        cudaMalloc((void **)&devPtrC[i], matrixSizeC * sizeof(devPtrC[0][0]));
+        cudaMalloc((void**)&devPtrC[i], matrixSizeC * sizeof(devPtrC[0][0]));
 
     if ((err1 != cudaSuccess) || (err2 != cudaSuccess) ||
         (err3 != cudaSuccess)) {
@@ -396,11 +383,11 @@ int test_gemm_loop(struct gemmOpts &opts, float err, double max_relative_error,
   // For batched processing we need those arrays on the device
   if (opts.test_method == tmBatched) {
     cudaError_t err1 =
-        cudaMalloc((void **)&devPtrA_dev, opts.N * sizeof(*devPtrA));
+        cudaMalloc((void**)&devPtrA_dev, opts.N * sizeof(*devPtrA));
     cudaError_t err2 =
-        cudaMalloc((void **)&devPtrB_dev, opts.N * sizeof(*devPtrB));
+        cudaMalloc((void**)&devPtrB_dev, opts.N * sizeof(*devPtrB));
     cudaError_t err3 =
-        cudaMalloc((void **)&devPtrC_dev, opts.N * sizeof(*devPtrC));
+        cudaMalloc((void**)&devPtrC_dev, opts.N * sizeof(*devPtrC));
 
     if ((err1 != cudaSuccess) || (err2 != cudaSuccess) ||
         (err3 != cudaSuccess)) {
@@ -424,9 +411,9 @@ int test_gemm_loop(struct gemmOpts &opts, float err, double max_relative_error,
     }
   }
 
-  A = (T_ELEM *)malloc(matrixSizeA * sizeof(A[0]));
-  B = (T_ELEM *)malloc(matrixSizeB * sizeof(B[0]));
-  C = (T_ELEM *)malloc(matrixSizeC * sizeof(C[0]));
+  A = (T_ELEM*)malloc(matrixSizeA * sizeof(A[0]));
+  B = (T_ELEM*)malloc(matrixSizeB * sizeof(B[0]));
+  C = (T_ELEM*)malloc(matrixSizeC * sizeof(C[0]));
 
   if ((!A) || (!B) || (!C)) {
     CLEANUP();
@@ -434,7 +421,7 @@ int test_gemm_loop(struct gemmOpts &opts, float err, double max_relative_error,
     return CUBLASTEST_FAILED;
   }
 
-  streamArray = (cudaStream_t *)malloc(opts.N * sizeof(cudaStream_t *));
+  streamArray = (cudaStream_t*)malloc(opts.N * sizeof(cudaStream_t*));
 
   for (int i = 0; i < opts.N; i++) {
     if (opts.test_method == tmStream) {
@@ -494,8 +481,8 @@ int test_gemm_loop(struct gemmOpts &opts, float err, double max_relative_error,
       cublasSetStream(handle, streamArray[0]);
       status1 = cublasXgemmBatched(handle, params.transa, params.transb,
                                    params.m, params.n, params.k, &params.alpha,
-                                   (const T_ELEM **)devPtrA_dev, rowsA,
-                                   (const T_ELEM **)devPtrB_dev, rowsB,
+                                   (const T_ELEM**)devPtrA_dev, rowsA,
+                                   (const T_ELEM**)devPtrB_dev, rowsB,
                                    &params.beta, devPtrC_dev, rowsC, opts.N);
 
       if (status1 != CUBLAS_STATUS_SUCCESS) {
@@ -544,7 +531,7 @@ int test_gemm_loop(struct gemmOpts &opts, float err, double max_relative_error,
             opts.N * (1e-9 * flopsCoef * params.m * params.n * params.k) /
                 (stop - start));
 
-  } // end while (TESTGEN..
+  }  // end while (TESTGEN..
 
   CLEANUP();
   fprintf(stdout, "@@@@ %cgemm test %s\n", *opts.elem_type,
@@ -552,14 +539,14 @@ int test_gemm_loop(struct gemmOpts &opts, float err, double max_relative_error,
   return CUBLASTEST_PASSED;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   struct gemmOpts opts;
   int errors, nTimes, nTotalErrors = 0;
   int status = CUBLASTEST_PASSED;
 
   printf("%s Starting...\n\n", sSDKname);
 
-  int dev = findCudaDevice(argc, (const char **)argv);
+  int dev = findCudaDevice(argc, (const char**)argv);
 
   if (dev == -1) {
     return CUBLASTEST_FAILED;
@@ -568,8 +555,9 @@ int main(int argc, char *argv[]) {
   errors = processArgs(argc, argv, &opts);
 
   if (errors) {
-    fprintf(stdout, "\n Usage: batchcublas [-mSIZE_M] [-nSIZE_N] [-kSIZE_N] "
-                    "[-NSIZE_NUM_ITERATIONS] [-qatest] [-noprompt]\n");
+    fprintf(stdout,
+            "\n Usage: batchcublas [-mSIZE_M] [-nSIZE_N] [-kSIZE_N] "
+            "[-NSIZE_NUM_ITERATIONS] [-qatest] [-noprompt]\n");
     return CUBLASTEST_FAILED;
   }
 
@@ -627,20 +615,21 @@ int main(int argc, char *argv[]) {
 #endif
 
     switch (ii) {
-    case 0:
-      opts.test_method = tmRegular;
-      fprintf(stdout, "\n ==== Running N=%d without streams ==== \n\n", opts.N);
-      break;
+      case 0:
+        opts.test_method = tmRegular;
+        fprintf(stdout, "\n ==== Running N=%d without streams ==== \n\n",
+                opts.N);
+        break;
 
-    case 1:
-      opts.test_method = tmStream;
-      fprintf(stdout, "\n ==== Running N=%d with streams ==== \n\n", opts.N);
-      break;
+      case 1:
+        opts.test_method = tmStream;
+        fprintf(stdout, "\n ==== Running N=%d with streams ==== \n\n", opts.N);
+        break;
 
-    case 2:
-      opts.test_method = tmBatched;
-      fprintf(stdout, "\n ==== Running N=%d batched ==== \n\n", opts.N);
-      break;
+      case 2:
+        opts.test_method = tmBatched;
+        fprintf(stdout, "\n ==== Running N=%d batched ==== \n\n", opts.N);
+        break;
     }
 
     // Run single version

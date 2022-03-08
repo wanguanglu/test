@@ -31,7 +31,7 @@
 // remember that since these just declare a bunch of macros, there should be
 // no namespace issues from this.
 //
-#if !defined(BOOST_HAS_LONG_LONG) && !defined(BOOST_NO_LONG_LONG) &&           \
+#if !defined(BOOST_HAS_LONG_LONG) && !defined(BOOST_NO_LONG_LONG) && \
     !defined(BOOST_MSVC) && !defined(__BORLANDC__)
 #include <limits.h>
 #if (defined(ULLONG_MAX) || defined(ULONG_LONG_MAX) || defined(ULONGLONG_MAX))
@@ -59,7 +59,7 @@
 // If cv-qualified specializations are not allowed, then neither are cv-void
 // ones:
 //
-#if defined(BOOST_NO_CV_SPECIALIZATIONS) &&                                    \
+#if defined(BOOST_NO_CV_SPECIALIZATIONS) && \
     !defined(BOOST_NO_CV_VOID_SPECIALIZATIONS)
 #define BOOST_NO_CV_VOID_SPECIALIZATIONS
 #endif
@@ -94,7 +94,7 @@
 // if member templates are supported then so is the
 // VC6 subset of member templates:
 //
-#if !defined(BOOST_NO_MEMBER_TEMPLATES) &&                                     \
+#if !defined(BOOST_NO_MEMBER_TEMPLATES) && \
     !defined(BOOST_MSVC6_MEMBER_TEMPLATES)
 #define BOOST_MSVC6_MEMBER_TEMPLATES
 #endif
@@ -102,7 +102,7 @@
 //
 // Without partial specialization, can't test for partial specialisation bugs:
 //
-#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) &&                       \
+#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && \
     !defined(BOOST_BCB_PARTIAL_SPECIALIZATION_BUG)
 #define BOOST_BCB_PARTIAL_SPECIALIZATION_BUG
 #endif
@@ -111,7 +111,7 @@
 // Without partial specialization, we can't have array-type partial
 // specialisations:
 //
-#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) &&                       \
+#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && \
     !defined(BOOST_NO_ARRAY_TYPE_SPECIALIZATIONS)
 #define BOOST_NO_ARRAY_TYPE_SPECIALIZATIONS
 #endif
@@ -119,7 +119,7 @@
 //
 // Without partial specialization, std::iterator_traits can't work:
 //
-#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) &&                       \
+#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && \
     !defined(BOOST_NO_STD_ITERATOR_TRAITS)
 #define BOOST_NO_STD_ITERATOR_TRAITS
 #endif
@@ -128,7 +128,7 @@
 // Without partial specialization, partial
 // specialization with default args won't work either:
 //
-#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) &&                       \
+#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && \
     !defined(BOOST_NO_PARTIAL_SPECIALIZATION_IMPLICIT_DEFAULT_ARGS)
 #define BOOST_NO_PARTIAL_SPECIALIZATION_IMPLICIT_DEFAULT_ARGS
 #endif
@@ -137,8 +137,8 @@
 // Without member template support, we can't have template constructors
 // in the standard library either:
 //
-#if defined(BOOST_NO_MEMBER_TEMPLATES) &&                                      \
-    !defined(BOOST_MSVC6_MEMBER_TEMPLATES) &&                                  \
+#if defined(BOOST_NO_MEMBER_TEMPLATES) &&     \
+    !defined(BOOST_MSVC6_MEMBER_TEMPLATES) && \
     !defined(BOOST_NO_TEMPLATED_ITERATOR_CONSTRUCTORS)
 #define BOOST_NO_TEMPLATED_ITERATOR_CONSTRUCTORS
 #endif
@@ -147,7 +147,7 @@
 // Without member template support, we can't have a conforming
 // std::allocator template either:
 //
-#if defined(BOOST_NO_MEMBER_TEMPLATES) &&                                      \
+#if defined(BOOST_NO_MEMBER_TEMPLATES) && \
     !defined(BOOST_MSVC6_MEMBER_TEMPLATES) && !defined(BOOST_NO_STD_ALLOCATOR)
 #define BOOST_NO_STD_ALLOCATOR
 #endif
@@ -155,7 +155,7 @@
 //
 // without ADL support then using declarations will break ADL as well:
 //
-#if defined(BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP) &&                             \
+#if defined(BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP) && \
     !defined(BOOST_FUNCTION_SCOPE_USING_DECLARATION_BREAKS_ADL)
 #define BOOST_FUNCTION_SCOPE_USING_DECLARATION_BREAKS_ADL
 #endif
@@ -214,7 +214,7 @@
 // threading support also, unless there is some other
 // thread API enabled:
 //
-#if defined(BOOST_DISABLE_WIN32) && defined(_WIN32) &&                         \
+#if defined(BOOST_DISABLE_WIN32) && defined(_WIN32) && \
     !defined(BOOST_DISABLE_THREADS) && !defined(BOOST_HAS_PTHREADS)
 #define BOOST_DISABLE_THREADS
 #endif
@@ -225,8 +225,8 @@
 // limited number of macros that identify this (if there's any missing
 // from here then add to the appropriate compiler section):
 //
-#if (defined(__MT__) || defined(_MT) || defined(_REENTRANT) ||                 \
-     defined(_PTHREADS) || defined(__APPLE__) || defined(__DragonFly__)) &&    \
+#if (defined(__MT__) || defined(_MT) || defined(_REENTRANT) ||              \
+     defined(_PTHREADS) || defined(__APPLE__) || defined(__DragonFly__)) && \
     !defined(BOOST_HAS_THREADS)
 #define BOOST_HAS_THREADS
 #endif
@@ -241,8 +241,8 @@
 //
 // Turn threading support off if we don't recognise the threading API:
 //
-#if defined(BOOST_HAS_THREADS) && !defined(BOOST_HAS_PTHREADS) &&              \
-    !defined(BOOST_HAS_WINTHREADS) && !defined(BOOST_HAS_BETHREADS) &&         \
+#if defined(BOOST_HAS_THREADS) && !defined(BOOST_HAS_PTHREADS) &&      \
+    !defined(BOOST_HAS_WINTHREADS) && !defined(BOOST_HAS_BETHREADS) && \
     !defined(BOOST_HAS_MPTASKS)
 #undef BOOST_HAS_THREADS
 #endif
@@ -311,7 +311,7 @@
 // Set BOOST_NO_INITIALIZER_LISTS if there is no library support.
 //
 
-#if defined(BOOST_NO_0X_HDR_INITIALIZER_LIST) &&                               \
+#if defined(BOOST_NO_0X_HDR_INITIALIZER_LIST) && \
     !defined(BOOST_NO_INITIALIZER_LISTS)
 #define BOOST_NO_INITIALIZER_LISTS
 #endif
@@ -319,7 +319,7 @@
 //  BOOST_HAS_ABI_HEADERS
 //  This macro gets set if we have headers that fix the ABI,
 //  and prevent ODR violations when linking to external libraries:
-#if defined(BOOST_ABI_PREFIX) && defined(BOOST_ABI_SUFFIX) &&                  \
+#if defined(BOOST_ABI_PREFIX) && defined(BOOST_ABI_SUFFIX) && \
     !defined(BOOST_HAS_ABI_HEADERS)
 #define BOOST_HAS_ABI_HEADERS
 #endif
@@ -342,7 +342,7 @@
 namespace std {
 using ::ptrdiff_t;
 using ::size_t;
-} // namespace std
+}  // namespace std
 #endif
 
 //  Workaround for the unfortunate min/max macros defined by some platform
@@ -364,16 +364,16 @@ using ::size_t;
 
 namespace std {
 template <class _Tp>
-inline const _Tp &min BOOST_PREVENT_MACRO_SUBSTITUTION(const _Tp &__a,
-                                                       const _Tp &__b) {
+inline const _Tp& min BOOST_PREVENT_MACRO_SUBSTITUTION(const _Tp& __a,
+                                                       const _Tp& __b) {
   return __b < __a ? __b : __a;
 }
 template <class _Tp>
-inline const _Tp &max BOOST_PREVENT_MACRO_SUBSTITUTION(const _Tp &__a,
-                                                       const _Tp &__b) {
+inline const _Tp& max BOOST_PREVENT_MACRO_SUBSTITUTION(const _Tp& __a,
+                                                       const _Tp& __b) {
   return __a < __b ? __b : __a;
 }
-} // namespace std
+}  // namespace std
 
 #endif
 
@@ -404,8 +404,8 @@ inline const _Tp &max BOOST_PREVENT_MACRO_SUBSTITUTION(const _Tp &__a,
 
 #if defined(BOOST_NO_STD_USE_FACET)
 #ifdef BOOST_HAS_TWO_ARG_USE_FACET
-#define BOOST_USE_FACET(Type, loc) std::use_facet(loc, static_cast<Type *>(0))
-#define BOOST_HAS_FACET(Type, loc) std::has_facet(loc, static_cast<Type *>(0))
+#define BOOST_USE_FACET(Type, loc) std::use_facet(loc, static_cast<Type*>(0))
+#define BOOST_HAS_FACET(Type, loc) std::has_facet(loc, static_cast<Type*>(0))
 #elif defined(BOOST_HAS_MACRO_USE_FACET)
 #define BOOST_USE_FACET(Type, loc) std::_USE(loc, Type)
 #define BOOST_HAS_FACET(Type, loc) std::_HAS(loc, Type)
@@ -483,7 +483,7 @@ __extension__ typedef unsigned long long ulong_long_type;
 typedef long long long_long_type;
 typedef unsigned long long ulong_long_type;
 #endif
-} // namespace boost
+}  // namespace boost
 #endif
 
 // BOOST_[APPEND_]EXPLICIT_TEMPLATE_[NON_]TYPE macros
@@ -533,17 +533,17 @@ typedef unsigned long long ulong_long_type;
 #include "boost/non_type.hpp"
 #include "boost/type.hpp"
 
-#define BOOST_EXPLICIT_TEMPLATE_TYPE(t) boost::type<t> * = 0
-#define BOOST_EXPLICIT_TEMPLATE_TYPE_SPEC(t) boost::type<t> *
-#define BOOST_EXPLICIT_TEMPLATE_NON_TYPE(t, v) boost::non_type<t, v> * = 0
-#define BOOST_EXPLICIT_TEMPLATE_NON_TYPE_SPEC(t, v) boost::non_type<t, v> *
+#define BOOST_EXPLICIT_TEMPLATE_TYPE(t) boost::type<t>* = 0
+#define BOOST_EXPLICIT_TEMPLATE_TYPE_SPEC(t) boost::type<t>*
+#define BOOST_EXPLICIT_TEMPLATE_NON_TYPE(t, v) boost::non_type<t, v>* = 0
+#define BOOST_EXPLICIT_TEMPLATE_NON_TYPE_SPEC(t, v) boost::non_type<t, v>*
 
 #define BOOST_APPEND_EXPLICIT_TEMPLATE_TYPE(t) , BOOST_EXPLICIT_TEMPLATE_TYPE(t)
-#define BOOST_APPEND_EXPLICIT_TEMPLATE_TYPE_SPEC(t)                            \
+#define BOOST_APPEND_EXPLICIT_TEMPLATE_TYPE_SPEC(t) \
   , BOOST_EXPLICIT_TEMPLATE_TYPE_SPEC(t)
-#define BOOST_APPEND_EXPLICIT_TEMPLATE_NON_TYPE(t, v)                          \
+#define BOOST_APPEND_EXPLICIT_TEMPLATE_NON_TYPE(t, v) \
   , BOOST_EXPLICIT_TEMPLATE_NON_TYPE(t, v)
-#define BOOST_APPEND_EXPLICIT_TEMPLATE_NON_TYPE_SPEC(t, v)                     \
+#define BOOST_APPEND_EXPLICIT_TEMPLATE_NON_TYPE_SPEC(t, v) \
   , BOOST_EXPLICIT_TEMPLATE_NON_TYPE_SPEC(t, v)
 
 #else
@@ -560,7 +560,7 @@ typedef unsigned long long ulong_long_type;
 #define BOOST_APPEND_EXPLICIT_TEMPLATE_NON_TYPE(t, v)
 #define BOOST_APPEND_EXPLICIT_TEMPLATE_NON_TYPE_SPEC(t, v)
 
-#endif // defined BOOST_NO_EXPLICIT_FUNCTION_TEMPLATE_ARGUMENTS
+#endif  // defined BOOST_NO_EXPLICIT_FUNCTION_TEMPLATE_ARGUMENTS
 
 // ---------------------------------------------------------------------------//
 
@@ -595,7 +595,7 @@ typedef unsigned long long ulong_long_type;
 #define BOOST_STDLIB "Unknown ISO standard library"
 #endif
 #ifndef BOOST_PLATFORM
-#if defined(unix) || defined(__unix) || defined(_XOPEN_SOURCE) ||              \
+#if defined(unix) || defined(__unix) || defined(_XOPEN_SOURCE) || \
     defined(_POSIX_SOURCE)
 #define BOOST_PLATFORM "Generic Unix"
 #else

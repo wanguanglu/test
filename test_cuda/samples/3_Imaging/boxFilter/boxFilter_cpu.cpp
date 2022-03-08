@@ -12,14 +12,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // export C interface
-extern "C" void computeGold(float *id, float *od, int w, int h, int r);
+extern "C" void computeGold(float* id, float* od, int w, int h, int r);
 
 // CPU implementation
-void hboxfilter_x(float *id, float *od, int w, int h, int r) {
+void hboxfilter_x(float* id, float* od, int w, int h, int r) {
   float scale = 1.0f / (2 * r + 1);
 
   for (int y = 0; y < h; y++) {
-
     float t;
     // do left edge
     t = id[y * w] * r;
@@ -55,11 +54,10 @@ void hboxfilter_x(float *id, float *od, int w, int h, int r) {
   }
 }
 
-void hboxfilter_y(float *id, float *od, int w, int h, int r) {
+void hboxfilter_y(float* id, float* od, int w, int h, int r) {
   float scale = 1.0f / (2 * r + 1);
 
   for (int x = 0; x < w; x++) {
-
     float t;
     // do left edge
     t = id[x] * r;
@@ -104,7 +102,7 @@ void hboxfilter_y(float *id, float *od, int w, int h, int r) {
 //! @param r          radius of filter
 ////////////////////////////////////////////////////////////////////////////////
 
-void computeGold(float *image, float *temp, int w, int h, int r) {
+void computeGold(float* image, float* temp, int w, int h, int r) {
   hboxfilter_x(image, temp, w, h, r);
   hboxfilter_y(temp, image, w, h, r);
 }

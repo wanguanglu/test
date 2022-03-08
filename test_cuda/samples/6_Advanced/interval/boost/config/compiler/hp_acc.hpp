@@ -82,7 +82,7 @@
 #elif !defined(__hpxstd98)
 // must compile using the option +hpxstd98 with version A.03.80 and above
 #error "Compiler option '+hpxstd98' is required for proper support"
-#endif // PA-RISC
+#endif  // PA-RISC
 #endif
 
 //
@@ -122,7 +122,7 @@
 // last known and checked version for PA-RISC is 38000
 #if ((__HP_aCC > 61300) || ((__HP_aCC > 38000) && defined(__hpxstd98)))
 #if defined(BOOST_ASSERT_CONFIG)
-#error                                                                         \
+#error \
     "Unknown compiler version - please run the configure tests and report the results"
 #endif
 #endif

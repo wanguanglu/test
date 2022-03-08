@@ -83,18 +83,20 @@ struct HuffmanTable {
 
 int DivUp(int x, int d) { return (x + d - 1) / d; }
 
-template <typename T> T readAndAdvance(const unsigned char *&pData) {
+template <typename T>
+T readAndAdvance(const unsigned char*& pData) {
   T nElement = readBigEndian<T>(pData);
   pData += sizeof(T);
   return nElement;
 }
 
-template <typename T> void writeAndAdvance(unsigned char *&pData, T nElement) {
+template <typename T>
+void writeAndAdvance(unsigned char*& pData, T nElement) {
   writeBigEndian<T>(pData, nElement);
   pData += sizeof(T);
 }
 
-int nextMarker(const unsigned char *pData, int &nPos, int nLength) {
+int nextMarker(const unsigned char* pData, int& nPos, int nLength) {
   unsigned char c = pData[nPos++];
 
   do {
@@ -102,8 +104,7 @@ int nextMarker(const unsigned char *pData, int &nPos, int nLength) {
       c = pData[nPos++];
     }
 
-    if (nPos >= nLength)
-      return -1;
+    if (nPos >= nLength) return -1;
 
     c = pData[nPos++];
   } while (c == 0 || c == 0x0ffu);
@@ -111,12 +112,12 @@ int nextMarker(const unsigned char *pData, int &nPos, int nLength) {
   return c;
 }
 
-void writeMarker(unsigned char nMarker, unsigned char *&pData) {
+void writeMarker(unsigned char nMarker, unsigned char*& pData) {
   *pData++ = 0x0ff;
   *pData++ = nMarker;
 }
 
-void writeJFIFTag(unsigned char *&pData) {
+void writeJFIFTag(unsigned char*& pData) {
   const char JFIF_TAG[] = {0x4a, 0x46, 0x49, 0x46, 0x00, 0x01, 0x02,
                            0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00};
 
@@ -127,8 +128,8 @@ void writeJFIFTag(unsigned char *&pData) {
   pData += sizeof(JFIF_TAG);
 }
 
-void loadJpeg(const char *input_file, unsigned char *&pJpegData,
-              int &nInputLength) {
+void loadJpeg(const char* input_file, unsigned char*& pJpegData,
+              int& nInputLength) {
   // Load file into CPU memory
   ifstream stream(input_file, ifstream::binary);
 
@@ -141,10 +142,10 @@ void loadJpeg(const char *input_file, unsigned char *&pJpegData,
   stream.seekg(0, ios::beg);
 
   pJpegData = new unsigned char[nInputLength];
-  stream.read(reinterpret_cast<char *>(pJpegData), nInputLength);
+  stream.read(reinterpret_cast<char*>(pJpegData), nInputLength);
 }
 
-void readFrameHeader(const unsigned char *pData, FrameHeader &header) {
+void readFrameHeader(const unsigned char* pData, FrameHeader& header) {
   readAndAdvance<unsigned short>(pData);
   header.nSamplePrecision = readAndAdvance<unsigned char>(pData);
   header.nHeight = readAndAdvance<unsigned short>(pData);
@@ -158,9 +159,9 @@ void readFrameHeader(const unsigned char *pData, FrameHeader &header) {
   }
 }
 
-void writeFrameHeader(const FrameHeader &header, unsigned char *&pData) {
+void writeFrameHeader(const FrameHeader& header, unsigned char*& pData) {
   unsigned char aTemp[128];
-  unsigned char *pTemp = aTemp;
+  unsigned char* pTemp = aTemp;
 
   writeAndAdvance<unsigned char>(pTemp, header.nSamplePrecision);
   writeAndAdvance<unsigned short>(pTemp, header.nHeight);
@@ -181,7 +182,7 @@ void writeFrameHeader(const FrameHeader &header, unsigned char *&pData) {
   pData += nLength;
 }
 
-void readScanHeader(const unsigned char *pData, ScanHeader &header) {
+void readScanHeader(const unsigned char* pData, ScanHeader& header) {
   readAndAdvance<unsigned short>(pData);
 
   header.nComponents = readAndAdvance<unsigned char>(pData);
@@ -196,9 +197,9 @@ void readScanHeader(const unsigned char *pData, ScanHeader &header) {
   header.nA = readAndAdvance<unsigned char>(pData);
 }
 
-void writeScanHeader(const ScanHeader &header, unsigned char *&pData) {
+void writeScanHeader(const ScanHeader& header, unsigned char*& pData) {
   unsigned char aTemp[128];
-  unsigned char *pTemp = aTemp;
+  unsigned char* pTemp = aTemp;
 
   writeAndAdvance<unsigned char>(pTemp, header.nComponents);
 
@@ -219,8 +220,8 @@ void writeScanHeader(const ScanHeader &header, unsigned char *&pData) {
   pData += nLength;
 }
 
-void readQuantizationTables(const unsigned char *pData,
-                            QuantizationTable *pTables) {
+void readQuantizationTables(const unsigned char* pData,
+                            QuantizationTable* pTables) {
   unsigned short nLength = readAndAdvance<unsigned short>(pData) - 2;
 
   while (nLength > 0) {
@@ -236,20 +237,20 @@ void readQuantizationTables(const unsigned char *pData,
   }
 }
 
-void writeQuantizationTable(const QuantizationTable &table,
-                            unsigned char *&pData) {
+void writeQuantizationTable(const QuantizationTable& table,
+                            unsigned char*& pData) {
   writeMarker(0x0DB, pData);
   writeAndAdvance<unsigned short>(pData, sizeof(QuantizationTable) + 2);
   memcpy(pData, &table, sizeof(QuantizationTable));
   pData += sizeof(QuantizationTable);
 }
 
-void readHuffmanTables(const unsigned char *pData, HuffmanTable *pTables) {
+void readHuffmanTables(const unsigned char* pData, HuffmanTable* pTables) {
   unsigned short nLength = readAndAdvance<unsigned short>(pData) - 2;
 
   while (nLength > 0) {
     unsigned char nClassAndIdentifier = readAndAdvance<unsigned char>(pData);
-    int nClass = nClassAndIdentifier >> 4; // AC or DC
+    int nClass = nClassAndIdentifier >> 4;  // AC or DC
     int nIdentifier = nClassAndIdentifier & 0x0f;
     int nIdx = nClass * 2 + nIdentifier;
     pTables[nIdx].nClassAndIdentifier = nClassAndIdentifier;
@@ -269,7 +270,7 @@ void readHuffmanTables(const unsigned char *pData, HuffmanTable *pTables) {
   }
 }
 
-void writeHuffmanTable(const HuffmanTable &table, unsigned char *&pData) {
+void writeHuffmanTable(const HuffmanTable& table, unsigned char*& pData) {
   writeMarker(0x0C4, pData);
 
   // Number of Codes for Bit Lengths [1..16]
@@ -284,7 +285,7 @@ void writeHuffmanTable(const HuffmanTable &table, unsigned char *&pData) {
   pData += 17 + nCodeCount;
 }
 
-void readRestartInterval(const unsigned char *pData, int &nRestartInterval) {
+void readRestartInterval(const unsigned char* pData, int& nRestartInterval) {
   readAndAdvance<unsigned short>(pData);
   nRestartInterval = readAndAdvance<unsigned short>(pData);
 }
@@ -298,8 +299,8 @@ void printHelp() {
        << endl;
 }
 
-bool printfNPPinfo(int argc, char *argv[], int cudaVerMajor, int cudaVerMinor) {
-  const NppLibraryVersion *libVer = nppGetLibVersion();
+bool printfNPPinfo(int argc, char* argv[], int cudaVerMajor, int cudaVerMinor) {
+  const NppLibraryVersion* libVer = nppGetLibVersion();
 
   printf("NPP Library Version %d.%d.%d\n", libVer->major, libVer->minor,
          libVer->build);
@@ -317,7 +318,7 @@ bool printfNPPinfo(int argc, char *argv[], int cudaVerMajor, int cudaVerMinor) {
   return bVal;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   // Min spec is SM 2.0 devices
   if (printfNPPinfo(argc, argv, 2, 0) == false) {
     cerr << "jpegNPP requires a GPU with Compute Capability 2.0 or higher"
@@ -326,17 +327,17 @@ int main(int argc, char **argv) {
     return EXIT_SUCCESS;
   }
 
-  const char *szInputFile;
-  const char *szOutputFile;
+  const char* szInputFile;
+  const char* szOutputFile;
   float nScaleFactor;
 
-  if ((argc == 1) || checkCmdLineFlag(argc, (const char **)argv, "help")) {
+  if ((argc == 1) || checkCmdLineFlag(argc, (const char**)argv, "help")) {
     printHelp();
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "input")) {
-    getCmdLineArgumentString(argc, (const char **)argv, "input",
-                             (char **)&szInputFile);
+  if (checkCmdLineFlag(argc, (const char**)argv, "input")) {
+    getCmdLineArgumentString(argc, (const char**)argv, "input",
+                             (char**)&szInputFile);
   } else {
     szInputFile =
         sdkFindFilePath("Growth_of_cubic_bacteria_25x16.jpg", argv[0]);
@@ -344,29 +345,29 @@ int main(int argc, char **argv) {
 
   cout << "Source File: " << szInputFile << endl;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "output")) {
-    getCmdLineArgumentString(argc, (const char **)argv, "output",
-                             (char **)&szOutputFile);
+  if (checkCmdLineFlag(argc, (const char**)argv, "output")) {
+    getCmdLineArgumentString(argc, (const char**)argv, "output",
+                             (char**)&szOutputFile);
   } else {
     szOutputFile = "scaled.jpg";
   }
 
   cout << "Output File: " << szOutputFile << endl;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "scale")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "scale")) {
     nScaleFactor = max(
         0.0f,
-        min(getCmdLineArgumentFloat(argc, (const char **)argv, "scale"), 1.0f));
+        min(getCmdLineArgumentFloat(argc, (const char**)argv, "scale"), 1.0f));
   } else {
     nScaleFactor = 0.5f;
   }
 
   cout << "Scale Factor: " << nScaleFactor << endl;
 
-  NppiDCTState *pDCTState;
+  NppiDCTState* pDCTState;
   NPP_CHECK_NPP(nppiDCTInitAlloc(&pDCTState));
 
-  unsigned char *pJpegData = 0;
+  unsigned char* pJpegData = 0;
   int nInputLength = 0;
 
   // Load Jpeg
@@ -398,12 +399,12 @@ int main(int argc, char **argv) {
   // Parsing and Huffman Decoding (on host)
   FrameHeader oFrameHeader;
   QuantizationTable aQuantizationTables[4];
-  Npp8u *pdQuantizationTables;
+  Npp8u* pdQuantizationTables;
   cudaMalloc(&pdQuantizationTables, 64 * 4);
 
   HuffmanTable aHuffmanTables[4];
-  HuffmanTable *pHuffmanDCTables = aHuffmanTables;
-  HuffmanTable *pHuffmanACTables = &aHuffmanTables[2];
+  HuffmanTable* pHuffmanDCTables = aHuffmanTables;
+  HuffmanTable* pHuffmanACTables = &aHuffmanTables[2];
   ScanHeader oScanHeader;
   memset(&oFrameHeader, 0, sizeof(FrameHeader));
   memset(aQuantizationTables, 0, 4 * sizeof(QuantizationTable));
@@ -414,14 +415,14 @@ int main(int argc, char **argv) {
   int nRestartInterval = -1;
 
   NppiSize aSrcSize[3];
-  Npp16s *aphDCT[3] = {0, 0, 0};
-  Npp16s *apdDCT[3] = {0, 0, 0};
+  Npp16s* aphDCT[3] = {0, 0, 0};
+  Npp16s* apdDCT[3] = {0, 0, 0};
   Npp32s aDCTStep[3];
 
-  Npp8u *apSrcImage[3] = {0, 0, 0};
+  Npp8u* apSrcImage[3] = {0, 0, 0};
   Npp32s aSrcImageStep[3];
 
-  Npp8u *apDstImage[3] = {0, 0, 0};
+  Npp8u* apDstImage[3] = {0, 0, 0};
   Npp32s aDstImageStep[3];
   NppiSize aDstSize[3];
 
@@ -531,8 +532,8 @@ int main(int argc, char **argv) {
         }
       }
 
-      NppiDecodeHuffmanSpec *apHuffmanDCTable[3];
-      NppiDecodeHuffmanSpec *apHuffmanACTable[3];
+      NppiDecodeHuffmanSpec* apHuffmanDCTable[3];
+      NppiDecodeHuffmanSpec* apHuffmanACTable[3];
 
       for (int i = 0; i < 3; ++i) {
         nppiDecodeHuffmanSpecInitAllocHost_JPEG(
@@ -639,8 +640,7 @@ int main(int argc, char **argv) {
 
     NppiInterpolationMode eInterploationMode = NPPI_INTER_SUPER;
 
-    if (nScaleFactor >= 1.f)
-      eInterploationMode = NPPI_INTER_LANCZOS;
+    if (nScaleFactor >= 1.f) eInterploationMode = NPPI_INTER_LANCZOS;
 
     NPP_CHECK_NPP(nppiGetResizeRect(oSrcImageROI, &oDstImageROI, nScaleFactor,
                                     nScaleFactor, 0.5, 0.5,
@@ -667,17 +667,17 @@ int main(int argc, char **argv) {
   }
 
   // Huffman Encoding
-  Npp8u *pdScan;
+  Npp8u* pdScan;
   Npp32s nScanLength;
   NPP_CHECK_CUDA(cudaMalloc(&pdScan, 4 << 20));
 
-  Npp8u *pJpegEncoderTemp;
+  Npp8u* pJpegEncoderTemp;
   Npp32s nTempSize;
   NPP_CHECK_NPP(nppiEncodeHuffmanGetSize(aSrcSize[0], 3, &nTempSize));
   NPP_CHECK_CUDA(cudaMalloc(&pJpegEncoderTemp, nTempSize));
 
-  NppiEncodeHuffmanSpec *apHuffmanDCTable[3];
-  NppiEncodeHuffmanSpec *apHuffmanACTable[3];
+  NppiEncodeHuffmanSpec* apHuffmanDCTable[3];
+  NppiEncodeHuffmanSpec* apHuffmanACTable[3];
 
   for (int i = 0; i < 3; ++i) {
     nppiEncodeHuffmanSpecInitAlloc_JPEG(
@@ -699,8 +699,8 @@ int main(int argc, char **argv) {
   }
 
   // Write JPEG
-  unsigned char *pDstJpeg = new unsigned char[4 << 20];
-  unsigned char *pDstOutput = pDstJpeg;
+  unsigned char* pDstJpeg = new unsigned char[4 << 20];
+  unsigned char* pDstOutput = pDstJpeg;
 
   oFrameHeader.nWidth = oDstImageSize.width;
   oFrameHeader.nHeight = oDstImageSize.height;
@@ -723,7 +723,7 @@ int main(int argc, char **argv) {
   {
     // Write result to file.
     std::ofstream outputFile(szOutputFile, ios::out | ios::binary);
-    outputFile.write(reinterpret_cast<const char *>(pDstJpeg),
+    outputFile.write(reinterpret_cast<const char*>(pDstJpeg),
                      static_cast<int>(pDstOutput - pDstJpeg));
   }
 

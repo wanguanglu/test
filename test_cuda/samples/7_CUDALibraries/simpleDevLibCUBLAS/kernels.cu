@@ -24,10 +24,10 @@
 /* Includes, cuda helper functions */
 #include <helper_cuda.h>
 
-__global__ void invokeDeviceCublasSgemm(cublasStatus_t *returnValue, int n,
-                                        const float *d_alpha, const float *d_A,
-                                        const float *d_B, const float *d_beta,
-                                        float *d_C) {
+__global__ void invokeDeviceCublasSgemm(cublasStatus_t* returnValue, int n,
+                                        const float* d_alpha, const float* d_A,
+                                        const float* d_B, const float* d_beta,
+                                        float* d_C) {
   cublasHandle_t cnpHandle;
   cublasStatus_t status = cublasCreate(&cnpHandle);
 
@@ -49,12 +49,12 @@ struct SGEMMScalarParams {
   float alpha, beta;
 };
 
-extern "C" void device_cublas_sgemm(int n, float alpha, const float *d_A,
-                                    const float *d_B, float beta, float *d_C) {
-  cublasStatus_t *d_status;
+extern "C" void device_cublas_sgemm(int n, float alpha, const float* d_A,
+                                    const float* d_B, float beta, float* d_C) {
+  cublasStatus_t* d_status;
   cublasStatus_t status;
 
-  if (cudaMalloc((void **)&d_status, sizeof(cublasStatus_t)) != cudaSuccess) {
+  if (cudaMalloc((void**)&d_status, sizeof(cublasStatus_t)) != cudaSuccess) {
     fprintf(stderr,
             "!!!! device memory allocation error (allocate d_status)\n");
     exit(EXIT_FAILURE);
@@ -63,10 +63,9 @@ extern "C" void device_cublas_sgemm(int n, float alpha, const float *d_A,
   // Device API requires scalar arguments (alpha and beta)
   // to be allocated in the device memory.
   SGEMMScalarParams h_params = {alpha, beta};
-  SGEMMScalarParams *d_params;
+  SGEMMScalarParams* d_params;
 
-  if (cudaMalloc((void **)&d_params, sizeof(SGEMMScalarParams)) !=
-      cudaSuccess) {
+  if (cudaMalloc((void**)&d_params, sizeof(SGEMMScalarParams)) != cudaSuccess) {
     fprintf(stderr,
             "!!!! device memory allocation error (allocate d_params)\n");
     exit(EXIT_FAILURE);

@@ -19,9 +19,9 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // export C interface
-extern "C" void computeGold(char *reference, char *idata,
+extern "C" void computeGold(char* reference, char* idata,
                             const unsigned int len);
-extern "C" void computeGold2(int2 *reference, int2 *idata,
+extern "C" void computeGold2(int2* reference, int2* idata,
                              const unsigned int len);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,9 +31,8 @@ extern "C" void computeGold2(int2 *reference, int2 *idata,
 //! @param idata      input data as provided to device
 //! @param len        number of elements in reference / idata
 ////////////////////////////////////////////////////////////////////////////////
-void computeGold(char *reference, char *idata, const unsigned int len) {
-  for (unsigned int i = 0; i < len; ++i)
-    reference[i] = idata[i] - 10;
+void computeGold(char* reference, char* idata, const unsigned int len) {
+  for (unsigned int i = 0; i < len; ++i) reference[i] = idata[i] - 10;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +42,7 @@ void computeGold(char *reference, char *idata, const unsigned int len) {
 //! @param idata      input data as provided to device
 //! @param len        number of elements in reference / idata
 ////////////////////////////////////////////////////////////////////////////////
-void computeGold2(int2 *reference, int2 *idata, const unsigned int len) {
+void computeGold2(int2* reference, int2* idata, const unsigned int len) {
   for (unsigned int i = 0; i < len; ++i) {
     reference[i].x = idata[i].x - idata[i].y;
     reference[i].y = idata[i].y;

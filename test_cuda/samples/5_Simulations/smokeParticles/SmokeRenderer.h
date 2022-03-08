@@ -22,7 +22,7 @@
 using namespace nv;
 
 class SmokeRenderer {
-public:
+ public:
   SmokeRenderer(int maxParticles);
   ~SmokeRenderer();
 
@@ -71,9 +71,9 @@ public:
   void render();
   void debugVectors();
 
-private:
+ private:
   void drawPoints(int start, int count, bool sort);
-  void drawPointSprites(GLSLProgram *prog, int start, int count, bool shadowed);
+  void drawPointSprites(GLSLProgram* prog, int start, int count, bool shadowed);
 
   void drawSlice(int i);
   void drawSliceLightView(int i);
@@ -135,7 +135,7 @@ private:
   vec4f m_lightPosEye;
 
   // programs
-  GLSLProgram *m_simpleProg;
+  GLSLProgram* m_simpleProg;
   GLSLProgram *m_particleProg, *m_particleShadowProg;
   GLSLProgram *m_displayTexProg, *m_blurProg;
 
@@ -144,10 +144,10 @@ private:
   GLuint m_lightTexture[2];
   int m_srcLightTexture;
   GLuint m_lightDepthTexture;
-  FramebufferObject *m_lightFbo;
+  FramebufferObject* m_lightFbo;
 
   GLuint m_imageTex, m_depthTex;
-  FramebufferObject *m_imageFbo;
+  FramebufferObject* m_imageFbo;
 };
 
 #endif

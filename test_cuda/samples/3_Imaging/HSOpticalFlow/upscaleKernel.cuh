@@ -31,12 +31,11 @@ texture<float, 2, cudaReadModeElementType> texCoarse;
 /// \param[out] out     result
 ///////////////////////////////////////////////////////////////////////////////
 __global__ void UpscaleKernel(int width, int height, int stride, float scale,
-                              float *out) {
+                              float* out) {
   const int ix = threadIdx.x + blockIdx.x * blockDim.x;
   const int iy = threadIdx.y + blockIdx.y * blockDim.y;
 
-  if (ix >= width || iy >= height)
-    return;
+  if (ix >= width || iy >= height) return;
 
   float x = ((float)ix + 0.5f) / (float)width;
   float y = ((float)iy + 0.5f) / (float)height;
@@ -58,9 +57,9 @@ __global__ void UpscaleKernel(int width, int height, int stride, float scale,
 /// \param[in]  scale       value scale factor (multiplier)
 /// \param[out] out         upscaled field component
 ///////////////////////////////////////////////////////////////////////////////
-static void Upscale(const float *src, int width, int height, int stride,
+static void Upscale(const float* src, int width, int height, int stride,
                     int newWidth, int newHeight, int newStride, float scale,
-                    float *out) {
+                    float* out) {
   dim3 threads(32, 8);
   dim3 blocks(iDivUp(newWidth, threads.x), iDivUp(newHeight, threads.y));
 

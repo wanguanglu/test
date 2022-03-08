@@ -13,8 +13,8 @@
 #include <assert.h>
 #include <helper_cuda.h>
 
-inline __device__ void Comparator(uint &keyA, uint &valA, uint &keyB,
-                                  uint &valB, uint arrowDir) {
+inline __device__ void Comparator(uint& keyA, uint& valA, uint& keyB,
+                                  uint& valB, uint arrowDir) {
   uint t;
 
   if ((keyA > keyB) == arrowDir) {
@@ -27,8 +27,8 @@ inline __device__ void Comparator(uint &keyA, uint &valA, uint &keyB,
   }
 }
 
-__global__ void bitonicSortSharedKernel(uint *d_DstKey, uint *d_DstVal,
-                                        uint *d_SrcKey, uint *d_SrcVal,
+__global__ void bitonicSortSharedKernel(uint* d_DstKey, uint* d_DstVal,
+                                        uint* d_SrcKey, uint* d_SrcVal,
                                         uint arrayLength, uint sortDir) {
   // Shared memory storage for one or more short vectors
   __shared__ uint s_key[SHARED_SIZE_LIMIT];
@@ -78,7 +78,7 @@ __global__ void bitonicSortSharedKernel(uint *d_DstKey, uint *d_DstVal,
 }
 
 // Helper function (also used by odd-even merge sort)
-extern "C" uint factorRadix2(uint *log2L, uint L) {
+extern "C" uint factorRadix2(uint* log2L, uint L) {
   if (!L) {
     *log2L = 0;
     return 0;
@@ -90,8 +90,8 @@ extern "C" uint factorRadix2(uint *log2L, uint L) {
   }
 }
 
-extern "C" void bitonicSortShared(uint *d_DstKey, uint *d_DstVal,
-                                  uint *d_SrcKey, uint *d_SrcVal,
+extern "C" void bitonicSortShared(uint* d_DstKey, uint* d_DstVal,
+                                  uint* d_SrcKey, uint* d_SrcVal,
                                   uint batchSize, uint arrayLength,
                                   uint sortDir) {
   // Nothing to sort
@@ -127,9 +127,10 @@ static inline __host__ __device__ uint getSampleCount(uint dividend) {
 }
 
 template <uint sortDir>
-static inline __device__ void
-ComparatorExtended(uint &keyA, uint &valA, uint &flagA, uint &keyB, uint &valB,
-                   uint &flagB, uint arrowDir) {
+static inline __device__ void ComparatorExtended(uint& keyA, uint& valA,
+                                                 uint& flagA, uint& keyB,
+                                                 uint& valB, uint& flagB,
+                                                 uint arrowDir) {
   uint t;
 
   if ((!(flagA || flagB) && ((keyA > keyB) == arrowDir)) ||
@@ -149,8 +150,8 @@ ComparatorExtended(uint &keyA, uint &valA, uint &flagA, uint &keyB, uint &valB,
 
 template <uint sortDir>
 __global__ void bitonicMergeElementaryIntervalsKernel(
-    uint *d_DstKey, uint *d_DstVal, uint *d_SrcKey, uint *d_SrcVal,
-    uint *d_LimitsA, uint *d_LimitsB, uint stride, uint N) {
+    uint* d_DstKey, uint* d_DstVal, uint* d_SrcKey, uint* d_SrcVal,
+    uint* d_LimitsA, uint* d_LimitsB, uint stride, uint N) {
   __shared__ uint s_key[2 * SAMPLE_STRIDE];
   __shared__ uint s_val[2 * SAMPLE_STRIDE];
   __shared__ uint s_inf[2 * SAMPLE_STRIDE];
@@ -230,10 +231,10 @@ __global__ void bitonicMergeElementaryIntervalsKernel(
   }
 }
 
-extern "C" void bitonicMergeElementaryIntervals(uint *d_DstKey, uint *d_DstVal,
-                                                uint *d_SrcKey, uint *d_SrcVal,
-                                                uint *d_LimitsA,
-                                                uint *d_LimitsB, uint stride,
+extern "C" void bitonicMergeElementaryIntervals(uint* d_DstKey, uint* d_DstVal,
+                                                uint* d_SrcKey, uint* d_SrcVal,
+                                                uint* d_LimitsA,
+                                                uint* d_LimitsB, uint stride,
                                                 uint N, uint sortDir) {
   uint lastSegmentElements = N % (2 * stride);
 

@@ -50,20 +50,17 @@ IS_WINDOWS = (system == 'Windows')
 
 # subfolder of workspace prepended to CMAKE_PREFIX_PATH
 ENV_VAR_SUBFOLDERS = {
-    'CMAKE_PREFIX_PATH':
-    '',
-    'CPATH':
-    'include',
-    'LD_LIBRARY_PATH' if not IS_DARWIN else 'DYLD_LIBRARY_PATH':
-    ['lib', os.path.join('lib', 'x86_64-linux-gnu')],
-    'PATH':
-    'bin',
+    'CMAKE_PREFIX_PATH': '',
+    'CPATH': 'include',
+    'LD_LIBRARY_PATH' if not IS_DARWIN else 'DYLD_LIBRARY_PATH': [
+        'lib', os.path.join('lib', 'x86_64-linux-gnu')
+    ],
+    'PATH': 'bin',
     'PKG_CONFIG_PATH': [
         os.path.join('lib', 'pkgconfig'),
         os.path.join('lib', 'x86_64-linux-gnu', 'pkgconfig')
     ],
-    'PYTHONPATH':
-    'lib/python2.7/dist-packages',
+    'PYTHONPATH': 'lib/python2.7/dist-packages',
 }
 
 
@@ -105,12 +102,12 @@ def _rollback_env_variable(environ, name, subfolder):
     value_modified = False
     if subfolder:
         if subfolder.startswith(
-                os.path.sep) or (os.path.altsep
-                                 and subfolder.startswith(os.path.altsep)):
+                os.path.sep) or (os.path.altsep and
+                                 subfolder.startswith(os.path.altsep)):
             subfolder = subfolder[1:]
         if subfolder.endswith(
-                os.path.sep) or (os.path.altsep
-                                 and subfolder.endswith(os.path.altsep)):
+                os.path.sep) or (os.path.altsep and
+                                 subfolder.endswith(os.path.altsep)):
             subfolder = subfolder[:-1]
     for ws_path in _get_workspaces(environ,
                                    include_fuerte=True,
@@ -145,9 +142,9 @@ def _get_workspaces(environ, include_fuerte=False, include_non_existing=False):
     # remove non-workspace paths
     workspaces = [
         path for path in paths
-        if os.path.isfile(os.path.join(path, CATKIN_MARKER_FILE)) or (
-            include_fuerte and path.startswith('/opt/ros/fuerte')) or (
-                include_non_existing and not os.path.exists(path))
+        if os.path.isfile(os.path.join(path, CATKIN_MARKER_FILE)) or
+        (include_fuerte and path.startswith('/opt/ros/fuerte')) or
+        (include_non_existing and not os.path.exists(path))
     ]
     return workspaces
 
@@ -263,8 +260,8 @@ def find_env_hooks(environ, cmake_prefix_path):
                     generic_env_hooks.append(
                         os.path.join(env_hook_dir, filename))
                     generic_env_hooks_workspace.append(workspace)
-                    generic_env_hooks_by_filename[
-                        filename] = generic_env_hooks[-1]
+                    generic_env_hooks_by_filename[filename] = generic_env_hooks[
+                        -1]
                 elif specific_env_hook_ext is not None and filename.endswith(
                         '.%s' % specific_env_hook_ext):
                     # remove previous env hook with same name if present

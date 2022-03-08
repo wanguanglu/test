@@ -44,4 +44,4 @@
 #pragma warning(disable : 1786)
 #endif
 
-#endif // BOOST_CONFIG_WARNING_DISABLE_HPP
+#endif  // BOOST_CONFIG_WARNING_DISABLE_HPP

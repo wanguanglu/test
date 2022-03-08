@@ -7,7 +7,7 @@
 
 //  GCC-XML C++ compiler setup:
 
-#if !defined(__GCCXML_GNUC__) ||                                               \
+#if !defined(__GCCXML_GNUC__) || \
     ((__GCCXML_GNUC__ <= 3) && (__GCCXML_GNUC_MINOR__ <= 3))
 #define BOOST_NO_IS_ABSTRACT
 #endif
@@ -17,7 +17,7 @@
 // those platforms where we can know for sure). It will get turned off again
 // later if no threading API is detected.
 //
-#if !defined(__MINGW32__) && !defined(_MSC_VER) && !defined(linux) &&          \
+#if !defined(__MINGW32__) && !defined(_MSC_VER) && !defined(linux) && \
     !defined(__linux) && !defined(__linux__)
 #define BOOST_HAS_THREADS
 #endif

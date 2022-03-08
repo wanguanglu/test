@@ -29,15 +29,15 @@
 #include <cuda_runtime.h>
 
 // Utilities and timing functions
-#include <helper_functions.h> // includes cuda.h and cuda_runtime_api.h
+#include <helper_functions.h>  // includes cuda.h and cuda_runtime_api.h
 
 // CUDA helper functions
-#include <helper_cuda.h> // helper functions for CUDA error check
+#include <helper_cuda.h>  // helper functions for CUDA error check
 
 // Includes, kernels
 #include "simpleAtomicIntrinsics_kernel.cuh"
 
-const char *sampleName = "simpleAtomicIntrinsics";
+const char* sampleName = "simpleAtomicIntrinsics";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Auto-Verification Code
@@ -45,14 +45,14 @@ bool testResult = true;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Declaration, forward
-void runTest(int argc, char **argv);
+void runTest(int argc, char** argv);
 
-extern "C" bool computeGold(int *gpuData, const int len);
+extern "C" bool computeGold(int* gpuData, const int len);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   printf("%s starting...\n", sampleName);
 
   runTest(argc, argv);
@@ -71,32 +71,34 @@ int main(int argc, char **argv) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Run a simple test for CUDA
 ////////////////////////////////////////////////////////////////////////////////
-void runTest(int argc, char **argv) {
+void runTest(int argc, char** argv) {
   cudaDeviceProp deviceProp;
   deviceProp.major = 0;
   deviceProp.minor = 0;
   int dev = 0;
 
   // This will pick the best possible CUDA capable device
-  dev = findCudaDevice(argc, (const char **)argv);
+  dev = findCudaDevice(argc, (const char**)argv);
 
   checkCudaErrors(cudaGetDeviceProperties(&deviceProp, dev));
 
   // Statistics about the GPU device
-  printf("> GPU device has %d Multi-Processors, "
-         "SM %d.%d compute capabilities\n\n",
-         deviceProp.multiProcessorCount, deviceProp.major, deviceProp.minor);
+  printf(
+      "> GPU device has %d Multi-Processors, "
+      "SM %d.%d compute capabilities\n\n",
+      deviceProp.multiProcessorCount, deviceProp.major, deviceProp.minor);
 
   int version = (deviceProp.major * 0x10 + deviceProp.minor);
 
   if (version < 0x11) {
-    printf("%s: requires a minimum CUDA compute 1.1 capability, waiving "
-           "testing.\n",
-           sampleName);
+    printf(
+        "%s: requires a minimum CUDA compute 1.1 capability, waiving "
+        "testing.\n",
+        sampleName);
     exit(EXIT_WAIVED);
   }
 
-  StopWatchInterface *timer;
+  StopWatchInterface* timer;
   sdkCreateTimer(&timer);
   sdkStartTimer(&timer);
 
@@ -106,18 +108,17 @@ void runTest(int argc, char **argv) {
   unsigned int memSize = sizeof(int) * numData;
 
   // allocate mem for the result on host side
-  int *hOData = (int *)malloc(memSize);
+  int* hOData = (int*)malloc(memSize);
 
   // initialize the memory
-  for (unsigned int i = 0; i < numData; i++)
-    hOData[i] = 0;
+  for (unsigned int i = 0; i < numData; i++) hOData[i] = 0;
 
   // To make the AND and XOR tests generate something other than 0...
   hOData[8] = hOData[10] = 0xff;
 
   // allocate device memory for result
-  int *dOData;
-  checkCudaErrors(cudaMalloc((void **)&dOData, memSize));
+  int* dOData;
+  checkCudaErrors(cudaMalloc((void**)&dOData, memSize));
   // copy host memory to device to initialize to zero
   checkCudaErrors(cudaMemcpy(dOData, hOData, memSize, cudaMemcpyHostToDevice));
 

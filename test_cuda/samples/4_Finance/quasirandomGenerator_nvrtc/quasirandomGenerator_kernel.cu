@@ -22,9 +22,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 __constant__ unsigned int c_Table[QRNG_DIMENSIONS][QRNG_RESOLUTION];
 
-extern "C" __global__ void
-quasirandomGeneratorKernel(float *d_Output, unsigned int seed, unsigned int N) {
-  unsigned int *dimBase = &c_Table[threadIdx.y][0];
+extern "C" __global__ void quasirandomGeneratorKernel(float* d_Output,
+                                                      unsigned int seed,
+                                                      unsigned int N) {
+  unsigned int* dimBase = &c_Table[threadIdx.y][0];
   unsigned int tid = MUL(blockDim.x, blockIdx.x) + threadIdx.x;
   unsigned int threadN = MUL(blockDim.x, gridDim.x);
 
@@ -115,14 +116,14 @@ __device__ inline float MoroInvCNDgpu(unsigned int x) {
 // input sequence and uniform ascending (0, 1) sequence
 ////////////////////////////////////////////////////////////////////////////////
 
-extern "C" __global__ void inverseCNDKernel(float *d_Output,
+extern "C" __global__ void inverseCNDKernel(float* d_Output,
                                             unsigned int pathN) {
   unsigned int distance = ((unsigned int)-1) / (pathN + 1);
   unsigned int tid = MUL(blockDim.x, blockIdx.x) + threadIdx.x;
   unsigned int threadN = MUL(blockDim.x, gridDim.x);
 
   // Transform input number sequence if it's supplied
-  if (0) // d_Input)
+  if (0)  // d_Input)
   {
     /*
       for (unsigned int pos = tid; pos < pathN; pos += threadN)

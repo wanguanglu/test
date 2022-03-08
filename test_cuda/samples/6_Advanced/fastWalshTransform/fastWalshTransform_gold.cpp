@@ -12,11 +12,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 // CPU Fast Walsh Transform
 ///////////////////////////////////////////////////////////////////////////////
-extern "C" void fwtCPU(float *h_Output, float *h_Input, int log2N) {
+extern "C" void fwtCPU(float* h_Output, float* h_Input, int log2N) {
   const int N = 1 << log2N;
 
-  for (int pos = 0; pos < N; pos++)
-    h_Output[pos] = h_Input[pos];
+  for (int pos = 0; pos < N; pos++) h_Output[pos] = h_Input[pos];
 
   // Cycle through stages with different butterfly strides
   for (int stride = N / 2; stride >= 1; stride >>= 1) {
@@ -40,7 +39,7 @@ extern "C" void fwtCPU(float *h_Output, float *h_Input, int log2N) {
 // Straightforward Walsh Transform: used to test both CPU and GPU FWT
 // Slow. Uses doubles because of straightforward accumulation
 ///////////////////////////////////////////////////////////////////////////////
-extern "C" void slowWTcpu(float *h_Output, float *h_Input, int log2N) {
+extern "C" void slowWTcpu(float* h_Output, float* h_Input, int log2N) {
   const int N = 1 << log2N;
 
   for (int i = 0; i < N; i++) {
@@ -51,8 +50,7 @@ extern "C" void slowWTcpu(float *h_Output, float *h_Input, int log2N) {
       double q = 1.0;
 
       for (int t = i & j; t != 0; t >>= 1)
-        if (t & 1)
-          q = -q;
+        if (t & 1) q = -q;
 
       sum += q * h_Input[j];
     }
@@ -65,8 +63,8 @@ extern "C" void slowWTcpu(float *h_Output, float *h_Input, int log2N) {
 // Reference CPU dyadic convolution.
 // Extremely slow because of non-linear memory access patterns (cache thrashing)
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void dyadicConvolutionCPU(float *h_Result, float *h_Data,
-                                     float *h_Kernel, int log2dataN,
+extern "C" void dyadicConvolutionCPU(float* h_Result, float* h_Data,
+                                     float* h_Kernel, int log2dataN,
                                      int log2kernelN) {
   const int dataN = 1 << log2dataN;
   const int kernelN = 1 << log2kernelN;
@@ -74,8 +72,7 @@ extern "C" void dyadicConvolutionCPU(float *h_Result, float *h_Data,
   for (int i = 0; i < dataN; i++) {
     double sum = 0;
 
-    for (int j = 0; j < kernelN; j++)
-      sum += h_Data[i ^ j] * h_Kernel[j];
+    for (int j = 0; j < kernelN; j++) sum += h_Data[i ^ j] * h_Kernel[j];
 
     h_Result[i] = (float)sum;
   }

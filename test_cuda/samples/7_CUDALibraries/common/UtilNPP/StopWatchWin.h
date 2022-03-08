@@ -22,14 +22,14 @@ namespace npp {
 
 /// Windows specific implementation of StopWatch
 class StopWatchWin {
-protected:
+ protected:
   //! Constructor, default
   StopWatchWin();
 
   // Destructor
   ~StopWatchWin();
 
-public:
+ public:
   //! Start time measurement
   inline void start();
 
@@ -44,7 +44,7 @@ public:
   //! time between the last start() and stop call is returned
   inline const double elapsed() const;
 
-private:
+ private:
   // member variables
 
   //! Start of measurement
@@ -74,7 +74,7 @@ private:
 //! Start time measurement
 ////////////////////////////////////////////////////////////////////////////////
 inline void StopWatchWin::start() {
-  QueryPerformanceCounter((LARGE_INTEGER *)&start_time);
+  QueryPerformanceCounter((LARGE_INTEGER*)&start_time);
   running = true;
 }
 
@@ -83,7 +83,7 @@ inline void StopWatchWin::start() {
 //! variable. Also increment the number of times this clock has been run.
 ////////////////////////////////////////////////////////////////////////////////
 inline void StopWatchWin::stop() {
-  QueryPerformanceCounter((LARGE_INTEGER *)&end_time);
+  QueryPerformanceCounter((LARGE_INTEGER*)&end_time);
   diff_time =
       (float)(((double)end_time.QuadPart - (double)start_time.QuadPart) / freq);
 
@@ -100,7 +100,7 @@ inline void StopWatchWin::reset() {
   total_time = 0;
 
   if (running) {
-    QueryPerformanceCounter((LARGE_INTEGER *)&start_time);
+    QueryPerformanceCounter((LARGE_INTEGER*)&start_time);
   }
 }
 
@@ -116,13 +116,13 @@ inline const double StopWatchWin::elapsed() const {
 
   if (running) {
     LARGE_INTEGER temp;
-    QueryPerformanceCounter((LARGE_INTEGER *)&temp);
+    QueryPerformanceCounter((LARGE_INTEGER*)&temp);
     retval += (((double)(temp.QuadPart - start_time.QuadPart)) / freq);
   }
 
   return retval;
 }
 
-} // namespace npp
+}  // namespace npp
 
-#endif // NV_NPP_UTIL_STOP_WATCH_WIN_H
+#endif  // NV_NPP_UTIL_STOP_WATCH_WIN_H

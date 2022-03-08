@@ -15,16 +15,16 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-template <class T> class Container {
-
-public:
+template <class T>
+class Container {
+ public:
   __device__ Container() { ; }
 
   __device__ virtual ~Container() { ; }
 
   __device__ virtual void push(T e) = 0;
 
-  __device__ virtual bool pop(T &e) = 0;
+  __device__ virtual bool pop(T& e) = 0;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -36,23 +36,22 @@ public:
 //
 ////////////////////////////////////////////////////////////////////////////
 
-template <class T> class Vector : public Container<T> {
-
-public:
+template <class T>
+class Vector : public Container<T> {
+ public:
   // Constructor, data is allocated on the heap
   // NOTE: This must be called from only one thread
   __device__ Vector(int max_size) : m_top(-1) { m_data = new T[max_size]; }
 
   // Constructor, data uses preallocated buffer via placement new
-  __device__ Vector(int max_size, T *preallocated_buffer) : m_top(-1) {
+  __device__ Vector(int max_size, T* preallocated_buffer) : m_top(-1) {
     m_data = new (preallocated_buffer) T[max_size];
   }
 
   // Destructor, data is freed
   // NOTE: This must be called from only one thread
   __device__ ~Vector() {
-    if (m_data)
-      delete[] m_data;
+    if (m_data) delete[] m_data;
   }
 
   __device__ virtual void push(T e) {
@@ -63,7 +62,7 @@ public:
     }
   }
 
-  __device__ virtual bool pop(T &e) {
+  __device__ virtual bool pop(T& e) {
     if (m_data && m_top >= 0) {
       // Atomically decrement the top idx
       int idx = atomicAdd(&(this->m_top), -1);
@@ -75,9 +74,9 @@ public:
     return false;
   }
 
-private:
+ private:
   int m_size;
-  T *m_data;
+  T* m_data;
 
   int m_top;
 };

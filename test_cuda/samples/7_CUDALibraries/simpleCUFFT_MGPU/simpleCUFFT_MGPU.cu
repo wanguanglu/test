@@ -34,17 +34,17 @@ typedef float2 Complex;
 static __device__ __host__ inline Complex ComplexAdd(Complex, Complex);
 static __device__ __host__ inline Complex ComplexScale(Complex, float);
 static __device__ __host__ inline Complex ComplexMul(Complex, Complex);
-static __global__ void ComplexPointwiseMulAndScale(cufftComplex *,
-                                                   cufftComplex *, int, float);
+static __global__ void ComplexPointwiseMulAndScale(cufftComplex*, cufftComplex*,
+                                                   int, float);
 
 // Kernel for GPU
-void multiplyCoefficient(cudaLibXtDesc *, cudaLibXtDesc *, int, float, int);
+void multiplyCoefficient(cudaLibXtDesc*, cudaLibXtDesc*, int, float, int);
 
 // Filtering functions
-void Convolve(const Complex *, int, const Complex *, int, Complex *);
+void Convolve(const Complex*, int, const Complex*, int, Complex*);
 
 // Padding functions
-int PadData(const Complex *, Complex **, int, const Complex *, Complex **, int);
+int PadData(const Complex*, Complex**, int, const Complex*, Complex**, int);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Data configuration
@@ -57,7 +57,7 @@ const int GPU_COUNT = 2;
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   printf("\n[simpleCUFFT_MGPU] is starting...\n\n");
 
   int GPU_N;
@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
   }
 
   // Allocate host memory for the signal
-  Complex *h_signal = (Complex *)malloc(sizeof(Complex) * SIGNAL_SIZE);
+  Complex* h_signal = (Complex*)malloc(sizeof(Complex) * SIGNAL_SIZE);
 
   // Initialize the memory for the signal
   for (int i = 0; i < SIGNAL_SIZE; ++i) {
@@ -79,8 +79,8 @@ int main(int argc, char **argv) {
   }
 
   // Allocate host memory for the filter
-  Complex *h_filter_kernel =
-      (Complex *)malloc(sizeof(Complex) * FILTER_KERNEL_SIZE);
+  Complex* h_filter_kernel =
+      (Complex*)malloc(sizeof(Complex) * FILTER_KERNEL_SIZE);
 
   // Initialize the memory for the filter
   for (int i = 0; i < FILTER_KERNEL_SIZE; ++i) {
@@ -89,8 +89,8 @@ int main(int argc, char **argv) {
   }
 
   // Pad signal and filter kernel
-  Complex *h_padded_signal;
-  Complex *h_padded_filter_kernel;
+  Complex* h_padded_signal;
+  Complex* h_padded_filter_kernel;
   int new_size =
       PadData(h_signal, &h_padded_signal, SIGNAL_SIZE, h_filter_kernel,
               &h_padded_filter_kernel, FILTER_KERNEL_SIZE);
@@ -102,8 +102,8 @@ int main(int argc, char **argv) {
 
   // cufftXtSetGPUs() - Define which GPUs to use
   int nGPUs = 2;
-  int *whichGPUs;
-  whichGPUs = (int *)malloc(sizeof(int) * nGPUs);
+  int* whichGPUs;
+  whichGPUs = (int*)malloc(sizeof(int) * nGPUs);
 
   // Iterate all device combinations to see if a supported combo exists
   for (int i = 0; i < GPU_N; i++) {
@@ -141,8 +141,8 @@ int main(int argc, char **argv) {
            whichGPUs[i], deviceProp.name, deviceProp.major, deviceProp.minor);
   }
 
-  size_t *worksize;
-  worksize = (size_t *)malloc(sizeof(size_t) * nGPUs);
+  size_t* worksize;
+  worksize = (size_t*)malloc(sizeof(size_t) * nGPUs);
 
   // cufftMakePlan1d() - Create the plan
   result = cufftMakePlan1d(plan_input, new_size, CUFFT_C2C, 1, worksize);
@@ -152,29 +152,29 @@ int main(int argc, char **argv) {
   }
 
   // cufftXtMalloc() - Malloc data on multiple GPUs
-  cudaLibXtDesc *d_signal;
-  result = cufftXtMalloc(plan_input, (cudaLibXtDesc **)&d_signal,
+  cudaLibXtDesc* d_signal;
+  result = cufftXtMalloc(plan_input, (cudaLibXtDesc**)&d_signal,
                          CUFFT_XT_FORMAT_INPLACE);
   if (result != CUFFT_SUCCESS) {
     printf("*XtMalloc failed\n");
     exit(EXIT_FAILURE);
   }
-  cudaLibXtDesc *d_out_signal;
-  result = cufftXtMalloc(plan_input, (cudaLibXtDesc **)&d_out_signal,
+  cudaLibXtDesc* d_out_signal;
+  result = cufftXtMalloc(plan_input, (cudaLibXtDesc**)&d_out_signal,
                          CUFFT_XT_FORMAT_INPLACE);
   if (result != CUFFT_SUCCESS) {
     printf("*XtMalloc failed\n");
     exit(EXIT_FAILURE);
   }
-  cudaLibXtDesc *d_filter_kernel;
-  result = cufftXtMalloc(plan_input, (cudaLibXtDesc **)&d_filter_kernel,
+  cudaLibXtDesc* d_filter_kernel;
+  result = cufftXtMalloc(plan_input, (cudaLibXtDesc**)&d_filter_kernel,
                          CUFFT_XT_FORMAT_INPLACE);
   if (result != CUFFT_SUCCESS) {
     printf("*XtMalloc failed\n");
     exit(EXIT_FAILURE);
   }
-  cudaLibXtDesc *d_out_filter_kernel;
-  result = cufftXtMalloc(plan_input, (cudaLibXtDesc **)&d_out_filter_kernel,
+  cudaLibXtDesc* d_out_filter_kernel;
+  result = cufftXtMalloc(plan_input, (cudaLibXtDesc**)&d_out_filter_kernel,
                          CUFFT_XT_FORMAT_INPLACE);
   if (result != CUFFT_SUCCESS) {
     printf("*XtMalloc failed\n");
@@ -246,11 +246,11 @@ int main(int argc, char **argv) {
   }
 
   // Create host pointer pointing to padded signal
-  Complex *h_convolved_signal = h_padded_signal;
+  Complex* h_convolved_signal = h_padded_signal;
 
   // Allocate host memory for the convolution result
-  Complex *h_convolved_signal_ref =
-      (Complex *)malloc(sizeof(Complex) * SIGNAL_SIZE);
+  Complex* h_convolved_signal_ref =
+      (Complex*)malloc(sizeof(Complex) * SIGNAL_SIZE);
 
   // cufftXtMemcpy() - Copy data from multiple GPUs to host
   result = cufftXtMemcpy(plan_input, h_convolved_signal, d_out_signal,
@@ -266,8 +266,8 @@ int main(int argc, char **argv) {
 
   // Compare CPU and GPU result
   bool bTestResult =
-      sdkCompareL2fe((float *)h_convolved_signal_ref,
-                     (float *)h_convolved_signal, 2 * SIGNAL_SIZE, 1e-5f);
+      sdkCompareL2fe((float*)h_convolved_signal_ref, (float*)h_convolved_signal,
+                     2 * SIGNAL_SIZE, 1e-5f);
   printf("\nvalue of TestResult %d\n", bTestResult);
 
   // Cleanup memory
@@ -320,21 +320,21 @@ int main(int argc, char **argv) {
 ///////////////////////////////////////////////////////////////////////////////////
 // Function for padding original data
 //////////////////////////////////////////////////////////////////////////////////
-int PadData(const Complex *signal, Complex **padded_signal, int signal_size,
-            const Complex *filter_kernel, Complex **padded_filter_kernel,
+int PadData(const Complex* signal, Complex** padded_signal, int signal_size,
+            const Complex* filter_kernel, Complex** padded_filter_kernel,
             int filter_kernel_size) {
   int minRadius = filter_kernel_size / 2;
   int maxRadius = filter_kernel_size - minRadius;
   int new_size = signal_size + maxRadius;
 
   // Pad signal
-  Complex *new_data = (Complex *)malloc(sizeof(Complex) * new_size);
+  Complex* new_data = (Complex*)malloc(sizeof(Complex) * new_size);
   memcpy(new_data + 0, signal, signal_size * sizeof(Complex));
   memset(new_data + signal_size, 0, (new_size - signal_size) * sizeof(Complex));
   *padded_signal = new_data;
 
   // Pad filter
-  new_data = (Complex *)malloc(sizeof(Complex) * new_size);
+  new_data = (Complex*)malloc(sizeof(Complex) * new_size);
   memcpy(new_data + 0, filter_kernel + minRadius, maxRadius * sizeof(Complex));
   memset(new_data + maxRadius, 0,
          (new_size - filter_kernel_size) * sizeof(Complex));
@@ -348,9 +348,9 @@ int PadData(const Complex *signal, Complex **padded_signal, int signal_size,
 ////////////////////////////////////////////////////////////////////////////////
 // Filtering operations - Computing Convolution on the host
 ////////////////////////////////////////////////////////////////////////////////
-void Convolve(const Complex *signal, int signal_size,
-              const Complex *filter_kernel, int filter_kernel_size,
-              Complex *filtered_signal) {
+void Convolve(const Complex* signal, int signal_size,
+              const Complex* filter_kernel, int filter_kernel_size,
+              Complex* filtered_signal) {
   int minRadius = filter_kernel_size / 2;
   int maxRadius = filter_kernel_size - minRadius;
 
@@ -374,8 +374,8 @@ void Convolve(const Complex *signal, int signal_size,
 ////////////////////////////////////////////////////////////////////////////////
 //  Launch Kernel on multiple GPU
 ////////////////////////////////////////////////////////////////////////////////
-void multiplyCoefficient(cudaLibXtDesc *d_signal,
-                         cudaLibXtDesc *d_filter_kernel, int new_size,
+void multiplyCoefficient(cudaLibXtDesc* d_signal,
+                         cudaLibXtDesc* d_filter_kernel, int new_size,
                          float val, int nGPUs) {
   int device;
   // Launch the ComplexPointwiseMulAndScale<<< >>> kernel on multiple GPU
@@ -387,8 +387,8 @@ void multiplyCoefficient(cudaLibXtDesc *d_signal,
 
     // Perform GPU computations
     ComplexPointwiseMulAndScale<<<32, 256>>>(
-        (cufftComplex *)d_signal->descriptor->data[i],
-        (cufftComplex *)d_filter_kernel->descriptor->data[i],
+        (cufftComplex*)d_signal->descriptor->data[i],
+        (cufftComplex*)d_filter_kernel->descriptor->data[i],
         int(d_signal->descriptor->size[i] / sizeof(cufftComplex)), val);
   }
 
@@ -430,8 +430,8 @@ static __device__ __host__ inline Complex ComplexMul(Complex a, Complex b) {
   return c;
 }
 // Complex pointwise multiplication
-static __global__ void ComplexPointwiseMulAndScale(cufftComplex *a,
-                                                   cufftComplex *b, int size,
+static __global__ void ComplexPointwiseMulAndScale(cufftComplex* a,
+                                                   cufftComplex* b, int size,
                                                    float scale) {
   const int numThreads = blockDim.x * gridDim.x;
   const int threadID = blockIdx.x * blockDim.x + threadIdx.x;

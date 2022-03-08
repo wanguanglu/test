@@ -26,22 +26,22 @@ typedef unsigned int HANDLE;
 #endif
 
 class FrameQueue {
-public:
-  static const unsigned int cnMaximumSize = 20; // MAX_FRM_CNT;
+ public:
+  static const unsigned int cnMaximumSize = 20;  // MAX_FRM_CNT;
 
   FrameQueue();
 
   virtual ~FrameQueue();
 
-  void enter_CS(CRITICAL_SECTION *pCS);
+  void enter_CS(CRITICAL_SECTION* pCS);
 
-  void leave_CS(CRITICAL_SECTION *pCS);
+  void leave_CS(CRITICAL_SECTION* pCS);
 
   void set_event(HANDLE event);
 
   void reset_event(HANDLE event);
 
-  void enqueue(const CUVIDPARSERDISPINFO *pPicParams);
+  void enqueue(const CUVIDPARSERDISPINFO* pPicParams);
 
   // Dequeue the next frame.
   // Parameters:
@@ -52,9 +52,9 @@ public:
   //      true, if a new frame was returned,
   //      false, if the queue was empty and no new frame could be returned.
   //          In that case, pPicParams doesn't contain valid data.
-  bool dequeue(CUVIDPARSERDISPINFO *pDisplayInfo);
+  bool dequeue(CUVIDPARSERDISPINFO* pDisplayInfo);
 
-  void releaseFrame(const CUVIDPARSERDISPINFO *pPicParams);
+  void releaseFrame(const CUVIDPARSERDISPINFO* pPicParams);
 
   bool isInUse(int nPictureIndex) const;
 
@@ -69,7 +69,7 @@ public:
   // available, the method returns false.
   bool waitUntilFrameAvailable(int nPictureIndex);
 
-private:
+ private:
   CRITICAL_SECTION oCriticalSection_;
   volatile int nReadPosition_;
   volatile int nFramesInQueue_;
@@ -78,4 +78,4 @@ private:
   volatile int bEndOfDecode_;
 };
 
-#endif // FRAMEQUEUE_H
+#endif  // FRAMEQUEUE_H

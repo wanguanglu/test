@@ -15,15 +15,15 @@
  * See supplied whitepaper for more explanations.
  */
 
-#include <helper_cuda.h> // helper functions CUDA error checking and initialization
-#include <helper_functions.h> // helper functions for string parsing
+#include <helper_cuda.h>  // helper functions CUDA error checking and initialization
+#include <helper_functions.h>  // helper functions for string parsing
 
 ////////////////////////////////////////////////////////////////////////////////
 // Process an array of optN options on CPU
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void BlackScholesCPU(float *h_CallResult, float *h_PutResult,
-                                float *h_StockPrice, float *h_OptionStrike,
-                                float *h_OptionYears, float Riskfree,
+extern "C" void BlackScholesCPU(float* h_CallResult, float* h_PutResult,
+                                float* h_StockPrice, float* h_OptionStrike,
+                                float* h_OptionYears, float Riskfree,
                                 float Volatility, int optN);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ const float VOLATILITY = 0.30f;
 ////////////////////////////////////////////////////////////////////////////////
 // Main program
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   // Start logs
   printf("[%s] - Starting...\n", argv[0]);
 
@@ -79,29 +79,29 @@ int main(int argc, char **argv) {
 
   double delta, ref, sum_delta, sum_ref, max_delta, L1norm, gpuTime;
 
-  StopWatchInterface *hTimer = NULL;
+  StopWatchInterface* hTimer = NULL;
   int i;
 
-  findCudaDevice(argc, (const char **)argv);
+  findCudaDevice(argc, (const char**)argv);
 
   sdkCreateTimer(&hTimer);
 
   printf("Initializing data...\n");
   printf("...allocating CPU memory for options.\n");
-  h_CallResultCPU = (float *)malloc(OPT_SZ);
-  h_PutResultCPU = (float *)malloc(OPT_SZ);
-  h_CallResultGPU = (float *)malloc(OPT_SZ);
-  h_PutResultGPU = (float *)malloc(OPT_SZ);
-  h_StockPrice = (float *)malloc(OPT_SZ);
-  h_OptionStrike = (float *)malloc(OPT_SZ);
-  h_OptionYears = (float *)malloc(OPT_SZ);
+  h_CallResultCPU = (float*)malloc(OPT_SZ);
+  h_PutResultCPU = (float*)malloc(OPT_SZ);
+  h_CallResultGPU = (float*)malloc(OPT_SZ);
+  h_PutResultGPU = (float*)malloc(OPT_SZ);
+  h_StockPrice = (float*)malloc(OPT_SZ);
+  h_OptionStrike = (float*)malloc(OPT_SZ);
+  h_OptionYears = (float*)malloc(OPT_SZ);
 
   printf("...allocating GPU memory for options.\n");
-  checkCudaErrors(cudaMalloc((void **)&d_CallResult, OPT_SZ));
-  checkCudaErrors(cudaMalloc((void **)&d_PutResult, OPT_SZ));
-  checkCudaErrors(cudaMalloc((void **)&d_StockPrice, OPT_SZ));
-  checkCudaErrors(cudaMalloc((void **)&d_OptionStrike, OPT_SZ));
-  checkCudaErrors(cudaMalloc((void **)&d_OptionYears, OPT_SZ));
+  checkCudaErrors(cudaMalloc((void**)&d_CallResult, OPT_SZ));
+  checkCudaErrors(cudaMalloc((void**)&d_PutResult, OPT_SZ));
+  checkCudaErrors(cudaMalloc((void**)&d_StockPrice, OPT_SZ));
+  checkCudaErrors(cudaMalloc((void**)&d_OptionStrike, OPT_SZ));
+  checkCudaErrors(cudaMalloc((void**)&d_OptionYears, OPT_SZ));
 
   printf("...generating input data in CPU mem.\n");
   srand(5347);
@@ -133,8 +133,8 @@ int main(int argc, char **argv) {
 
   for (i = 0; i < NUM_ITERATIONS; i++) {
     BlackScholesGPU<<<DIV_UP((OPT_N / 2), 128), 128 /*480, 128*/>>>(
-        (float2 *)d_CallResult, (float2 *)d_PutResult, (float2 *)d_StockPrice,
-        (float2 *)d_OptionStrike, (float2 *)d_OptionYears, RISKFREE, VOLATILITY,
+        (float2*)d_CallResult, (float2*)d_PutResult, (float2*)d_StockPrice,
+        (float2*)d_OptionStrike, (float2*)d_OptionYears, RISKFREE, VOLATILITY,
         OPT_N);
     getLastCudaError("BlackScholesGPU() execution failed\n");
   }
@@ -151,10 +151,11 @@ int main(int argc, char **argv) {
   printf("Gigaoptions per second    : %f     \n\n",
          ((double)(2 * OPT_N) * 1E-9) / (gpuTime * 1E-3));
 
-  printf("BlackScholes, Throughput = %.4f GOptions/s, Time = %.5f s, Size = %u "
-         "options, NumDevsUsed = %u, Workgroup = %u\n",
-         (((double)(2.0 * OPT_N) * 1.0E-9) / (gpuTime * 1.0E-3)),
-         gpuTime * 1e-3, (2 * OPT_N), 1, 128);
+  printf(
+      "BlackScholes, Throughput = %.4f GOptions/s, Time = %.5f s, Size = %u "
+      "options, NumDevsUsed = %u, Workgroup = %u\n",
+      (((double)(2.0 * OPT_N) * 1.0E-9) / (gpuTime * 1.0E-3)), gpuTime * 1e-3,
+      (2 * OPT_N), 1, 128);
 
   printf("\nReading back GPU results...\n");
   // Read back GPU results to compare them to CPU results
@@ -225,8 +226,9 @@ int main(int argc, char **argv) {
     exit(EXIT_FAILURE);
   }
 
-  printf("\nNOTE: The CUDA Samples are not meant for performance measurements. "
-         "Results may vary when GPU Boost is enabled.\n\n");
+  printf(
+      "\nNOTE: The CUDA Samples are not meant for performance measurements. "
+      "Results may vary when GPU Boost is enabled.\n\n");
   printf("Test passed\n");
   exit(EXIT_SUCCESS);
 }

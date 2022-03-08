@@ -20,14 +20,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 #define ELEMENTARY_LOG2SIZE 11
 
-__global__ void fwtBatch1Kernel(float *d_Output, float *d_Input, int log2N) {
+__global__ void fwtBatch1Kernel(float* d_Output, float* d_Input, int log2N) {
   const int N = 1 << log2N;
   const int base = blockIdx.x << log2N;
 
   //(2 ** 11) * 4 bytes == 8KB -- maximum s_data[] size for G80
   extern __shared__ float s_data[];
-  float *d_Src = d_Input + base;
-  float *d_Dst = d_Output + base;
+  float* d_Src = d_Input + base;
+  float* d_Dst = d_Output + base;
 
   for (int pos = threadIdx.x; pos < N; pos += blockDim.x) {
     s_data[pos] = d_Src[pos];
@@ -90,12 +90,12 @@ __global__ void fwtBatch1Kernel(float *d_Output, float *d_Input, int log2N) {
 // Single in-global memory radix-4 Fast Walsh Transform pass
 // (for strides exceeding elementary vector size)
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void fwtBatch2Kernel(float *d_Output, float *d_Input, int stride) {
+__global__ void fwtBatch2Kernel(float* d_Output, float* d_Input, int stride) {
   const int pos = blockIdx.x * blockDim.x + threadIdx.x;
   const int N = blockDim.x * gridDim.x * 4;
 
-  float *d_Src = d_Input + blockIdx.y * N;
-  float *d_Dst = d_Output + blockIdx.y * N;
+  float* d_Src = d_Input + blockIdx.y * N;
+  float* d_Dst = d_Output + blockIdx.y * N;
 
   int lo = pos & (stride - 1);
   int i0 = ((pos - lo) << 2) + lo;
@@ -126,7 +126,7 @@ __global__ void fwtBatch2Kernel(float *d_Output, float *d_Input, int stride) {
 ////////////////////////////////////////////////////////////////////////////////
 // Put everything together: batched Fast Walsh Transform CPU front-end
 ////////////////////////////////////////////////////////////////////////////////
-void fwtBatchGPU(float *d_Data, int M, int log2N) {
+void fwtBatchGPU(float* d_Data, int M, int log2N) {
   const int THREAD_N = 256;
 
   int N = 1 << log2N;
@@ -144,7 +144,7 @@ void fwtBatchGPU(float *d_Data, int M, int log2N) {
 ////////////////////////////////////////////////////////////////////////////////
 // Modulate two arrays
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void modulateKernel(float *d_A, float *d_B, int N) {
+__global__ void modulateKernel(float* d_A, float* d_B, int N) {
   int tid = blockIdx.x * blockDim.x + threadIdx.x;
   int numThreads = blockDim.x * gridDim.x;
   float rcpN = 1.0f / (float)N;
@@ -155,7 +155,7 @@ __global__ void modulateKernel(float *d_A, float *d_B, int N) {
 }
 
 // Interface to modulateKernel()
-void modulateGPU(float *d_A, float *d_B, int N) {
+void modulateGPU(float* d_A, float* d_B, int N) {
   modulateKernel<<<128, 256>>>(d_A, d_B, N);
 }
 

@@ -11,7 +11,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // export C interface
-extern "C" void computeGold(float *, const float *, const float *, unsigned int,
+extern "C" void computeGold(float*, const float*, const float*, unsigned int,
                             unsigned int, unsigned int);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ extern "C" void computeGold(float *, const float *, const float *, unsigned int,
 //! @param hA         height of matrix A
 //! @param wB         width of matrix B
 ////////////////////////////////////////////////////////////////////////////////
-void computeGold(float *C, const float *A, const float *B, unsigned int hA,
+void computeGold(float* C, const float* A, const float* B, unsigned int hA,
                  unsigned int wA, unsigned int wB) {
   for (unsigned int i = 0; i < hA; ++i)
     for (unsigned int j = 0; j < wB; ++j) {

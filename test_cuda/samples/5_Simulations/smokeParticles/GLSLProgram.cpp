@@ -12,12 +12,12 @@
 #include "GLSLProgram.h"
 #include <stdlib.h>
 
-GLSLProgram::GLSLProgram(const char *vsource, const char *fsource) {
+GLSLProgram::GLSLProgram(const char* vsource, const char* fsource) {
   mProg = compileProgram(vsource, 0, fsource);
 }
 
-GLSLProgram::GLSLProgram(const char *vsource, const char *gsource,
-                         const char *fsource, GLenum gsInput, GLenum gsOutput) {
+GLSLProgram::GLSLProgram(const char* vsource, const char* gsource,
+                         const char* fsource, GLenum gsInput, GLenum gsOutput) {
   mProg = compileProgram(vsource, gsource, fsource, gsInput, gsOutput);
 }
 
@@ -31,7 +31,7 @@ void GLSLProgram::enable() { glUseProgram(mProg); }
 
 void GLSLProgram::disable() { glUseProgram(0); }
 
-void GLSLProgram::setUniform1f(const char *name, float value) {
+void GLSLProgram::setUniform1f(const char* name, float value) {
   GLint loc = glGetUniformLocation(mProg, name);
 
   if (loc >= 0) {
@@ -43,7 +43,7 @@ void GLSLProgram::setUniform1f(const char *name, float value) {
   }
 }
 
-void GLSLProgram::setUniform2f(const char *name, float x, float y) {
+void GLSLProgram::setUniform2f(const char* name, float x, float y) {
   GLint loc = glGetUniformLocation(mProg, name);
 
   if (loc >= 0) {
@@ -55,7 +55,7 @@ void GLSLProgram::setUniform2f(const char *name, float x, float y) {
   }
 }
 
-void GLSLProgram::setUniform3f(const char *name, float x, float y, float z) {
+void GLSLProgram::setUniform3f(const char* name, float x, float y, float z) {
   GLint loc = glGetUniformLocation(mProg, name);
 
   if (loc >= 0) {
@@ -67,7 +67,7 @@ void GLSLProgram::setUniform3f(const char *name, float x, float y, float z) {
   }
 }
 
-void GLSLProgram::setUniform4f(const char *name, float x, float y, float z,
+void GLSLProgram::setUniform4f(const char* name, float x, float y, float z,
                                float w) {
   GLint loc = glGetUniformLocation(mProg, name);
 
@@ -80,7 +80,7 @@ void GLSLProgram::setUniform4f(const char *name, float x, float y, float z,
   }
 }
 
-void GLSLProgram::setUniformMatrix4fv(const GLchar *name, GLfloat *m,
+void GLSLProgram::setUniformMatrix4fv(const GLchar* name, GLfloat* m,
                                       bool transpose) {
   GLint loc = glGetUniformLocation(mProg, name);
 
@@ -93,7 +93,7 @@ void GLSLProgram::setUniformMatrix4fv(const GLchar *name, GLfloat *m,
   }
 }
 
-void GLSLProgram::setUniformfv(const GLchar *name, GLfloat *v, int elementSize,
+void GLSLProgram::setUniformfv(const GLchar* name, GLfloat* v, int elementSize,
                                int count) {
   GLint loc = glGetUniformLocation(mProg, name);
 
@@ -105,25 +105,25 @@ void GLSLProgram::setUniformfv(const GLchar *name, GLfloat *v, int elementSize,
   }
 
   switch (elementSize) {
-  case 1:
-    glUniform1fv(loc, count, v);
-    break;
+    case 1:
+      glUniform1fv(loc, count, v);
+      break;
 
-  case 2:
-    glUniform2fv(loc, count, v);
-    break;
+    case 2:
+      glUniform2fv(loc, count, v);
+      break;
 
-  case 3:
-    glUniform3fv(loc, count, v);
-    break;
+    case 3:
+      glUniform3fv(loc, count, v);
+      break;
 
-  case 4:
-    glUniform4fv(loc, count, v);
-    break;
+    case 4:
+      glUniform4fv(loc, count, v);
+      break;
   }
 }
 
-void GLSLProgram::bindTexture(const char *name, GLuint tex, GLenum target,
+void GLSLProgram::bindTexture(const char* name, GLuint tex, GLenum target,
                               GLint unit) {
   GLint loc = glGetUniformLocation(mProg, name);
 
@@ -140,13 +140,13 @@ void GLSLProgram::bindTexture(const char *name, GLuint tex, GLenum target,
   }
 }
 
-GLuint GLSLProgram::checkCompileStatus(GLuint shader, GLint *status) {
+GLuint GLSLProgram::checkCompileStatus(GLuint shader, GLint* status) {
   glGetShaderiv(shader, GL_COMPILE_STATUS, status);
 
   if (!(*status)) {
     char log[2048];
     int len;
-    glGetShaderInfoLog(shader, 2048, (GLsizei *)&len, log);
+    glGetShaderInfoLog(shader, 2048, (GLsizei*)&len, log);
     printf("Error: shader(%04d), Info log: %s\n", (int)shader, log);
     glDeleteShader(shader);
     return 0;
@@ -155,8 +155,8 @@ GLuint GLSLProgram::checkCompileStatus(GLuint shader, GLint *status) {
   return 1;
 }
 
-GLuint GLSLProgram::compileProgram(const char *vsource, const char *gsource,
-                                   const char *fsource, GLenum gsInput,
+GLuint GLSLProgram::compileProgram(const char* vsource, const char* gsource,
+                                   const char* fsource, GLenum gsInput,
                                    GLenum gsOutput) {
   GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
   GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -191,7 +191,7 @@ GLuint GLSLProgram::compileProgram(const char *vsource, const char *gsource,
     GLuint geomShader = glCreateShader(GL_GEOMETRY_SHADER_EXT);
     glShaderSource(geomShader, 1, &gsource, 0);
     glCompileShader(geomShader);
-    glGetShaderiv(geomShader, GL_COMPILE_STATUS, (GLint *)&compiled);
+    glGetShaderiv(geomShader, GL_COMPILE_STATUS, (GLint*)&compiled);
 
     if (checkCompileStatus(geomShader, &compiled) == 0) {
       printf("<compileProgram compilation error with geomShader>:\n");

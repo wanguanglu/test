@@ -17,12 +17,12 @@
 // The Mandelbrot CUDA GPU thread function
 
 template <class T>
-__global__ void
-Mandelbrot0(uchar4 *dst, const int imageW, const int imageH, const int crunch,
-            const T xOff, const T yOff, const T xJP, const T yJP, const T scale,
-            const uchar4 colors, const int frame, const int animationFrame,
-            const int gridWidth, const int numBlocks, const bool isJ) {
-
+__global__ void Mandelbrot0(uchar4* dst, const int imageW, const int imageH,
+                            const int crunch, const T xOff, const T yOff,
+                            const T xJP, const T yJP, const T scale,
+                            const uchar4 colors, const int frame,
+                            const int animationFrame, const int gridWidth,
+                            const int numBlocks, const bool isJ) {
   // loop until all blocks completed
   for (unsigned int blockIndex = blockIdx.x; blockIndex < numBlocks;
        blockIndex += gridDim.x) {
@@ -74,10 +74,10 @@ Mandelbrot0(uchar4 *dst, const int imageW, const int imageH, const int crunch,
     }
   }
 
-} // Mandelbrot0
+}  // Mandelbrot0
 
 // The Mandelbrot CUDA GPU thread function (double single version)
-__global__ void MandelbrotDS0(uchar4 *dst, const int imageW, const int imageH,
+__global__ void MandelbrotDS0(uchar4* dst, const int imageW, const int imageH,
                               const int crunch, const float xOff0,
                               const float xOff1, const float yOff0,
                               const float yOff1, const float xJP,
@@ -85,7 +85,6 @@ __global__ void MandelbrotDS0(uchar4 *dst, const int imageW, const int imageH,
                               const uchar4 colors, const int frame,
                               const int animationFrame, const int gridWidth,
                               const int numBlocks, const bool isJ) {
-
   // loop until all blocks completed
   for (unsigned int blockIndex = blockIdx.x; blockIndex < numBlocks;
        blockIndex += gridDim.x) {
@@ -139,16 +138,16 @@ __global__ void MandelbrotDS0(uchar4 *dst, const int imageW, const int imageH,
       }
     }
   }
-} // MandelbrotDS0
+}  // MandelbrotDS0
 
 // The Mandelbrot secondary AA pass CUDA GPU thread function
 template <class T>
-__global__ void
-Mandelbrot1(uchar4 *dst, const int imageW, const int imageH, const int crunch,
-            const T xOff, const T yOff, const T xJP, const T yJP, const T scale,
-            const uchar4 colors, const int frame, const int animationFrame,
-            const int gridWidth, const int numBlocks, const bool isJ) {
-
+__global__ void Mandelbrot1(uchar4* dst, const int imageW, const int imageH,
+                            const int crunch, const T xOff, const T yOff,
+                            const T xJP, const T yJP, const T scale,
+                            const uchar4 colors, const int frame,
+                            const int animationFrame, const int gridWidth,
+                            const int numBlocks, const bool isJ) {
   // loop until all blocks completed
   for (unsigned int blockIndex = blockIdx.x; blockIndex < numBlocks;
        blockIndex += gridDim.x) {
@@ -215,11 +214,11 @@ Mandelbrot1(uchar4 *dst, const int imageW, const int imageH, const int crunch,
     }
   }
 
-} // Mandelbrot1
+}  // Mandelbrot1
 
 // The Mandelbrot secondary AA pass CUDA GPU thread function (double single
 // version)
-__global__ void MandelbrotDS1(uchar4 *dst, const int imageW, const int imageH,
+__global__ void MandelbrotDS1(uchar4* dst, const int imageW, const int imageH,
                               const int crunch, const float xOff0,
                               const float xOff1, const float yOff0,
                               const float yOff1, const float xJP,
@@ -227,7 +226,6 @@ __global__ void MandelbrotDS1(uchar4 *dst, const int imageW, const int imageH,
                               const uchar4 colors, const int frame,
                               const int animationFrame, const int gridWidth,
                               const int numBlocks, const bool isJ) {
-
   // loop until all blocks completed
   for (unsigned int blockIndex = blockIdx.x; blockIndex < numBlocks;
        blockIndex += gridDim.x) {
@@ -299,10 +297,10 @@ __global__ void MandelbrotDS1(uchar4 *dst, const int imageW, const int imageH,
     }
   }
 
-} // MandelbrotDS1
+}  // MandelbrotDS1
 
 // The host CPU Mandelbrot thread spawner
-void RunMandelbrot0(uchar4 *dst, const int imageW, const int imageH,
+void RunMandelbrot0(uchar4* dst, const int imageW, const int imageH,
                     const int crunch, const double xOff, const double yOff,
                     const double xjp, const double yjp, const double scale,
                     const uchar4 colors, const int frame,
@@ -314,33 +312,33 @@ void RunMandelbrot0(uchar4 *dst, const int imageW, const int imageH,
   int numWorkerBlocks = numSMs;
 
   switch (mode) {
-  default:
-  case 0:
-    Mandelbrot0<float><<<numWorkerBlocks, threads>>>(
-        dst, imageW, imageH, crunch, (float)xOff, (float)yOff, (float)xjp,
-        (float)yjp, (float)scale, colors, frame, animationFrame, grid.x,
-        grid.x * grid.y, isJ);
-    break;
-  case 1:
-    float x0, x1, y0, y1;
-    dsdeq(x0, x1, xOff);
-    dsdeq(y0, y1, yOff);
-    MandelbrotDS0<<<numWorkerBlocks, threads>>>(
-        dst, imageW, imageH, crunch, x0, x1, y0, y1, xjp, yjp, (float)scale,
-        colors, frame, animationFrame, grid.x, grid.x * grid.y, isJ);
-    break;
-  case 2:
-    Mandelbrot0<double><<<numWorkerBlocks, threads>>>(
-        dst, imageW, imageH, crunch, xOff, yOff, xjp, yjp, scale, colors, frame,
-        animationFrame, grid.x, grid.x * grid.y, isJ);
-    break;
+    default:
+    case 0:
+      Mandelbrot0<float><<<numWorkerBlocks, threads>>>(
+          dst, imageW, imageH, crunch, (float)xOff, (float)yOff, (float)xjp,
+          (float)yjp, (float)scale, colors, frame, animationFrame, grid.x,
+          grid.x * grid.y, isJ);
+      break;
+    case 1:
+      float x0, x1, y0, y1;
+      dsdeq(x0, x1, xOff);
+      dsdeq(y0, y1, yOff);
+      MandelbrotDS0<<<numWorkerBlocks, threads>>>(
+          dst, imageW, imageH, crunch, x0, x1, y0, y1, xjp, yjp, (float)scale,
+          colors, frame, animationFrame, grid.x, grid.x * grid.y, isJ);
+      break;
+    case 2:
+      Mandelbrot0<double><<<numWorkerBlocks, threads>>>(
+          dst, imageW, imageH, crunch, xOff, yOff, xjp, yjp, scale, colors,
+          frame, animationFrame, grid.x, grid.x * grid.y, isJ);
+      break;
   }
 
   getLastCudaError("Mandelbrot0 kernel execution failed.\n");
-} // RunMandelbrot0
+}  // RunMandelbrot0
 
 // The host CPU Mandelbrot thread spawner
-void RunMandelbrot1(uchar4 *dst, const int imageW, const int imageH,
+void RunMandelbrot1(uchar4* dst, const int imageW, const int imageH,
                     const int crunch, const double xOff, const double yOff,
                     const double xjp, const double yjp, const double scale,
                     const uchar4 colors, const int frame,
@@ -352,27 +350,27 @@ void RunMandelbrot1(uchar4 *dst, const int imageW, const int imageH,
   int numWorkerBlocks = numSMs;
 
   switch (mode) {
-  default:
-  case 0:
-    Mandelbrot1<float><<<numWorkerBlocks, threads>>>(
-        dst, imageW, imageH, crunch, (float)xOff, (float)yOff, (float)xjp,
-        (float)yjp, (float)scale, colors, frame, animationFrame, grid.x,
-        grid.x * grid.y, isJ);
-    break;
-  case 1:
-    float x0, x1, y0, y1;
-    dsdeq(x0, x1, xOff);
-    dsdeq(y0, y1, yOff);
-    MandelbrotDS1<<<numWorkerBlocks, threads>>>(
-        dst, imageW, imageH, crunch, x0, x1, y0, y1, xjp, yjp, (float)scale,
-        colors, frame, animationFrame, grid.x, grid.x * grid.y, isJ);
-    break;
-  case 2:
-    Mandelbrot1<double><<<numWorkerBlocks, threads>>>(
-        dst, imageW, imageH, crunch, xOff, yOff, xjp, yjp, scale, colors, frame,
-        animationFrame, grid.x, grid.x * grid.y, isJ);
-    break;
+    default:
+    case 0:
+      Mandelbrot1<float><<<numWorkerBlocks, threads>>>(
+          dst, imageW, imageH, crunch, (float)xOff, (float)yOff, (float)xjp,
+          (float)yjp, (float)scale, colors, frame, animationFrame, grid.x,
+          grid.x * grid.y, isJ);
+      break;
+    case 1:
+      float x0, x1, y0, y1;
+      dsdeq(x0, x1, xOff);
+      dsdeq(y0, y1, yOff);
+      MandelbrotDS1<<<numWorkerBlocks, threads>>>(
+          dst, imageW, imageH, crunch, x0, x1, y0, y1, xjp, yjp, (float)scale,
+          colors, frame, animationFrame, grid.x, grid.x * grid.y, isJ);
+      break;
+    case 2:
+      Mandelbrot1<double><<<numWorkerBlocks, threads>>>(
+          dst, imageW, imageH, crunch, xOff, yOff, xjp, yjp, scale, colors,
+          frame, animationFrame, grid.x, grid.x * grid.y, isJ);
+      break;
   }
 
   getLastCudaError("Mandelbrot1 kernel execution failed.\n");
-} // RunMandelbrot1
+}  // RunMandelbrot1

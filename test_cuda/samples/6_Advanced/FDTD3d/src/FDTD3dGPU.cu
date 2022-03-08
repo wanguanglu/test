@@ -18,8 +18,8 @@
 
 #include "FDTD3dGPUKernel.cuh"
 
-bool getTargetDeviceGlobalMemSize(memsize_t *result, const int argc,
-                                  const char **argv) {
+bool getTargetDeviceGlobalMemSize(memsize_t* result, const int argc,
+                                  const char** argv) {
   int deviceCount = 0;
   int targetDevice = 0;
   size_t memsize = 0;
@@ -29,7 +29,7 @@ bool getTargetDeviceGlobalMemSize(memsize_t *result, const int argc,
   checkCudaErrors(cudaGetDeviceCount(&deviceCount));
 
   // Select target device (device 0 by default)
-  targetDevice = findCudaDevice(argc, (const char **)argv);
+  targetDevice = findCudaDevice(argc, (const char**)argv);
 
   // Query target device for maximum memory allocation
   printf(" cudaGetDeviceProperties\n");
@@ -43,17 +43,17 @@ bool getTargetDeviceGlobalMemSize(memsize_t *result, const int argc,
   return true;
 }
 
-bool fdtdGPU(float *output, const float *input, const float *coeff,
+bool fdtdGPU(float* output, const float* input, const float* coeff,
              const int dimx, const int dimy, const int dimz, const int radius,
-             const int timesteps, const int argc, const char **argv) {
+             const int timesteps, const int argc, const char** argv) {
   const int outerDimx = dimx + 2 * radius;
   const int outerDimy = dimy + 2 * radius;
   const int outerDimz = dimz + 2 * radius;
   const size_t volumeSize = outerDimx * outerDimy * outerDimz;
   int deviceCount = 0;
   int targetDevice = 0;
-  float *bufferOut = 0;
-  float *bufferIn = 0;
+  float* bufferOut = 0;
+  float* bufferIn = 0;
   dim3 dimBlock;
   dim3 dimGrid;
 
@@ -67,9 +67,10 @@ bool fdtdGPU(float *output, const float *input, const float *coeff,
   const int profileTimesteps = timesteps - 1;
 
   if (profileTimesteps < 1) {
-    printf(" cannot profile with fewer than two timesteps (timesteps=%d), "
-           "profiling is disabled.\n",
-           timesteps);
+    printf(
+        " cannot profile with fewer than two timesteps (timesteps=%d), "
+        "profiling is disabled.\n",
+        timesteps);
   }
 
 #endif
@@ -84,20 +85,20 @@ bool fdtdGPU(float *output, const float *input, const float *coeff,
   checkCudaErrors(cudaGetDeviceCount(&deviceCount));
 
   // Select target device (device 0 by default)
-  targetDevice = findCudaDevice(argc, (const char **)argv);
+  targetDevice = findCudaDevice(argc, (const char**)argv);
 
   checkCudaErrors(cudaSetDevice(targetDevice));
 
   // Allocate memory buffers
   checkCudaErrors(
-      cudaMalloc((void **)&bufferOut, paddedVolumeSize * sizeof(float)));
+      cudaMalloc((void**)&bufferOut, paddedVolumeSize * sizeof(float)));
   checkCudaErrors(
-      cudaMalloc((void **)&bufferIn, paddedVolumeSize * sizeof(float)));
+      cudaMalloc((void**)&bufferIn, paddedVolumeSize * sizeof(float)));
 
   // Check for a command-line specified block size
   int userBlockSize;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "block-size")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "block-size")) {
     userBlockSize = getCmdLineArgumentInt(argc, argv, "block-size");
     // Constrain to a multiple of k_blockDimX
     userBlockSize = (userBlockSize / k_blockDimX * k_blockDimX);
@@ -146,7 +147,7 @@ bool fdtdGPU(float *output, const float *input, const float *coeff,
 
   // Copy the coefficients to the device coefficient buffer
   checkCudaErrors(
-      cudaMemcpyToSymbol(stencil, (void *)coeff, (radius + 1) * sizeof(float)));
+      cudaMemcpyToSymbol(stencil, (void*)coeff, (radius + 1) * sizeof(float)));
 
 #ifdef GPU_PROFILING
 
@@ -157,8 +158,8 @@ bool fdtdGPU(float *output, const float *input, const float *coeff,
 #endif
 
   // Execute the FDTD
-  float *bufferSrc = bufferIn + padding;
-  float *bufferDst = bufferOut + padding;
+  float* bufferSrc = bufferIn + padding;
+  float* bufferDst = bufferOut + padding;
   printf(" GPU FDTD loop\n");
 
 #ifdef GPU_PROFILING
@@ -177,7 +178,7 @@ bool fdtdGPU(float *output, const float *input, const float *coeff,
     // Toggle the buffers
     // Visual Studio 2005 does not like std::swap
     //    std::swap<float *>(bufferSrc, bufferDst);
-    float *tmp = bufferDst;
+    float* tmp = bufferDst;
     bufferDst = bufferSrc;
     bufferSrc = tmp;
   }
@@ -213,10 +214,11 @@ bool fdtdGPU(float *output, const float *input, const float *coeff,
     size_t pointsComputed = dimx * dimy * dimz;
     // Determine throughput
     double throughputM = 1.0e-6 * (double)pointsComputed / avgElapsedTime;
-    printf("FDTD3d, Throughput = %.4f MPoints/s, Time = %.5f s, Size = %u "
-           "Points, NumDevsUsed = %u, Blocksize = %u\n",
-           throughputM, avgElapsedTime, pointsComputed, 1,
-           dimBlock.x * dimBlock.y);
+    printf(
+        "FDTD3d, Throughput = %.4f MPoints/s, Time = %.5f s, Size = %u "
+        "Points, NumDevsUsed = %u, Blocksize = %u\n",
+        throughputM, avgElapsedTime, pointsComputed, 1,
+        dimBlock.x * dimBlock.y);
   }
 
 #endif

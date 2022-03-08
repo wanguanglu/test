@@ -34,15 +34,15 @@ using std::endl;
 #include "simpleMPI.h"
 
 // Error handling macros
-#define MPI_CHECK(call)                                                        \
-  if ((call) != MPI_SUCCESS) {                                                 \
-    cerr << "MPI error calling \"" #call "\"\n";                               \
-    my_abort(-1);                                                              \
+#define MPI_CHECK(call)                          \
+  if ((call) != MPI_SUCCESS) {                   \
+    cerr << "MPI error calling \"" #call "\"\n"; \
+    my_abort(-1);                                \
   }
 
 // Host code
 // No CUDA here, only MPI
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   // Dimensions of the dataset
   int blockSize = 256;
   int gridSize = 10000;
@@ -58,9 +58,9 @@ int main(int argc, char *argv[]) {
 
   // Generate some random numbers on the root node (node 0)
   int dataSizeTotal = dataSizePerNode * commSize;
-  float *dataRoot = NULL;
+  float* dataRoot = NULL;
 
-  if (commRank == 0) // Are we the root node?
+  if (commRank == 0)  // Are we the root node?
   {
     cout << "Running on " << commSize << " nodes" << endl;
     dataRoot = new float[dataSizeTotal];
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
   }
 
   // Allocate a buffer on each node
-  float *dataNode = new float[dataSizePerNode];
+  float* dataNode = new float[dataSizePerNode];
 
   // Dispatch a portion of the input data to each node
   MPI_CHECK(MPI_Scatter(dataRoot, dataSizePerNode, MPI_FLOAT, dataNode,

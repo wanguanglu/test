@@ -16,4 +16,4 @@
 #include <boost/numeric/interval/compare/possible.hpp>
 #include <boost/numeric/interval/compare/set.hpp>
 
-#endif // BOOST_NUMERIC_INTERVAL_COMPARE_HPP
+#endif  // BOOST_NUMERIC_INTERVAL_COMPARE_HPP

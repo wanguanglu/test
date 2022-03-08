@@ -13,7 +13,7 @@
 
 #include <vector_types.h>
 
-extern "C" void RunMandelbrot0(uchar4 *dst, const int imageW, const int imageH,
+extern "C" void RunMandelbrot0(uchar4* dst, const int imageW, const int imageH,
                                const int crunch, const double xOff,
                                const double yOff, const double xjp,
                                const double yjp, const double scale,
@@ -21,7 +21,7 @@ extern "C" void RunMandelbrot0(uchar4 *dst, const int imageW, const int imageH,
                                const int animationFrame, const int mode,
                                const int numSMs, const bool isJ,
                                int version = 13);
-extern "C" void RunMandelbrot1(uchar4 *dst, const int imageW, const int imageH,
+extern "C" void RunMandelbrot1(uchar4* dst, const int imageW, const int imageH,
                                const int crunch, const double xOff,
                                const double yOff, const double xjp,
                                const double yjp, const double scale,

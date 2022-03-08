@@ -31,7 +31,7 @@
 #define BOOST_NO_CWCHAR
 #define BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
 
-#define BOOST_NO_STD_ALLOCATOR /* actually a bug with const reference          \
+#define BOOST_NO_STD_ALLOCATOR /* actually a bug with const reference \
                                   overloading */
 
 #endif
@@ -75,7 +75,7 @@
 // last known and checked version is 0x890:
 #if (MPW_CPLUS > 0x890)
 #if defined(BOOST_ASSERT_CONFIG)
-#error                                                                         \
+#error \
     "Unknown compiler version - please run the configure tests and report the results"
 #endif
 #endif

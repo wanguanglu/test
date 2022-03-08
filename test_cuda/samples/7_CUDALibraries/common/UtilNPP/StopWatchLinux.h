@@ -20,15 +20,14 @@ namespace npp {
 
 /// Windows specific implementation of StopWatch
 class StopWatchLinux {
-
-protected:
+ protected:
   //! Constructor, default
   StopWatchLinux();
 
   // Destructor
   ~StopWatchLinux();
 
-public:
+ public:
   //! Start time measurement
   inline void start();
 
@@ -43,13 +42,13 @@ public:
   //! time between the last start() and stop call is returned
   inline const double elapsed() const;
 
-private:
+ private:
   // helper functions
 
   //! Get difference between start time and current time
   inline double getDiffTime() const;
 
-private:
+ private:
   // member variables
 
   //! Start of measurement
@@ -71,7 +70,6 @@ private:
 //! Start time measurement
 ////////////////////////////////////////////////////////////////////////////////
 inline void StopWatchLinux::start() {
-
   gettimeofday(&start_time, 0);
   running = true;
 }
@@ -81,7 +79,6 @@ inline void StopWatchLinux::start() {
 //! variable. Also increment the number of times this clock has been run.
 ////////////////////////////////////////////////////////////////////////////////
 inline void StopWatchLinux::stop() {
-
   diff_time = getDiffTime();
   total_time += diff_time;
   running = false;
@@ -111,7 +108,6 @@ inline const double StopWatchLinux::elapsed() const {
   double retval = total_time;
 
   if (running) {
-
     retval += getDiffTime();
   }
 
@@ -130,6 +126,6 @@ inline double StopWatchLinux::getDiffTime() const {
           (0.001 * (t_time.tv_usec - start_time.tv_usec)));
 }
 
-} // namespace npp
+}  // namespace npp
 
-#endif // NV_NPP_UTIL_STOP_WATCH_LINUX_H
+#endif  // NV_NPP_UTIL_STOP_WATCH_LINUX_H

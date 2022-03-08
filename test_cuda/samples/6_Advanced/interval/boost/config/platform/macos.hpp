@@ -61,7 +61,7 @@
 
 // We will eventually support threads in non-Carbon builds, but we do
 // not support this yet.
-#if (defined(TARGET_API_MAC_CARBON) && TARGET_API_MAC_CARBON) ||               \
+#if (defined(TARGET_API_MAC_CARBON) && TARGET_API_MAC_CARBON) || \
     (defined(TARGET_CARBON) && TARGET_CARBON)
 
 #if !defined(BOOST_HAS_PTHREADS)

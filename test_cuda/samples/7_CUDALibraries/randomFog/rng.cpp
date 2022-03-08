@@ -40,8 +40,10 @@ const unsigned int RNG::s_maxQrngDimensions = 20000;
 
 RNG::RNG(unsigned long prngSeed, unsigned int qrngDimensions,
          unsigned int nSamples)
-    : m_prngSeed(prngSeed), m_qrngDimensions(qrngDimensions),
-      m_nSamplesBatchTarget(nSamples), m_nSamplesRemaining(0) {
+    : m_prngSeed(prngSeed),
+      m_qrngDimensions(qrngDimensions),
+      m_nSamplesBatchTarget(nSamples),
+      m_nSamplesRemaining(0) {
   using std::invalid_argument;
   using std::runtime_error;
   using std::string;
@@ -67,7 +69,7 @@ RNG::RNG(unsigned long prngSeed, unsigned int qrngDimensions,
   cudaError_t cudaResult;
 
   // Allocate sample array in host mem
-  m_h_samples = (float *)malloc(m_nSamplesBatchTarget * sizeof(float));
+  m_h_samples = (float*)malloc(m_nSamplesBatchTarget * sizeof(float));
 
   if (m_h_samples == NULL) {
     throw runtime_error("Could not allocate host memory for RNG::m_h_samples");
@@ -75,7 +77,7 @@ RNG::RNG(unsigned long prngSeed, unsigned int qrngDimensions,
 
   // Allocate sample array in device mem
   cudaResult =
-      cudaMalloc((void **)&m_d_samples, m_nSamplesBatchTarget * sizeof(float));
+      cudaMalloc((void**)&m_d_samples, m_nSamplesBatchTarget * sizeof(float));
 
   if (cudaResult != cudaSuccess) {
     string msg("Could not allocate device memory for RNG::m_d_samples: ");
@@ -185,7 +187,7 @@ float RNG::getNextU01(void) {
   }
 }
 
-void RNG::getInfoString(std::string &msg) {
+void RNG::getInfoString(std::string& msg) {
   using std::stringstream;
 
   stringstream ss;
@@ -205,18 +207,18 @@ void RNG::getInfoString(std::string &msg) {
 
 void RNG::selectRng(RNG::RngType type) {
   switch (type) {
-  case Quasi:
-    m_pCurrent = &m_qrng;
-    break;
+    case Quasi:
+      m_pCurrent = &m_qrng;
+      break;
 
-  case ScrambledQuasi:
-    m_pCurrent = &m_sqrng;
-    break;
+    case ScrambledQuasi:
+      m_pCurrent = &m_sqrng;
+      break;
 
-  case Pseudo:
-  default:
-    m_pCurrent = &m_prng;
-    break;
+    case Pseudo:
+    default:
+      m_pCurrent = &m_prng;
+      break;
   }
 
   setBatchSize();

@@ -26,11 +26,11 @@
 
 // base class for named parameter
 class ParamBase {
-public:
-  ParamBase(const char *name) : m_name(name) {}
+ public:
+  ParamBase(const char* name) : m_name(name) {}
   virtual ~ParamBase() {}
 
-  std::string &GetName() { return m_name; }
+  std::string& GetName() { return m_name; }
 
   virtual float GetFloatValue() = 0;
   virtual int GetIntValue() = 0;
@@ -43,21 +43,26 @@ public:
   virtual float GetPercentage() = 0;
   virtual void SetPercentage(float p) = 0;
 
-  virtual void Write(std::ostream &stream) = 0;
-  virtual void Read(std::istream &stream) = 0;
+  virtual void Write(std::ostream& stream) = 0;
+  virtual void Read(std::istream& stream) = 0;
 
   virtual bool IsList() = 0;
 
-protected:
+ protected:
   std::string m_name;
 };
 
 // derived class for single-valued parameter
-template <class T> class Param : public ParamBase {
-public:
-  Param(const char *name, T value = 0, T min = 0, T max = 10000, T step = 1,
-        T *ptr = 0)
-      : ParamBase(name), m_default(value), m_min(min), m_max(max), m_step(step),
+template <class T>
+class Param : public ParamBase {
+ public:
+  Param(const char* name, T value = 0, T min = 0, T max = 10000, T step = 1,
+        T* ptr = 0)
+      : ParamBase(name),
+        m_default(value),
+        m_min(min),
+        m_max(max),
+        m_step(step),
         m_precision(3) {
     if (ptr) {
       m_ptr = ptr;
@@ -106,51 +111,51 @@ public:
     }
   }
 
-  void Write(std::ostream &stream) {
+  void Write(std::ostream& stream) {
     stream << m_name << " " << *m_ptr << '\n';
   }
-  void Read(std::istream &stream) { stream >> m_name >> *m_ptr; }
+  void Read(std::istream& stream) { stream >> m_name >> *m_ptr; }
 
   bool IsList() { return false; }
 
-private:
+ private:
   T m_value;
-  T *m_ptr; // pointer to value declared elsewhere
+  T* m_ptr;  // pointer to value declared elsewhere
   T m_default, m_min, m_max, m_step;
-  int m_precision; // number of digits after decimal point in string output
+  int m_precision;  // number of digits after decimal point in string output
 };
 
 const Param<int> dummy("error");
 
 // list of parameters
 class ParamList : public ParamBase {
-public:
-  ParamList(const char *name = "") : ParamBase(name) { active = true; }
+ public:
+  ParamList(const char* name = "") : ParamBase(name) { active = true; }
   ~ParamList() {}
 
   float GetFloatValue() { return 0.0f; }
   int GetIntValue() { return 0; }
 
-  void AddParam(ParamBase *param) {
+  void AddParam(ParamBase* param) {
     m_params.push_back(param);
     m_map[param->GetName()] = param;
     m_current = m_params.begin();
   }
 
   // look-up parameter based on name
-  ParamBase *GetParam(char *name) {
-    ParamBase *p = m_map[name];
+  ParamBase* GetParam(char* name) {
+    ParamBase* p = m_map[name];
 
     if (p) {
       return p;
     } else {
-      return (ParamBase *)&dummy;
+      return (ParamBase*)&dummy;
     }
   }
 
-  ParamBase *GetParam(int i) { return m_params[i]; }
+  ParamBase* GetParam(int i) { return m_params[i]; }
 
-  ParamBase *GetCurrent() { return *m_current; }
+  ParamBase* GetCurrent() { return *m_current; }
 
   int GetSize() { return (int)m_params.size(); }
 
@@ -178,19 +183,19 @@ public:
   float GetPercentage() { return 0.0f; }
   void SetPercentage(float /*p*/) {}
 
-  void Write(std::ostream &stream) {
+  void Write(std::ostream& stream) {
     stream << m_name << '\n';
 
-    for (std::vector<ParamBase *>::const_iterator p = m_params.begin();
+    for (std::vector<ParamBase*>::const_iterator p = m_params.begin();
          p != m_params.end(); ++p) {
       (*p)->Write(stream);
     }
   }
 
-  void Read(std::istream &stream) {
+  void Read(std::istream& stream) {
     stream >> m_name;
 
-    for (std::vector<ParamBase *>::const_iterator p = m_params.begin();
+    for (std::vector<ParamBase*>::const_iterator p = m_params.begin();
          p != m_params.end(); ++p) {
       (*p)->Read(stream);
     }
@@ -199,17 +204,17 @@ public:
   bool IsList() { return true; }
 
   void ResetAll() {
-    for (std::vector<ParamBase *>::const_iterator p = m_params.begin();
+    for (std::vector<ParamBase*>::const_iterator p = m_params.begin();
          p != m_params.end(); ++p) {
       (*p)->Reset();
     }
   }
 
-protected:
+ protected:
   bool active;
-  std::vector<ParamBase *> m_params;
-  std::map<std::string, ParamBase *> m_map;
-  std::vector<ParamBase *>::const_iterator m_current;
+  std::vector<ParamBase*> m_params;
+  std::map<std::string, ParamBase*> m_map;
+  std::vector<ParamBase*>::const_iterator m_current;
 };
 
 #endif

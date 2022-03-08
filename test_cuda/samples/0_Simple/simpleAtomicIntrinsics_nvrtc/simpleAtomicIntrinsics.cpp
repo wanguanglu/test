@@ -31,9 +31,9 @@
 #include <nvrtc_helper.h>
 
 // Utilities and timing functions
-#include <helper_functions.h> // includes cuda.h and cuda_runtime_api.h
+#include <helper_functions.h>  // includes cuda.h and cuda_runtime_api.h
 
-const char *sampleName = "simpleAtomicIntrinsics_nvrtc";
+const char* sampleName = "simpleAtomicIntrinsics_nvrtc";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Auto-Verification Code
@@ -41,15 +41,15 @@ bool testResult = true;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Declaration, forward
-void runTest(int argc, char **argv);
+void runTest(int argc, char** argv);
 
-extern "C" bool computeGold(int *gpuData, const int len);
+extern "C" bool computeGold(int* gpuData, const int len);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   printf("%s starting...\n", sampleName);
 
   runTest(argc, argv);
@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
 //! Run a simple test for CUDA
 ////////////////////////////////////////////////////////////////////////////////
 
-void runTest(int argc, char **argv) {
+void runTest(int argc, char** argv) {
   int dev = 0;
 
   char *ptx, *kernel_file;
@@ -80,7 +80,7 @@ void runTest(int argc, char **argv) {
 
   checkCudaErrors(cuModuleGetFunction(&kernel_addr, module, "testKernel"));
 
-  StopWatchInterface *timer;
+  StopWatchInterface* timer;
   sdkCreateTimer(&timer);
   sdkStartTimer(&timer);
 
@@ -90,11 +90,10 @@ void runTest(int argc, char **argv) {
   unsigned int memSize = sizeof(int) * numData;
 
   // allocate mem for the result on host side
-  int *hOData = (int *)malloc(memSize);
+  int* hOData = (int*)malloc(memSize);
 
   // initialize the memory
-  for (unsigned int i = 0; i < numData; i++)
-    hOData[i] = 0;
+  for (unsigned int i = 0; i < numData; i++) hOData[i] = 0;
 
   // To make the AND and XOR tests generate something other than 0...
   hOData[8] = hOData[10] = 0xff;
@@ -108,7 +107,7 @@ void runTest(int argc, char **argv) {
   dim3 cudaBlockSize(numThreads, 1, 1);
   dim3 cudaGridSize(numBlocks, 1, 1);
 
-  void *arr[] = {(void *)&dOData};
+  void* arr[] = {(void*)&dOData};
   checkCudaErrors(cuLaunchKernel(kernel_addr, cudaGridSize.x, cudaGridSize.y,
                                  cudaGridSize.z, /* grid dim */
                                  cudaBlockSize.x, cudaBlockSize.y,

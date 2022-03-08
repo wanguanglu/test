@@ -23,7 +23,7 @@ namespace numeric {
 namespace interval_lib {
 
 template <class I>
-inline I add(const typename I::base_type &x, const typename I::base_type &y) {
+inline I add(const typename I::base_type& x, const typename I::base_type& y) {
   typedef typename I::traits_type Policies;
   if (detail::test_input<typename I::base_type, Policies>(x, y))
     return I::empty();
@@ -32,7 +32,7 @@ inline I add(const typename I::base_type &x, const typename I::base_type &y) {
 }
 
 template <class I>
-inline I sub(const typename I::base_type &x, const typename I::base_type &y) {
+inline I sub(const typename I::base_type& x, const typename I::base_type& y) {
   typedef typename I::traits_type Policies;
   if (detail::test_input<typename I::base_type, Policies>(x, y))
     return I::empty();
@@ -41,7 +41,7 @@ inline I sub(const typename I::base_type &x, const typename I::base_type &y) {
 }
 
 template <class I>
-inline I mul(const typename I::base_type &x, const typename I::base_type &y) {
+inline I mul(const typename I::base_type& x, const typename I::base_type& y) {
   typedef typename I::traits_type Policies;
   if (detail::test_input<typename I::base_type, Policies>(x, y))
     return I::empty();
@@ -50,7 +50,7 @@ inline I mul(const typename I::base_type &x, const typename I::base_type &y) {
 }
 
 template <class I>
-inline I div(const typename I::base_type &x, const typename I::base_type &y) {
+inline I div(const typename I::base_type& x, const typename I::base_type& y) {
   typedef typename I::traits_type Policies;
   if (detail::test_input<typename I::base_type, Policies>(x, y) ||
       user::is_zero(y))
@@ -59,8 +59,8 @@ inline I div(const typename I::base_type &x, const typename I::base_type &y) {
   return I(rnd.div_down(x, y), rnd.div_up(x, y), true);
 }
 
-} // namespace interval_lib
-} // namespace numeric
-} // namespace boost
+}  // namespace interval_lib
+}  // namespace numeric
+}  // namespace boost
 
-#endif // BOOST_NUMERIC_INTERVAL_ARITH3_HPP
+#endif  // BOOST_NUMERIC_INTERVAL_ARITH3_HPP

@@ -29,7 +29,7 @@
 #define BOOST_NO_VOID_RETURNS
 #endif
 
-#endif // version 4245
+#endif  // version 4245
 
 //
 // enable __int64 support in VC emulation mode
@@ -38,7 +38,7 @@
 #define BOOST_HAS_MS_INT64
 #endif
 
-#define BOOST_COMPILER                                                         \
+#define BOOST_COMPILER \
   "Comeau compiler version " BOOST_STRINGIZE(__COMO_VERSION__)
 
 //
@@ -51,7 +51,7 @@
 // last known and checked version is 4245:
 #if (__COMO_VERSION__ > 4245)
 #if defined(BOOST_ASSERT_CONFIG)
-#error                                                                         \
+#error \
     "Unknown compiler version - please run the configure tests and report the results"
 #endif
 #endif

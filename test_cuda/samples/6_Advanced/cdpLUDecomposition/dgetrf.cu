@@ -34,18 +34,18 @@
 #include <cublas_v2.h>
 #include <stdio.h>
 
-extern __device__ void report_error(const char *strName, int info);
+extern __device__ void report_error(const char* strName, int info);
 extern __device__ __noinline__ void dgetf2(cublasHandle_t cb_handle, int m,
-                                           int n, double *A, int lda, int *ipiv,
-                                           int *info);
-extern __global__ void dlaswp(int n, double *A, int lda, int *ipiv, int k1,
+                                           int n, double* A, int lda, int* ipiv,
+                                           int* info);
+extern __global__ void dlaswp(int n, double* A, int lda, int* ipiv, int k1,
                               int k2);
 
 #define DGETRF_BLOCK_SIZE 32
 
 __device__ __noinline__ void dgetrf(cublasHandle_t cb_handle,
                                     cudaStream_t stream, int m, int n,
-                                    double *A, int lda, int *ipiv, int *info) {
+                                    double* A, int lda, int* ipiv, int* info) {
   cublasStatus_t status;
 
   // The flag set by one thread to indicate a failure.
@@ -71,8 +71,7 @@ __device__ __noinline__ void dgetrf(cublasHandle_t cb_handle,
   }
 
   if (*info) {
-    if (threadIdx.x == 0)
-      report_error("DGETRF", *info);
+    if (threadIdx.x == 0) report_error("DGETRF", *info);
 
     return;
   }
@@ -104,8 +103,7 @@ __device__ __noinline__ void dgetrf(cublasHandle_t cb_handle,
       dgetf2(cb_handle, m - j, jb, &A[j * lda + j], lda, &ipiv[j], &iinfo);
 
       // Adjust INFO and the pivot indices.
-      if (*info == 0 && iinfo > 0)
-        s_info = iinfo + j;
+      if (*info == 0 && iinfo > 0) s_info = iinfo + j;
     }
 
     __syncthreads();
@@ -123,8 +121,7 @@ __device__ __noinline__ void dgetrf(cublasHandle_t cb_handle,
 
     // Apply interchanges to columns 1:J-1. JB rows.
     if (threadIdx.x == 0) {
-      if (j > 0)
-        dlaswp<<<1, 256, 0, stream>>>(j, A, lda, ipiv, j, j + jb);
+      if (j > 0) dlaswp<<<1, 256, 0, stream>>>(j, A, lda, ipiv, j, j + jb);
 
       // Apply interchanges to columns J+JB:N. JB rows.
       if (j + jb < n) {
@@ -183,7 +180,7 @@ __device__ __noinline__ void dgetrf(cublasHandle_t cb_handle,
 //
 ////////////////////////////////////////////////////////////
 
-__global__ void dgetrf_cdpentry(Parameters *device_params) {
+__global__ void dgetrf_cdpentry(Parameters* device_params) {
   cublasHandle_t cb_handle = NULL;
 
   cudaStream_t stream;
@@ -203,7 +200,7 @@ __global__ void dgetrf_cdpentry(Parameters *device_params) {
     cublasSetStream_v2(cb_handle, stream);
   }
 
-  __syncthreads(); // Compiler requires this to not tail-split the if()...
+  __syncthreads();  // Compiler requires this to not tail-split the if()...
 
   dgetrf(cb_handle, stream, device_params->m, device_params->n,
          device_params->device_LU, device_params->lda,

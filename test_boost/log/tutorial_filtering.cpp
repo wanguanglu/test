@@ -33,8 +33,8 @@ enum severity_level { normal, notification, warning, error, critical };
 
 // The operator puts a human-friendly representation of the severity level to
 // the stream
-std::ostream &operator<<(std::ostream &strm, severity_level level) {
-  static const char *strings[] = {"normal", "notification", "warning", "error",
+std::ostream& operator<<(std::ostream& strm, severity_level level) {
+  static const char* strings[] = {"normal", "notification", "warning", "error",
                                   "critical"};
 
   if (static_cast<std::size_t>(level) < sizeof(strings) / sizeof(*strings)) {
@@ -89,8 +89,8 @@ void init() {
 //]
 
 //[ example_tutorial_filtering_bind
-bool my_filter(logging::value_ref<severity_level, tag::severity> const &level,
-               logging::value_ref<std::string, tag::tag_attr> const &tag) {
+bool my_filter(logging::value_ref<severity_level, tag::severity> const& level,
+               logging::value_ref<std::string, tag::tag_attr> const& tag) {
   return level >= warning || tag == "IMPORTANT_MESSAGE";
 }
 
@@ -156,8 +156,7 @@ void logging_function() {
   }
 }
 
-int main(int, char *[]) {
-
+int main(int, char*[]) {
   init();
 
   logging_function();

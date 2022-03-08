@@ -112,7 +112,7 @@ Performance Notes:
       FramebufferObject::Disable();
 */
 class FramebufferObject {
-public:
+ public:
   /// Ctor/Dtor
   FramebufferObject();
   virtual ~FramebufferObject();
@@ -157,9 +157,9 @@ public:
   ///        mode but always returns "true" if NDEBUG is
   ///        is defined (optimized builds)
 #ifndef NDEBUG
-  bool IsValid(std::ostream &ostr = std::cerr);
+  bool IsValid(std::ostream& ostr = std::cerr);
 #else
-  bool IsValid(std::ostream &ostr = std::cerr) { return true; }
+  bool IsValid(std::ostream& ostr = std::cerr) { return true; }
 #endif
 
   /// BEGIN : Accessors
@@ -196,14 +196,14 @@ public:
   static void Disable();
   /// END : Static methods global to all FBOs
 
-protected:
+ protected:
   void _GuardedBind();
   void _GuardedUnbind();
   void _FramebufferTextureND(GLenum attachment, GLenum texTarget, GLuint texId,
                              int mipLevel, int zSlice);
   static GLuint _GenerateFboId();
 
-private:
+ private:
   GLuint m_fboId;
   GLint m_savedFboId;
 };

@@ -71,7 +71,7 @@ decomposition.
 //! @param od  output data
 //! @param value
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void initValue(float *od, float value) {
+__global__ void initValue(float* od, float value) {
   // position of write into global memory
   unsigned int index = (blockIdx.x * blockDim.x) + threadIdx.x;
 
@@ -96,7 +96,7 @@ __global__ void initValue(float *od, float value) {
 //!                            global memory
 //! @param bdim  block dimension
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void dwtHaar1D(float *id, float *od, float *approx_final,
+__global__ void dwtHaar1D(float* id, float* od, float* approx_final,
                           const unsigned int dlevels,
                           const unsigned int slength_step_half,
                           const int bdim) {
@@ -198,9 +198,9 @@ __global__ void dwtHaar1D(float *id, float *od, float *approx_final,
         shared[c_idata0] = (shared[c_idata0] + shared[c_idata1]) * INV_SQRT_2;
 
         // update storage offset for details
-        num_threads = num_threads >> 1; // div 2
-        offset_neighbor <<= 1;          // mul 2
-        idata0 = idata0 << 1;           // mul 2
+        num_threads = num_threads >> 1;  // div 2
+        offset_neighbor <<= 1;           // mul 2
+        idata0 = idata0 << 1;            // mul 2
       }
 
       // sync after each decomposition step
@@ -213,7 +213,7 @@ __global__ void dwtHaar1D(float *id, float *od, float *approx_final,
       approx_final[bid] = shared[0];
     }
 
-  } // end early out if possible
+  }  // end early out if possible
 }
 
-#endif // #ifndef _DWTHAAR1D_KERNEL_H_
+#endif  // #ifndef _DWTHAAR1D_KERNEL_H_

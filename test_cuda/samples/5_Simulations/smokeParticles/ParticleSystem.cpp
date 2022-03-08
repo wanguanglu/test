@@ -44,8 +44,12 @@
 */
 
 ParticleSystem::ParticleSystem(uint numParticles, bool bUseVBO, bool bUseGL)
-    : m_bInitialized(false), m_bUseVBO(bUseVBO), m_numParticles(numParticles),
-      m_particleRadius(0.1f), m_doDepthSort(false), m_timer(NULL),
+    : m_bInitialized(false),
+      m_bUseVBO(bUseVBO),
+      m_numParticles(numParticles),
+      m_particleRadius(0.1f),
+      m_doDepthSort(false),
+      m_timer(NULL),
       m_time(0.0f) {
   m_params.gravity = make_float3(0.0f, 0.0f, 0.0f);
   m_params.globalDamping = 1.0f;
@@ -68,12 +72,12 @@ void ParticleSystem::_initialize(int numParticles, bool bUseGL) {
   m_numParticles = numParticles;
 
   // allocate GPU arrays
-  m_pos.alloc(m_numParticles, m_bUseVBO, true); // create as VBO
+  m_pos.alloc(m_numParticles, m_bUseVBO, true);  // create as VBO
   m_vel.alloc(m_numParticles, m_bUseVBO, true);
 
   m_sortKeys.alloc(m_numParticles);
   m_indices.alloc(m_numParticles, m_bUseVBO, false,
-                  true); // create as index buffer
+                  true);  // create as index buffer
 
   sdkCreateTimer(&m_timer);
   setParameters(&m_params);
@@ -128,7 +132,7 @@ void ParticleSystem::depthSort() {
   m_indices.unmap();
 }
 
-uint *ParticleSystem::getSortedIndices() {
+uint* ParticleSystem::getSortedIndices() {
   // copy sorted indices back to CPU
   m_indices.copy(GpuArray<uint>::DEVICE_TO_HOST);
   return m_indices.getHostPtr();
@@ -171,8 +175,8 @@ void ParticleSystem::initGrid(vec3f start, uint3 size, vec3f spacing,
                               float lifetime) {
   srand(1973);
 
-  float4 *posPtr = m_pos.getHostPtr();
-  float4 *velPtr = m_vel.getHostPtr();
+  float4* posPtr = m_pos.getHostPtr();
+  float4* velPtr = m_vel.getHostPtr();
 
   for (uint z = 0; z < size.z; z++) {
     for (uint y = 0; y < size.y; y++) {
@@ -194,8 +198,8 @@ void ParticleSystem::initGrid(vec3f start, uint3 size, vec3f spacing,
 // initialize in random positions within cube
 void ParticleSystem::initCubeRandom(vec3f origin, vec3f size, vec3f vel,
                                     float lifetime) {
-  float4 *posPtr = m_pos.getHostPtr();
-  float4 *velPtr = m_vel.getHostPtr();
+  float4* posPtr = m_pos.getHostPtr();
+  float4* velPtr = m_vel.getHostPtr();
 
   for (uint i = 0; i < m_numParticles; i++) {
     vec3f pos = origin + svrand() * size;
@@ -205,10 +209,10 @@ void ParticleSystem::initCubeRandom(vec3f origin, vec3f size, vec3f vel,
 }
 
 // add sphere on regular grid
-void ParticleSystem::addSphere(uint &index, vec3f pos, vec3f vel, int r,
+void ParticleSystem::addSphere(uint& index, vec3f pos, vec3f vel, int r,
                                float spacing, float jitter, float lifetime) {
-  float4 *posPtr = m_pos.getHostPtr();
-  float4 *velPtr = m_vel.getHostPtr();
+  float4* posPtr = m_pos.getHostPtr();
+  float4* velPtr = m_vel.getHostPtr();
 
   uint start = index;
   uint count = 0;
@@ -238,21 +242,21 @@ void ParticleSystem::addSphere(uint &index, vec3f pos, vec3f vel, int r,
 
 void ParticleSystem::reset(ParticleConfig config) {
   switch (config) {
-  default:
-  case CONFIG_RANDOM:
-    initCubeRandom(vec3f(0.0, 1.0, 0.0), vec3f(1.0, 1.0, 1.0), vec3f(0.0f),
-                   100.0);
-    break;
+    default:
+    case CONFIG_RANDOM:
+      initCubeRandom(vec3f(0.0, 1.0, 0.0), vec3f(1.0, 1.0, 1.0), vec3f(0.0f),
+                     100.0);
+      break;
 
-  case CONFIG_GRID: {
-    float jitter = m_particleRadius * 0.01f;
-    uint s = (int)ceilf(powf((float)m_numParticles, 1.0f / 3.0f));
-    uint gridSize[3];
-    gridSize[0] = gridSize[1] = gridSize[2] = s;
-    initGrid(vec3f(-1.0, 0.0, -1.0), make_uint3(s, s, s),
-             vec3f(m_particleRadius * 2.0f), jitter, vec3f(0.0), m_numParticles,
-             100.0);
-  } break;
+    case CONFIG_GRID: {
+      float jitter = m_particleRadius * 0.01f;
+      uint s = (int)ceilf(powf((float)m_numParticles, 1.0f / 3.0f));
+      uint gridSize[3];
+      gridSize[0] = gridSize[1] = gridSize[2] = s;
+      initGrid(vec3f(-1.0, 0.0, -1.0), make_uint3(s, s, s),
+               vec3f(m_particleRadius * 2.0f), jitter, vec3f(0.0),
+               m_numParticles, 100.0);
+    } break;
   }
 
   m_pos.copy(GpuArray<float4>::HOST_TO_DEVICE);
@@ -260,11 +264,11 @@ void ParticleSystem::reset(ParticleConfig config) {
 }
 
 // particle emitters
-void ParticleSystem::discEmitter(uint &index, vec3f pos, vec3f vel, vec3f vx,
+void ParticleSystem::discEmitter(uint& index, vec3f pos, vec3f vel, vec3f vx,
                                  vec3f vy, float r, int n, float lifetime,
                                  float lifetimeVariance) {
-  float4 *posPtr = m_pos.getHostPtr();
-  float4 *velPtr = m_vel.getHostPtr();
+  float4* posPtr = m_pos.getHostPtr();
+  float4* velPtr = m_vel.getHostPtr();
 
   uint start = index;
   uint count = 0;
@@ -288,11 +292,11 @@ void ParticleSystem::discEmitter(uint &index, vec3f pos, vec3f vel, vec3f vx,
   m_vel.copy(GpuArray<float4>::HOST_TO_DEVICE, start, count);
 }
 
-void ParticleSystem::sphereEmitter(uint &index, vec3f pos, vec3f vel,
+void ParticleSystem::sphereEmitter(uint& index, vec3f pos, vec3f vel,
                                    vec3f spread, float r, int n, float lifetime,
                                    float lifetimeVariance) {
-  float4 *posPtr = m_pos.getHostPtr();
-  float4 *velPtr = m_vel.getHostPtr();
+  float4* posPtr = m_pos.getHostPtr();
+  float4* velPtr = m_vel.getHostPtr();
 
   uint start = index;
   uint count = 0;
@@ -302,7 +306,6 @@ void ParticleSystem::sphereEmitter(uint &index, vec3f pos, vec3f vel,
 
     // float dist = length(x);
     if (index < m_numParticles) {
-
       vec3f p = pos + x * r;
       float age = 0.0;
 
@@ -324,7 +327,7 @@ void ParticleSystem::sphereEmitter(uint &index, vec3f pos, vec3f vel,
   m_vel.copy(GpuArray<float4>::HOST_TO_DEVICE, start, count);
 }
 
-void ParticleSystem::setModelView(float *m) {
+void ParticleSystem::setModelView(float* m) {
   for (int i = 0; i < 16; i++) {
     m_modelView.m[i] = m[i];
   }
@@ -333,10 +336,10 @@ void ParticleSystem::setModelView(float *m) {
 // dump particles to stdout for debugging
 void ParticleSystem::dumpParticles(uint start, uint count) {
   m_pos.copy(GpuArray<float4>::DEVICE_TO_HOST);
-  float4 *pos = m_pos.getHostPtr();
+  float4* pos = m_pos.getHostPtr();
 
   m_vel.copy(GpuArray<float4>::DEVICE_TO_HOST);
-  float4 *vel = m_vel.getHostPtr();
+  float4* vel = m_vel.getHostPtr();
 
   for (uint i = start; i < start + count; i++) {
     printf("%d: ", i);
@@ -348,7 +351,7 @@ void ParticleSystem::dumpParticles(uint start, uint count) {
 }
 
 // dump particles to a system memory host
-void ParticleSystem::dumpBin(float4 **posData, float4 **velData) {
+void ParticleSystem::dumpBin(float4** posData, float4** velData) {
   m_pos.copy(GpuArray<float4>::DEVICE_TO_HOST);
   *posData = m_pos.getHostPtr();
 

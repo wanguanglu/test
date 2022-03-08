@@ -25,7 +25,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Calculate scalar products of VectorN vectors of ElementN elements on CPU
 ///////////////////////////////////////////////////////////////////////////////
-extern "C" void scalarProdCPU(float *h_C, float *h_A, float *h_B, int vectorN,
+extern "C" void scalarProdCPU(float* h_C, float* h_A, float* h_B, int vectorN,
                               int elementN);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -61,32 +61,32 @@ const int RESULT_SZ = VECTOR_N * sizeof(float);
 ///////////////////////////////////////////////////////////////////////////////
 // Main program
 ///////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   float *h_A, *h_B, *h_C_CPU, *h_C_GPU;
   float *d_A, *d_B, *d_C;
   double delta, ref, sum_delta, sum_ref, L1norm;
-  StopWatchInterface *hTimer = NULL;
+  StopWatchInterface* hTimer = NULL;
   int i;
 
   printf("%s Starting...\n\n", argv[0]);
 
   // use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  findCudaDevice(argc, (const char **)argv);
+  findCudaDevice(argc, (const char**)argv);
 
   sdkCreateTimer(&hTimer);
 
   printf("Initializing data...\n");
   printf("...allocating CPU memory.\n");
-  h_A = (float *)malloc(DATA_SZ);
-  h_B = (float *)malloc(DATA_SZ);
-  h_C_CPU = (float *)malloc(RESULT_SZ);
-  h_C_GPU = (float *)malloc(RESULT_SZ);
+  h_A = (float*)malloc(DATA_SZ);
+  h_B = (float*)malloc(DATA_SZ);
+  h_C_CPU = (float*)malloc(RESULT_SZ);
+  h_C_GPU = (float*)malloc(RESULT_SZ);
 
   printf("...allocating GPU memory.\n");
-  checkCudaErrors(cudaMalloc((void **)&d_A, DATA_SZ));
-  checkCudaErrors(cudaMalloc((void **)&d_B, DATA_SZ));
-  checkCudaErrors(cudaMalloc((void **)&d_C, RESULT_SZ));
+  checkCudaErrors(cudaMalloc((void**)&d_A, DATA_SZ));
+  checkCudaErrors(cudaMalloc((void**)&d_B, DATA_SZ));
+  checkCudaErrors(cudaMalloc((void**)&d_C, RESULT_SZ));
 
   printf("...generating input data in CPU mem.\n");
   srand(123);

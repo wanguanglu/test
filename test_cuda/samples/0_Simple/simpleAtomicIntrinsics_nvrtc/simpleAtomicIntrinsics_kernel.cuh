@@ -20,7 +20,7 @@
 //! @param g_odata  output data in global memory
 ////////////////////////////////////////////////////////////////////////////////
 
-extern "C" __global__ void testKernel(int *g_odata) {
+extern "C" __global__ void testKernel(int* g_odata) {
   // access thread id
   const unsigned int tid = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -42,10 +42,10 @@ extern "C" __global__ void testKernel(int *g_odata) {
   atomicMin(&g_odata[4], tid);
 
   // Atomic increment (modulo 17+1)
-  atomicInc((unsigned int *)&g_odata[5], 17);
+  atomicInc((unsigned int*)&g_odata[5], 17);
 
   // Atomic decrement
-  atomicDec((unsigned int *)&g_odata[6], 137);
+  atomicDec((unsigned int*)&g_odata[6], 137);
 
   // Atomic compare-and-swap
   atomicCAS(&g_odata[7], tid - 1, tid);
@@ -61,4 +61,4 @@ extern "C" __global__ void testKernel(int *g_odata) {
   atomicXor(&g_odata[10], tid);
 }
 
-#endif // #ifndef _SIMPLEATOMICS_KERNEL_H_
+#endif  // #ifndef _SIMPLEATOMICS_KERNEL_H_

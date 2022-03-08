@@ -11,21 +11,21 @@
 
 #if !defined(BOOST_WITH_CODEGEAR_WARNINGS)
 // these warnings occur frequently in optimized template code
-#pragma warn - 8004 // var assigned value, but never used
-#pragma warn - 8008 // condition always true/false
-#pragma warn - 8066 // dead code can never execute
-#pragma warn - 8104 // static members with ctors not threadsafe
-#pragma warn - 8105 // reference member in class without ctors
+#pragma warn - 8004  // var assigned value, but never used
+#pragma warn - 8008  // condition always true/false
+#pragma warn - 8066  // dead code can never execute
+#pragma warn - 8104  // static members with ctors not threadsafe
+#pragma warn - 8105  // reference member in class without ctors
 #endif
 //
 // versions check:
 // last known and checked version is 0x620
 #if (__CODEGEARC__ > 0x620)
 #if defined(BOOST_ASSERT_CONFIG)
-#error                                                                         \
+#error \
     "Unknown compiler version - please run the configure tests and report the results"
 #else
-#pragma message(                                                               \
+#pragma message( \
     "Unknown compiler version - please run the configure tests and report the results")
 #endif
 #endif
@@ -44,12 +44,12 @@
 
 // CodeGear C++ Builder 2010
 #if (__CODEGEARC__ <= 0x620)
-#define BOOST_NO_TYPENAME_WITH_CTOR // Cannot use typename keyword when making
-                                    // temporaries of a dependant type
+#define BOOST_NO_TYPENAME_WITH_CTOR  // Cannot use typename keyword when making
+                                     // temporaries of a dependant type
 #define BOOST_FUNCTION_SCOPE_USING_DECLARATION_BREAKS_ADL
 #define BOOST_NO_MEMBER_TEMPLATE_FRIENDS
-#define BOOST_NO_NESTED_FRIENDSHIP // TC1 gives nested classes access rights as
-                                   // any other member
+#define BOOST_NO_NESTED_FRIENDSHIP  // TC1 gives nested classes access rights as
+                                    // any other member
 #define BOOST_NO_USING_TEMPLATE
 #define BOOST_NO_TWO_PHASE_NAME_LOOKUP
 // Temporary hack, until specific MPL preprocessed headers are generated

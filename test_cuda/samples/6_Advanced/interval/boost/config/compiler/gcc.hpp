@@ -78,7 +78,7 @@
 // those platforms where we can know for sure). It will get turned off again
 // later if no threading API is detected.
 //
-#if !defined(__MINGW32__) && !defined(linux) && !defined(__linux) &&           \
+#if !defined(__MINGW32__) && !defined(linux) && !defined(__linux) && \
     !defined(__linux__)
 #define BOOST_HAS_THREADS
 #endif
@@ -116,7 +116,7 @@
 
 // C++0x features in 4.3.n and later
 //
-#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2)) &&                 \
+#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2)) && \
     defined(__GXX_EXPERIMENTAL_CXX0X__)
 // C++0x features are only enabled when -std=c++0x or -std=gnu++0x are
 // passed on the command line, which in turn defines
@@ -142,7 +142,7 @@
 
 // C++0x features in 4.4.n and later
 //
-#if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 4) ||                   \
+#if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 4) || \
     !defined(__GXX_EXPERIMENTAL_CXX0X__)
 #define BOOST_NO_AUTO_DECLARATIONS
 #define BOOST_NO_AUTO_MULTIDECLARATIONS
@@ -169,7 +169,7 @@
 
 // C++0x features in 4.5.n and later
 //
-#if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 5) ||                   \
+#if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 5) || \
     !defined(__GXX_EXPERIMENTAL_CXX0X__)
 #define BOOST_NO_EXPLICIT_CONVERSION_OPERATORS
 #endif
@@ -197,12 +197,12 @@
 // last known and checked version is 4.4 (Pre-release):
 #if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 4))
 #if defined(BOOST_ASSERT_CONFIG)
-#error                                                                         \
+#error \
     "Unknown compiler version - please run the configure tests and report the results"
 #else
 // we don't emit warnings here anymore since there are no defect macros defined
 // for gcc post 3.4, so any failures are gcc regressions...
 //#     warning "Unknown compiler version - please run the configure tests and
-//report the results"
+// report the results"
 #endif
 #endif

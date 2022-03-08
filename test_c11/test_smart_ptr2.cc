@@ -27,7 +27,7 @@ void test1() {
   // std::shared_ptr<A> a1 = std::make_shared<A>(a);
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   test1();
   return 0;
 }

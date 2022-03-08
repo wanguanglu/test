@@ -24,16 +24,17 @@
 #include <limits.h>
 #include <time.h>
 
-template <typename T, bool floatKeys> bool testSort(int argc, char **argv) {
+template <typename T, bool floatKeys>
+bool testSort(int argc, char** argv) {
   int cmdVal;
   int keybits = 32;
 
   unsigned int numElements = 1048576;
-  bool keysOnly = checkCmdLineFlag(argc, (const char **)argv, "keysonly");
-  bool quiet = checkCmdLineFlag(argc, (const char **)argv, "quiet");
+  bool keysOnly = checkCmdLineFlag(argc, (const char**)argv, "keysonly");
+  bool quiet = checkCmdLineFlag(argc, (const char**)argv, "quiet");
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "n")) {
-    cmdVal = getCmdLineArgumentInt(argc, (const char **)argv, "n");
+  if (checkCmdLineFlag(argc, (const char**)argv, "n")) {
+    cmdVal = getCmdLineArgumentInt(argc, (const char**)argv, "n");
     numElements = cmdVal;
 
     if (cmdVal < 0) {
@@ -42,8 +43,8 @@ template <typename T, bool floatKeys> bool testSort(int argc, char **argv) {
     }
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "keybits")) {
-    cmdVal = getCmdLineArgumentInt(argc, (const char **)argv, "keybits");
+  if (checkCmdLineFlag(argc, (const char**)argv, "keybits")) {
+    cmdVal = getCmdLineArgumentInt(argc, (const char**)argv, "keybits");
     keybits = cmdVal;
 
     if (keybits <= 0) {
@@ -54,22 +55,25 @@ template <typename T, bool floatKeys> bool testSort(int argc, char **argv) {
 
   unsigned int numIterations = (numElements >= 16777216) ? 10 : 100;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "iterations")) {
-    cmdVal = getCmdLineArgumentInt(argc, (const char **)argv, "iterations");
+  if (checkCmdLineFlag(argc, (const char**)argv, "iterations")) {
+    cmdVal = getCmdLineArgumentInt(argc, (const char**)argv, "iterations");
     numIterations = cmdVal;
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "help")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "help")) {
     printf("Command line:\nradixSortThrust [-option]\n");
     printf("Valid options:\n");
     printf("-n=<N>        : number of elements to sort\n");
     printf("-keybits=bits : keybits must be > 0\n");
-    printf("-keysonly     : only sort an array of keys (default sorts "
-           "key-value pairs)\n");
-    printf("-float        : use 32-bit float keys (default is 32-bit unsigned "
-           "int)\n");
-    printf("-quiet        : Output only the number of elements and the time to "
-           "sort\n");
+    printf(
+        "-keysonly     : only sort an array of keys (default sorts "
+        "key-value pairs)\n");
+    printf(
+        "-float        : use 32-bit float keys (default is 32-bit unsigned "
+        "int)\n");
+    printf(
+        "-quiet        : Output only the number of elements and the time to "
+        "sort\n");
     printf("-help         : Output a help message\n");
     exit(EXIT_SUCCESS);
   }
@@ -99,8 +103,7 @@ template <typename T, bool floatKeys> bool testSort(int argc, char **argv) {
   thrust::host_vector<T> h_keysSorted(numElements);
   thrust::host_vector<unsigned int> h_values;
 
-  if (!keysOnly)
-    h_values = thrust::host_vector<unsigned int>(numElements);
+  if (!keysOnly) h_values = thrust::host_vector<unsigned int>(numElements);
 
   // Fill up with some random data
   thrust::default_random_engine rng(clock());
@@ -108,17 +111,14 @@ template <typename T, bool floatKeys> bool testSort(int argc, char **argv) {
   if (floatKeys) {
     thrust::uniform_real_distribution<float> u01(0, 1);
 
-    for (int i = 0; i < (int)numElements; i++)
-      h_keys[i] = u01(rng);
+    for (int i = 0; i < (int)numElements; i++) h_keys[i] = u01(rng);
   } else {
     thrust::uniform_int_distribution<unsigned int> u(0, UINT_MAX);
 
-    for (int i = 0; i < (int)numElements; i++)
-      h_keys[i] = u(rng);
+    for (int i = 0; i < (int)numElements; i++) h_keys[i] = u(rng);
   }
 
-  if (!keysOnly)
-    thrust::sequence(h_values.begin(), h_values.end());
+  if (!keysOnly) thrust::sequence(h_values.begin(), h_values.end());
 
   // Copy data onto the GPU
   thrust::device_vector<T> d_keys;
@@ -135,8 +135,7 @@ template <typename T, bool floatKeys> bool testSort(int argc, char **argv) {
     // reset data before sort
     d_keys = h_keys;
 
-    if (!keysOnly)
-      d_values = h_values;
+    if (!keysOnly) d_values = h_values;
 
     checkCudaErrors(cudaEventRecord(start_event, 0));
 
@@ -154,9 +153,10 @@ template <typename T, bool floatKeys> bool testSort(int argc, char **argv) {
   }
 
   totalTime /= (1.0e3f * numIterations);
-  printf("radixSortThrust, Throughput = %.4f MElements/s, Time = %.5f s, Size "
-         "= %u elements\n",
-         1.0e-6f * numElements / totalTime, totalTime, numElements);
+  printf(
+      "radixSortThrust, Throughput = %.4f MElements/s, Time = %.5f s, Size "
+      "= %u elements\n",
+      1.0e-6f * numElements / totalTime, totalTime, numElements);
 
   getLastCudaError("after radixsort");
 
@@ -182,15 +182,15 @@ template <typename T, bool floatKeys> bool testSort(int argc, char **argv) {
   return bTestResult;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   // Start logs
   printf("%s Starting...\n\n", argv[0]);
 
-  findCudaDevice(argc, (const char **)argv);
+  findCudaDevice(argc, (const char**)argv);
 
   bool bTestResult = false;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "float"))
+  if (checkCmdLineFlag(argc, (const char**)argv, "float"))
     bTestResult = testSort<float, true>(argc, argv);
   else
     bTestResult = testSort<unsigned int, false>(argc, argv);

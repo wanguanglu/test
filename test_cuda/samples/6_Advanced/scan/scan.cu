@@ -24,7 +24,7 @@
 // Allocate 2 * 'size' local memory, initialize the first half
 // with 'size' zeros avoiding if(pos >= offset) condition evaluation
 // and saving instructions
-inline __device__ uint scan1Inclusive(uint idata, volatile uint *s_Data,
+inline __device__ uint scan1Inclusive(uint idata, volatile uint* s_Data,
                                       uint size) {
   uint pos = 2 * threadIdx.x - (threadIdx.x & (size - 1));
   s_Data[pos] = 0;
@@ -41,12 +41,12 @@ inline __device__ uint scan1Inclusive(uint idata, volatile uint *s_Data,
   return s_Data[pos];
 }
 
-inline __device__ uint scan1Exclusive(uint idata, volatile uint *s_Data,
+inline __device__ uint scan1Exclusive(uint idata, volatile uint* s_Data,
                                       uint size) {
   return scan1Inclusive(idata, s_Data, size) - idata;
 }
 
-inline __device__ uint4 scan4Inclusive(uint4 idata4, volatile uint *s_Data,
+inline __device__ uint4 scan4Inclusive(uint4 idata4, volatile uint* s_Data,
                                        uint size) {
   // Level-0 inclusive scan
   idata4.y += idata4.x;
@@ -66,7 +66,7 @@ inline __device__ uint4 scan4Inclusive(uint4 idata4, volatile uint *s_Data,
 
 // Exclusive vector scan: the array to be scanned is stored
 // in local thread memory scope as uint4
-inline __device__ uint4 scan4Exclusive(uint4 idata4, volatile uint *s_Data,
+inline __device__ uint4 scan4Exclusive(uint4 idata4, volatile uint* s_Data,
                                        uint size) {
   uint4 odata4 = scan4Inclusive(idata4, s_Data, size);
   odata4.x -= idata4.x;
@@ -79,7 +79,7 @@ inline __device__ uint4 scan4Exclusive(uint4 idata4, volatile uint *s_Data,
 ////////////////////////////////////////////////////////////////////////////////
 // Scan kernels
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void scanExclusiveShared(uint4 *d_Dst, uint4 *d_Src, uint size) {
+__global__ void scanExclusiveShared(uint4* d_Dst, uint4* d_Src, uint size) {
   __shared__ uint s_Data[2 * THREADBLOCK_SIZE];
 
   uint pos = blockIdx.x * blockDim.x + threadIdx.x;
@@ -95,7 +95,7 @@ __global__ void scanExclusiveShared(uint4 *d_Dst, uint4 *d_Src, uint size) {
 }
 
 // Exclusive scan of top elements of bottom-level scans (4 * THREADBLOCK_SIZE)
-__global__ void scanExclusiveShared2(uint *d_Buf, uint *d_Dst, uint *d_Src,
+__global__ void scanExclusiveShared2(uint* d_Buf, uint* d_Dst, uint* d_Src,
                                      uint N, uint arrayLength) {
   __shared__ uint s_Data[2 * THREADBLOCK_SIZE];
 
@@ -121,7 +121,7 @@ __global__ void scanExclusiveShared2(uint *d_Buf, uint *d_Dst, uint *d_Src,
 
 // Final step of large-array scan: combine basic inclusive scan with exclusive
 // scan of top elements of input arrays
-__global__ void uniformUpdate(uint4 *d_Data, uint *d_Buffer) {
+__global__ void uniformUpdate(uint4* d_Data, uint* d_Buffer) {
   __shared__ uint buf;
   uint pos = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -152,17 +152,17 @@ extern "C" const uint MAX_LARGE_ARRAY_SIZE =
     4 * THREADBLOCK_SIZE * THREADBLOCK_SIZE;
 
 // Internal exclusive scan buffer
-static uint *d_Buf;
+static uint* d_Buf;
 
 extern "C" void initScan(void) {
   checkCudaErrors(
-      cudaMalloc((void **)&d_Buf,
+      cudaMalloc((void**)&d_Buf,
                  (MAX_BATCH_ELEMENTS / (4 * THREADBLOCK_SIZE)) * sizeof(uint)));
 }
 
 extern "C" void closeScan(void) { checkCudaErrors(cudaFree(d_Buf)); }
 
-static uint factorRadix2(uint &log2L, uint L) {
+static uint factorRadix2(uint& log2L, uint L) {
   if (!L) {
     log2L = 0;
     return 0;
@@ -179,7 +179,7 @@ static uint iDivUp(uint dividend, uint divisor) {
                                      : (dividend / divisor + 1);
 }
 
-extern "C" size_t scanExclusiveShort(uint *d_Dst, uint *d_Src, uint batchSize,
+extern "C" size_t scanExclusiveShort(uint* d_Dst, uint* d_Src, uint batchSize,
                                      uint arrayLength) {
   // Check power-of-two factorization
   uint log2L;
@@ -197,14 +197,14 @@ extern "C" size_t scanExclusiveShort(uint *d_Dst, uint *d_Src, uint batchSize,
   assert((batchSize * arrayLength) % (4 * THREADBLOCK_SIZE) == 0);
 
   scanExclusiveShared<<<(batchSize * arrayLength) / (4 * THREADBLOCK_SIZE),
-                        THREADBLOCK_SIZE>>>((uint4 *)d_Dst, (uint4 *)d_Src,
+                        THREADBLOCK_SIZE>>>((uint4*)d_Dst, (uint4*)d_Src,
                                             arrayLength);
   getLastCudaError("scanExclusiveShared() execution FAILED\n");
 
   return THREADBLOCK_SIZE;
 }
 
-extern "C" size_t scanExclusiveLarge(uint *d_Dst, uint *d_Src, uint batchSize,
+extern "C" size_t scanExclusiveLarge(uint* d_Dst, uint* d_Src, uint batchSize,
                                      uint arrayLength) {
   // Check power-of-two factorization
   uint log2L;
@@ -219,7 +219,7 @@ extern "C" size_t scanExclusiveLarge(uint *d_Dst, uint *d_Src, uint batchSize,
   assert((batchSize * arrayLength) <= MAX_BATCH_ELEMENTS);
 
   scanExclusiveShared<<<(batchSize * arrayLength) / (4 * THREADBLOCK_SIZE),
-                        THREADBLOCK_SIZE>>>((uint4 *)d_Dst, (uint4 *)d_Src,
+                        THREADBLOCK_SIZE>>>((uint4*)d_Dst, (uint4*)d_Src,
                                             4 * THREADBLOCK_SIZE);
   getLastCudaError("scanExclusiveShared() execution FAILED\n");
 
@@ -229,13 +229,13 @@ extern "C" size_t scanExclusiveLarge(uint *d_Dst, uint *d_Src, uint batchSize,
   const uint blockCount2 = iDivUp(
       (batchSize * arrayLength) / (4 * THREADBLOCK_SIZE), THREADBLOCK_SIZE);
   scanExclusiveShared2<<<blockCount2, THREADBLOCK_SIZE>>>(
-      (uint *)d_Buf, (uint *)d_Dst, (uint *)d_Src,
+      (uint*)d_Buf, (uint*)d_Dst, (uint*)d_Src,
       (batchSize * arrayLength) / (4 * THREADBLOCK_SIZE),
       arrayLength / (4 * THREADBLOCK_SIZE));
   getLastCudaError("scanExclusiveShared2() execution FAILED\n");
 
   uniformUpdate<<<(batchSize * arrayLength) / (4 * THREADBLOCK_SIZE),
-                  THREADBLOCK_SIZE>>>((uint4 *)d_Dst, (uint *)d_Buf);
+                  THREADBLOCK_SIZE>>>((uint4*)d_Dst, (uint*)d_Buf);
   getLastCudaError("uniformUpdate() execution FAILED\n");
 
   return THREADBLOCK_SIZE;

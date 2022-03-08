@@ -47,7 +47,7 @@ static inline __device__ uint nextPowerOfTwo(uint x) {
 }
 
 template <uint sortDir>
-static inline __device__ uint binarySearchInclusive(uint val, uint *data,
+static inline __device__ uint binarySearchInclusive(uint val, uint* data,
                                                     uint L, uint stride) {
   if (L == 0) {
     return 0;
@@ -68,7 +68,7 @@ static inline __device__ uint binarySearchInclusive(uint val, uint *data,
 }
 
 template <uint sortDir>
-static inline __device__ uint binarySearchExclusive(uint val, uint *data,
+static inline __device__ uint binarySearchExclusive(uint val, uint* data,
                                                     uint L, uint stride) {
   if (L == 0) {
     return 0;
@@ -92,8 +92,8 @@ static inline __device__ uint binarySearchExclusive(uint val, uint *data,
 // Bottom-level merge sort (binary search-based)
 ////////////////////////////////////////////////////////////////////////////////
 template <uint sortDir>
-__global__ void mergeSortSharedKernel(uint *d_DstKey, uint *d_DstVal,
-                                      uint *d_SrcKey, uint *d_SrcVal,
+__global__ void mergeSortSharedKernel(uint* d_DstKey, uint* d_DstVal,
+                                      uint* d_SrcKey, uint* d_SrcVal,
                                       uint arrayLength) {
   __shared__ uint s_key[SHARED_SIZE_LIMIT];
   __shared__ uint s_val[SHARED_SIZE_LIMIT];
@@ -111,8 +111,8 @@ __global__ void mergeSortSharedKernel(uint *d_DstKey, uint *d_DstVal,
 
   for (uint stride = 1; stride < arrayLength; stride <<= 1) {
     uint lPos = threadIdx.x & (stride - 1);
-    uint *baseKey = s_key + 2 * (threadIdx.x - lPos);
-    uint *baseVal = s_val + 2 * (threadIdx.x - lPos);
+    uint* baseKey = s_key + 2 * (threadIdx.x - lPos);
+    uint* baseVal = s_val + 2 * (threadIdx.x - lPos);
 
     __syncthreads();
     uint keyA = baseKey[lPos + 0];
@@ -142,8 +142,8 @@ __global__ void mergeSortSharedKernel(uint *d_DstKey, uint *d_DstVal,
       s_val[threadIdx.x + (SHARED_SIZE_LIMIT / 2)];
 }
 
-static void mergeSortShared(uint *d_DstKey, uint *d_DstVal, uint *d_SrcKey,
-                            uint *d_SrcVal, uint batchSize, uint arrayLength,
+static void mergeSortShared(uint* d_DstKey, uint* d_DstVal, uint* d_SrcKey,
+                            uint* d_SrcVal, uint batchSize, uint arrayLength,
                             uint sortDir) {
   if (arrayLength < 2) {
     return;
@@ -169,8 +169,8 @@ static void mergeSortShared(uint *d_DstKey, uint *d_DstVal, uint *d_SrcKey,
 // Merge step 1: generate sample ranks
 ////////////////////////////////////////////////////////////////////////////////
 template <uint sortDir>
-__global__ void generateSampleRanksKernel(uint *d_RanksA, uint *d_RanksB,
-                                          uint *d_SrcKey, uint stride, uint N,
+__global__ void generateSampleRanksKernel(uint* d_RanksA, uint* d_RanksB,
+                                          uint* d_SrcKey, uint stride, uint N,
                                           uint threadCount) {
   uint pos = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -204,7 +204,7 @@ __global__ void generateSampleRanksKernel(uint *d_RanksA, uint *d_RanksB,
   }
 }
 
-static void generateSampleRanks(uint *d_RanksA, uint *d_RanksB, uint *d_SrcKey,
+static void generateSampleRanks(uint* d_RanksA, uint* d_RanksB, uint* d_SrcKey,
                                 uint stride, uint N, uint sortDir) {
   uint lastSegmentElements = N % (2 * stride);
   uint threadCount =
@@ -226,7 +226,7 @@ static void generateSampleRanks(uint *d_RanksA, uint *d_RanksB, uint *d_SrcKey,
 ////////////////////////////////////////////////////////////////////////////////
 // Merge step 2: generate sample ranks and indices
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void mergeRanksAndIndicesKernel(uint *d_Limits, uint *d_Ranks,
+__global__ void mergeRanksAndIndicesKernel(uint* d_Limits, uint* d_Ranks,
                                            uint stride, uint N,
                                            uint threadCount) {
   uint pos = blockIdx.x * blockDim.x + threadIdx.x;
@@ -262,8 +262,8 @@ __global__ void mergeRanksAndIndicesKernel(uint *d_Limits, uint *d_Ranks,
   }
 }
 
-static void mergeRanksAndIndices(uint *d_LimitsA, uint *d_LimitsB,
-                                 uint *d_RanksA, uint *d_RanksB, uint stride,
+static void mergeRanksAndIndices(uint* d_LimitsA, uint* d_LimitsB,
+                                 uint* d_RanksA, uint* d_RanksB, uint stride,
                                  uint N) {
   uint lastSegmentElements = N % (2 * stride);
   uint threadCount =
@@ -284,9 +284,10 @@ static void mergeRanksAndIndices(uint *d_LimitsA, uint *d_LimitsB,
 // Merge step 3: merge elementary intervals
 ////////////////////////////////////////////////////////////////////////////////
 template <uint sortDir>
-inline __device__ void
-merge(uint *dstKey, uint *dstVal, uint *srcAKey, uint *srcAVal, uint *srcBKey,
-      uint *srcBVal, uint lenA, uint nPowTwoLenA, uint lenB, uint nPowTwoLenB) {
+inline __device__ void merge(uint* dstKey, uint* dstVal, uint* srcAKey,
+                             uint* srcAVal, uint* srcBKey, uint* srcBVal,
+                             uint lenA, uint nPowTwoLenA, uint lenB,
+                             uint nPowTwoLenB) {
   uint keyA, valA, keyB, valB, dstPosA, dstPosB;
 
   if (threadIdx.x < lenA) {
@@ -317,9 +318,9 @@ merge(uint *dstKey, uint *dstVal, uint *srcAKey, uint *srcAVal, uint *srcBKey,
 }
 
 template <uint sortDir>
-__global__ void mergeElementaryIntervalsKernel(uint *d_DstKey, uint *d_DstVal,
-                                               uint *d_SrcKey, uint *d_SrcVal,
-                                               uint *d_LimitsA, uint *d_LimitsB,
+__global__ void mergeElementaryIntervalsKernel(uint* d_DstKey, uint* d_DstVal,
+                                               uint* d_SrcKey, uint* d_SrcVal,
+                                               uint* d_LimitsA, uint* d_LimitsB,
                                                uint stride, uint N) {
   __shared__ uint s_key[2 * SAMPLE_STRIDE];
   __shared__ uint s_val[2 * SAMPLE_STRIDE];
@@ -388,9 +389,9 @@ __global__ void mergeElementaryIntervalsKernel(uint *d_DstKey, uint *d_DstVal,
   }
 }
 
-static void mergeElementaryIntervals(uint *d_DstKey, uint *d_DstVal,
-                                     uint *d_SrcKey, uint *d_SrcVal,
-                                     uint *d_LimitsA, uint *d_LimitsB,
+static void mergeElementaryIntervals(uint* d_DstKey, uint* d_DstVal,
+                                     uint* d_SrcKey, uint* d_SrcVal,
+                                     uint* d_LimitsA, uint* d_LimitsB,
                                      uint stride, uint N, uint sortDir) {
   uint lastSegmentElements = N % (2 * stride);
   uint mergePairs = (lastSegmentElements > stride)
@@ -410,15 +411,15 @@ static void mergeElementaryIntervals(uint *d_DstKey, uint *d_DstVal,
   }
 }
 
-extern "C" void bitonicSortShared(uint *d_DstKey, uint *d_DstVal,
-                                  uint *d_SrcKey, uint *d_SrcVal,
+extern "C" void bitonicSortShared(uint* d_DstKey, uint* d_DstVal,
+                                  uint* d_SrcKey, uint* d_SrcVal,
                                   uint batchSize, uint arrayLength,
                                   uint sortDir);
 
-extern "C" void bitonicMergeElementaryIntervals(uint *d_DstKey, uint *d_DstVal,
-                                                uint *d_SrcKey, uint *d_SrcVal,
-                                                uint *d_LimitsA,
-                                                uint *d_LimitsB, uint stride,
+extern "C" void bitonicMergeElementaryIntervals(uint* d_DstKey, uint* d_DstVal,
+                                                uint* d_SrcKey, uint* d_SrcVal,
+                                                uint* d_LimitsA,
+                                                uint* d_LimitsB, uint stride,
                                                 uint N, uint sortDir);
 
 static uint *d_RanksA, *d_RanksB, *d_LimitsA, *d_LimitsB;
@@ -426,13 +427,13 @@ static const uint MAX_SAMPLE_COUNT = 32768;
 
 extern "C" void initMergeSort(void) {
   checkCudaErrors(
-      cudaMalloc((void **)&d_RanksA, MAX_SAMPLE_COUNT * sizeof(uint)));
+      cudaMalloc((void**)&d_RanksA, MAX_SAMPLE_COUNT * sizeof(uint)));
   checkCudaErrors(
-      cudaMalloc((void **)&d_RanksB, MAX_SAMPLE_COUNT * sizeof(uint)));
+      cudaMalloc((void**)&d_RanksB, MAX_SAMPLE_COUNT * sizeof(uint)));
   checkCudaErrors(
-      cudaMalloc((void **)&d_LimitsA, MAX_SAMPLE_COUNT * sizeof(uint)));
+      cudaMalloc((void**)&d_LimitsA, MAX_SAMPLE_COUNT * sizeof(uint)));
   checkCudaErrors(
-      cudaMalloc((void **)&d_LimitsB, MAX_SAMPLE_COUNT * sizeof(uint)));
+      cudaMalloc((void**)&d_LimitsB, MAX_SAMPLE_COUNT * sizeof(uint)));
 }
 
 extern "C" void closeMergeSort(void) {
@@ -442,8 +443,8 @@ extern "C" void closeMergeSort(void) {
   checkCudaErrors(cudaFree(d_LimitsA));
 }
 
-extern "C" void mergeSort(uint *d_DstKey, uint *d_DstVal, uint *d_BufKey,
-                          uint *d_BufVal, uint *d_SrcKey, uint *d_SrcVal,
+extern "C" void mergeSort(uint* d_DstKey, uint* d_DstVal, uint* d_BufKey,
+                          uint* d_BufVal, uint* d_SrcKey, uint* d_SrcVal,
                           uint N, uint sortDir) {
   uint stageCount = 0;
 
@@ -493,7 +494,7 @@ extern "C" void mergeSort(uint *d_DstKey, uint *d_DstVal, uint *d_BufKey,
           lastSegmentElements * sizeof(uint), cudaMemcpyDeviceToDevice));
     }
 
-    uint *t;
+    uint* t;
     t = ikey;
     ikey = okey;
     okey = t;

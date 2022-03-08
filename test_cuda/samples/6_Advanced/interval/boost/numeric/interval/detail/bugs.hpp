@@ -13,9 +13,9 @@
 
 #include <boost/config.hpp>
 
-#if defined(__GLIBC__) &&                                                      \
-    (defined(__USE_MISC) || defined(__USE_XOPEN_EXTENDED) ||                   \
-     defined(__USE_ISOC99)) &&                                                 \
+#if defined(__GLIBC__) &&                                    \
+    (defined(__USE_MISC) || defined(__USE_XOPEN_EXTENDED) || \
+     defined(__USE_ISOC99)) &&                               \
     !defined(__ICC)
 #define BOOST_HAS_INV_HYPERBOLIC
 #endif
@@ -75,8 +75,8 @@ using std::tanh;
 #define BOOST_NUMERIC_INTERVAL_using_math(a)
 #undef BOOST_NUMERIC_INTERVAL_using_ahyp
 #define BOOST_NUMERIC_INTERVAL_using_ahyp(a)
-} // namespace numeric
-} // namespace boost
+}  // namespace numeric
+}  // namespace boost
 #endif
 
-#endif // BOOST_NUMERIC_INTERVAL_DETAIL_BUGS
+#endif  // BOOST_NUMERIC_INTERVAL_DETAIL_BUGS

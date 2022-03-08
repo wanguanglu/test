@@ -14,13 +14,14 @@
 
 #include "asianoption.h"
 
-template <typename Real> class PricingEngine {
-public:
+template <typename Real>
+class PricingEngine {
+ public:
   PricingEngine(unsigned int numSims, unsigned int device,
                 unsigned int threadBlockSize, unsigned int seed);
-  void operator()(AsianOption<Real> &option);
+  void operator()(AsianOption<Real>& option);
 
-private:
+ private:
   unsigned int m_seed;
   unsigned int m_numSims;
   unsigned int m_device;

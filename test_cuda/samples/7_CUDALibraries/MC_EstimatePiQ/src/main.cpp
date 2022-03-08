@@ -32,13 +32,14 @@
 #include "../inc/test.h"
 
 // SDK information
-static const char *printfFile = "MonteCarloEstimatePiQ.txt";
+static const char* printfFile = "MonteCarloEstimatePiQ.txt";
 
 // Forward declarations
-void showHelp(const int argc, const char **argv);
-template <typename Real> void runTest(int argc, const char **argv);
+void showHelp(const int argc, const char** argv);
+template <typename Real>
+void runTest(int argc, const char** argv);
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   using std::invalid_argument;
   using std::string;
 
@@ -47,35 +48,35 @@ int main(int argc, char **argv) {
   printf("=========================================\n\n");
 
   // If help flag is set, display help and exit immediately
-  if (checkCmdLineFlag(argc, (const char **)argv, "help")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "help")) {
     printf("Displaying help on console\n");
-    showHelp(argc, (const char **)argv);
+    showHelp(argc, (const char**)argv);
     exit(EXIT_SUCCESS);
   }
 
   // Check the precision (checked against the device capability later)
   try {
-    char *value;
+    char* value;
 
-    if (getCmdLineArgumentString(argc, (const char **)argv, "precision",
+    if (getCmdLineArgumentString(argc, (const char**)argv, "precision",
                                  &value)) {
       // Check requested precision is valid
       string prec(value);
 
       if (prec.compare("single") == 0 || prec.compare("\"single\"") == 0) {
-        runTest<float>(argc, (const char **)argv);
+        runTest<float>(argc, (const char**)argv);
       } else if (prec.compare("double") == 0 ||
                  prec.compare("\"double\"") == 0) {
-        runTest<double>(argc, (const char **)argv);
+        runTest<double>(argc, (const char**)argv);
       } else {
         printf("specified precision (%s) is invalid, must be \"single\".\n",
                value);
         throw invalid_argument("precision");
       }
     } else {
-      runTest<float>(argc, (const char **)argv);
+      runTest<float>(argc, (const char**)argv);
     }
-  } catch (invalid_argument &e) {
+  } catch (invalid_argument& e) {
     printf("invalid command line argument (%s)\n", e.what());
     exit(EXIT_FAILURE);
   }
@@ -90,7 +91,8 @@ int main(int argc, char **argv) {
   exit(EXIT_SUCCESS);
 }
 
-template <typename Real> void runTest(int argc, const char **argv) {
+template <typename Real>
+void runTest(int argc, const char** argv) {
   using std::invalid_argument;
   using std::runtime_error;
 
@@ -115,15 +117,16 @@ template <typename Real> void runTest(int argc, const char **argv) {
     test.threadBlockSize = k_bsize_qa;
 
     {
-      char *value = 0;
+      char* value = 0;
 
       if (getCmdLineArgumentString(argc, argv, "device", &value)) {
         test.device = (int)atoi(value);
 
         if (test.device >= deviceCount) {
-          printf("invalid target device specified on command line (device %d "
-                 "does not exist).\n",
-                 test.device);
+          printf(
+              "invalid target device specified on command line (device %d "
+              "does not exist).\n",
+              test.device);
           throw invalid_argument("device");
         }
       } else {
@@ -134,9 +137,10 @@ template <typename Real> void runTest(int argc, const char **argv) {
         test.numSims = (unsigned int)atoi(value);
 
         if (test.numSims < k_sims_min || test.numSims > k_sims_max) {
-          printf("specified number of simulations (%d) is invalid, must be "
-                 "between %d and %d.\n",
-                 test.numSims, k_sims_min, k_sims_max);
+          printf(
+              "specified number of simulations (%d) is invalid, must be "
+              "between %d and %d.\n",
+              test.numSims, k_sims_min, k_sims_max);
           throw invalid_argument("sims");
         }
       } else {
@@ -160,17 +164,19 @@ template <typename Real> void runTest(int argc, const char **argv) {
         if (test.threadBlockSize < k_bsize_min ||
             test.threadBlockSize > static_cast<unsigned int>(
                                        deviceProperties.maxThreadsPerBlock)) {
-          printf("specified block size (%d) is invalid, must be between %d and "
-                 "%d for device %d.\n",
-                 test.threadBlockSize, k_bsize_min,
-                 deviceProperties.maxThreadsPerBlock, test.device);
+          printf(
+              "specified block size (%d) is invalid, must be between %d and "
+              "%d for device %d.\n",
+              test.threadBlockSize, k_bsize_min,
+              deviceProperties.maxThreadsPerBlock, test.device);
           throw invalid_argument("block-size");
         }
 
         if (test.threadBlockSize & test.threadBlockSize - 1) {
-          printf("specified block size (%d) is invalid, must be a power of two "
-                 "(see reduction function).\n",
-                 test.threadBlockSize);
+          printf(
+              "specified block size (%d) is invalid, must be a power of two "
+              "(see reduction function).\n",
+              test.threadBlockSize);
           throw invalid_argument("block-size");
         }
       } else {
@@ -179,16 +185,16 @@ template <typename Real> void runTest(int argc, const char **argv) {
     }
     // Execute
     test();
-  } catch (invalid_argument &e) {
+  } catch (invalid_argument& e) {
     printf("invalid command line argument (%s)\n", e.what());
     exit(EXIT_FAILURE);
-  } catch (runtime_error &e) {
+  } catch (runtime_error& e) {
     printf("runtime error (%s)\n", e.what());
     exit(EXIT_FAILURE);
   }
 }
 
-void showHelp(int argc, const char **argv) {
+void showHelp(int argc, const char** argv) {
   using std::cout;
   using std::endl;
   using std::left;

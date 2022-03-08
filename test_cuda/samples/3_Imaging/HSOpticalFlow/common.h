@@ -55,7 +55,8 @@ inline int iAlignUp(int n, int m = StrideAlignment) {
 inline int iDivUp(int n, int m) { return (n + m - 1) / m; }
 
 // swap two values
-template <typename T> inline void Swap(T &a, T &b) {
+template <typename T>
+inline void Swap(T& a, T& b) {
   T t = a;
   a = b;
   b = t;

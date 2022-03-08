@@ -54,18 +54,18 @@
 #include <cuda_runtime.h>
 
 // Utilities and timing functions
-#include <helper_functions.h> // includes cuda.h and cuda_runtime_api.h
-#include <timer.h>            // timing functions
+#include <helper_functions.h>  // includes cuda.h and cuda_runtime_api.h
+#include <timer.h>             // timing functions
 
 // CUDA helper functions
-#include <helper_cuda.h>    // helper functions for CUDA error check
-#include <helper_cuda_gl.h> // helper functions for CUDA/GL interop
+#include <helper_cuda.h>     // helper functions for CUDA error check
+#include <helper_cuda_gl.h>  // helper functions for CUDA/GL interop
 
 #include <vector_types.h>
 
 #define MAX_EPSILON_ERROR 10.0f
 #define THRESHOLD 0.30f
-#define REFRESH_DELAY 10 // ms
+#define REFRESH_DELAY 10  // ms
 
 ////////////////////////////////////////////////////////////////////////////////
 // constants
@@ -77,8 +77,8 @@ const unsigned int mesh_height = 256;
 
 // vbo variables
 GLuint vbo;
-struct cudaGraphicsResource *cuda_vbo_resource;
-void *d_vbo_buffer = NULL;
+struct cudaGraphicsResource* cuda_vbo_resource;
+void* d_vbo_buffer = NULL;
 
 float g_fAnim = 0.0;
 
@@ -88,32 +88,32 @@ int mouse_buttons = 0;
 float rotate_x = 0.0, rotate_y = 0.0;
 float translate_z = -3.0;
 
-StopWatchInterface *timer = NULL;
+StopWatchInterface* timer = NULL;
 
 // Auto-Verification Code
-int fpsCount = 0; // FPS count for averaging
-int fpsLimit = 1; // FPS limit for sampling
+int fpsCount = 0;  // FPS count for averaging
+int fpsLimit = 1;  // FPS limit for sampling
 int g_Index = 0;
 float avgFPS = 0.0f;
 unsigned int frameCount = 0;
 unsigned int g_TotalErrors = 0;
 bool g_bQAReadback = false;
 
-int *pArgc = NULL;
-char **pArgv = NULL;
+int* pArgc = NULL;
+char** pArgv = NULL;
 
 #define MAX(a, b) ((a > b) ? a : b)
 
 ////////////////////////////////////////////////////////////////////////////////
 // declaration, forward
-bool runTest(int argc, char **argv, char *ref_file);
+bool runTest(int argc, char** argv, char* ref_file);
 void cleanup();
 
 // GL functionality
-bool initGL(int *argc, char **argv);
-void createVBO(GLuint *vbo, struct cudaGraphicsResource **vbo_res,
+bool initGL(int* argc, char** argv);
+void createVBO(GLuint* vbo, struct cudaGraphicsResource** vbo_res,
                unsigned int vbo_res_flags);
-void deleteVBO(GLuint *vbo, struct cudaGraphicsResource *vbo_res);
+void deleteVBO(GLuint* vbo, struct cudaGraphicsResource* vbo_res);
 
 // rendering callbacks
 void display();
@@ -123,17 +123,17 @@ void motion(int x, int y);
 void timerEvent(int value);
 
 // Cuda functionality
-void runCuda(struct cudaGraphicsResource **vbo_resource);
-void runAutoTest(int devID, char **argv, char *ref_file);
-void checkResultCuda(int argc, char **argv, const GLuint &vbo);
+void runCuda(struct cudaGraphicsResource** vbo_resource);
+void runAutoTest(int devID, char** argv, char* ref_file);
+void checkResultCuda(int argc, char** argv, const GLuint& vbo);
 
-const char *sSDKsample = "simpleGL (VBO)";
+const char* sSDKsample = "simpleGL (VBO)";
 
 ///////////////////////////////////////////////////////////////////////////////
 //! Simple kernel to modify vertex positions in sine wave pattern
 //! @param data  data in global memory
 ///////////////////////////////////////////////////////////////////////////////
-__global__ void simple_vbo_kernel(float4 *pos, unsigned int width,
+__global__ void simple_vbo_kernel(float4* pos, unsigned int width,
                                   unsigned int height, float time) {
   unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
   unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -152,7 +152,7 @@ __global__ void simple_vbo_kernel(float4 *pos, unsigned int width,
   pos[y * width + x] = make_float4(u, w, v, 1.0f);
 }
 
-void launch_kernel(float4 *pos, unsigned int mesh_width,
+void launch_kernel(float4* pos, unsigned int mesh_width,
                    unsigned int mesh_height, float time) {
   // execute the kernel
   dim3 block(8, 8, 1);
@@ -160,7 +160,7 @@ void launch_kernel(float4 *pos, unsigned int mesh_width,
   simple_vbo_kernel<<<grid, block>>>(pos, mesh_width, mesh_height, time);
 }
 
-bool checkHW(char *name, const char *gpuType, int dev) {
+bool checkHW(char* name, const char* gpuType, int dev) {
   cudaDeviceProp deviceProp;
   cudaGetDeviceProperties(&deviceProp, dev);
   strcpy(name, deviceProp.name);
@@ -172,7 +172,7 @@ bool checkHW(char *name, const char *gpuType, int dev) {
   }
 }
 
-int findGraphicsGPU(char *name) {
+int findGraphicsGPU(char* name) {
   int nGraphicsGPU = 0;
   int deviceCount = 0;
   bool bFoundGraphics = false;
@@ -196,7 +196,7 @@ int findGraphicsGPU(char *name) {
   }
 
   for (int dev = 0; dev < deviceCount; ++dev) {
-    bool bGraphics = !checkHW(temp, (const char *)"Tesla", dev);
+    bool bGraphics = !checkHW(temp, (const char*)"Tesla", dev);
     printf("> %s\t\tGPU %d: %s\n", (bGraphics ? "Graphics" : "Compute"), dev,
            temp);
 
@@ -221,8 +221,8 @@ int findGraphicsGPU(char *name) {
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
-  char *ref_file = NULL;
+int main(int argc, char** argv) {
+  char* ref_file = NULL;
 
   pArgc = &argc;
   pArgv = argv;
@@ -234,11 +234,11 @@ int main(int argc, char **argv) {
   printf("%s starting...\n", sSDKsample);
 
   if (argc > 1) {
-    if (checkCmdLineFlag(argc, (const char **)argv, "file")) {
+    if (checkCmdLineFlag(argc, (const char**)argv, "file")) {
       // In this mode, we are running non-OpenGL and doing a compare of the VBO
       // was generated correctly
-      getCmdLineArgumentString(argc, (const char **)argv, "file",
-                               (char **)&ref_file);
+      getCmdLineArgumentString(argc, (const char**)argv, "file",
+                               (char**)&ref_file);
     }
   }
 
@@ -271,7 +271,7 @@ void computeFPS() {
 ////////////////////////////////////////////////////////////////////////////////
 //! Initialize GL
 ////////////////////////////////////////////////////////////////////////////////
-bool initGL(int *argc, char **argv) {
+bool initGL(int* argc, char** argv) {
   glutInit(argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
   glutInitWindowSize(window_width, window_height);
@@ -311,17 +311,17 @@ bool initGL(int *argc, char **argv) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Run a simple test for CUDA
 ////////////////////////////////////////////////////////////////////////////////
-bool runTest(int argc, char **argv, char *ref_file) {
+bool runTest(int argc, char** argv, char* ref_file) {
   // Create the CUTIL timer
   sdkCreateTimer(&timer);
 
   // command line mode only
   if (ref_file != NULL) {
     // This will pick the best possible CUDA capable device
-    int devID = findCudaDevice(argc, (const char **)argv);
+    int devID = findCudaDevice(argc, (const char**)argv);
 
     // create VBO
-    checkCudaErrors(cudaMalloc((void **)&d_vbo_buffer,
+    checkCudaErrors(cudaMalloc((void**)&d_vbo_buffer,
                                mesh_width * mesh_height * 4 * sizeof(float)));
 
     // run the cuda part
@@ -349,8 +349,8 @@ bool runTest(int argc, char **argv, char *ref_file) {
 
     // use command-line specified CUDA device, otherwise use device with highest
     // Gflops/s
-    if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
-      if (gpuGLDeviceInit(argc, (const char **)argv) == -1) {
+    if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
+      if (gpuGLDeviceInit(argc, (const char**)argv) == -1) {
         return false;
       }
     } else {
@@ -384,13 +384,13 @@ bool runTest(int argc, char **argv, char *ref_file) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Run the Cuda part of the computation
 ////////////////////////////////////////////////////////////////////////////////
-void runCuda(struct cudaGraphicsResource **vbo_resource) {
+void runCuda(struct cudaGraphicsResource** vbo_resource) {
   // map OpenGL buffer object for writing from CUDA
-  float4 *dptr;
+  float4* dptr;
   checkCudaErrors(cudaGraphicsMapResources(1, vbo_resource, 0));
   size_t num_bytes;
   checkCudaErrors(cudaGraphicsResourceGetMappedPointer(
-      (void **)&dptr, &num_bytes, *vbo_resource));
+      (void**)&dptr, &num_bytes, *vbo_resource));
   // printf("CUDA mapped VBO: May access %ld bytes\n", num_bytes);
 
   // execute the kernel
@@ -414,9 +414,9 @@ void runCuda(struct cudaGraphicsResource **vbo_resource) {
 #endif
 #endif
 
-void sdkDumpBin2(void *data, unsigned int bytes, const char *filename) {
+void sdkDumpBin2(void* data, unsigned int bytes, const char* filename) {
   printf("sdkDumpBin: <%s>\n", filename);
-  FILE *fp;
+  FILE* fp;
   FOPEN(fp, filename, "wb");
   fwrite(data, bytes, 1, fp);
   fflush(fp);
@@ -426,12 +426,12 @@ void sdkDumpBin2(void *data, unsigned int bytes, const char *filename) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Run the Cuda part of the computation
 ////////////////////////////////////////////////////////////////////////////////
-void runAutoTest(int devID, char **argv, char *ref_file) {
-  char *reference_file = NULL;
-  void *imageData = malloc(mesh_width * mesh_height * sizeof(float));
+void runAutoTest(int devID, char** argv, char* ref_file) {
+  char* reference_file = NULL;
+  void* imageData = malloc(mesh_width * mesh_height * sizeof(float));
 
   // execute the kernel
-  launch_kernel((float4 *)d_vbo_buffer, mesh_width, mesh_height, g_fAnim);
+  launch_kernel((float4*)d_vbo_buffer, mesh_width, mesh_height, g_fAnim);
 
   cudaDeviceSynchronize();
   getLastCudaError("launch_kernel failed");
@@ -455,7 +455,7 @@ void runAutoTest(int devID, char **argv, char *ref_file) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Create VBO
 ////////////////////////////////////////////////////////////////////////////////
-void createVBO(GLuint *vbo, struct cudaGraphicsResource **vbo_res,
+void createVBO(GLuint* vbo, struct cudaGraphicsResource** vbo_res,
                unsigned int vbo_res_flags) {
   assert(vbo);
 
@@ -478,8 +478,7 @@ void createVBO(GLuint *vbo, struct cudaGraphicsResource **vbo_res,
 ////////////////////////////////////////////////////////////////////////////////
 //! Delete VBO
 ////////////////////////////////////////////////////////////////////////////////
-void deleteVBO(GLuint *vbo, struct cudaGraphicsResource *vbo_res) {
-
+void deleteVBO(GLuint* vbo, struct cudaGraphicsResource* vbo_res) {
   // unregister this buffer object with CUDA
   checkCudaErrors(cudaGraphicsUnregisterResource(vbo_res));
 
@@ -551,12 +550,12 @@ void cleanup() {
 ////////////////////////////////////////////////////////////////////////////////
 void keyboard(unsigned char key, int /*x*/, int /*y*/) {
   switch (key) {
-  case (27):
+    case (27):
 #if defined(__APPLE__) || defined(MACOSX)
-    exit(EXIT_SUCCESS);
+      exit(EXIT_SUCCESS);
 #else
-    glutDestroyWindow(glutGetWindow());
-    return;
+      glutDestroyWindow(glutGetWindow());
+      return;
 #endif
   }
 }
@@ -595,16 +594,16 @@ void motion(int x, int y) {
 //! Check if the result is correct or write data to file for external
 //! regression testing
 ////////////////////////////////////////////////////////////////////////////////
-void checkResultCuda(int argc, char **argv, const GLuint &vbo) {
+void checkResultCuda(int argc, char** argv, const GLuint& vbo) {
   if (!d_vbo_buffer) {
     checkCudaErrors(cudaGraphicsUnregisterResource(cuda_vbo_resource));
 
     // map buffer object
     glBindBuffer(GL_ARRAY_BUFFER_ARB, vbo);
-    float *data = (float *)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
+    float* data = (float*)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
 
     // check result
-    if (checkCmdLineFlag(argc, (const char **)argv, "regression")) {
+    if (checkCmdLineFlag(argc, (const char**)argv, "regression")) {
       // write file for regression test
       sdkWriteFile<float>("./data/regression.dat", data,
                           mesh_width * mesh_height * 3, 0.0, false);

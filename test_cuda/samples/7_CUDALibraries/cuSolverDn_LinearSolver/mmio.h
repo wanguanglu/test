@@ -19,15 +19,15 @@ extern "C" {
 
 typedef char MM_typecode[4];
 
-char *mm_typecode_to_str(MM_typecode matcode);
+char* mm_typecode_to_str(MM_typecode matcode);
 
-int mm_read_banner(FILE *f, MM_typecode *matcode);
-int mm_read_mtx_crd_size(FILE *f, int *M, int *N, int *nz);
-int mm_read_mtx_array_size(FILE *f, int *M, int *N);
+int mm_read_banner(FILE* f, MM_typecode* matcode);
+int mm_read_mtx_crd_size(FILE* f, int* M, int* N, int* nz);
+int mm_read_mtx_array_size(FILE* f, int* M, int* N);
 
-int mm_write_banner(FILE *f, MM_typecode matcode);
-int mm_write_mtx_crd_size(FILE *f, int M, int N, int nz);
-int mm_write_mtx_array_size(FILE *f, int M, int N);
+int mm_write_banner(FILE* f, MM_typecode matcode);
+int mm_write_mtx_crd_size(FILE* f, int M, int N, int nz);
+int mm_write_mtx_array_size(FILE* f, int M, int N);
 
 /********************* MM_typecode query fucntions ***************************/
 
@@ -68,7 +68,7 @@ int mm_is_valid(MM_typecode matcode); /* too complex for a macro */
 #define mm_set_skew(typecode) ((*typecode)[3] = 'K')
 #define mm_set_hermitian(typecode) ((*typecode)[3] = 'H')
 
-#define mm_clear_typecode(typecode)                                            \
+#define mm_clear_typecode(typecode) \
   ((*typecode)[0] = (*typecode)[1] = (*typecode)[2] = ' ', (*typecode)[3] = 'G')
 
 #define mm_initialize_typecode(typecode) mm_clear_typecode(typecode)
@@ -113,18 +113,18 @@ int mm_is_valid(MM_typecode matcode); /* too complex for a macro */
 #define MM_PATTERN_STR "pattern"
 
 /*  high level routines */
-int mm_read_mtx_crd(char *fname, int *M, int *N, int *nz, int **I, int **J,
-                    double **val, MM_typecode *matcode);
+int mm_read_mtx_crd(char* fname, int* M, int* N, int* nz, int** I, int** J,
+                    double** val, MM_typecode* matcode);
 
 int mm_write_mtx_crd(char fname[], int M, int N, int nz, int I[], int J[],
                      double val[], MM_typecode matcode);
-int mm_read_mtx_crd_data(FILE *f, int M, int N, int nz, int I[], int J[],
+int mm_read_mtx_crd_data(FILE* f, int M, int N, int nz, int I[], int J[],
                          double val[], MM_typecode matcode);
-int mm_read_mtx_crd_entry(FILE *f, int *I, int *J, double *real, double *img,
+int mm_read_mtx_crd_entry(FILE* f, int* I, int* J, double* real, double* img,
                           MM_typecode matcode);
 
-int mm_read_unsymmetric_sparse(const char *fname, int *M_, int *N_, int *nz_,
-                               double **val_, int **I_, int **J_);
+int mm_read_unsymmetric_sparse(const char* fname, int* M_, int* N_, int* nz_,
+                               double** val_, int** I_, int** J_);
 
 #if defined(__cplusplus)
 }

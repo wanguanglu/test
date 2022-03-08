@@ -36,14 +36,13 @@ texture<float, 2, cudaReadModeElementType> texTarget;
 /// \param[out] Iz      temporal derivative
 ///////////////////////////////////////////////////////////////////////////////
 __global__ void ComputeDerivativesKernel(int width, int height, int stride,
-                                         float *Ix, float *Iy, float *Iz) {
+                                         float* Ix, float* Iy, float* Iz) {
   const int ix = threadIdx.x + blockIdx.x * blockDim.x;
   const int iy = threadIdx.y + blockIdx.y * blockDim.y;
 
   const int pos = ix + iy * stride;
 
-  if (ix >= width || iy >= height)
-    return;
+  if (ix >= width || iy >= height) return;
 
   float dx = 1.0f / (float)width;
   float dy = 1.0f / (float)height;
@@ -98,8 +97,8 @@ __global__ void ComputeDerivativesKernel(int width, int height, int stride,
 /// \param[out] Iy  y derivative
 /// \param[out] Iz  temporal derivative
 ///////////////////////////////////////////////////////////////////////////////
-static void ComputeDerivatives(const float *I0, const float *I1, int w, int h,
-                               int s, float *Ix, float *Iy, float *Iz) {
+static void ComputeDerivatives(const float* I0, const float* I1, int w, int h,
+                               int s, float* Ix, float* Iy, float* Iz) {
   dim3 threads(32, 6);
   dim3 blocks(iDivUp(w, threads.x), iDivUp(h, threads.y));
 

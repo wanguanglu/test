@@ -33,23 +33,32 @@
 #define GL_VERTEX_PROGRAM_POINT_SIZE_NV 0x8642
 
 ParticleRenderer::ParticleRenderer()
-    : m_pos(0), m_numParticles(0), m_pointSize(1.0f), m_spriteSize(2.0f),
-      m_vertexShader(0), m_vertexShaderPoints(0), m_pixelShader(0),
-      m_programPoints(0), m_programSprites(0), m_texture(0), m_pbo(0),
-      m_vboColor(0), m_bFp64Positions(false) {
+    : m_pos(0),
+      m_numParticles(0),
+      m_pointSize(1.0f),
+      m_spriteSize(2.0f),
+      m_vertexShader(0),
+      m_vertexShaderPoints(0),
+      m_pixelShader(0),
+      m_programPoints(0),
+      m_programSprites(0),
+      m_texture(0),
+      m_pbo(0),
+      m_vboColor(0),
+      m_bFp64Positions(false) {
   _initGL();
 }
 
 ParticleRenderer::~ParticleRenderer() { m_pos = 0; }
 
-void ParticleRenderer::resetPBO() { glDeleteBuffers(1, (GLuint *)&m_pbo); }
+void ParticleRenderer::resetPBO() { glDeleteBuffers(1, (GLuint*)&m_pbo); }
 
-void ParticleRenderer::setPositions(float *pos, int numParticles) {
+void ParticleRenderer::setPositions(float* pos, int numParticles) {
   m_pos = pos;
   m_numParticles = numParticles;
 
   if (!m_pbo) {
-    glGenBuffers(1, (GLuint *)&m_pbo);
+    glGenBuffers(1, (GLuint*)&m_pbo);
   }
 
   glBindBuffer(GL_ARRAY_BUFFER_ARB, m_pbo);
@@ -59,13 +68,13 @@ void ParticleRenderer::setPositions(float *pos, int numParticles) {
   SDK_CHECK_ERROR_GL();
 }
 
-void ParticleRenderer::setPositions(double *pos, int numParticles) {
+void ParticleRenderer::setPositions(double* pos, int numParticles) {
   m_bFp64Positions = true;
   m_pos_fp64 = pos;
   m_numParticles = numParticles;
 
   if (!m_pbo) {
-    glGenBuffers(1, (GLuint *)&m_pbo);
+    glGenBuffers(1, (GLuint*)&m_pbo);
   }
 
   glBindBuffer(GL_ARRAY_BUFFER_ARB, m_pbo);
@@ -75,7 +84,7 @@ void ParticleRenderer::setPositions(double *pos, int numParticles) {
   SDK_CHECK_ERROR_GL();
 }
 
-void ParticleRenderer::setColors(float *color, int numParticles) {
+void ParticleRenderer::setColors(float* color, int numParticles) {
   glBindBuffer(GL_ARRAY_BUFFER_ARB, m_vboColor);
   glBufferData(GL_ARRAY_BUFFER_ARB, numParticles * 4 * sizeof(float), color,
                GL_STATIC_DRAW_ARB);
@@ -83,16 +92,14 @@ void ParticleRenderer::setColors(float *color, int numParticles) {
 }
 
 void ParticleRenderer::setBaseColor(float color[4]) {
-  for (int i = 0; i < 4; i++)
-    m_baseColor[i] = color[i];
+  for (int i = 0; i < 4; i++) m_baseColor[i] = color[i];
 }
 
 void ParticleRenderer::setPBO(unsigned int pbo, int numParticles, bool fp64) {
   m_pbo = pbo;
   m_numParticles = numParticles;
 
-  if (fp64)
-    m_bFp64Positions = true;
+  if (fp64) m_bFp64Positions = true;
 }
 
 void ParticleRenderer::_drawPoints(bool color) {
@@ -139,76 +146,76 @@ void ParticleRenderer::_drawPoints(bool color) {
 
 void ParticleRenderer::display(DisplayMode mode /* = PARTICLE_POINTS */) {
   switch (mode) {
-  case PARTICLE_POINTS:
-    glColor3f(1, 1, 1);
-    glPointSize(m_pointSize);
-    glUseProgram(m_programPoints);
-    _drawPoints();
-    glUseProgram(0);
+    case PARTICLE_POINTS:
+      glColor3f(1, 1, 1);
+      glPointSize(m_pointSize);
+      glUseProgram(m_programPoints);
+      _drawPoints();
+      glUseProgram(0);
+      break;
+
+    case PARTICLE_SPRITES:
+    default: {
+      // setup point sprites
+      glEnable(GL_POINT_SPRITE_ARB);
+      glTexEnvi(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
+      glEnable(GL_VERTEX_PROGRAM_POINT_SIZE_NV);
+      glPointSize(m_spriteSize);
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+      glEnable(GL_BLEND);
+      glDepthMask(GL_FALSE);
+
+      glUseProgram(m_programSprites);
+      GLuint texLoc = glGetUniformLocation(m_programSprites, "splatTexture");
+      glUniform1i(texLoc, 0);
+
+      glActiveTextureARB(GL_TEXTURE0_ARB);
+      glBindTexture(GL_TEXTURE_2D, m_texture);
+
+      glColor3f(1, 1, 1);
+      glSecondaryColor3fv(m_baseColor);
+
+      _drawPoints();
+
+      glUseProgram(0);
+
+      glDisable(GL_POINT_SPRITE_ARB);
+      glDisable(GL_BLEND);
+      glDepthMask(GL_TRUE);
+    }
+
     break;
 
-  case PARTICLE_SPRITES:
-  default: {
-    // setup point sprites
-    glEnable(GL_POINT_SPRITE_ARB);
-    glTexEnvi(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
-    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE_NV);
-    glPointSize(m_spriteSize);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    glEnable(GL_BLEND);
-    glDepthMask(GL_FALSE);
+    case PARTICLE_SPRITES_COLOR: {
+      // setup point sprites
+      glEnable(GL_POINT_SPRITE_ARB);
+      glTexEnvi(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
+      glEnable(GL_VERTEX_PROGRAM_POINT_SIZE_NV);
+      glPointSize(m_spriteSize);
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+      glEnable(GL_BLEND);
+      glDepthMask(GL_FALSE);
 
-    glUseProgram(m_programSprites);
-    GLuint texLoc = glGetUniformLocation(m_programSprites, "splatTexture");
-    glUniform1i(texLoc, 0);
+      glUseProgram(m_programSprites);
+      GLuint texLoc = glGetUniformLocation(m_programSprites, "splatTexture");
+      glUniform1i(texLoc, 0);
 
-    glActiveTextureARB(GL_TEXTURE0_ARB);
-    glBindTexture(GL_TEXTURE_2D, m_texture);
+      glActiveTextureARB(GL_TEXTURE0_ARB);
+      glBindTexture(GL_TEXTURE_2D, m_texture);
 
-    glColor3f(1, 1, 1);
-    glSecondaryColor3fv(m_baseColor);
+      glColor3f(1, 1, 1);
+      glSecondaryColor3fv(m_baseColor);
 
-    _drawPoints();
+      _drawPoints(true);
 
-    glUseProgram(0);
+      glUseProgram(0);
 
-    glDisable(GL_POINT_SPRITE_ARB);
-    glDisable(GL_BLEND);
-    glDepthMask(GL_TRUE);
-  }
+      glDisable(GL_POINT_SPRITE_ARB);
+      glDisable(GL_BLEND);
+      glDepthMask(GL_TRUE);
+    }
 
-  break;
-
-  case PARTICLE_SPRITES_COLOR: {
-    // setup point sprites
-    glEnable(GL_POINT_SPRITE_ARB);
-    glTexEnvi(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
-    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE_NV);
-    glPointSize(m_spriteSize);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    glEnable(GL_BLEND);
-    glDepthMask(GL_FALSE);
-
-    glUseProgram(m_programSprites);
-    GLuint texLoc = glGetUniformLocation(m_programSprites, "splatTexture");
-    glUniform1i(texLoc, 0);
-
-    glActiveTextureARB(GL_TEXTURE0_ARB);
-    glBindTexture(GL_TEXTURE_2D, m_texture);
-
-    glColor3f(1, 1, 1);
-    glSecondaryColor3fv(m_baseColor);
-
-    _drawPoints(true);
-
-    glUseProgram(0);
-
-    glDisable(GL_POINT_SPRITE_ARB);
-    glDisable(GL_BLEND);
-    glDepthMask(GL_TRUE);
-  }
-
-  break;
+    break;
   }
 
   SDK_CHECK_ERROR_GL();
@@ -252,8 +259,8 @@ const char pixelShader[] = {
     "    vec4 color = (0.6 + 0.4 * gl_Color) * texture2D(splatTexture, "
     "gl_TexCoord[0].st); \n"
     "    gl_FragColor =                                                     \n"
-    "         color * color2;\n" // mix(vec4(0.1, 0.0, 0.0, color.w), color2,
-                                 // color.w);\n"
+    "         color * color2;\n"  // mix(vec4(0.1, 0.0, 0.0, color.w), color2,
+                                  // color.w);\n"
     "}                                                                      "
     "\n"};
 
@@ -262,11 +269,11 @@ void ParticleRenderer::_initGL() {
   m_vertexShaderPoints = glCreateShader(GL_VERTEX_SHADER);
   m_pixelShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-  const char *v = vertexShader;
-  const char *p = pixelShader;
+  const char* v = vertexShader;
+  const char* p = pixelShader;
   glShaderSource(m_vertexShader, 1, &v, 0);
   glShaderSource(m_pixelShader, 1, &p, 0);
-  const char *vp = vertexShaderPoints;
+  const char* vp = vertexShaderPoints;
   glShaderSource(m_vertexShaderPoints, 1, &vp, 0);
 
   glCompileShader(m_vertexShader);
@@ -284,7 +291,7 @@ void ParticleRenderer::_initGL() {
 
   _createTexture(32);
 
-  glGenBuffers(1, (GLuint *)&m_vboColor);
+  glGenBuffers(1, (GLuint*)&m_vboColor);
   glBindBuffer(GL_ARRAY_BUFFER_ARB, m_vboColor);
   glBufferData(GL_ARRAY_BUFFER_ARB, m_numParticles * 4 * sizeof(float), 0,
                GL_STATIC_DRAW_ARB);
@@ -308,9 +315,9 @@ inline float evalHermite(float pA, float pB, float vA, float vB, float u) {
   return (B0 * pA + B1 * pB + B2 * vA + B3 * vB);
 }
 
-unsigned char *createGaussianMap(int N) {
-  float *M = new float[2 * N * N];
-  unsigned char *B = new unsigned char[4 * N * N];
+unsigned char* createGaussianMap(int N) {
+  float* M = new float[2 * N * N];
+  unsigned char* B = new unsigned char[4 * N * N];
   float X, Y, Y2, Dist;
   float Incr = 2.0f / N;
   int i = 0;
@@ -325,8 +332,7 @@ unsigned char *createGaussianMap(int N) {
     for (int x = 0; x < N; x++, X += Incr, i += 2, j += 4) {
       Dist = (float)sqrtf(X * X + Y2);
 
-      if (Dist > 1)
-        Dist = 1;
+      if (Dist > 1) Dist = 1;
 
       M[i + 1] = M[i] = evalHermite(1.0f, 0, 0, 0, Dist);
       B[j + 3] = B[j + 2] = B[j + 1] = B[j] = (unsigned char)(M[i] * 255);
@@ -338,8 +344,8 @@ unsigned char *createGaussianMap(int N) {
 }
 
 void ParticleRenderer::_createTexture(int resolution) {
-  unsigned char *data = createGaussianMap(resolution);
-  glGenTextures(1, (GLuint *)&m_texture);
+  unsigned char* data = createGaussianMap(resolution);
+  glGenTextures(1, (GLuint*)&m_texture);
   glBindTexture(GL_TEXTURE_2D, m_texture);
   glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,

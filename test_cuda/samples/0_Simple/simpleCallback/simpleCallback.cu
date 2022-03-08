@@ -37,29 +37,27 @@ const int N_elements_per_workload = 100000;
 CUTBarrier thread_barrier;
 
 void CUDART_CB myStreamCallback(cudaStream_t event, cudaError_t status,
-                                void *data);
+                                void* data);
 
 struct heterogeneous_workload {
   int id;
   int cudaDeviceID;
 
-  int *h_data;
-  int *d_data;
+  int* h_data;
+  int* d_data;
   cudaStream_t stream;
 
   bool success;
 };
 
-__global__ void incKernel(int *data, int N) {
+__global__ void incKernel(int* data, int N) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
 
-  if (i < N)
-    data[i]++;
+  if (i < N) data[i]++;
 }
 
-CUT_THREADPROC launch(void *void_arg) {
-
-  heterogeneous_workload *workload = (heterogeneous_workload *)void_arg;
+CUT_THREADPROC launch(void* void_arg) {
+  heterogeneous_workload* workload = (heterogeneous_workload*)void_arg;
 
   // Select GPU for this CPU thread
   checkCudaErrors(cudaSetDevice(workload->cudaDeviceID));
@@ -100,8 +98,8 @@ CUT_THREADPROC launch(void *void_arg) {
   // CPU thread end of life, GPU continues to process data...
 }
 
-CUT_THREADPROC postprocess(void *void_arg) {
-  heterogeneous_workload *workload = (heterogeneous_workload *)void_arg;
+CUT_THREADPROC postprocess(void* void_arg) {
+  heterogeneous_workload* workload = (heterogeneous_workload*)void_arg;
   // ... GPU is done with processing, continue on new CPU thread...
 
   // Select GPU for this CPU thread
@@ -126,7 +124,7 @@ CUT_THREADPROC postprocess(void *void_arg) {
 }
 
 void CUDART_CB myStreamCallback(cudaStream_t stream, cudaError_t status,
-                                void *data) {
+                                void* data) {
   // Check status of GPU after stream operations are done
   checkCudaErrors(status);
 
@@ -134,9 +132,9 @@ void CUDART_CB myStreamCallback(cudaStream_t stream, cudaError_t status,
   cutStartThread(postprocess, data);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   int N_gpus, max_gpus = 0;
-  int gpuInfo[32]; // assume a maximum of 32 GPUs in a system configuration
+  int gpuInfo[32];  // assume a maximum of 32 GPUs in a system configuration
 
   printf("Starting simpleCallback\n");
 
@@ -165,9 +163,9 @@ int main(int argc, char **argv) {
 
   printf("%d GPUs available to run Callback Functions\n", max_gpus);
 
-  heterogeneous_workload *workloads;
-  workloads = (heterogeneous_workload *)malloc(N_workloads *
-                                               sizeof(heterogeneous_workload));
+  heterogeneous_workload* workloads;
+  workloads = (heterogeneous_workload*)malloc(N_workloads *
+                                              sizeof(heterogeneous_workload));
   ;
   thread_barrier = cutCreateBarrier(N_workloads);
 
@@ -176,7 +174,7 @@ int main(int argc, char **argv) {
 
   for (int i = 0; i < N_workloads; ++i) {
     workloads[i].id = i;
-    workloads[i].cudaDeviceID = gpuInfo[i % max_gpus]; // i % N_gpus;
+    workloads[i].cudaDeviceID = gpuInfo[i % max_gpus];  // i % N_gpus;
 
     cutStartThread(launch, &workloads[i]);
   }

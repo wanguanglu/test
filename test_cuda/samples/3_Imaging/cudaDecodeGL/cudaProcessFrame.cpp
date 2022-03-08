@@ -31,7 +31,7 @@ __constant__ float constHueColorSpaceMat[9];
 __constant__ float constAlpha;
 
 extern "C" CUresult updateConstantMemory_drvapi(CUmodule module,
-                                                float *hueCSC) {
+                                                float* hueCSC) {
   CUdeviceptr d_constHueCSC, d_constAlpha;
   size_t d_cscBytes, d_alphaBytes;
 
@@ -43,14 +43,14 @@ extern "C" CUresult updateConstantMemory_drvapi(CUmodule module,
   CUresult error = CUDA_SUCCESS;
 
   // Copy the constants to video memory
-  cuMemcpyHtoD(d_constHueCSC, reinterpret_cast<const void *>(hueCSC),
+  cuMemcpyHtoD(d_constHueCSC, reinterpret_cast<const void*>(hueCSC),
                d_cscBytes);
   getLastCudaDrvErrorMsg(
       "cuMemcpyHtoD (d_constHueCSC) copy to Constant Memory failed");
 
   uint32 cudaAlpha = ((uint32)0xff << 24);
 
-  cuMemcpyHtoD(d_constAlpha, reinterpret_cast<const void *>(&cudaAlpha),
+  cuMemcpyHtoD(d_constAlpha, reinterpret_cast<const void*>(&cudaAlpha),
                d_alphaBytes);
   getLastCudaDrvErrorMsg(
       "cuMemcpyHtoD (constAlpha) copy to Constant Memory failed");
@@ -58,7 +58,7 @@ extern "C" CUresult updateConstantMemory_drvapi(CUmodule module,
   return error;
 }
 
-extern "C" void setColorSpaceMatrix(eColorSpace CSC, float *hueCSC, float hue) {
+extern "C" void setColorSpaceMatrix(eColorSpace CSC, float* hueCSC, float hue) {
   float hueSin = sin(hue);
   float hueCos = cos(hue);
 
@@ -88,10 +88,12 @@ extern "C" void setColorSpaceMatrix(eColorSpace CSC, float *hueCSC, float hue) {
 }
 
 // We call this function to launch the CUDA kernel (NV12 to ARGB).
-extern "C" CUresult
-cudaLaunchNV12toARGBDrv(CUdeviceptr d_srcNV12, size_t nSourcePitch,
-                        CUdeviceptr d_dstARGB, size_t nDestPitch, uint32 width,
-                        uint32 height, CUfunction fpFunc, CUstream streamID) {
+extern "C" CUresult cudaLaunchNV12toARGBDrv(CUdeviceptr d_srcNV12,
+                                            size_t nSourcePitch,
+                                            CUdeviceptr d_dstARGB,
+                                            size_t nDestPitch, uint32 width,
+                                            uint32 height, CUfunction fpFunc,
+                                            CUstream streamID) {
   CUresult status;
   // Each thread will output 2 pixels at a time.  The grid size width is half
   // as large because of this
@@ -102,7 +104,7 @@ cudaLaunchNV12toARGBDrv(CUdeviceptr d_srcNV12, size_t nSourcePitch,
 #if CUDA_VERSION >= 4000
   // This is the new CUDA 4.0 API for Kernel Parameter passing and Kernel
   // Launching (simpler method)
-  void *args[] = {&d_srcNV12,  &nSourcePitch, &d_dstARGB,
+  void* args[] = {&d_srcNV12,  &nSourcePitch, &d_dstARGB,
                   &nDestPitch, &width,        &height};
 
   // new CUDA 4.0 Driver API Kernel launch call

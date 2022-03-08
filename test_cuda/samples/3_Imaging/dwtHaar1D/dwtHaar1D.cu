@@ -89,13 +89,13 @@ const unsigned int NUM_BANKS = 16;
 
 ////////////////////////////////////////////////////////////////////////////////
 // declaration, forward
-void runTest(int argc, char **argv);
-bool getLevels(unsigned int len, unsigned int *levels);
+void runTest(int argc, char** argv);
+bool getLevels(unsigned int len, unsigned int* levels);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   // run test
   runTest(argc, argv);
 }
@@ -103,40 +103,41 @@ int main(int argc, char **argv) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Perform the wavelet decomposition
 ////////////////////////////////////////////////////////////////////////////////
-void runTest(int argc, char **argv) {
-  bool bResult = false; // flag for final validation of the results
+void runTest(int argc, char** argv) {
+  bool bResult = false;  // flag for final validation of the results
 
   char *s_fname = NULL, *r_gold_fname = NULL;
   char r_fname[256];
-  const char usage[] = {"\nUsage:\n"
-                        "  dwtHaar1D --signal=<signal_file> "
-                        "--result=<result_file> --gold=<gold_file>\n\n"
-                        "  <signal_file> Input file containing the signal\n"
-                        "  <result_file> Output file storing the result of the "
-                        "wavelet decomposition\n"
-                        "  <gold_file>   Input file containing the reference "
-                        "result of the wavelet decomposition\n"
-                        "\nExample:\n"
-                        "  ./dwtHaar1D\n"
-                        "       --signal=signal.dat\n"
-                        "       --result=result.dat\n"
-                        "       --gold=regression.gold.dat\n"};
+  const char usage[] = {
+      "\nUsage:\n"
+      "  dwtHaar1D --signal=<signal_file> "
+      "--result=<result_file> --gold=<gold_file>\n\n"
+      "  <signal_file> Input file containing the signal\n"
+      "  <result_file> Output file storing the result of the "
+      "wavelet decomposition\n"
+      "  <gold_file>   Input file containing the reference "
+      "result of the wavelet decomposition\n"
+      "\nExample:\n"
+      "  ./dwtHaar1D\n"
+      "       --signal=signal.dat\n"
+      "       --result=result.dat\n"
+      "       --gold=regression.gold.dat\n"};
 
   printf("%s Starting...\n\n", argv[0]);
 
   // use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  findCudaDevice(argc, (const char **)argv);
+  findCudaDevice(argc, (const char**)argv);
 
   // file names, either specified as cmd line args or use default
   if (argc == 4) {
     char *tmp_sfname, *tmp_rfname, *tmp_goldfname;
 
-    if ((getCmdLineArgumentString(argc, (const char **)argv, "signal",
+    if ((getCmdLineArgumentString(argc, (const char**)argv, "signal",
                                   &tmp_sfname) != true) ||
-        (getCmdLineArgumentString(argc, (const char **)argv, "result",
+        (getCmdLineArgumentString(argc, (const char**)argv, "result",
                                   &tmp_rfname) != true) ||
-        (getCmdLineArgumentString(argc, (const char **)argv, "gold",
+        (getCmdLineArgumentString(argc, (const char**)argv, "gold",
                                   &tmp_goldfname) != true)) {
       fprintf(stderr, "Invalid input syntax.\n%s", usage);
       exit(EXIT_FAILURE);
@@ -157,7 +158,7 @@ void runTest(int argc, char **argv) {
 
   // read in signal
   unsigned int slength = 0;
-  float *signal = NULL;
+  float* signal = NULL;
 
   if (s_fname == NULL) {
     fprintf(stderr, "Cannot find the file containing the signal.\n%s", usage);
@@ -195,11 +196,11 @@ void runTest(int argc, char **argv) {
   }
 
   // device in data
-  float *d_idata = NULL;
+  float* d_idata = NULL;
   // device out data
-  float *d_odata = NULL;
+  float* d_odata = NULL;
   // device approx_final data
-  float *approx_final = NULL;
+  float* approx_final = NULL;
   // The very final approximation coefficient has to be written to the output
   // data, all others are reused as input data in the next global step and
   // therefore have to be written to the input data again.
@@ -209,9 +210,9 @@ void runTest(int argc, char **argv) {
 
   // allocate device mem
   const unsigned int smem_size = sizeof(float) * slength;
-  checkCudaErrors(cudaMalloc((void **)&d_idata, smem_size));
-  checkCudaErrors(cudaMalloc((void **)&d_odata, smem_size));
-  checkCudaErrors(cudaMalloc((void **)&approx_final, smem_size));
+  checkCudaErrors(cudaMalloc((void**)&d_idata, smem_size));
+  checkCudaErrors(cudaMalloc((void**)&d_odata, smem_size));
+  checkCudaErrors(cudaMalloc((void**)&approx_final, smem_size));
   // copy input data to device
   checkCudaErrors(
       cudaMemcpy(d_idata, signal, smem_size, cudaMemcpyHostToDevice));
@@ -300,7 +301,7 @@ void runTest(int argc, char **argv) {
 
   // get the result back from the server
   // allocate mem for the result
-  float *odata = (float *)malloc(smem_size);
+  float* odata = (float*)malloc(smem_size);
   checkCudaErrors(
       cudaMemcpy(odata, d_odata, smem_size, cudaMemcpyDeviceToHost));
 
@@ -335,7 +336,7 @@ void runTest(int argc, char **argv) {
 
   // load the reference solution
   unsigned int len_reference = 0;
-  float *reference = NULL;
+  float* reference = NULL;
 
   if (r_gold_fname == NULL) {
     fprintf(stderr,
@@ -355,7 +356,6 @@ void runTest(int argc, char **argv) {
   if (sdkReadFile(r_gold_fname, &reference, &len_reference, false) == true) {
     printf("Reading reference result from \"%s\"\n", r_gold_fname);
   } else {
-
     // cudaDeviceReset causes the driver to clean up all state. While
     // not mandatory in normal operation, it is good practice.  It is also
     // needed to ensure correct operation when the application is being
@@ -400,7 +400,7 @@ void runTest(int argc, char **argv) {
 //! @param   levels  number of decomposition levels necessary to perform a full
 //!           decomposition
 ////////////////////////////////////////////////////////////////////////////////
-bool getLevels(unsigned int len, unsigned int *levels) {
+bool getLevels(unsigned int len, unsigned int* levels) {
   bool retval = false;
 
   // currently signals up to a length of 2^20 supported

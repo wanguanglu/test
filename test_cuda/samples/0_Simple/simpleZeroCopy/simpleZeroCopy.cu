@@ -27,7 +27,7 @@
 #endif
 
 /* Add two vectors on the GPU */
-__global__ void vectorAddGPU(float *a, float *b, float *c, int N) {
+__global__ void vectorAddGPU(float* a, float* b, float* c, int N) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (idx < N) {
@@ -43,29 +43,30 @@ bool bPinGenericMemory = false;
 #define MEMORY_ALIGNMENT 4096
 #define ALIGN_UP(x, size) (((size_t)x + (size - 1)) & (~(size - 1)))
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   int n, nelem, deviceCount;
-  int idev = 0; // use default device 0
-  char *device = NULL;
+  int idev = 0;  // use default device 0
+  char* device = NULL;
   unsigned int flags;
   size_t bytes;
-  float *a, *b, *c;          // Pinned memory allocated on the CPU
-  float *a_UA, *b_UA, *c_UA; // Non-4K Aligned Pinned memory on the CPU
-  float *d_a, *d_b, *d_c;    // Device pointers for mapped memory
+  float *a, *b, *c;           // Pinned memory allocated on the CPU
+  float *a_UA, *b_UA, *c_UA;  // Non-4K Aligned Pinned memory on the CPU
+  float *d_a, *d_b, *d_c;     // Device pointers for mapped memory
   float errorNorm, refNorm, ref, diff;
   cudaDeviceProp deviceProp;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "help")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "help")) {
     printf("Usage:  simpleZeroCopy [OPTION]\n\n");
     printf("Options:\n");
     printf("  --device=[device #]  Specify the device to be used\n");
-    printf("  --use_generic_memory (optional) use generic page-aligned for "
-           "system memory\n");
+    printf(
+        "  --use_generic_memory (optional) use generic page-aligned for "
+        "system memory\n");
     return EXIT_SUCCESS;
   }
 
   /* Get the device selected by the user or default to 0, and then set it. */
-  if (getCmdLineArgumentString(argc, (const char **)argv, "device", &device)) {
+  if (getCmdLineArgumentString(argc, (const char**)argv, "device", &device)) {
     cudaGetDeviceCount(&deviceCount);
     idev = atoi(device);
 
@@ -82,10 +83,10 @@ int main(int argc, char **argv) {
     exit(EXIT_SUCCESS);
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "use_generic_memory")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "use_generic_memory")) {
 #if defined(__APPLE__) || defined(MACOSX)
-    bPinGenericMemory = false; // Generic Pinning of System Paged memory is not
-                               // currently supported on Mac OSX
+    bPinGenericMemory = false;  // Generic Pinning of System Paged memory is not
+                                // currently supported on Mac OSX
 #else
     bPinGenericMemory = true;
 #endif
@@ -161,15 +162,15 @@ int main(int argc, char **argv) {
 
   if (bPinGenericMemory) {
 #if CUDART_VERSION >= 4000
-    a_UA = (float *)malloc(bytes + MEMORY_ALIGNMENT);
-    b_UA = (float *)malloc(bytes + MEMORY_ALIGNMENT);
-    c_UA = (float *)malloc(bytes + MEMORY_ALIGNMENT);
+    a_UA = (float*)malloc(bytes + MEMORY_ALIGNMENT);
+    b_UA = (float*)malloc(bytes + MEMORY_ALIGNMENT);
+    c_UA = (float*)malloc(bytes + MEMORY_ALIGNMENT);
 
     // We need to ensure memory is aligned to 4K (so we will need to padd memory
     // accordingly)
-    a = (float *)ALIGN_UP(a_UA, MEMORY_ALIGNMENT);
-    b = (float *)ALIGN_UP(b_UA, MEMORY_ALIGNMENT);
-    c = (float *)ALIGN_UP(c_UA, MEMORY_ALIGNMENT);
+    a = (float*)ALIGN_UP(a_UA, MEMORY_ALIGNMENT);
+    b = (float*)ALIGN_UP(b_UA, MEMORY_ALIGNMENT);
+    c = (float*)ALIGN_UP(c_UA, MEMORY_ALIGNMENT);
 
     checkCudaErrors(cudaHostRegister(a, bytes, CU_MEMHOSTALLOC_DEVICEMAP));
     checkCudaErrors(cudaHostRegister(b, bytes, CU_MEMHOSTALLOC_DEVICEMAP));
@@ -178,9 +179,9 @@ int main(int argc, char **argv) {
   } else {
 #if CUDART_VERSION >= 2020
     flags = cudaHostAllocMapped;
-    checkCudaErrors(cudaHostAlloc((void **)&a, bytes, flags));
-    checkCudaErrors(cudaHostAlloc((void **)&b, bytes, flags));
-    checkCudaErrors(cudaHostAlloc((void **)&c, bytes, flags));
+    checkCudaErrors(cudaHostAlloc((void**)&a, bytes, flags));
+    checkCudaErrors(cudaHostAlloc((void**)&b, bytes, flags));
+    checkCudaErrors(cudaHostAlloc((void**)&c, bytes, flags));
 #endif
   }
 
@@ -195,9 +196,9 @@ int main(int argc, char **argv) {
      memory space. */
 
 #if CUDART_VERSION >= 2020
-  checkCudaErrors(cudaHostGetDevicePointer((void **)&d_a, (void *)a, 0));
-  checkCudaErrors(cudaHostGetDevicePointer((void **)&d_b, (void *)b, 0));
-  checkCudaErrors(cudaHostGetDevicePointer((void **)&d_c, (void *)c, 0));
+  checkCudaErrors(cudaHostGetDevicePointer((void**)&d_a, (void*)a, 0));
+  checkCudaErrors(cudaHostGetDevicePointer((void**)&d_b, (void*)b, 0));
+  checkCudaErrors(cudaHostGetDevicePointer((void**)&d_c, (void*)c, 0));
 #endif
 
   /* Call the GPU kernel using the CPU pointers residing in CPU mapped memory.

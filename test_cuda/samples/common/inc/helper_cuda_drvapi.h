@@ -47,7 +47,7 @@ inline int ftoi(float value) {
 #define checkCudaErrors(err) __checkCudaErrors(err, __FILE__, __LINE__)
 
 // These are the inline versions for all of the SDK helper functions
-inline void __checkCudaErrors(CUresult err, const char *file, const int line) {
+inline void __checkCudaErrors(CUresult err, const char* file, const int line) {
   if (CUDA_SUCCESS != err) {
     fprintf(stderr,
             "checkCudaErrors() Driver API error = %04d \"%s\" from file <%s>, "
@@ -62,10 +62,10 @@ inline void __checkCudaErrors(CUresult err, const char *file, const int line) {
 #undef getLastCudaDrvErrorMsg
 #endif
 
-#define getLastCudaDrvErrorMsg(msg)                                            \
+#define getLastCudaDrvErrorMsg(msg) \
   __getLastCudaDrvErrorMsg(msg, __FILE__, __LINE__)
 
-inline void __getLastCudaDrvErrorMsg(const char *msg, const char *file,
+inline void __getLastCudaDrvErrorMsg(const char* msg, const char* file,
                                      const int line) {
   CUresult err = cuCtxSynchronize();
 
@@ -81,7 +81,7 @@ inline void __getLastCudaDrvErrorMsg(const char *msg, const char *file,
 
 // This function wraps the CUDA Driver API into a template function
 template <class T>
-inline void getCudaAttribute(T *attribute, CUdevice_attribute device_attribute,
+inline void getCudaAttribute(T* attribute, CUdevice_attribute device_attribute,
                              int device) {
   CUresult error_result =
       cuDeviceGetAttribute(attribute, device_attribute, device);
@@ -99,20 +99,20 @@ inline int _ConvertSMVer2CoresDRV(int major, int minor) {
   // Defines for GPU Architecture types (using the SM version to determine the #
   // of cores per SM
   typedef struct {
-    int SM; // 0xMm (hexidecimal notation), M = SM Major version, and m = SM
-            // minor version
+    int SM;  // 0xMm (hexidecimal notation), M = SM Major version, and m = SM
+             // minor version
     int Cores;
   } sSMtoCores;
 
   sSMtoCores nGpuArchCoresPerSM[] = {
-      {0x20, 32},  // Fermi Generation (SM 2.0) GF100 class
-      {0x21, 48},  // Fermi Generation (SM 2.1) GF10x class
-      {0x30, 192}, // Kepler Generation (SM 3.0) GK10x class
-      {0x32, 192}, // Kepler Generation (SM 3.2) GK10x class
-      {0x35, 192}, // Kepler Generation (SM 3.5) GK11x class
-      {0x37, 192}, // Kepler Generation (SM 3.7) GK21x class
-      {0x50, 128}, // Maxwell Generation (SM 5.0) GM10x class
-      {0x52, 128}, // Maxwell Generation (SM 5.2) GM20x class
+      {0x20, 32},   // Fermi Generation (SM 2.0) GF100 class
+      {0x21, 48},   // Fermi Generation (SM 2.1) GF10x class
+      {0x30, 192},  // Kepler Generation (SM 3.0) GK10x class
+      {0x32, 192},  // Kepler Generation (SM 3.2) GK10x class
+      {0x35, 192},  // Kepler Generation (SM 3.5) GK11x class
+      {0x37, 192},  // Kepler Generation (SM 3.7) GK21x class
+      {0x50, 128},  // Maxwell Generation (SM 5.0) GM10x class
+      {0x52, 128},  // Maxwell Generation (SM 5.2) GM20x class
       {-1, -1}};
 
   int index = 0;
@@ -136,7 +136,7 @@ inline int _ConvertSMVer2CoresDRV(int major, int minor) {
 
 #ifdef __cuda_cuda_h__
 // General GPU Device CUDA Initialization
-inline int gpuDeviceInitDRV(int ARGC, const char **ARGV) {
+inline int gpuDeviceInitDRV(int ARGC, const char** ARGV) {
   int cuDevice = 0;
   int deviceCount = 0;
   CUresult err = cuInit(0);
@@ -151,7 +151,7 @@ inline int gpuDeviceInitDRV(int ARGC, const char **ARGV) {
   }
 
   int dev = 0;
-  dev = getCmdLineArgumentInt(ARGC, (const char **)ARGV, "device=");
+  dev = getCmdLineArgumentInt(ARGC, (const char**)ARGV, "device=");
 
   if (dev < 0) {
     dev = 0;
@@ -176,12 +176,13 @@ inline int gpuDeviceInitDRV(int ARGC, const char **ARGV) {
   getCudaAttribute<int>(&computeMode, CU_DEVICE_ATTRIBUTE_COMPUTE_MODE, dev);
 
   if (computeMode == CU_COMPUTEMODE_PROHIBITED) {
-    fprintf(stderr, "Error: device is running in <CU_COMPUTEMODE_PROHIBITED>, "
-                    "no threads can use this CUDA Device.\n");
+    fprintf(stderr,
+            "Error: device is running in <CU_COMPUTEMODE_PROHIBITED>, "
+            "no threads can use this CUDA Device.\n");
     return -1;
   }
 
-  if (checkCmdLineFlag(ARGC, (const char **)ARGV, "quiet") == false) {
+  if (checkCmdLineFlag(ARGC, (const char**)ARGV, "quiet") == false) {
     printf("gpuDeviceInitDRV() Using CUDA Device [%d]: %s\n", dev, name);
   }
 
@@ -269,8 +270,9 @@ inline int gpuGetMaxGflopsDeviceIdDRV() {
   }
 
   if (devices_prohibited == device_count) {
-    fprintf(stderr, "gpuGetMaxGflopsDeviceIdDRV error: all devices have "
-                    "compute mode prohibited.\n");
+    fprintf(stderr,
+            "gpuGetMaxGflopsDeviceIdDRV error: all devices have "
+            "compute mode prohibited.\n");
     exit(EXIT_FAILURE);
   }
 
@@ -331,8 +333,9 @@ inline int gpuGetMaxGflopsGLDeviceIdDRV() {
   }
 
   if (devices_prohibited == device_count) {
-    fprintf(stderr, "gpuGetMaxGflopsGLDeviceIdDRV error: all devices have "
-                    "compute mode prohibited.\n");
+    fprintf(stderr,
+            "gpuGetMaxGflopsGLDeviceIdDRV error: all devices have "
+            "compute mode prohibited.\n");
     exit(EXIT_FAILURE);
   }
 
@@ -372,7 +375,7 @@ inline int gpuGetMaxGflopsGLDeviceIdDRV() {
 
       // If this is a Tesla based GPU and SM 2.0, and TCC is disabled, this is a
       // contendor
-      if (!bTCC) // Is this GPU running the TCC driver?  If so we pass on this
+      if (!bTCC)  // Is this GPU running the TCC driver?  If so we pass on this
       {
         int compute_perf = multiProcessorCount * sm_per_multiproc * clockRate;
 
@@ -399,12 +402,12 @@ inline int gpuGetMaxGflopsGLDeviceIdDRV() {
 }
 
 // General initialization call to pick the best CUDA Device
-inline CUdevice findCudaDeviceDRV(int argc, const char **argv) {
+inline CUdevice findCudaDeviceDRV(int argc, const char** argv) {
   CUdevice cuDevice;
   int devID = 0;
 
   // If the command-line has a device number specified, use it
-  if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
     devID = gpuDeviceInitDRV(argc, argv);
 
     if (devID < 0) {
@@ -426,13 +429,13 @@ inline CUdevice findCudaDeviceDRV(int argc, const char **argv) {
 }
 
 // This function will pick the best CUDA device available with OpenGL interop
-inline CUdevice findCudaGLDeviceDRV(int argc, const char **argv) {
+inline CUdevice findCudaGLDeviceDRV(int argc, const char** argv) {
   CUdevice cuDevice;
   int devID = 0;
 
   // If the command-line has a device number specified, use it
-  if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
-    devID = gpuDeviceInitDRV(argc, (const char **)argv);
+  if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
+    devID = gpuDeviceInitDRV(argc, (const char**)argv);
 
     if (devID < 0) {
       printf("no CUDA capable devices found, exiting...\n");
@@ -467,9 +470,10 @@ inline bool checkCudaCapabilitiesDRV(int major_version, int minor_version,
            major, minor);
     return true;
   } else {
-    printf("No GPU device was found that can support CUDA compute capability "
-           "%d.%d.\n",
-           major_version, minor_version);
+    printf(
+        "No GPU device was found that can support CUDA compute capability "
+        "%d.%d.\n",
+        major_version, minor_version);
     return false;
   }
 }

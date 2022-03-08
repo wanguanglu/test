@@ -64,7 +64,7 @@ void init3() {
 }
 //]
 
-int main(int, char *[]) {
+int main(int, char*[]) {
   init2();
   logging::add_common_attributes();
 

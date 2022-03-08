@@ -20,10 +20,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Test driver
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   uint *h_SrcKey, *h_SrcVal, *h_DstKey, *h_DstVal;
   uint *d_SrcKey, *d_SrcVal, *d_BufKey, *d_BufVal, *d_DstKey, *d_DstVal;
-  StopWatchInterface *hTimer = NULL;
+  StopWatchInterface* hTimer = NULL;
 
   const uint N = 4 * 1048576;
   const uint DIR = 1;
@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
 
   printf("%s Starting...\n\n", argv[0]);
 
-  int dev = findCudaDevice(argc, (const char **)argv);
+  int dev = findCudaDevice(argc, (const char**)argv);
 
   if (dev == -1) {
     return EXIT_FAILURE;
@@ -39,10 +39,10 @@ int main(int argc, char **argv) {
 
   printf("Allocating and initializing host arrays...\n\n");
   sdkCreateTimer(&hTimer);
-  h_SrcKey = (uint *)malloc(N * sizeof(uint));
-  h_SrcVal = (uint *)malloc(N * sizeof(uint));
-  h_DstKey = (uint *)malloc(N * sizeof(uint));
-  h_DstVal = (uint *)malloc(N * sizeof(uint));
+  h_SrcKey = (uint*)malloc(N * sizeof(uint));
+  h_SrcVal = (uint*)malloc(N * sizeof(uint));
+  h_DstKey = (uint*)malloc(N * sizeof(uint));
+  h_DstVal = (uint*)malloc(N * sizeof(uint));
 
   srand(2009);
 
@@ -53,12 +53,12 @@ int main(int argc, char **argv) {
   fillValues(h_SrcVal, N);
 
   printf("Allocating and initializing CUDA arrays...\n\n");
-  checkCudaErrors(cudaMalloc((void **)&d_DstKey, N * sizeof(uint)));
-  checkCudaErrors(cudaMalloc((void **)&d_DstVal, N * sizeof(uint)));
-  checkCudaErrors(cudaMalloc((void **)&d_BufKey, N * sizeof(uint)));
-  checkCudaErrors(cudaMalloc((void **)&d_BufVal, N * sizeof(uint)));
-  checkCudaErrors(cudaMalloc((void **)&d_SrcKey, N * sizeof(uint)));
-  checkCudaErrors(cudaMalloc((void **)&d_SrcVal, N * sizeof(uint)));
+  checkCudaErrors(cudaMalloc((void**)&d_DstKey, N * sizeof(uint)));
+  checkCudaErrors(cudaMalloc((void**)&d_DstVal, N * sizeof(uint)));
+  checkCudaErrors(cudaMalloc((void**)&d_BufKey, N * sizeof(uint)));
+  checkCudaErrors(cudaMalloc((void**)&d_BufVal, N * sizeof(uint)));
+  checkCudaErrors(cudaMalloc((void**)&d_SrcKey, N * sizeof(uint)));
+  checkCudaErrors(cudaMalloc((void**)&d_SrcVal, N * sizeof(uint)));
   checkCudaErrors(
       cudaMemcpy(d_SrcKey, h_SrcKey, N * sizeof(uint), cudaMemcpyHostToDevice));
   checkCudaErrors(

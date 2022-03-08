@@ -29,14 +29,14 @@
 #if USE_TEXTURE_RECT
 #define GL_TEXTURE_TYPE GL_TEXTURE_RECTANGLE_ARB
 // gl_shader_ for displaying floating-point texture
-static const char *gl_shader_code =
+static const char* gl_shader_code =
     "!!ARBfp1.0\n"
     "TEX result.color, fragment.texcoord, texture[0], RECT; \n"
     "END";
 #else
 #define GL_TEXTURE_TYPE GL_TEXTURE_2D
 // gl_shader_ for displaying floating-point texture
-static const char *gl_shader_code =
+static const char* gl_shader_code =
     "!!ARBfp1.0\n"
     "TEX result.color, fragment.texcoord, texture[0], 2D; \n"
     "END";
@@ -45,7 +45,7 @@ static const char *gl_shader_code =
 const int Format2Bpp[] = {1, 4, 0};
 
 class ImageGL {
-public:
+ public:
   enum PixelFormat {
     LUMINANCE_PIXEL_FORMAT,
     BGRA_PIXEL_FORMAT,
@@ -84,7 +84,7 @@ public:
   // Note:
   //      This method will fail, if this image is not a registered CUDA
   //      resource.
-  void map(CUdeviceptr *ppImageData, size_t *pImagePitch, int field_num = 0);
+  void map(CUdeviceptr* ppImageData, size_t* pImagePitch, int field_num = 0);
 
   void unmap(int field_num = 0);
 
@@ -110,9 +110,9 @@ public:
   GLuint getPBO(int field_num = 0) { return gl_pbo_[field_num]; }
   GLuint getTexID(int field_num = 0) { return gl_texid_[field_num]; }
 
-private:
-  GLuint gl_pbo_[2];   // OpenGL pixel buffer object
-  GLuint gl_texid_[2]; // Texture resource for rendering
+ private:
+  GLuint gl_pbo_[2];    // OpenGL pixel buffer object
+  GLuint gl_texid_[2];  // Texture resource for rendering
   GLuint gl_shader_;
 
   unsigned int nWidth_;
@@ -127,4 +127,4 @@ private:
   CUdevice oDevice_;
 };
 
-#endif // IMAGE_GL
+#endif  // IMAGE_GL

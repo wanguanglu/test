@@ -26,29 +26,29 @@
 
 #include "Common.h"
 
-#define C_a                                                                    \
-  1.387039845322148f //!< a = (2^0.5) * cos(    pi / 16);  Used in forward and
-                     //!< inverse DCT.
-#define C_b                                                                    \
-  1.306562964876377f //!< b = (2^0.5) * cos(    pi /  8);  Used in forward and
-                     //!< inverse DCT.
-#define C_c                                                                    \
-  1.175875602419359f //!< c = (2^0.5) * cos(3 * pi / 16);  Used in forward and
-                     //!< inverse DCT.
-#define C_d                                                                    \
-  0.785694958387102f //!< d = (2^0.5) * cos(5 * pi / 16);  Used in forward and
-                     //!< inverse DCT.
-#define C_e                                                                    \
-  0.541196100146197f //!< e = (2^0.5) * cos(3 * pi /  8);  Used in forward and
-                     //!< inverse DCT.
-#define C_f                                                                    \
-  0.275899379282943f //!< f = (2^0.5) * cos(7 * pi / 16);  Used in forward and
-                     //!< inverse DCT.
+#define C_a \
+  1.387039845322148f  //!< a = (2^0.5) * cos(    pi / 16);  Used in forward and
+                      //!< inverse DCT.
+#define C_b \
+  1.306562964876377f  //!< b = (2^0.5) * cos(    pi /  8);  Used in forward and
+                      //!< inverse DCT.
+#define C_c \
+  1.175875602419359f  //!< c = (2^0.5) * cos(3 * pi / 16);  Used in forward and
+                      //!< inverse DCT.
+#define C_d \
+  0.785694958387102f  //!< d = (2^0.5) * cos(5 * pi / 16);  Used in forward and
+                      //!< inverse DCT.
+#define C_e \
+  0.541196100146197f  //!< e = (2^0.5) * cos(3 * pi /  8);  Used in forward and
+                      //!< inverse DCT.
+#define C_f \
+  0.275899379282943f  //!< f = (2^0.5) * cos(7 * pi / 16);  Used in forward and
+                      //!< inverse DCT.
 
 /**
  *  Normalization constant that is used in forward and inverse DCT
  */
-#define C_norm 0.3535533905932737f // 1 / (8^0.5)
+#define C_norm 0.3535533905932737f  // 1 / (8^0.5)
 
 /**
  *  Width of data block (2nd kernel)
@@ -84,14 +84,14 @@
 *
 * \return None
 */
-__device__ void CUDAsubroutineInplaceDCTvector(float *Vect0, int Step) {
-  float *Vect1 = Vect0 + Step;
-  float *Vect2 = Vect1 + Step;
-  float *Vect3 = Vect2 + Step;
-  float *Vect4 = Vect3 + Step;
-  float *Vect5 = Vect4 + Step;
-  float *Vect6 = Vect5 + Step;
-  float *Vect7 = Vect6 + Step;
+__device__ void CUDAsubroutineInplaceDCTvector(float* Vect0, int Step) {
+  float* Vect1 = Vect0 + Step;
+  float* Vect2 = Vect1 + Step;
+  float* Vect3 = Vect2 + Step;
+  float* Vect4 = Vect3 + Step;
+  float* Vect5 = Vect4 + Step;
+  float* Vect6 = Vect5 + Step;
+  float* Vect7 = Vect6 + Step;
 
   float X07P = (*Vect0) + (*Vect7);
   float X16P = (*Vect1) + (*Vect6);
@@ -128,14 +128,14 @@ __device__ void CUDAsubroutineInplaceDCTvector(float *Vect0, int Step) {
 *
 * \return None
 */
-__device__ void CUDAsubroutineInplaceIDCTvector(float *Vect0, int Step) {
-  float *Vect1 = Vect0 + Step;
-  float *Vect2 = Vect1 + Step;
-  float *Vect3 = Vect2 + Step;
-  float *Vect4 = Vect3 + Step;
-  float *Vect5 = Vect4 + Step;
-  float *Vect6 = Vect5 + Step;
-  float *Vect7 = Vect6 + Step;
+__device__ void CUDAsubroutineInplaceIDCTvector(float* Vect0, int Step) {
+  float* Vect1 = Vect0 + Step;
+  float* Vect2 = Vect1 + Step;
+  float* Vect3 = Vect2 + Step;
+  float* Vect4 = Vect3 + Step;
+  float* Vect5 = Vect4 + Step;
+  float* Vect6 = Vect5 + Step;
+  float* Vect7 = Vect6 + Step;
 
   float Y04P = (*Vect0) + (*Vect4);
   float Y2b6eP = C_b * (*Vect2) + C_e * (*Vect6);
@@ -182,7 +182,7 @@ __device__ void CUDAsubroutineInplaceIDCTvector(float *Vect0, int Step) {
 * \return None
 */
 
-__global__ void CUDAkernel2DCT(float *dst, float *src, int ImgStride) {
+__global__ void CUDAkernel2DCT(float* dst, float* src, int ImgStride) {
   __shared__ float block[KER2_BLOCK_HEIGHT * KER2_SMEMBLOCK_STRIDE];
 
   int OffsThreadInRow = threadIdx.y * BLOCK_SIZE + threadIdx.x;
@@ -191,7 +191,7 @@ __global__ void CUDAkernel2DCT(float *dst, float *src, int ImgStride) {
          blockIdx.x * KER2_BLOCK_WIDTH + OffsThreadInRow;
   dst += FMUL(blockIdx.y * KER2_BLOCK_HEIGHT + OffsThreadInCol, ImgStride) +
          blockIdx.x * KER2_BLOCK_WIDTH + OffsThreadInRow;
-  float *bl_ptr =
+  float* bl_ptr =
       block + OffsThreadInCol * KER2_SMEMBLOCK_STRIDE + OffsThreadInRow;
 
 #pragma unroll
@@ -226,7 +226,7 @@ __global__ void CUDAkernel2DCT(float *dst, float *src, int ImgStride) {
 * \return None
 */
 
-__global__ void CUDAkernel2IDCT(float *dst, float *src, int ImgStride) {
+__global__ void CUDAkernel2IDCT(float* dst, float* src, int ImgStride) {
   __shared__ float block[KER2_BLOCK_HEIGHT * KER2_SMEMBLOCK_STRIDE];
 
   int OffsThreadInRow = threadIdx.y * BLOCK_SIZE + threadIdx.x;
@@ -235,7 +235,7 @@ __global__ void CUDAkernel2IDCT(float *dst, float *src, int ImgStride) {
          blockIdx.x * KER2_BLOCK_WIDTH + OffsThreadInRow;
   dst += FMUL(blockIdx.y * KER2_BLOCK_HEIGHT + OffsThreadInCol, ImgStride) +
          blockIdx.x * KER2_BLOCK_WIDTH + OffsThreadInRow;
-  float *bl_ptr =
+  float* bl_ptr =
       block + OffsThreadInCol * KER2_SMEMBLOCK_STRIDE + OffsThreadInRow;
 
 #pragma unroll

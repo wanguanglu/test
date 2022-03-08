@@ -49,13 +49,12 @@ const int DATA_N = 1048576 * 32;
 // Refer to the 'reduction' CUDA Sample describing
 // reduction optimization strategies
 ////////////////////////////////////////////////////////////////////////////////
-__global__ static void reduceKernel(float *d_Result, float *d_Input, int N) {
+__global__ static void reduceKernel(float* d_Result, float* d_Input, int N) {
   const int tid = blockIdx.x * blockDim.x + threadIdx.x;
   const int threadN = gridDim.x * blockDim.x;
   float sum = 0;
 
-  for (int pos = tid; pos < N; pos += threadN)
-    sum += d_Input[pos];
+  for (int pos = tid; pos < N; pos += threadN) sum += d_Input[pos];
 
   d_Result[tid] = sum;
 }
@@ -63,7 +62,7 @@ __global__ static void reduceKernel(float *d_Result, float *d_Input, int N) {
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   // Solver config
   TGPUplan plan[MAX_GPU_COUNT];
 
@@ -116,13 +115,13 @@ int main(int argc, char **argv) {
     checkCudaErrors(cudaStreamCreate(&plan[i].stream));
     // Allocate memory
     checkCudaErrors(
-        cudaMalloc((void **)&plan[i].d_Data, plan[i].dataN * sizeof(float)));
+        cudaMalloc((void**)&plan[i].d_Data, plan[i].dataN * sizeof(float)));
     checkCudaErrors(
-        cudaMalloc((void **)&plan[i].d_Sum, ACCUM_N * sizeof(float)));
-    checkCudaErrors(cudaMallocHost((void **)&plan[i].h_Sum_from_device,
+        cudaMalloc((void**)&plan[i].d_Sum, ACCUM_N * sizeof(float)));
+    checkCudaErrors(cudaMallocHost((void**)&plan[i].h_Sum_from_device,
                                    ACCUM_N * sizeof(float)));
-    checkCudaErrors(cudaMallocHost((void **)&plan[i].h_Data,
-                                   plan[i].dataN * sizeof(float)));
+    checkCudaErrors(
+        cudaMallocHost((void**)&plan[i].h_Data, plan[i].dataN * sizeof(float)));
 
     for (j = 0; j < plan[i].dataN; j++) {
       plan[i].h_Data[j] = (float)rand() / (float)RAND_MAX;

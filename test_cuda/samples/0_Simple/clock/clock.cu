@@ -31,16 +31,15 @@
 // This kernel computes a standard parallel reduction and evaluates the
 // time it takes to do that for each block. The timing results are stored
 // in device memory.
-__global__ static void timedReduction(const float *input, float *output,
-                                      clock_t *timer) {
+__global__ static void timedReduction(const float* input, float* output,
+                                      clock_t* timer) {
   // __shared__ float shared[2 * blockDim.x];
   extern __shared__ float shared[];
 
   const int tid = threadIdx.x;
   const int bid = blockIdx.x;
 
-  if (tid == 0)
-    timer[bid] = clock();
+  if (tid == 0) timer[bid] = clock();
 
   // Copy input.
   shared[tid] = input[tid];
@@ -61,13 +60,11 @@ __global__ static void timedReduction(const float *input, float *output,
   }
 
   // Write result.
-  if (tid == 0)
-    output[bid] = shared[0];
+  if (tid == 0) output[bid] = shared[0];
 
   __syncthreads();
 
-  if (tid == 0)
-    timer[bid + gridDim.x] = clock();
+  if (tid == 0) timer[bid + gridDim.x] = clock();
 }
 
 // This example shows how to use the clock function to measure the performance
@@ -97,15 +94,15 @@ __global__ static void timedReduction(const float *input, float *output,
 // the memory. With more than 32 the speed scales linearly.
 
 // Start the main CUDA Sample here
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   printf("CUDA Clock sample\n");
 
   // This will pick the best possible CUDA capable device
-  int dev = findCudaDevice(argc, (const char **)argv);
+  int dev = findCudaDevice(argc, (const char**)argv);
 
-  float *dinput = NULL;
-  float *doutput = NULL;
-  clock_t *dtimer = NULL;
+  float* dinput = NULL;
+  float* doutput = NULL;
+  clock_t* dtimer = NULL;
 
   clock_t timer[NUM_BLOCKS * 2];
   float input[NUM_THREADS * 2];
@@ -114,11 +111,10 @@ int main(int argc, char **argv) {
     input[i] = (float)i;
   }
 
+  checkCudaErrors(cudaMalloc((void**)&dinput, sizeof(float) * NUM_THREADS * 2));
+  checkCudaErrors(cudaMalloc((void**)&doutput, sizeof(float) * NUM_BLOCKS));
   checkCudaErrors(
-      cudaMalloc((void **)&dinput, sizeof(float) * NUM_THREADS * 2));
-  checkCudaErrors(cudaMalloc((void **)&doutput, sizeof(float) * NUM_BLOCKS));
-  checkCudaErrors(
-      cudaMalloc((void **)&dtimer, sizeof(clock_t) * NUM_BLOCKS * 2));
+      cudaMalloc((void**)&dtimer, sizeof(clock_t) * NUM_BLOCKS * 2));
 
   checkCudaErrors(cudaMemcpy(dinput, input, sizeof(float) * NUM_THREADS * 2,
                              cudaMemcpyHostToDevice));

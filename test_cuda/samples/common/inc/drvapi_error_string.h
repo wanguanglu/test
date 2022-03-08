@@ -16,11 +16,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef __cuda_cuda_h__ // check to see if CUDA_H is included above
+#ifdef __cuda_cuda_h__  // check to see if CUDA_H is included above
 
 // Error Code string definitions here
 typedef struct {
-  char const *error_string;
+  char const* error_string;
   int error_id;
 } s_CudaErrorStr;
 
@@ -313,7 +313,7 @@ static s_CudaErrorStr sCudaDrvErrorString[] = {
 
 // This is just a linear search through the array, since the error_id's are not
 // always ocurring consecutively
-inline const char *getCudaDrvErrorString(CUresult error_id) {
+inline const char* getCudaDrvErrorString(CUresult error_id) {
   int index = 0;
 
   while (sCudaDrvErrorString[index].error_id != error_id &&
@@ -322,11 +322,11 @@ inline const char *getCudaDrvErrorString(CUresult error_id) {
   }
 
   if (sCudaDrvErrorString[index].error_id == error_id)
-    return (const char *)sCudaDrvErrorString[index].error_string;
+    return (const char*)sCudaDrvErrorString[index].error_string;
   else
-    return (const char *)"CUDA_ERROR not found!";
+    return (const char*)"CUDA_ERROR not found!";
 }
 
-#endif // __cuda_cuda_h__
+#endif  // __cuda_cuda_h__
 
 #endif

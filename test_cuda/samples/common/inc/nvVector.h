@@ -63,17 +63,21 @@
 
 namespace nv {
 
-template <class T> class vec2;
-template <class T> class vec3;
-template <class T> class vec4;
+template <class T>
+class vec2;
+template <class T>
+class vec3;
+template <class T>
+class vec4;
 
 //////////////////////////////////////////////////////////////////////
 //
 // vec2 - template class for 2-tuple vector
 //
 //////////////////////////////////////////////////////////////////////
-template <class T> class vec2 {
-public:
+template <class T>
+class vec2 {
+ public:
   typedef T value_type;
   int size() const { return 2; }
 
@@ -84,14 +88,14 @@ public:
   ////////////////////////////////////////////////////////
 
   // Default/scalar constructor
-  vec2(const T &t = T()) {
+  vec2(const T& t = T()) {
     for (int i = 0; i < size(); i++) {
       _array[i] = t;
     }
   }
 
   // Construct from array
-  vec2(const T *tp) {
+  vec2(const T* tp) {
     for (int i = 0; i < size(); i++) {
       _array[i] = tp[i];
     }
@@ -103,21 +107,21 @@ public:
     y = v1;
   }
 
-  explicit vec2(const vec3<T> &u) {
+  explicit vec2(const vec3<T>& u) {
     for (int i = 0; i < size(); i++) {
       _array[i] = u._array[i];
     }
   }
 
-  explicit vec2(const vec4<T> &u) {
+  explicit vec2(const vec4<T>& u) {
     for (int i = 0; i < size(); i++) {
       _array[i] = u._array[i];
     }
   }
 
-  const T *get_value() const { return _array; }
+  const T* get_value() const { return _array; }
 
-  vec2<T> &set_value(const T *rhs) {
+  vec2<T>& set_value(const T* rhs) {
     for (int i = 0; i < size(); i++) {
       _array[i] = rhs[i];
     }
@@ -126,14 +130,14 @@ public:
   }
 
   // indexing operators
-  T &operator[](int i) { return _array[i]; }
+  T& operator[](int i) { return _array[i]; }
 
-  const T &operator[](int i) const { return _array[i]; }
+  const T& operator[](int i) const { return _array[i]; }
 
   // type-cast operators
-  operator T *() { return _array; }
+  operator T*() { return _array; }
 
-  operator const T *() const { return _array; }
+  operator const T*() const { return _array; }
 
   ////////////////////////////////////////////////////////
   //
@@ -142,7 +146,7 @@ public:
   ////////////////////////////////////////////////////////
 
   // scalar multiply assign
-  friend vec2<T> &operator*=(vec2<T> &lhs, T d) {
+  friend vec2<T>& operator*=(vec2<T>& lhs, T d) {
     for (int i = 0; i < lhs.size(); i++) {
       lhs._array[i] *= d;
     }
@@ -151,7 +155,7 @@ public:
   }
 
   // component-wise vector multiply assign
-  friend vec2<T> &operator*=(vec2<T> &lhs, const vec2<T> &rhs) {
+  friend vec2<T>& operator*=(vec2<T>& lhs, const vec2<T>& rhs) {
     for (int i = 0; i < lhs.size(); i++) {
       lhs._array[i] *= rhs[i];
     }
@@ -160,7 +164,7 @@ public:
   }
 
   // scalar divide assign
-  friend vec2<T> &operator/=(vec2<T> &lhs, T d) {
+  friend vec2<T>& operator/=(vec2<T>& lhs, T d) {
     if (d == 0) {
       return lhs;
     }
@@ -173,7 +177,7 @@ public:
   }
 
   // component-wise vector divide assign
-  friend vec2<T> &operator/=(vec2<T> &lhs, const vec2<T> &rhs) {
+  friend vec2<T>& operator/=(vec2<T>& lhs, const vec2<T>& rhs) {
     for (int i = 0; i < lhs.size(); i++) {
       lhs._array[i] /= rhs._array[i];
     }
@@ -182,7 +186,7 @@ public:
   }
 
   // component-wise vector add assign
-  friend vec2<T> &operator+=(vec2<T> &lhs, const vec2<T> &rhs) {
+  friend vec2<T>& operator+=(vec2<T>& lhs, const vec2<T>& rhs) {
     for (int i = 0; i < lhs.size(); i++) {
       lhs._array[i] += rhs._array[i];
     }
@@ -191,7 +195,7 @@ public:
   }
 
   // component-wise vector subtract assign
-  friend vec2<T> &operator-=(vec2<T> &lhs, const vec2<T> &rhs) {
+  friend vec2<T>& operator-=(vec2<T>& lhs, const vec2<T>& rhs) {
     for (int i = 0; i < lhs.size(); i++) {
       lhs._array[i] -= rhs._array[i];
     }
@@ -200,7 +204,7 @@ public:
   }
 
   // unary negate
-  friend vec2<T> operator-(const vec2<T> &rhs) {
+  friend vec2<T> operator-(const vec2<T>& rhs) {
     vec2<T> rv;
 
     for (int i = 0; i < rhs.size(); i++) {
@@ -211,43 +215,43 @@ public:
   }
 
   // vector add
-  friend vec2<T> operator+(const vec2<T> &lhs, const vec2<T> &rhs) {
+  friend vec2<T> operator+(const vec2<T>& lhs, const vec2<T>& rhs) {
     vec2<T> rt(lhs);
     return rt += rhs;
   }
 
   // vector subtract
-  friend vec2<T> operator-(const vec2<T> &lhs, const vec2<T> &rhs) {
+  friend vec2<T> operator-(const vec2<T>& lhs, const vec2<T>& rhs) {
     vec2<T> rt(lhs);
     return rt -= rhs;
   }
 
   // scalar multiply
-  friend vec2<T> operator*(const vec2<T> &lhs, T rhs) {
+  friend vec2<T> operator*(const vec2<T>& lhs, T rhs) {
     vec2<T> rt(lhs);
     return rt *= rhs;
   }
 
   // scalar multiply
-  friend vec2<T> operator*(T lhs, const vec2<T> &rhs) {
+  friend vec2<T> operator*(T lhs, const vec2<T>& rhs) {
     vec2<T> rt(lhs);
     return rt *= rhs;
   }
 
   // vector component-wise multiply
-  friend vec2<T> operator*(const vec2<T> &lhs, const vec2<T> &rhs) {
+  friend vec2<T> operator*(const vec2<T>& lhs, const vec2<T>& rhs) {
     vec2<T> rt(lhs);
     return rt *= rhs;
   }
 
   // scalar multiply
-  friend vec2<T> operator/(const vec2<T> &lhs, T rhs) {
+  friend vec2<T> operator/(const vec2<T>& lhs, T rhs) {
     vec2<T> rt(lhs);
     return rt /= rhs;
   }
 
   // vector component-wise multiply
-  friend vec2<T> operator/(const vec2<T> &lhs, const vec2<T> &rhs) {
+  friend vec2<T> operator/(const vec2<T>& lhs, const vec2<T>& rhs) {
     vec2<T> rt(lhs);
     return rt /= rhs;
   }
@@ -259,7 +263,7 @@ public:
   ////////////////////////////////////////////////////////
 
   // equality
-  friend bool operator==(const vec2<T> &lhs, const vec2<T> &rhs) {
+  friend bool operator==(const vec2<T>& lhs, const vec2<T>& rhs) {
     bool r = true;
 
     for (int i = 0; i < lhs.size(); i++) {
@@ -270,7 +274,7 @@ public:
   }
 
   // inequality
-  friend bool operator!=(const vec2<T> &lhs, const vec2<T> &rhs) {
+  friend bool operator!=(const vec2<T>& lhs, const vec2<T>& rhs) {
     bool r = true;
 
     for (int i = 0; i < lhs.size(); i++) {
@@ -283,12 +287,12 @@ public:
   // data intentionally left public to allow vec2.x
   union {
     struct {
-      T x, y; // standard names for components
+      T x, y;  // standard names for components
     };
     struct {
-      T s, t; // standard names for components
+      T s, t;  // standard names for components
     };
-    T _array[2]; // array access
+    T _array[2];  // array access
   };
 };
 
@@ -297,8 +301,9 @@ public:
 // vec3 - template class for 3-tuple vector
 //
 //////////////////////////////////////////////////////////////////////
-template <class T> class vec3 {
-public:
+template <class T>
+class vec3 {
+ public:
   typedef T value_type;
   int size() const { return 3; }
 
@@ -309,14 +314,14 @@ public:
   ////////////////////////////////////////////////////////
 
   // Default/scalar constructor
-  vec3(const T &t = T()) {
+  vec3(const T& t = T()) {
     for (int i = 0; i < size(); i++) {
       _array[i] = t;
     }
   }
 
   // Construct from array
-  vec3(const T *tp) {
+  vec3(const T* tp) {
     for (int i = 0; i < size(); i++) {
       _array[i] = tp[i];
     }
@@ -329,21 +334,21 @@ public:
     z = v2;
   }
 
-  explicit vec3(const vec4<T> &u) {
+  explicit vec3(const vec4<T>& u) {
     for (int i = 0; i < size(); i++) {
       _array[i] = u._array[i];
     }
   }
 
-  explicit vec3(const vec2<T> &u, T v0) {
+  explicit vec3(const vec2<T>& u, T v0) {
     x = u.x;
     y = u.y;
     z = v0;
   }
 
-  const T *get_value() const { return _array; }
+  const T* get_value() const { return _array; }
 
-  vec3<T> &set_value(const T *rhs) {
+  vec3<T>& set_value(const T* rhs) {
     for (int i = 0; i < size(); i++) {
       _array[i] = rhs[i];
     }
@@ -352,14 +357,14 @@ public:
   }
 
   // indexing operators
-  T &operator[](int i) { return _array[i]; }
+  T& operator[](int i) { return _array[i]; }
 
-  const T &operator[](int i) const { return _array[i]; }
+  const T& operator[](int i) const { return _array[i]; }
 
   // type-cast operators
-  operator T *() { return _array; }
+  operator T*() { return _array; }
 
-  operator const T *() const { return _array; }
+  operator const T*() const { return _array; }
 
   ////////////////////////////////////////////////////////
   //
@@ -368,7 +373,7 @@ public:
   ////////////////////////////////////////////////////////
 
   // scalar multiply assign
-  friend vec3<T> &operator*=(vec3<T> &lhs, T d) {
+  friend vec3<T>& operator*=(vec3<T>& lhs, T d) {
     for (int i = 0; i < lhs.size(); i++) {
       lhs._array[i] *= d;
     }
@@ -377,7 +382,7 @@ public:
   }
 
   // component-wise vector multiply assign
-  friend vec3<T> &operator*=(vec3<T> &lhs, const vec3<T> &rhs) {
+  friend vec3<T>& operator*=(vec3<T>& lhs, const vec3<T>& rhs) {
     for (int i = 0; i < lhs.size(); i++) {
       lhs._array[i] *= rhs[i];
     }
@@ -386,7 +391,7 @@ public:
   }
 
   // scalar divide assign
-  friend vec3<T> &operator/=(vec3<T> &lhs, T d) {
+  friend vec3<T>& operator/=(vec3<T>& lhs, T d) {
     if (d == 0) {
       return lhs;
     }
@@ -399,7 +404,7 @@ public:
   }
 
   // component-wise vector divide assign
-  friend vec3<T> &operator/=(vec3<T> &lhs, const vec3<T> &rhs) {
+  friend vec3<T>& operator/=(vec3<T>& lhs, const vec3<T>& rhs) {
     for (int i = 0; i < lhs.size(); i++) {
       lhs._array[i] /= rhs._array[i];
     }
@@ -408,7 +413,7 @@ public:
   }
 
   // component-wise vector add assign
-  friend vec3<T> &operator+=(vec3<T> &lhs, const vec3<T> &rhs) {
+  friend vec3<T>& operator+=(vec3<T>& lhs, const vec3<T>& rhs) {
     for (int i = 0; i < lhs.size(); i++) {
       lhs._array[i] += rhs._array[i];
     }
@@ -417,7 +422,7 @@ public:
   }
 
   // component-wise vector subtract assign
-  friend vec3<T> &operator-=(vec3<T> &lhs, const vec3<T> &rhs) {
+  friend vec3<T>& operator-=(vec3<T>& lhs, const vec3<T>& rhs) {
     for (int i = 0; i < lhs.size(); i++) {
       lhs._array[i] -= rhs._array[i];
     }
@@ -426,7 +431,7 @@ public:
   }
 
   // unary negate
-  friend vec3<T> operator-(const vec3<T> &rhs) {
+  friend vec3<T> operator-(const vec3<T>& rhs) {
     vec3<T> rv;
 
     for (int i = 0; i < rhs.size(); i++) {
@@ -437,43 +442,43 @@ public:
   }
 
   // vector add
-  friend vec3<T> operator+(const vec3<T> &lhs, const vec3<T> &rhs) {
+  friend vec3<T> operator+(const vec3<T>& lhs, const vec3<T>& rhs) {
     vec3<T> rt(lhs);
     return rt += rhs;
   }
 
   // vector subtract
-  friend vec3<T> operator-(const vec3<T> &lhs, const vec3<T> &rhs) {
+  friend vec3<T> operator-(const vec3<T>& lhs, const vec3<T>& rhs) {
     vec3<T> rt(lhs);
     return rt -= rhs;
   }
 
   // scalar multiply
-  friend vec3<T> operator*(const vec3<T> &lhs, T rhs) {
+  friend vec3<T> operator*(const vec3<T>& lhs, T rhs) {
     vec3<T> rt(lhs);
     return rt *= rhs;
   }
 
   // scalar multiply
-  friend vec3<T> operator*(T lhs, const vec3<T> &rhs) {
+  friend vec3<T> operator*(T lhs, const vec3<T>& rhs) {
     vec3<T> rt(lhs);
     return rt *= rhs;
   }
 
   // vector component-wise multiply
-  friend vec3<T> operator*(const vec3<T> &lhs, const vec3<T> &rhs) {
+  friend vec3<T> operator*(const vec3<T>& lhs, const vec3<T>& rhs) {
     vec3<T> rt(lhs);
     return rt *= rhs;
   }
 
   // scalar multiply
-  friend vec3<T> operator/(const vec3<T> &lhs, T rhs) {
+  friend vec3<T> operator/(const vec3<T>& lhs, T rhs) {
     vec3<T> rt(lhs);
     return rt /= rhs;
   }
 
   // vector component-wise multiply
-  friend vec3<T> operator/(const vec3<T> &lhs, const vec3<T> &rhs) {
+  friend vec3<T> operator/(const vec3<T>& lhs, const vec3<T>& rhs) {
     vec3<T> rt(lhs);
     return rt /= rhs;
   }
@@ -485,7 +490,7 @@ public:
   ////////////////////////////////////////////////////////
 
   // equality
-  friend bool operator==(const vec3<T> &lhs, const vec3<T> &rhs) {
+  friend bool operator==(const vec3<T>& lhs, const vec3<T>& rhs) {
     bool r = true;
 
     for (int i = 0; i < lhs.size(); i++) {
@@ -496,7 +501,7 @@ public:
   }
 
   // inequality
-  friend bool operator!=(const vec3<T> &lhs, const vec3<T> &rhs) {
+  friend bool operator!=(const vec3<T>& lhs, const vec3<T>& rhs) {
     bool r = true;
 
     for (int i = 0; i < lhs.size(); i++) {
@@ -513,7 +518,7 @@ public:
   ////////////////////////////////////////////////////////////////////////////////
 
   // cross product
-  friend vec3<T> cross(const vec3<T> &lhs, const vec3<T> &rhs) {
+  friend vec3<T> cross(const vec3<T>& lhs, const vec3<T>& rhs) {
     vec3<T> r;
 
     r.x = lhs.y * rhs.z - lhs.z * rhs.y;
@@ -526,12 +531,12 @@ public:
   // data intentionally left public to allow vec2.x
   union {
     struct {
-      T x, y, z; // standard names for components
+      T x, y, z;  // standard names for components
     };
     struct {
-      T s, t, r; // standard names for components
+      T s, t, r;  // standard names for components
     };
-    T _array[3]; // array access
+    T _array[3];  // array access
   };
 };
 
@@ -540,8 +545,9 @@ public:
 // vec4 - template class for 4-tuple vector
 //
 //////////////////////////////////////////////////////////////////////
-template <class T> class vec4 {
-public:
+template <class T>
+class vec4 {
+ public:
   typedef T value_type;
   int size() const { return 4; }
 
@@ -552,14 +558,14 @@ public:
   ////////////////////////////////////////////////////////
 
   // Default/scalar constructor
-  vec4(const T &t = T()) {
+  vec4(const T& t = T()) {
     for (int i = 0; i < size(); i++) {
       _array[i] = t;
     }
   }
 
   // Construct from array
-  vec4(const T *tp) {
+  vec4(const T* tp) {
     for (int i = 0; i < size(); i++) {
       _array[i] = tp[i];
     }
@@ -573,23 +579,23 @@ public:
     w = v3;
   }
 
-  explicit vec4(const vec3<T> &u, T v0) {
+  explicit vec4(const vec3<T>& u, T v0) {
     x = u.x;
     y = u.y;
     z = u.z;
     w = v0;
   }
 
-  explicit vec4(const vec2<T> &u, T v0, T v1) {
+  explicit vec4(const vec2<T>& u, T v0, T v1) {
     x = u.x;
     y = u.y;
     z = v0;
     w = v1;
   }
 
-  const T *get_value() const { return _array; }
+  const T* get_value() const { return _array; }
 
-  vec4<T> &set_value(const T *rhs) {
+  vec4<T>& set_value(const T* rhs) {
     for (int i = 0; i < size(); i++) {
       _array[i] = rhs[i];
     }
@@ -598,14 +604,14 @@ public:
   }
 
   // indexing operators
-  T &operator[](int i) { return _array[i]; }
+  T& operator[](int i) { return _array[i]; }
 
-  const T &operator[](int i) const { return _array[i]; }
+  const T& operator[](int i) const { return _array[i]; }
 
   // type-cast operators
-  operator T *() { return _array; }
+  operator T*() { return _array; }
 
-  operator const T *() const { return _array; }
+  operator const T*() const { return _array; }
 
   ////////////////////////////////////////////////////////
   //
@@ -614,7 +620,7 @@ public:
   ////////////////////////////////////////////////////////
 
   // scalar multiply assign
-  friend vec4<T> &operator*=(vec4<T> &lhs, T d) {
+  friend vec4<T>& operator*=(vec4<T>& lhs, T d) {
     for (int i = 0; i < lhs.size(); i++) {
       lhs._array[i] *= d;
     }
@@ -623,7 +629,7 @@ public:
   }
 
   // component-wise vector multiply assign
-  friend vec4<T> &operator*=(vec4<T> &lhs, const vec4<T> &rhs) {
+  friend vec4<T>& operator*=(vec4<T>& lhs, const vec4<T>& rhs) {
     for (int i = 0; i < lhs.size(); i++) {
       lhs._array[i] *= rhs[i];
     }
@@ -632,7 +638,7 @@ public:
   }
 
   // scalar divide assign
-  friend vec4<T> &operator/=(vec4<T> &lhs, T d) {
+  friend vec4<T>& operator/=(vec4<T>& lhs, T d) {
     if (d == 0) {
       return lhs;
     }
@@ -645,7 +651,7 @@ public:
   }
 
   // component-wise vector divide assign
-  friend vec4<T> &operator/=(vec4<T> &lhs, const vec4<T> &rhs) {
+  friend vec4<T>& operator/=(vec4<T>& lhs, const vec4<T>& rhs) {
     for (int i = 0; i < lhs.size(); i++) {
       lhs._array[i] /= rhs._array[i];
     }
@@ -654,7 +660,7 @@ public:
   }
 
   // component-wise vector add assign
-  friend vec4<T> &operator+=(vec4<T> &lhs, const vec4<T> &rhs) {
+  friend vec4<T>& operator+=(vec4<T>& lhs, const vec4<T>& rhs) {
     for (int i = 0; i < lhs.size(); i++) {
       lhs._array[i] += rhs._array[i];
     }
@@ -663,7 +669,7 @@ public:
   }
 
   // component-wise vector subtract assign
-  friend vec4<T> &operator-=(vec4<T> &lhs, const vec4<T> &rhs) {
+  friend vec4<T>& operator-=(vec4<T>& lhs, const vec4<T>& rhs) {
     for (int i = 0; i < lhs.size(); i++) {
       lhs._array[i] -= rhs._array[i];
     }
@@ -672,7 +678,7 @@ public:
   }
 
   // unary negate
-  friend vec4<T> operator-(const vec4<T> &rhs) {
+  friend vec4<T> operator-(const vec4<T>& rhs) {
     vec4<T> rv;
 
     for (int i = 0; i < rhs.size(); i++) {
@@ -683,43 +689,43 @@ public:
   }
 
   // vector add
-  friend vec4<T> operator+(const vec4<T> &lhs, const vec4<T> &rhs) {
+  friend vec4<T> operator+(const vec4<T>& lhs, const vec4<T>& rhs) {
     vec4<T> rt(lhs);
     return rt += rhs;
   }
 
   // vector subtract
-  friend vec4<T> operator-(const vec4<T> &lhs, const vec4<T> &rhs) {
+  friend vec4<T> operator-(const vec4<T>& lhs, const vec4<T>& rhs) {
     vec4<T> rt(lhs);
     return rt -= rhs;
   }
 
   // scalar multiply
-  friend vec4<T> operator*(const vec4<T> &lhs, T rhs) {
+  friend vec4<T> operator*(const vec4<T>& lhs, T rhs) {
     vec4<T> rt(lhs);
     return rt *= rhs;
   }
 
   // scalar multiply
-  friend vec4<T> operator*(T lhs, const vec4<T> &rhs) {
+  friend vec4<T> operator*(T lhs, const vec4<T>& rhs) {
     vec4<T> rt(lhs);
     return rt *= rhs;
   }
 
   // vector component-wise multiply
-  friend vec4<T> operator*(const vec4<T> &lhs, const vec4<T> &rhs) {
+  friend vec4<T> operator*(const vec4<T>& lhs, const vec4<T>& rhs) {
     vec4<T> rt(lhs);
     return rt *= rhs;
   }
 
   // scalar multiply
-  friend vec4<T> operator/(const vec4<T> &lhs, T rhs) {
+  friend vec4<T> operator/(const vec4<T>& lhs, T rhs) {
     vec4<T> rt(lhs);
     return rt /= rhs;
   }
 
   // vector component-wise multiply
-  friend vec4<T> operator/(const vec4<T> &lhs, const vec4<T> &rhs) {
+  friend vec4<T> operator/(const vec4<T>& lhs, const vec4<T>& rhs) {
     vec4<T> rt(lhs);
     return rt /= rhs;
   }
@@ -731,7 +737,7 @@ public:
   ////////////////////////////////////////////////////////
 
   // equality
-  friend bool operator==(const vec4<T> &lhs, const vec4<T> &rhs) {
+  friend bool operator==(const vec4<T>& lhs, const vec4<T>& rhs) {
     bool r = true;
 
     for (int i = 0; i < lhs.size(); i++) {
@@ -742,7 +748,7 @@ public:
   }
 
   // inequality
-  friend bool operator!=(const vec4<T> &lhs, const vec4<T> &rhs) {
+  friend bool operator!=(const vec4<T>& lhs, const vec4<T>& rhs) {
     bool r = true;
 
     for (int i = 0; i < lhs.size(); i++) {
@@ -755,12 +761,12 @@ public:
   // data intentionally left public to allow vec2.x
   union {
     struct {
-      T x, y, z, w; // standard names for components
+      T x, y, z, w;  // standard names for components
     };
     struct {
-      T s, t, r, q; // standard names for components
+      T s, t, r, q;  // standard names for components
     };
-    T _array[4]; // array access
+    T _array[4];  // array access
   };
 };
 
@@ -772,7 +778,7 @@ public:
 
 // compute the dot product of two vectors
 template <class T>
-inline typename T::value_type dot(const T &lhs, const T &rhs) {
+inline typename T::value_type dot(const T& lhs, const T& rhs) {
   typename T::value_type r = 0;
 
   for (int i = 0; i < lhs.size(); i++) {
@@ -783,7 +789,8 @@ inline typename T::value_type dot(const T &lhs, const T &rhs) {
 }
 
 // return the length of the provided vector
-template <class T> inline typename T::value_type length(const T &vec) {
+template <class T>
+inline typename T::value_type length(const T& vec) {
   typename T::value_type r = 0;
 
   for (int i = 0; i < vec.size(); i++) {
@@ -794,7 +801,8 @@ template <class T> inline typename T::value_type length(const T &vec) {
 }
 
 // return the squared norm
-template <class T> inline typename T::value_type square_norm(const T &vec) {
+template <class T>
+inline typename T::value_type square_norm(const T& vec) {
   typename T::value_type r = 0;
 
   for (int i = 0; i < vec.size(); i++) {
@@ -805,7 +813,8 @@ template <class T> inline typename T::value_type square_norm(const T &vec) {
 }
 
 // return the normalized version of the vector
-template <class T> inline T normalize(const T &vec) {
+template <class T>
+inline T normalize(const T& vec) {
   typename T::value_type sum(0);
   T r;
 
@@ -831,7 +840,8 @@ template <class T> inline T normalize(const T &vec) {
 #undef max
 #endif
 // componentwise min
-template <class T> inline T min(const T &lhs, const T &rhs) {
+template <class T>
+inline T min(const T& lhs, const T& rhs) {
   T rt;
 
   for (int i = 0; i < lhs.size(); i++) {
@@ -842,7 +852,8 @@ template <class T> inline T min(const T &lhs, const T &rhs) {
 }
 
 // componentwise max
-template <class T> inline T max(const T &lhs, const T &rhs) {
+template <class T>
+inline T max(const T& lhs, const T& rhs) {
   T rt;
 
   for (int i = 0; i < lhs.size(); i++) {
@@ -852,6 +863,6 @@ template <class T> inline T max(const T &lhs, const T &rhs) {
   return rt;
 }
 
-}; // namespace nv
+};  // namespace nv
 
 #endif

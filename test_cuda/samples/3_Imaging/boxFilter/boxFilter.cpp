@@ -42,42 +42,42 @@
 #include <cuda_runtime.h>
 
 // Helper functions
-#include <helper_cuda.h>      // CUDA device initialization helper functions
-#include <helper_cuda_gl.h>   // CUDA device + OpenGL initialization functions
-#include <helper_functions.h> // CUDA SDK Helper functions
+#include <helper_cuda.h>       // CUDA device initialization helper functions
+#include <helper_cuda_gl.h>    // CUDA device + OpenGL initialization functions
+#include <helper_functions.h>  // CUDA SDK Helper functions
 
 #define MAX_EPSILON_ERROR 5.0f
-#define REFRESH_DELAY 10 // ms
+#define REFRESH_DELAY 10  // ms
 
 #define MIN_RUNTIME_VERSION 1000
 #define MIN_COMPUTE_VERSION 0x10
 
-const static char *sSDKsample = "CUDA Iterative Box Filter";
+const static char* sSDKsample = "CUDA Iterative Box Filter";
 
 // Define the files that are to be save and the reference images for validation
-const char *sOriginal[] = {"lenaRGB_14.ppm", "lenaRGB_22.ppm", NULL};
+const char* sOriginal[] = {"lenaRGB_14.ppm", "lenaRGB_22.ppm", NULL};
 
-const char *sReference[] = {"ref_14.ppm", "ref_22.ppm", NULL};
+const char* sReference[] = {"ref_14.ppm", "ref_22.ppm", NULL};
 
-const char *image_filename = "lenaRGB.ppm";
+const char* image_filename = "lenaRGB.ppm";
 int iterations = 1;
 int filter_radius = 14;
 int nthreads = 64;
 unsigned int width, height;
-unsigned int *h_img = NULL;
-unsigned int *d_img = NULL;
-unsigned int *d_temp = NULL;
+unsigned int* h_img = NULL;
+unsigned int* d_img = NULL;
+unsigned int* d_temp = NULL;
 
-GLuint pbo;                                     // OpenGL pixel buffer object
-struct cudaGraphicsResource *cuda_pbo_resource; // handles OpenGL-CUDA exchange
-GLuint texid;                                   // Texture
+GLuint pbo;                                      // OpenGL pixel buffer object
+struct cudaGraphicsResource* cuda_pbo_resource;  // handles OpenGL-CUDA exchange
+GLuint texid;                                    // Texture
 GLuint shader;
 
 StopWatchInterface *timer = NULL, *kernel_timer = NULL;
 
 // Auto-Verification Code
-int fpsCount = 0; // FPS count for averaging
-int fpsLimit = 8; // FPS limit for sampling
+int fpsCount = 0;  // FPS count for averaging
+int fpsLimit = 8;  // FPS limit for sampling
 int g_Index = 0;
 int g_nFilterSign = 1;
 float avgFPS = 0.0f;
@@ -85,32 +85,32 @@ unsigned int frameCount = 0;
 unsigned int g_TotalErrors = 0;
 bool g_bInteractive = false;
 
-int *pArgc = NULL;
-char **pArgv = NULL;
+int* pArgc = NULL;
+char** pArgv = NULL;
 
-extern "C" int runSingleTest(char *ref_file, char *exec_path);
+extern "C" int runSingleTest(char* ref_file, char* exec_path);
 extern "C" int runBenchmark();
-extern "C" void loadImageData(int argc, char **argv);
-extern "C" void computeGold(float *id, float *od, int w, int h, int n);
+extern "C" void loadImageData(int argc, char** argv);
+extern "C" void computeGold(float* id, float* od, int w, int h, int n);
 
 // These are CUDA functions to handle allocation and launching the kernels
-extern "C" void initTexture(int width, int height, void *pImage, bool useRGBA);
+extern "C" void initTexture(int width, int height, void* pImage, bool useRGBA);
 extern "C" void freeTextures();
-extern "C" double boxFilter(float *d_src, float *d_temp, float *d_dest,
+extern "C" double boxFilter(float* d_src, float* d_temp, float* d_dest,
                             int width, int height, int radius, int iterations,
-                            int nthreads, StopWatchInterface *timer);
+                            int nthreads, StopWatchInterface* timer);
 
-extern "C" double boxFilterRGBA(unsigned int *d_src, unsigned int *d_temp,
-                                unsigned int *d_dest, int width, int height,
+extern "C" double boxFilterRGBA(unsigned int* d_src, unsigned int* d_temp,
+                                unsigned int* d_dest, int width, int height,
                                 int radius, int iterations, int nthreads,
-                                StopWatchInterface *timer);
+                                StopWatchInterface* timer);
 
 // This varies the filter radius, so we can see automatic animation
 void varySigma() {
   filter_radius += g_nFilterSign;
 
   if (filter_radius > 64) {
-    filter_radius = 64; // clamp to 64 and then negate sign
+    filter_radius = 64;  // clamp to 64 and then negate sign
     g_nFilterSign = -1;
   } else if (filter_radius < 0) {
     filter_radius = 0;
@@ -147,12 +147,12 @@ void display() {
   sdkStartTimer(&timer);
 
   // execute filter, writing results to pbo
-  unsigned int *d_result;
+  unsigned int* d_result;
 
   checkCudaErrors(cudaGraphicsMapResources(1, &cuda_pbo_resource, 0));
   size_t num_bytes;
   checkCudaErrors(cudaGraphicsResourceGetMappedPointer(
-      (void **)&d_result, &num_bytes, cuda_pbo_resource));
+      (void**)&d_result, &num_bytes, cuda_pbo_resource));
   boxFilterRGBA(d_img, d_temp, d_result, width, height, filter_radius,
                 iterations, nthreads, kernel_timer);
 
@@ -201,49 +201,49 @@ void display() {
 // Keyboard callback function for OpenGL (GLUT)
 void keyboard(unsigned char key, int /*x*/, int /*y*/) {
   switch (key) {
-  case 27:
+    case 27:
 #if defined(__APPLE__) || defined(MACOSX)
-    exit(EXIT_SUCCESS);
+      exit(EXIT_SUCCESS);
 #else
-    glutDestroyWindow(glutGetWindow());
-    return;
+      glutDestroyWindow(glutGetWindow());
+      return;
 #endif
-    break;
+      break;
 
-  case 'a':
-  case 'A':
-    g_bInteractive = !g_bInteractive;
-    printf("> Animation is %s\n", !g_bInteractive ? "ON" : "OFF");
-    break;
+    case 'a':
+    case 'A':
+      g_bInteractive = !g_bInteractive;
+      printf("> Animation is %s\n", !g_bInteractive ? "ON" : "OFF");
+      break;
 
-  case '=':
-  case '+':
-    if (filter_radius < (int)width - 1 && filter_radius < (int)height - 1) {
-      filter_radius++;
-    }
+    case '=':
+    case '+':
+      if (filter_radius < (int)width - 1 && filter_radius < (int)height - 1) {
+        filter_radius++;
+      }
 
-    break;
+      break;
 
-  case '-':
-    if (filter_radius > 1) {
-      filter_radius--;
-    }
+    case '-':
+      if (filter_radius > 1) {
+        filter_radius--;
+      }
 
-    break;
+      break;
 
-  case ']':
-    iterations++;
-    break;
+    case ']':
+      iterations++;
+      break;
 
-  case '[':
-    if (iterations > 1) {
-      iterations--;
-    }
+    case '[':
+      if (iterations > 1) {
+        iterations--;
+      }
 
-    break;
+      break;
 
-  default:
-    break;
+    default:
+      break;
   }
 
   printf("radius = %d, iterations = %d\n", filter_radius, iterations);
@@ -272,9 +272,9 @@ void reshape(int x, int y) {
 void initCuda(bool useRGBA) {
   // allocate device memory
   checkCudaErrors(
-      cudaMalloc((void **)&d_img, (width * height * sizeof(unsigned int))));
+      cudaMalloc((void**)&d_img, (width * height * sizeof(unsigned int))));
   checkCudaErrors(
-      cudaMalloc((void **)&d_temp, (width * height * sizeof(unsigned int))));
+      cudaMalloc((void**)&d_temp, (width * height * sizeof(unsigned int))));
 
   // Refer to boxFilter_kernel.cu for implementation
   initTexture(width, height, h_img, useRGBA);
@@ -320,23 +320,23 @@ void cleanup() {
 }
 
 // shader for displaying floating-point texture
-static const char *shader_code =
+static const char* shader_code =
     "!!ARBfp1.0\n"
     "TEX result.color, fragment.texcoord, texture[0], 2D; \n"
     "END";
 
-GLuint compileASMShader(GLenum program_type, const char *code) {
+GLuint compileASMShader(GLenum program_type, const char* code) {
   GLuint program_id;
   glGenProgramsARB(1, &program_id);
   glBindProgramARB(program_type, program_id);
   glProgramStringARB(program_type, GL_PROGRAM_FORMAT_ASCII_ARB,
-                     (GLsizei)strlen(code), (GLubyte *)code);
+                     (GLsizei)strlen(code), (GLubyte*)code);
 
   GLint error_pos;
   glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &error_pos);
 
   if (error_pos != -1) {
-    const GLubyte *error_string;
+    const GLubyte* error_string;
     error_string = glGetString(GL_PROGRAM_ERROR_STRING_ARB);
     printf("Program error at position: %d\n%s\n", (int)error_pos, error_string);
     return 0;
@@ -372,7 +372,7 @@ void initGLResources() {
   shader = compileASMShader(GL_FRAGMENT_PROGRAM_ARB, shader_code);
 }
 
-void initGL(int *argc, char **argv) {
+void initGL(int* argc, char** argv) {
   // initialize GLUT
   glutInit(argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
@@ -405,9 +405,9 @@ int runBenchmark() {
 
   initCuda(true);
 
-  unsigned int *d_result;
+  unsigned int* d_result;
   checkCudaErrors(
-      cudaMalloc((void **)&d_result, width * height * sizeof(unsigned int)));
+      cudaMalloc((void**)&d_result, width * height * sizeof(unsigned int)));
 
   // warm-up
   boxFilterRGBA(d_img, d_temp, d_temp, width, height, filter_radius, iterations,
@@ -416,7 +416,7 @@ int runBenchmark() {
 
   sdkStartTimer(&kernel_timer);
   // Start round-trip timer and process iCycles loops on the GPU
-  iterations = 1; // standard 1-pass filtering
+  iterations = 1;  // standard 1-pass filtering
   const int iCycles = 150;
   double dProcessingTime = 0.0;
   printf("\nRunning BoxFilterGPU for %d cycles...\n\n", iCycles);
@@ -436,10 +436,11 @@ int runBenchmark() {
   dProcessingTime /= (double)iCycles;
 
   // log testname, throughput, timing and config info to sample and master logs
-  printf("boxFilter-texture, Throughput = %.4f M RGBA Pixels/s, Time = %.5f s, "
-         "Size = %u RGBA Pixels, NumDevsUsed = %u, Workgroup = %u\n",
-         (1.0e-6 * width * height) / dProcessingTime, dProcessingTime,
-         (width * height), 1, nthreads);
+  printf(
+      "boxFilter-texture, Throughput = %.4f M RGBA Pixels/s, Time = %.5f s, "
+      "Size = %u RGBA Pixels, NumDevsUsed = %u, Workgroup = %u\n",
+      (1.0e-6 * width * height) / dProcessingTime, dProcessingTime,
+      (width * height), 1, nthreads);
   printf("\n");
 
   return 0;
@@ -447,7 +448,7 @@ int runBenchmark() {
 
 // This test specifies a single test (where you specify radius and/or
 // iterations)
-int runSingleTest(char *ref_file, char *exec_path) {
+int runSingleTest(char* ref_file, char* exec_path) {
   int nTotalErrors = 0;
   char dump_file[256];
 
@@ -455,11 +456,11 @@ int runSingleTest(char *ref_file, char *exec_path) {
 
   initCuda(true);
 
-  unsigned int *d_result;
-  unsigned int *h_result =
-      (unsigned int *)malloc(width * height * sizeof(unsigned int));
+  unsigned int* d_result;
+  unsigned int* h_result =
+      (unsigned int*)malloc(width * height * sizeof(unsigned int));
   checkCudaErrors(
-      cudaMalloc((void **)&d_result, width * height * sizeof(unsigned int)));
+      cudaMalloc((void**)&d_result, width * height * sizeof(unsigned int)));
 
   // run the sample radius
   {
@@ -473,12 +474,12 @@ int runSingleTest(char *ref_file, char *exec_path) {
     checkCudaErrors(cudaDeviceSynchronize());
 
     // readback the results to system memory
-    cudaMemcpy((unsigned char *)h_result, (unsigned char *)d_result,
+    cudaMemcpy((unsigned char*)h_result, (unsigned char*)d_result,
                width * height * sizeof(unsigned int), cudaMemcpyDeviceToHost);
 
     sprintf(dump_file, "lenaRGB_%02d.ppm", filter_radius);
 
-    sdkSavePPM4ub((const char *)dump_file, (unsigned char *)h_result, width,
+    sdkSavePPM4ub((const char*)dump_file, (unsigned char*)h_result, width,
                   height);
 
     if (!sdkComparePPM(dump_file, sdkFindFilePath(ref_file, exec_path),
@@ -499,10 +500,10 @@ int runSingleTest(char *ref_file, char *exec_path) {
   return nTotalErrors;
 }
 
-void loadImageData(int argc, char **argv) {
+void loadImageData(int argc, char** argv) {
   // load image (needed so we can get the width and height before we create the
   // window
-  char *image_path = NULL;
+  char* image_path = NULL;
 
   if (argc >= 1) {
     image_path = sdkFindFilePath(image_filename, argv[0]);
@@ -513,7 +514,7 @@ void loadImageData(int argc, char **argv) {
     exit(EXIT_FAILURE);
   }
 
-  sdkLoadPPM4(image_path, (unsigned char **)&h_img, &width, &height);
+  sdkLoadPPM4(image_path, (unsigned char**)&h_img, &width, &height);
 
   if (!h_img) {
     printf("Error opening file '%s'\n", image_path);
@@ -544,7 +545,7 @@ bool checkCUDAProfile(int dev, int min_runtime, int min_compute) {
   }
 }
 
-int findCapableDevice(int argc, char **argv) {
+int findCapableDevice(int argc, char** argv) {
   int dev;
   int bestDev = -1;
 
@@ -581,8 +582,9 @@ int findCapableDevice(int argc, char **argv) {
   }
 
   if (bestDev == -1) {
-    fprintf(stderr, "\nNo configuration with available capabilities was found. "
-                    " Test has been waived.\n");
+    fprintf(stderr,
+            "\nNo configuration with available capabilities was found. "
+            " Test has been waived.\n");
     fprintf(stderr, "The CUDA Sample minimum requirements:\n");
     fprintf(stderr, "\tCUDA Compute Capability >= %d.%d is required\n",
             MIN_COMPUTE_VERSION / 16, MIN_COMPUTE_VERSION % 16);
@@ -605,9 +607,9 @@ void printHelp() {
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   int devID = 0;
-  char *ref_file = NULL;
+  char* ref_file = NULL;
 
 #if defined(__linux__)
   setenv("DISPLAY", ":0", 0);
@@ -619,7 +621,7 @@ int main(int argc, char **argv) {
   // start logs
   printf("%s Starting...\n\n", argv[0]);
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "help")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "help")) {
     printHelp();
     exit(EXIT_SUCCESS);
   }
@@ -627,41 +629,40 @@ int main(int argc, char **argv) {
   // use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
   if (argc > 1) {
-    if (checkCmdLineFlag(argc, (const char **)argv, "threads")) {
-      nthreads = getCmdLineArgumentInt(argc, (const char **)argv, "threads");
+    if (checkCmdLineFlag(argc, (const char**)argv, "threads")) {
+      nthreads = getCmdLineArgumentInt(argc, (const char**)argv, "threads");
     }
 
-    if (checkCmdLineFlag(argc, (const char **)argv, "radius")) {
-      filter_radius =
-          getCmdLineArgumentInt(argc, (const char **)argv, "radius");
+    if (checkCmdLineFlag(argc, (const char**)argv, "radius")) {
+      filter_radius = getCmdLineArgumentInt(argc, (const char**)argv, "radius");
     }
 
-    if (checkCmdLineFlag(argc, (const char **)argv, "passes")) {
-      iterations = getCmdLineArgumentInt(argc, (const char **)argv, "passes");
+    if (checkCmdLineFlag(argc, (const char**)argv, "passes")) {
+      iterations = getCmdLineArgumentInt(argc, (const char**)argv, "passes");
     }
 
-    if (checkCmdLineFlag(argc, (const char **)argv, "file")) {
-      getCmdLineArgumentString(argc, (const char **)argv, "file",
-                               (char **)&ref_file);
+    if (checkCmdLineFlag(argc, (const char**)argv, "file")) {
+      getCmdLineArgumentString(argc, (const char**)argv, "file",
+                               (char**)&ref_file);
     }
   }
 
   // load image to process
   loadImageData(argc, argv);
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "benchmark")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "benchmark")) {
     // This is a separate mode of the sample, where we are benchmark the kernels
     // for performance
-    devID = findCudaDevice(argc, (const char **)argv);
+    devID = findCudaDevice(argc, (const char**)argv);
 
     // Running CUDA kernels (boxfilter) in Benchmarking mode
     g_TotalErrors += runBenchmark();
     exit(g_TotalErrors == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
-  } else if (checkCmdLineFlag(argc, (const char **)argv, "radius") ||
-             checkCmdLineFlag(argc, (const char **)argv, "passes")) {
+  } else if (checkCmdLineFlag(argc, (const char**)argv, "radius") ||
+             checkCmdLineFlag(argc, (const char**)argv, "passes")) {
     // This overrides the default mode.  Users can specify the radius used by
     // the filter kernel
-    devID = findCudaDevice(argc, (const char **)argv);
+    devID = findCudaDevice(argc, (const char**)argv);
     g_TotalErrors += runSingleTest(ref_file, argv[0]);
     exit(g_TotalErrors == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
   } else {
@@ -699,9 +700,10 @@ int main(int argc, char **argv) {
 #endif
 
     printf("Running Standard Demonstration with GLUT loop...\n\n");
-    printf("Press '+' and '-' to change filter width\n"
-           "Press ']' and '[' to change number of iterations\n"
-           "Press 'a' or  'A' to change animation ON/OFF\n\n");
+    printf(
+        "Press '+' and '-' to change filter width\n"
+        "Press ']' and '[' to change number of iterations\n"
+        "Press 'a' or  'A' to change animation ON/OFF\n\n");
 
     // Main OpenGL loop that will run visualization for every vsync
     glutMainLoop();

@@ -78,22 +78,23 @@ __global__ void cdp_kernel(int max_depth, int depth, int thread,
 ////////////////////////////////////////////////////////////////////////////////
 // Main entry point.
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   printf("starting Simple Print (CUDA Dynamic Parallelism)\n");
 
   // Parse a few command-line arguments.
   int max_depth = 2;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "help") ||
-      checkCmdLineFlag(argc, (const char **)argv, "h")) {
-    printf("Usage: %s depth=<max_depth>\t(where max_depth is a value between 1 "
-           "and 8).\n",
-           argv[0]);
+  if (checkCmdLineFlag(argc, (const char**)argv, "help") ||
+      checkCmdLineFlag(argc, (const char**)argv, "h")) {
+    printf(
+        "Usage: %s depth=<max_depth>\t(where max_depth is a value between 1 "
+        "and 8).\n",
+        argv[0]);
     exit(EXIT_SUCCESS);
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "depth")) {
-    max_depth = getCmdLineArgumentInt(argc, (const char **)argv, "depth");
+  if (checkCmdLineFlag(argc, (const char**)argv, "depth")) {
+    max_depth = getCmdLineArgumentInt(argc, (const char**)argv, "depth");
 
     if (max_depth < 1 || max_depth > 8) {
       printf("depth parameter has to be between 1 and 8\n");
@@ -104,8 +105,8 @@ int main(int argc, char **argv) {
   // Find/set the device.
   int device_count = 0, device = -1;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
-    device = getCmdLineArgumentInt(argc, (const char **)argv, "device");
+  if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
+    device = getCmdLineArgumentInt(argc, (const char**)argv, "device");
 
     cudaDeviceProp properties;
     checkCudaErrors(cudaGetDeviceProperties(&properties, device));
@@ -148,12 +149,15 @@ int main(int argc, char **argv) {
   cudaSetDevice(device);
 
   // Print a message describing what the sample does.
-  printf("*********************************************************************"
-         "******\n");
-  printf("The CPU launches 2 blocks of 2 threads each. On the device each "
-         "thread will\n");
-  printf("launch 2 blocks of 2 threads each. The GPU we will do that "
-         "recursively\n");
+  printf(
+      "*********************************************************************"
+      "******\n");
+  printf(
+      "The CPU launches 2 blocks of 2 threads each. On the device each "
+      "thread will\n");
+  printf(
+      "launch 2 blocks of 2 threads each. The GPU we will do that "
+      "recursively\n");
   printf("until it reaches max_depth=%d\n\n", max_depth);
   printf("In total 2");
   int num_blocks = 2, sum = 2;
@@ -165,8 +169,9 @@ int main(int argc, char **argv) {
   }
 
   printf("=%d blocks are launched!!! (%d from the GPU)\n", sum, sum - 2);
-  printf("*********************************************************************"
-         "******\n\n");
+  printf(
+      "*********************************************************************"
+      "******\n\n");
 
   // We set the recursion limit for CDP to max_depth.
   cudaDeviceSetLimit(cudaLimitDevRuntimeSyncDepth, max_depth);

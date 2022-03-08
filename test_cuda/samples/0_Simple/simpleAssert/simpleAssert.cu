@@ -24,12 +24,12 @@
 #include <cuda_runtime.h>
 
 // Utilities and timing functions
-#include <helper_functions.h> // includes cuda.h and cuda_runtime_api.h
+#include <helper_functions.h>  // includes cuda.h and cuda_runtime_api.h
 
 // CUDA helper functions
-#include <helper_cuda.h> // helper functions for CUDA error check
+#include <helper_cuda.h>  // helper functions for CUDA error check
 
-const char *sampleName = "simpleAssert";
+const char* sampleName = "simpleAssert";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Auto-Verification Code
@@ -48,12 +48,12 @@ __global__ void testKernel(int N) {
 
 ////////////////////////////////////////////////////////////////////////////////
 // Declaration, forward
-void runTest(int argc, char **argv);
+void runTest(int argc, char** argv);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   printf("%s starting...\n", sampleName);
 
   runTest(argc, argv);
@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
   exit(testResult ? EXIT_SUCCESS : EXIT_FAILURE);
 }
 
-void runTest(int argc, char **argv) {
+void runTest(int argc, char** argv) {
   int devID;
   int Nblocks = 2;
   int Nthreads = 32;
@@ -92,13 +92,14 @@ void runTest(int argc, char **argv) {
 #endif
 
   // This will pick the best possible CUDA capable device
-  devID = findCudaDevice(argc, (const char **)argv);
+  devID = findCudaDevice(argc, (const char**)argv);
 
   checkCudaErrors(cudaGetDeviceProperties(&deviceProp, devID));
 
   if (deviceProp.major < 2) {
-    printf("simpleAssert requires a GPU with compute capability "
-           "2.0 or later, exiting...\n");
+    printf(
+        "simpleAssert requires a GPU with compute capability "
+        "2.0 or later, exiting...\n");
 
     // cudaDeviceReset causes the driver to clean up all state. While
     // not mandatory in normal operation, it is good practice.  It is also
@@ -124,9 +125,10 @@ void runTest(int argc, char **argv) {
 
   // Check for errors and failed asserts in asynchronous kernel launch.
   if (error == cudaErrorAssert) {
-    printf("Device assert failed as expected, "
-           "CUDA error message is: %s\n\n",
-           cudaGetErrorString(error));
+    printf(
+        "Device assert failed as expected, "
+        "CUDA error message is: %s\n\n",
+        cudaGetErrorString(error));
   }
 
   testResult = error == cudaErrorAssert;

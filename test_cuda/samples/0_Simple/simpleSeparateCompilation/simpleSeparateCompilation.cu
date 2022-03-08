@@ -36,7 +36,7 @@ using std::vector;
 typedef unsigned int uint;
 typedef float (*deviceFunc)(float);
 
-const char *sampleName = "simpleSeparateCompilation";
+const char* sampleName = "simpleSeparateCompilation";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Auto-Verification Code
@@ -53,7 +53,7 @@ __device__ deviceFunc dDivideByTwoPtr = divideByTwo;
 //! Transforms vector.
 //! Applies the __device__ function "f" to each element of the vector "v".
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void transformVector(float *v, deviceFunc f, uint size) {
+__global__ void transformVector(float* v, deviceFunc f, uint size) {
   uint tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid < size) {
@@ -63,15 +63,15 @@ __global__ void transformVector(float *v, deviceFunc f, uint size) {
 
 ////////////////////////////////////////////////////////////////////////////////
 // Declaration, forward
-void runTest(int argc, const char **argv);
+void runTest(int argc, const char** argv);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   cout << sampleName << " starting..." << endl;
 
-  runTest(argc, (const char **)argv);
+  runTest(argc, (const char**)argv);
 
   cout << sampleName << " completed, returned " << (testResult ? "OK" : "ERROR")
        << endl;
@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
   exit(testResult ? EXIT_SUCCESS : EXIT_FAILURE);
 }
 
-void runTest(int argc, const char **argv) {
+void runTest(int argc, const char** argv) {
   try {
     int devID;
 
@@ -87,7 +87,7 @@ void runTest(int argc, const char **argv) {
     cudaDeviceProp deviceProp;
 
     // This will pick the best possible CUDA capable device.
-    devID = findCudaDevice(argc, (const char **)argv);
+    devID = findCudaDevice(argc, (const char**)argv);
 
     checkCudaErrors(cudaGetDeviceProperties(&deviceProp, devID));
 
@@ -113,7 +113,7 @@ void runTest(int argc, const char **argv) {
     }
 
     // Create and populate device vector.
-    float *dVector;
+    float* dVector;
     checkCudaErrors(cudaMalloc(&dVector, kVectorSize * sizeof(float)));
 
     checkCudaErrors(cudaMemcpy(dVector, &hVector[0],
@@ -156,8 +156,7 @@ void runTest(int argc, const char **argv) {
     }
 
     // Free resources.
-    if (dVector)
-      checkCudaErrors(cudaFree(dVector));
+    if (dVector) checkCudaErrors(cudaFree(dVector));
 
     // cudaDeviceReset causes the driver to clean up all state. While
     // not mandatory in normal operation, it is good practice.  It is also

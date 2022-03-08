@@ -30,13 +30,12 @@ static real CND(real d) {
   real cnd = RSQRT2PI * exp(-0.5 * d * d) *
              (K * (A1 + K * (A2 + K * (A3 + K * (A4 + K * A5)))));
 
-  if (d > 0)
-    cnd = 1.0 - cnd;
+  if (d > 0) cnd = 1.0 - cnd;
 
   return cnd;
 }
 
-extern "C" void BlackScholesCall(real &callResult, TOptionData optionData) {
+extern "C" void BlackScholesCall(real& callResult, TOptionData optionData) {
   real S = optionData.S;
   real X = optionData.X;
   real T = optionData.T;
@@ -63,7 +62,7 @@ static real expiryCallValue(real S, real X, real vDt, int i) {
   return (d > (real)0) ? d : (real)0;
 }
 
-extern "C" void binomialOptionsCPU(real &callResult, TOptionData optionData) {
+extern "C" void binomialOptionsCPU(real& callResult, TOptionData optionData) {
   static real Call[NUM_STEPS + 1];
 
   const real S = optionData.S;
@@ -92,8 +91,7 @@ extern "C" void binomialOptionsCPU(real &callResult, TOptionData optionData) {
   // if S(T) is greater than X, or zero otherwise.
   // The computation is similar for put options.
   ///////////////////////////////////////////////////////////////////////
-  for (int i = 0; i <= NUM_STEPS; i++)
-    Call[i] = expiryCallValue(S, X, vDt, i);
+  for (int i = 0; i <= NUM_STEPS; i++) Call[i] = expiryCallValue(S, X, vDt, i);
 
   ////////////////////////////////////////////////////////////////////////
   // Walk backwards up binomial tree

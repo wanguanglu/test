@@ -22,4 +22,4 @@
 
 #define MIN_ABS_INTERVAL 5.0e-37
 
-#endif // #ifndef _CONFIG_H_
+#endif  // #ifndef _CONFIG_H_

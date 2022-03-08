@@ -19,19 +19,19 @@ void func4(int y, int z) {
 }
 
 class C {
-public:
+ public:
   virtual void func1() = 0;
 };
 
 class B : public C {
-public:
+ public:
   void func1() override { std::cout << "In class B func1." << std::endl; }
 
   int func2() { return 0; }
 };
 
 class A {
-public:
+ public:
   void TestThread() {
     std::thread t1(&A::func1, this);
     t1.join();
@@ -63,7 +63,7 @@ public:
     std::cout << "x: " << x << " y: " << y << " z: " << z << std::endl;
   }
 
-private:
+ private:
   int x = 0;
 };
 
@@ -72,7 +72,7 @@ void Test() {
   a.TestThread();
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   Test();
   return 0;
 }

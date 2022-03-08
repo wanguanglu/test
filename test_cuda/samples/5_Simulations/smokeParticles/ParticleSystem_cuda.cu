@@ -30,7 +30,7 @@ This file contains simple wrapper functions that call the CUDA kernels
 
 extern "C" {
 
-cudaArray *noiseArray;
+cudaArray* noiseArray;
 
 void initCuda(bool bUseGL) {
   if (bUseGL) {
@@ -40,7 +40,7 @@ void initCuda(bool bUseGL) {
   }
 }
 
-void setParameters(SimParams *hostParams) {
+void setParameters(SimParams* hostParams) {
   // copy parameters to constant memory
   checkCudaErrors(cudaMemcpyToSymbol(params, hostParams, sizeof(SimParams)));
 }
@@ -49,7 +49,7 @@ void setParameters(SimParams *hostParams) {
 int iDivUp(int a, int b) { return (a % b != 0) ? (a / b + 1) : (a / b); }
 
 // compute grid and thread block size for a given number of elements
-void computeGridSize(int n, int blockSize, int &numBlocks, int &numThreads) {
+void computeGridSize(int n, int blockSize, int& numBlocks, int& numThreads) {
   numThreads = min(blockSize, n);
   numBlocks = iDivUp(n, numThreads);
 }
@@ -61,8 +61,8 @@ void createNoiseTexture(int w, int h, int d) {
   cudaExtent size = make_cudaExtent(w, h, d);
   size_t elements = size.width * size.height * size.depth;
 
-  float *volumeData = (float *)malloc(elements * 4 * sizeof(float));
-  float *ptr = volumeData;
+  float* volumeData = (float*)malloc(elements * 4 * sizeof(float));
+  float* ptr = volumeData;
 
   for (size_t i = 0; i < elements; i++) {
     *ptr++ = frand() * 2.0f - 1.0f;
@@ -76,7 +76,7 @@ void createNoiseTexture(int w, int h, int d) {
 
   cudaMemcpy3DParms copyParams = {0};
   copyParams.srcPtr = make_cudaPitchedPtr(
-      (void *)volumeData, size.width * sizeof(float4), size.width, size.height);
+      (void*)volumeData, size.width * sizeof(float4), size.width, size.height);
   copyParams.dstArray = noiseArray;
   copyParams.extent = size;
   copyParams.kind = cudaMemcpyHostToDevice;
@@ -85,9 +85,9 @@ void createNoiseTexture(int w, int h, int d) {
   free(volumeData);
 
   // set texture parameters
-  noiseTex.normalized = true; // access with normalized texture coordinates
-  noiseTex.filterMode = cudaFilterModeLinear;    // linear interpolation
-  noiseTex.addressMode[0] = cudaAddressModeWrap; // wrap texture coordinates
+  noiseTex.normalized = true;  // access with normalized texture coordinates
+  noiseTex.filterMode = cudaFilterModeLinear;     // linear interpolation
+  noiseTex.addressMode[0] = cudaAddressModeWrap;  // wrap texture coordinates
   noiseTex.addressMode[1] = cudaAddressModeWrap;
   noiseTex.addressMode[2] = cudaAddressModeWrap;
 
@@ -95,8 +95,8 @@ void createNoiseTexture(int w, int h, int d) {
   checkCudaErrors(cudaBindTextureToArray(noiseTex, noiseArray, channelDesc));
 }
 
-void integrateSystem(float4 *oldPos, float4 *newPos, float4 *oldVel,
-                     float4 *newVel, float deltaTime, int numParticles) {
+void integrateSystem(float4* oldPos, float4* newPos, float4* oldVel,
+                     float4* newVel, float deltaTime, int numParticles) {
   thrust::device_ptr<float4> d_newPos(newPos);
   thrust::device_ptr<float4> d_newVel(newVel);
   thrust::device_ptr<float4> d_oldPos(oldPos);
@@ -110,9 +110,9 @@ void integrateSystem(float4 *oldPos, float4 *newPos, float4 *oldVel,
                    integrate_functor(deltaTime));
 }
 
-void calcDepth(float4 *pos,
-               float *keys,   // output
-               uint *indices, // output
+void calcDepth(float4* pos,
+               float* keys,    // output
+               uint* indices,  // output
                float3 sortVector, int numParticles) {
   thrust::device_ptr<float4> d_pos(pos);
   thrust::device_ptr<float> d_keys(keys);
@@ -126,10 +126,10 @@ void calcDepth(float4 *pos,
   thrust::sequence(d_indices, d_indices + numParticles);
 }
 
-void sortParticles(float *sortKeys, uint *indices, uint numParticles) {
+void sortParticles(float* sortKeys, uint* indices, uint numParticles) {
   thrust::sort_by_key(thrust::device_ptr<float>(sortKeys),
                       thrust::device_ptr<float>(sortKeys + numParticles),
                       thrust::device_ptr<uint>(indices));
 }
 
-} // extern "C"
+}  // extern "C"

@@ -53,7 +53,7 @@
 
 // Start the main CUDA Sample here
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   printf("CUDA Clock sample\n");
 
   typedef long clock_t;
@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
   checkCudaErrors(cuMemAlloc(&dtimer, sizeof(clock_t) * NUM_BLOCKS * 2));
   checkCudaErrors(cuMemcpyHtoD(dinput, input, sizeof(float) * NUM_THREADS * 2));
 
-  void *arr[] = {(void *)&dinput, (void *)&doutput, (void *)&dtimer};
+  void* arr[] = {(void*)&dinput, (void*)&doutput, (void*)&dtimer};
 
   checkCudaErrors(cuLaunchKernel(
       kernel_addr, cudaGridSize.x, cudaGridSize.y,

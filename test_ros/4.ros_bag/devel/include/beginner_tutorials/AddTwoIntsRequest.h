@@ -14,11 +14,12 @@
 #include <ros/types.h>
 
 namespace beginner_tutorials {
-template <class ContainerAllocator> struct AddTwoIntsRequest_ {
+template <class ContainerAllocator>
+struct AddTwoIntsRequest_ {
   typedef AddTwoIntsRequest_<ContainerAllocator> Type;
 
   AddTwoIntsRequest_() : a(0), b(0) {}
-  AddTwoIntsRequest_(const ContainerAllocator &_alloc) : a(0), b(0) {
+  AddTwoIntsRequest_(const ContainerAllocator& _alloc) : a(0), b(0) {
     (void)_alloc;
   }
 
@@ -35,7 +36,7 @@ template <class ContainerAllocator> struct AddTwoIntsRequest_ {
       ::beginner_tutorials::AddTwoIntsRequest_<ContainerAllocator> const>
       ConstPtr;
 
-}; // struct AddTwoIntsRequest_
+};  // struct AddTwoIntsRequest_
 
 typedef ::beginner_tutorials::AddTwoIntsRequest_<std::allocator<void>>
     AddTwoIntsRequest;
@@ -48,9 +49,9 @@ typedef boost::shared_ptr<::beginner_tutorials::AddTwoIntsRequest const>
 // constants requiring out of line definition
 
 template <typename ContainerAllocator>
-std::ostream &operator<<(
-    std::ostream &s,
-    const ::beginner_tutorials::AddTwoIntsRequest_<ContainerAllocator> &v) {
+std::ostream& operator<<(
+    std::ostream& s,
+    const ::beginner_tutorials::AddTwoIntsRequest_<ContainerAllocator>& v) {
   ros::message_operations::Printer<
       ::beginner_tutorials::AddTwoIntsRequest_<ContainerAllocator>>::stream(s,
                                                                             "",
@@ -58,7 +59,7 @@ std::ostream &operator<<(
   return s;
 }
 
-} // namespace beginner_tutorials
+}  // namespace beginner_tutorials
 
 namespace ros {
 namespace message_traits {
@@ -103,10 +104,10 @@ struct HasHeader<
 
 template <class ContainerAllocator>
 struct MD5Sum<::beginner_tutorials::AddTwoIntsRequest_<ContainerAllocator>> {
-  static const char *value() { return "36d09b846be0b371c5f190354dd3153e"; }
+  static const char* value() { return "36d09b846be0b371c5f190354dd3153e"; }
 
-  static const char *
-  value(const ::beginner_tutorials::AddTwoIntsRequest_<ContainerAllocator> &) {
+  static const char* value(
+      const ::beginner_tutorials::AddTwoIntsRequest_<ContainerAllocator>&) {
     return value();
   }
   static const uint64_t static_value1 = 0x36d09b846be0b371ULL;
@@ -115,10 +116,10 @@ struct MD5Sum<::beginner_tutorials::AddTwoIntsRequest_<ContainerAllocator>> {
 
 template <class ContainerAllocator>
 struct DataType<::beginner_tutorials::AddTwoIntsRequest_<ContainerAllocator>> {
-  static const char *value() { return "beginner_tutorials/AddTwoIntsRequest"; }
+  static const char* value() { return "beginner_tutorials/AddTwoIntsRequest"; }
 
-  static const char *
-  value(const ::beginner_tutorials::AddTwoIntsRequest_<ContainerAllocator> &) {
+  static const char* value(
+      const ::beginner_tutorials::AddTwoIntsRequest_<ContainerAllocator>&) {
     return value();
   }
 };
@@ -126,20 +127,20 @@ struct DataType<::beginner_tutorials::AddTwoIntsRequest_<ContainerAllocator>> {
 template <class ContainerAllocator>
 struct Definition<
     ::beginner_tutorials::AddTwoIntsRequest_<ContainerAllocator>> {
-  static const char *value() {
+  static const char* value() {
     return "int64 a\n\
 int64 b\n\
 ";
   }
 
-  static const char *
-  value(const ::beginner_tutorials::AddTwoIntsRequest_<ContainerAllocator> &) {
+  static const char* value(
+      const ::beginner_tutorials::AddTwoIntsRequest_<ContainerAllocator>&) {
     return value();
   }
 };
 
-} // namespace message_traits
-} // namespace ros
+}  // namespace message_traits
+}  // namespace ros
 
 namespace ros {
 namespace serialization {
@@ -148,16 +149,16 @@ template <class ContainerAllocator>
 struct Serializer<
     ::beginner_tutorials::AddTwoIntsRequest_<ContainerAllocator>> {
   template <typename Stream, typename T>
-  inline static void allInOne(Stream &stream, T m) {
+  inline static void allInOne(Stream& stream, T m) {
     stream.next(m.a);
     stream.next(m.b);
   }
 
   ROS_DECLARE_ALLINONE_SERIALIZER
-}; // struct AddTwoIntsRequest_
+};  // struct AddTwoIntsRequest_
 
-} // namespace serialization
-} // namespace ros
+}  // namespace serialization
+}  // namespace ros
 
 namespace ros {
 namespace message_operations {
@@ -166,8 +167,8 @@ template <class ContainerAllocator>
 struct Printer<::beginner_tutorials::AddTwoIntsRequest_<ContainerAllocator>> {
   template <typename Stream>
   static void stream(
-      Stream &s, const std::string &indent,
-      const ::beginner_tutorials::AddTwoIntsRequest_<ContainerAllocator> &v) {
+      Stream& s, const std::string& indent,
+      const ::beginner_tutorials::AddTwoIntsRequest_<ContainerAllocator>& v) {
     s << indent << "a: ";
     Printer<int64_t>::stream(s, indent + "  ", v.a);
     s << indent << "b: ";
@@ -175,7 +176,7 @@ struct Printer<::beginner_tutorials::AddTwoIntsRequest_<ContainerAllocator>> {
   }
 };
 
-} // namespace message_operations
-} // namespace ros
+}  // namespace message_operations
+}  // namespace ros
 
-#endif // BEGINNER_TUTORIALS_MESSAGE_ADDTWOINTSREQUEST_H
+#endif  // BEGINNER_TUTORIALS_MESSAGE_ADDTWOINTSREQUEST_H

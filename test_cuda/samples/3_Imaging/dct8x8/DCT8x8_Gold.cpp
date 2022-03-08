@@ -102,8 +102,8 @@ float Q[BLOCK_SIZE2] = {
 *
 * \return None
 */
-void mult8x8(const float *M1, int M1Stride, const float *M2, int M2Stride,
-             float *Mres, int MresStride) {
+void mult8x8(const float* M1, int M1Stride, const float* M2, int M2Stride,
+             float* Mres, int MresStride) {
   for (int i = 0; i < BLOCK_SIZE; i++) {
     for (int j = 0; j < BLOCK_SIZE; j++) {
       float accumul = 0;
@@ -130,7 +130,7 @@ void mult8x8(const float *M1, int M1Stride, const float *M2, int M2Stride,
 *
 * \return None
 */
-extern "C" void computeDCT8x8Gold1(const float *fSrc, float *fDst, int Stride,
+extern "C" void computeDCT8x8Gold1(const float* fSrc, float* fDst, int Stride,
                                    ROI Size) {
   float tmpblock[BLOCK_SIZE2];
 
@@ -161,7 +161,7 @@ extern "C" void computeDCT8x8Gold1(const float *fSrc, float *fDst, int Stride,
 *
 * \return None
 */
-extern "C" void computeIDCT8x8Gold1(const float *fSrc, float *fDst, int Stride,
+extern "C" void computeIDCT8x8Gold1(const float* fSrc, float* fDst, int Stride,
                                     ROI Size) {
   float tmpblock[BLOCK_SIZE2];
 
@@ -190,8 +190,7 @@ extern "C" void computeIDCT8x8Gold1(const float *fSrc, float *fDst, int Stride,
 *
 * \return None
 */
-extern "C" void quantizeGoldFloat(float *fSrcDst, int Stride, ROI Size) {
-
+extern "C" void quantizeGoldFloat(float* fSrcDst, int Stride, ROI Size) {
   // perform block wise in-place quantization using Q
   // Q(A) = round(A ./ Q) .* Q;
   for (int i = 0; i < Size.height; i++) {
@@ -216,8 +215,7 @@ extern "C" void quantizeGoldFloat(float *fSrcDst, int Stride, ROI Size) {
 *
 * \return None
 */
-void quantizeGoldShort(short *fSrcDst, int Stride, ROI Size) {
-
+void quantizeGoldShort(short* fSrcDst, int Stride, ROI Size) {
   // perform block wise in-place quantization using Q
   // Q(A) = round(A ./ Q) .* Q;
   for (int i = 0; i < Size.height; i++) {
@@ -242,23 +240,23 @@ void quantizeGoldShort(short *fSrcDst, int Stride, ROI Size) {
   }
 }
 
-float C_a = 1.387039845322148f; //!< a = (2^0.5) * cos(    pi / 16);  Used in
-                                //!< forward and inverse DCT.
-float C_b = 1.306562964876377f; //!< b = (2^0.5) * cos(    pi /  8);  Used in
-                                //!< forward and inverse DCT.
-float C_c = 1.175875602419359f; //!< c = (2^0.5) * cos(3 * pi / 16);  Used in
-                                //!< forward and inverse DCT.
-float C_d = 0.785694958387102f; //!< d = (2^0.5) * cos(5 * pi / 16);  Used in
-                                //!< forward and inverse DCT.
-float C_e = 0.541196100146197f; //!< e = (2^0.5) * cos(3 * pi /  8);  Used in
-                                //!< forward and inverse DCT.
-float C_f = 0.275899379282943f; //!< f = (2^0.5) * cos(7 * pi / 16);  Used in
-                                //!< forward and inverse DCT.
+float C_a = 1.387039845322148f;  //!< a = (2^0.5) * cos(    pi / 16);  Used in
+                                 //!< forward and inverse DCT.
+float C_b = 1.306562964876377f;  //!< b = (2^0.5) * cos(    pi /  8);  Used in
+                                 //!< forward and inverse DCT.
+float C_c = 1.175875602419359f;  //!< c = (2^0.5) * cos(3 * pi / 16);  Used in
+                                 //!< forward and inverse DCT.
+float C_d = 0.785694958387102f;  //!< d = (2^0.5) * cos(5 * pi / 16);  Used in
+                                 //!< forward and inverse DCT.
+float C_e = 0.541196100146197f;  //!< e = (2^0.5) * cos(3 * pi /  8);  Used in
+                                 //!< forward and inverse DCT.
+float C_f = 0.275899379282943f;  //!< f = (2^0.5) * cos(7 * pi / 16);  Used in
+                                 //!< forward and inverse DCT.
 
 /**
  *  Normalization constant that is used in forward and inverse DCT
  */
-float C_norm = 0.3535533905932737f; // 1 / (8^0.5)
+float C_norm = 0.3535533905932737f;  // 1 / (8^0.5)
 
 /**
 **************************************************************************
@@ -272,7 +270,7 @@ float C_norm = 0.3535533905932737f; // 1 / (8^0.5)
 *
 * \return None
 */
-void SubroutineDCTvector(float *FirstIn, int StepIn, float *FirstOut,
+void SubroutineDCTvector(float* FirstIn, int StepIn, float* FirstOut,
                          int StepOut) {
   float X07P = FirstIn[0 * StepIn] + FirstIn[7 * StepIn];
   float X16P = FirstIn[1 * StepIn] + FirstIn[6 * StepIn];
@@ -316,7 +314,7 @@ void SubroutineDCTvector(float *FirstIn, int StepIn, float *FirstOut,
 *
 * \return None
 */
-void SubroutineIDCTvector(float *FirstIn, int StepIn, float *FirstOut,
+void SubroutineIDCTvector(float* FirstIn, int StepIn, float* FirstOut,
                           int StepOut) {
   float Y04P = FirstIn[0 * StepIn] + FirstIn[4 * StepIn];
   float Y2b6eP = C_b * FirstIn[2 * StepIn] + C_e * FirstIn[6 * StepIn];
@@ -362,13 +360,13 @@ void SubroutineIDCTvector(float *FirstIn, int StepIn, float *FirstOut,
 *
 * \return None
 */
-extern "C" void computeDCT8x8Gold2(const float *fSrc, float *fDst, int Stride,
+extern "C" void computeDCT8x8Gold2(const float* fSrc, float* fDst, int Stride,
                                    ROI Size) {
   for (int i = 0; i + BLOCK_SIZE - 1 < Size.height; i += BLOCK_SIZE) {
     for (int j = 0; j + BLOCK_SIZE - 1 < Size.width; j += BLOCK_SIZE) {
       // process rows
       for (int k = 0; k < BLOCK_SIZE; k++) {
-        SubroutineDCTvector((float *)fSrc + (i + k) * Stride + j, 1,
+        SubroutineDCTvector((float*)fSrc + (i + k) * Stride + j, 1,
                             fDst + (i + k) * Stride + j, 1);
       }
 
@@ -394,13 +392,13 @@ extern "C" void computeDCT8x8Gold2(const float *fSrc, float *fDst, int Stride,
 *
 * \return None
 */
-extern "C" void computeIDCT8x8Gold2(const float *fSrc, float *fDst, int Stride,
+extern "C" void computeIDCT8x8Gold2(const float* fSrc, float* fDst, int Stride,
                                     ROI Size) {
   for (int i = 0; i + BLOCK_SIZE - 1 < Size.height; i += BLOCK_SIZE) {
     for (int j = 0; j + BLOCK_SIZE - 1 < Size.width; j += BLOCK_SIZE) {
       // process rows
       for (int k = 0; k < BLOCK_SIZE; k++) {
-        SubroutineIDCTvector((float *)fSrc + (i + k) * Stride + j, 1,
+        SubroutineIDCTvector((float*)fSrc + (i + k) * Stride + j, 1,
                              fDst + (i + k) * Stride + j, 1);
       }
 

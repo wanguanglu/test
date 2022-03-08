@@ -41,11 +41,11 @@
 #include <cuda_runtime.h>
 
 // Utilities and timing functions
-#include <helper_functions.h> // includes cuda.h and cuda_runtime_api.h
-#include <timer.h>            // timing functions
+#include <helper_functions.h>  // includes cuda.h and cuda_runtime_api.h
+#include <timer.h>             // timing functions
 
 // CUDA helper functions
-#include <helper_cuda.h> // helper functions for CUDA error check
+#include <helper_cuda.h>  // helper functions for CUDA error check
 
 #include <vector_types.h>
 
@@ -61,7 +61,7 @@ void checkCUDAError() {
 
 #define MAX_EPSILON_ERROR 0.0f
 #define THRESHOLD 0.0f
-#define REFRESH_DELAY 1 // ms
+#define REFRESH_DELAY 1  // ms
 
 #define GUI_IDLE 0x100
 #define GUI_ROTATE 0x101
@@ -81,8 +81,8 @@ const unsigned int mesh_height = 256;
 
 // OpenGL ES variables and interop with CUDA C
 GLuint mesh_vao, mesh_vbo;
-struct cudaGraphicsResource *cuda_vbo_resource;
-void *d_vbo_buffer = NULL;
+struct cudaGraphicsResource* cuda_vbo_resource;
+void* d_vbo_buffer = NULL;
 
 float g_fAnim = 0.0;
 
@@ -92,12 +92,12 @@ int mouse_buttons = 0;
 float rotate_x = 0.0, rotate_y = 0.0;
 float translate_z = -3.0;
 
-StopWatchInterface *timer = NULL;
+StopWatchInterface* timer = NULL;
 
 // Frame statistics
 int frame;
-int fpsCount = 0; // FPS count for averaging
-int fpsLimit = 1; // FPS limit for sampling
+int fpsCount = 0;  // FPS count for averaging
+int fpsLimit = 1;  // FPS limit for sampling
 int g_Index = 0;
 float avgFPS = 0.0f;
 unsigned int frameCount = 0;
@@ -106,8 +106,8 @@ unsigned int g_TotalErrors = 0;
 // Auto-Verification Code
 bool g_bQAReadback = false;
 
-int *pArgc = NULL;
-char **pArgv = NULL;
+int* pArgc = NULL;
+char** pArgv = NULL;
 
 #define MAX(a, b) ((a > b) ? a : b)
 
@@ -115,11 +115,11 @@ char **pArgv = NULL;
 // declaration, forward
 
 // CUDA functionality
-void runCuda(struct cudaGraphicsResource **vbo_resource);
-void runAutoTest(int devID, char **argv, char *ref_file);
-void checkResultCuda(int argc, char **argv, const GLuint &vbo);
+void runCuda(struct cudaGraphicsResource** vbo_resource);
+void runAutoTest(int devID, char** argv, char* ref_file);
+void checkResultCuda(int argc, char** argv, const GLuint& vbo);
 
-const char *sSDKsample = "simpleGLES on Screen (VBO)";
+const char* sSDKsample = "simpleGLES on Screen (VBO)";
 
 void computeFPS() {
   frameCount++;
@@ -143,7 +143,7 @@ void computeFPS() {
 //! Simple kernel to modify vertex positions in sine wave pattern
 //! @param data  data in global memory
 ///////////////////////////////////////////////////////////////////////////////
-__global__ void simple_vbo_kernel(float4 *pos, unsigned int width,
+__global__ void simple_vbo_kernel(float4* pos, unsigned int width,
                                   unsigned int height, float time) {
   unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
   unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -162,7 +162,7 @@ __global__ void simple_vbo_kernel(float4 *pos, unsigned int width,
   pos[y * width + x] = make_float4(u, w, v, 1.0f);
 }
 
-void launch_kernel(float4 *pos, unsigned int mesh_width,
+void launch_kernel(float4* pos, unsigned int mesh_width,
                    unsigned int mesh_height, float time) {
   // execute the kernel
   dim3 block(8, 8, 1);
@@ -173,12 +173,12 @@ void launch_kernel(float4 *pos, unsigned int mesh_width,
 ////////////////////////////////////////////////////////////////////////////////
 //! Run the Cuda part of the computation
 ////////////////////////////////////////////////////////////////////////////////
-void runCuda(struct cudaGraphicsResource **vbo_resource) {
+void runCuda(struct cudaGraphicsResource** vbo_resource) {
   // map OpenGL buffer object for writing from CUDA
-  float4 *dptr;
+  float4* dptr;
   cudaGraphicsMapResources(1, vbo_resource, 0);
   size_t num_bytes;
-  cudaGraphicsResourceGetMappedPointer((void **)&dptr, &num_bytes,
+  cudaGraphicsResourceGetMappedPointer((void**)&dptr, &num_bytes,
                                        *vbo_resource);
 
   launch_kernel(dptr, mesh_width, mesh_height, g_fAnim);
@@ -191,9 +191,9 @@ void runCuda(struct cudaGraphicsResource **vbo_resource) {
 #define FOPEN(fHandle, filename, mode) (fHandle = fopen(filename, mode))
 #endif
 
-void sdkDumpBin2(void *data, unsigned int bytes, const char *filename) {
+void sdkDumpBin2(void* data, unsigned int bytes, const char* filename) {
   printf("sdkDumpBin: <%s>\n", filename);
-  FILE *fp;
+  FILE* fp;
   FOPEN(fp, filename, "wb");
   fwrite(data, bytes, 1, fp);
   fflush(fp);
@@ -203,12 +203,12 @@ void sdkDumpBin2(void *data, unsigned int bytes, const char *filename) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Run the Cuda part of the computation
 ////////////////////////////////////////////////////////////////////////////////
-void runAutoTest(int devID, char **argv, char *ref_file) {
-  char *reference_file = NULL;
-  void *imageData = malloc(mesh_width * mesh_height * sizeof(float));
+void runAutoTest(int devID, char** argv, char* ref_file) {
+  char* reference_file = NULL;
+  void* imageData = malloc(mesh_width * mesh_height * sizeof(float));
 
   // execute the kernel
-  launch_kernel((float4 *)d_vbo_buffer, mesh_width, mesh_height, g_fAnim);
+  launch_kernel((float4*)d_vbo_buffer, mesh_width, mesh_height, g_fAnim);
 
   cudaDeviceSynchronize();
   getLastCudaError("launch_kernel failed");
@@ -253,7 +253,7 @@ void display_thisframe(float time_delta) {
 //! Check if the result is correct or write data to file for external
 //! regression testing
 ////////////////////////////////////////////////////////////////////////////////
-void checkResultCuda(int argc, char **argv, const GLuint &vbo) {
+void checkResultCuda(int argc, char** argv, const GLuint& vbo) {
   if (!d_vbo_buffer) {
     printf("%s: Mapping result buffer from OpenGL ES\n", __FUNCTION__);
 
@@ -261,12 +261,12 @@ void checkResultCuda(int argc, char **argv, const GLuint &vbo) {
 
     // map buffer object
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    float *data = (float *)glMapBufferRange(
+    float* data = (float*)glMapBufferRange(
         GL_ARRAY_BUFFER, 0, mesh_width * mesh_height * 4 * sizeof(float),
         GL_READ_ONLY);
 
     // check result
-    if (checkCmdLineFlag(argc, (const char **)argv, "regression")) {
+    if (checkCmdLineFlag(argc, (const char**)argv, "regression")) {
       // write file for regression test
       sdkWriteFile<float>("./data/regression.dat", data,
                           mesh_width * mesh_height * 3, 0.0, false);
@@ -288,8 +288,8 @@ void checkResultCuda(int argc, char **argv, const GLuint &vbo) {
 GLuint mesh_shader = 0;
 
 void readAndCompileShaderFromGLSLFile(GLuint new_shaderprogram,
-                                      const char *filename, GLenum shaderType) {
-  FILE *file = fopen(filename, "rb"); // open shader text file
+                                      const char* filename, GLenum shaderType) {
+  FILE* file = fopen(filename, "rb");  // open shader text file
   if (!file) {
     error_exit("Filename %s does not exist\n", filename);
   }
@@ -297,14 +297,14 @@ void readAndCompileShaderFromGLSLFile(GLuint new_shaderprogram,
   // get the size of the file and read it
   fseek(file, 0, SEEK_END);
   GLint size = ftell(file);
-  char *data = (char *)malloc(sizeof(char) * (size + 1));
+  char* data = (char*)malloc(sizeof(char) * (size + 1));
   memset(data, 0, sizeof(char) * (size + 1));
   fseek(file, 0, SEEK_SET);
   size_t res = fread(data, 1, size, file);
   fclose(file);
 
   GLuint shader = glCreateShader(shaderType);
-  glShaderSource(shader, 1, (const GLchar **)&data, &size);
+  glShaderSource(shader, 1, (const GLchar**)&data, &size);
   glCompileShader(shader);
 
   CHECK_GLERROR();
@@ -333,8 +333,8 @@ void readAndCompileShaderFromGLSLFile(GLuint new_shaderprogram,
   free(data);
 }
 
-GLuint ShaderCreate(const char *vshader_filename,
-                    const char *fshader_filename) {
+GLuint ShaderCreate(const char* vshader_filename,
+                    const char* fshader_filename) {
   printf("Loading GLSL shaders %s %s\n", vshader_filename, fshader_filename);
 
   GLuint new_shaderprogram = glCreateProgram();
@@ -381,17 +381,17 @@ GLuint ShaderCreate(const char *vshader_filename,
 // InitGraphicsState() - initialize OpenGL
 //===========================================================================
 static void InitGraphicsState(void) {
-  char *GL_version = (char *)glGetString(GL_VERSION);
-  char *GL_vendor = (char *)glGetString(GL_VENDOR);
-  char *GL_renderer = (char *)glGetString(GL_RENDERER);
+  char* GL_version = (char*)glGetString(GL_VERSION);
+  char* GL_vendor = (char*)glGetString(GL_VENDOR);
+  char* GL_renderer = (char*)glGetString(GL_RENDERER);
 
   printf("Version: %s\n", GL_version);
   printf("Vendor: %s\n", GL_vendor);
   printf("Renderer: %s\n", GL_renderer);
 
   // RENDERING SETUP (OpenGL ES or OpenGL Core Profile!)
-  glGenVertexArrays(1, &mesh_vao); // Features' Vertex Array Object allocation
-  glBindVertexArray(mesh_vao);     // bind VAO
+  glGenVertexArrays(1, &mesh_vao);  // Features' Vertex Array Object allocation
+  glBindVertexArray(mesh_vao);      // bind VAO
 
   // initialize buffer object
   glGenBuffers(1, &mesh_vbo);
@@ -407,8 +407,8 @@ static void InitGraphicsState(void) {
   checkCUDAError();
 
   // GLSL stuff
-  char *vertex_shader_path = sdkFindFilePath("mesh.vert.glsl", pArgv[0]);
-  char *fragment_shader_path = sdkFindFilePath("mesh.frag.glsl", pArgv[0]);
+  char* vertex_shader_path = sdkFindFilePath("mesh.vert.glsl", pArgv[0]);
+  char* fragment_shader_path = sdkFindFilePath("mesh.frag.glsl", pArgv[0]);
 
   if (vertex_shader_path == NULL || fragment_shader_path == NULL) {
     printf("Error finding shader file\n");
@@ -427,17 +427,17 @@ static void InitGraphicsState(void) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Run a simple test for CUDA
 ////////////////////////////////////////////////////////////////////////////////
-bool runTest(int argc, char **argv, char *ref_file) {
+bool runTest(int argc, char** argv, char* ref_file) {
   // Create the CUTIL timer
   sdkCreateTimer(&timer);
 
   // command line mode only
   if (ref_file != NULL) {
     // This will pick the best possible CUDA capable device
-    int devID = findCudaDevice(argc, (const char **)argv);
+    int devID = findCudaDevice(argc, (const char**)argv);
 
     // create VBO
-    checkCudaErrors(cudaMalloc((void **)&d_vbo_buffer,
+    checkCudaErrors(cudaMalloc((void**)&d_vbo_buffer,
                                mesh_width * mesh_height * 4 * sizeof(float)));
 
     // run the cuda part
@@ -451,33 +451,32 @@ bool runTest(int argc, char **argv, char *ref_file) {
   } else {
     // this would use command-line specified CUDA device, note that CUDA
     // defaults to highest Gflops/s device
-    if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
+    if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
       error_exit("Device setting not yet implemented!\n");
     }
 
     // display selection
-    if (checkCmdLineFlag(argc, (const char **)argv, "dispno")) {
-      dispno = getCmdLineArgumentInt(argc, (const char **)argv, "dispno");
+    if (checkCmdLineFlag(argc, (const char**)argv, "dispno")) {
+      dispno = getCmdLineArgumentInt(argc, (const char**)argv, "dispno");
     }
 
     // Window width
-    if (checkCmdLineFlag(argc, (const char **)argv, "width")) {
-      window_width = getCmdLineArgumentInt(argc, (const char **)argv, "width");
+    if (checkCmdLineFlag(argc, (const char**)argv, "width")) {
+      window_width = getCmdLineArgumentInt(argc, (const char**)argv, "width");
     }
 
     // Window Height
-    if (checkCmdLineFlag(argc, (const char **)argv, "height")) {
-      window_height =
-          getCmdLineArgumentInt(argc, (const char **)argv, "height");
+    if (checkCmdLineFlag(argc, (const char**)argv, "height")) {
+      window_height = getCmdLineArgumentInt(argc, (const char**)argv, "height");
     }
 
     // create QNX screen window and set up associated OpenGL ES context
     graphics_setup_window(0, 0, window_width, window_height, sSDKsample,
                           dispno);
 
-    InitGraphicsState(); // set up GLES stuff
+    InitGraphicsState();  // set up GLES stuff
 
-    glClearColor(0, 0.5, 1, 1); // blue-ish background
+    glClearColor(0, 0.5, 1, 1);  // blue-ish background
     glClear(GL_COLOR_BUFFER_BIT);
 
     graphics_swap_buffers();
@@ -495,7 +494,7 @@ bool runTest(int argc, char **argv, char *ref_file) {
     // resources from CUDA !
     cudaGraphicsUnregisterResource(cuda_vbo_resource);
 
-    graphics_close_window(); // close window and destroy OpenGL ES context
+    graphics_close_window();  // close window and destroy OpenGL ES context
 
     sdkDeleteTimer(&timer);
   }
@@ -506,8 +505,8 @@ bool runTest(int argc, char **argv, char *ref_file) {
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
-  char *ref_file = NULL;
+int main(int argc, char** argv) {
+  char* ref_file = NULL;
 
   pArgc = &argc;
   pArgv = argv;
@@ -519,11 +518,11 @@ int main(int argc, char **argv) {
   printf("%s starting...\n", sSDKsample);
 
   if (argc > 1) {
-    if (checkCmdLineFlag(argc, (const char **)argv, "file")) {
+    if (checkCmdLineFlag(argc, (const char**)argv, "file")) {
       // In this mode, we run without OpenGL and see if VBO is generated
       // correctly
-      getCmdLineArgumentString(argc, (const char **)argv, "file",
-                               (char **)&ref_file);
+      getCmdLineArgumentString(argc, (const char**)argv, "file",
+                               (char**)&ref_file);
     }
   }
 

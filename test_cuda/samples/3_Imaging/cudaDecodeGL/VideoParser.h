@@ -31,7 +31,7 @@ class VideoDecoder;
 //      display picture callback.
 //
 class VideoParser {
-public:
+ public:
   // Constructor.
   //
   // Parameters:
@@ -41,54 +41,54 @@ public:
   //      pFrameQueue - pointer to a valid FrameQueue object. The FrameQueue is
   //      used
   //          by  the parser-callbacks to store decoded frames in it.
-  VideoParser(VideoDecoder *pVideoDecoder, FrameQueue *pFrameQueue,
-              CUcontext *pCudaContext = NULL);
+  VideoParser(VideoDecoder* pVideoDecoder, FrameQueue* pFrameQueue,
+              CUcontext* pCudaContext = NULL);
 
-private:
+ private:
   // Struct containing user-data to be passed by parser-callbacks.
   struct VideoParserData {
-    VideoDecoder *pVideoDecoder;
-    FrameQueue *pFrameQueue;
-    CUcontext *pContext;
+    VideoDecoder* pVideoDecoder;
+    FrameQueue* pFrameQueue;
+    CUcontext* pContext;
   };
 
   // Default constructor. Don't implement.
   explicit VideoParser();
 
   // Copy constructor. Don't implement.
-  VideoParser(const VideoParser &);
+  VideoParser(const VideoParser&);
 
   // Assignment operator. Don't implement.
-  void operator=(const VideoParser &);
+  void operator=(const VideoParser&);
 
   // Called when the decoder encounters a video format change (or initial
   // sequence header) This particular implementation of the callback returns 0
   // in case the video format changes to something different than the original
   // format. Returning 0 causes a stop of the app.
-  static int CUDAAPI HandleVideoSequence(void *pUserData,
-                                         CUVIDEOFORMAT *pFormat);
+  static int CUDAAPI HandleVideoSequence(void* pUserData,
+                                         CUVIDEOFORMAT* pFormat);
 
   // Called by the video parser to decode a single picture
   // Since the parser will deliver data as fast as it can, we need to make sure
   // that the picture index we're attempting to use for decode is no longer used
   // for display
-  static int CUDAAPI HandlePictureDecode(void *pUserData,
-                                         CUVIDPICPARAMS *pPicParams);
+  static int CUDAAPI HandlePictureDecode(void* pUserData,
+                                         CUVIDPICPARAMS* pPicParams);
 
   // Called by the video parser to display a video frame (in the case of field
   // pictures, there may be 2 decode calls per 1 display call, since two fields
   // make up one frame)
-  static int CUDAAPI HandlePictureDisplay(void *pUserData,
-                                          CUVIDPARSERDISPINFO *pPicParams);
+  static int CUDAAPI HandlePictureDisplay(void* pUserData,
+                                          CUVIDPARSERDISPINFO* pPicParams);
 
-  VideoParserData oParserData_; // instance of the user-data we have passed into
-                                // the parser-callbacks.
-  CUvideoparser hParser_;       // handle to the CUDA video-parser
+  VideoParserData oParserData_;  // instance of the user-data we have passed
+                                 // into the parser-callbacks.
+  CUvideoparser hParser_;  // handle to the CUDA video-parser
 
   friend class VideoSource;
 };
 
-std::ostream &operator<<(std::ostream &rOutputStream,
-                         const CUVIDPARSERDISPINFO &rParserDisplayInfo);
+std::ostream& operator<<(std::ostream& rOutputStream,
+                         const CUVIDPARSERDISPINFO& rParserDisplayInfo);
 
-#endif // NV_VIDEO_PARSER
+#endif  // NV_VIDEO_PARSER

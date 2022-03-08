@@ -20,8 +20,7 @@ BOOST_LOG_ATTRIBUTE_KEYWORD(thread_id, "ThreadID",
                             attrs::current_thread_id::value_type)
 BOOST_LOG_ATTRIBUTE_KEYWORD(process_name, "ProcessName", std::string)
 
-int init_log(const char *log_dir, const char *log_name) {
-
+int init_log(const char* log_dir, const char* log_name) {
   char path_name[MAX_PATH_LEN];
 
   typedef sinks::synchronous_sink<sinks::text_ostream_backend> text_sink;
@@ -53,8 +52,8 @@ int init_log(const char *log_dir, const char *log_name) {
   return 0;
 }
 
-} // namespace log
-} // namespace glorey
+}  // namespace log
+}  // namespace glorey
 
 int main() {
   glorey::log::init_log("log", "test");

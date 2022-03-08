@@ -30,13 +30,12 @@ static double CND(double d) {
   double cnd = RSQRT2PI * exp(-0.5 * d * d) *
                (K * (A1 + K * (A2 + K * (A3 + K * (A4 + K * A5)))));
 
-  if (d > 0)
-    cnd = 1.0 - cnd;
+  if (d > 0) cnd = 1.0 - cnd;
 
   return cnd;
 }
 
-extern "C" void BlackScholesCall(float &callResult, TOptionData optionData) {
+extern "C" void BlackScholesCall(float& callResult, TOptionData optionData) {
   double S = optionData.S;
   double X = optionData.X;
   double T = optionData.T;
@@ -66,7 +65,7 @@ static double expiryCallValue(double S, double X, double vDt, int i) {
   return (d > 0) ? d : 0;
 }
 
-extern "C" void binomialOptionsCPU(float &callResult, TOptionData optionData) {
+extern "C" void binomialOptionsCPU(float& callResult, TOptionData optionData) {
   static double Call[NUM_STEPS + 1];
   const double S = optionData.S;
   const double X = optionData.X;
@@ -97,8 +96,7 @@ extern "C" void binomialOptionsCPU(float &callResult, TOptionData optionData) {
   // The computation is similar for put options.
   ///////////////////////////////////////////////////////////////////////
 
-  for (int i = 0; i <= NUM_STEPS; i++)
-    Call[i] = expiryCallValue(S, X, vDt, i);
+  for (int i = 0; i <= NUM_STEPS; i++) Call[i] = expiryCallValue(S, X, vDt, i);
 
   ////////////////////////////////////////////////////////////////////////
   // Walk backwards up binomial tree

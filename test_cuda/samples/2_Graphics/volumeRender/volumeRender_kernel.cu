@@ -20,32 +20,32 @@
 typedef unsigned int uint;
 typedef unsigned char uchar;
 
-cudaArray *d_volumeArray = 0;
-cudaArray *d_transferFuncArray;
+cudaArray* d_volumeArray = 0;
+cudaArray* d_transferFuncArray;
 
 typedef unsigned char VolumeType;
 // typedef unsigned short VolumeType;
 
-texture<VolumeType, 3, cudaReadModeNormalizedFloat> tex; // 3D texture
+texture<VolumeType, 3, cudaReadModeNormalizedFloat> tex;  // 3D texture
 texture<float4, 1, cudaReadModeElementType>
-    transferTex; // 1D transfer function texture
+    transferTex;  // 1D transfer function texture
 
 typedef struct {
   float4 m[3];
 } float3x4;
 
-__constant__ float3x4 c_invViewMatrix; // inverse view matrix
+__constant__ float3x4 c_invViewMatrix;  // inverse view matrix
 
 struct Ray {
-  float3 o; // origin
-  float3 d; // direction
+  float3 o;  // origin
+  float3 d;  // direction
 };
 
 // intersect ray with a box
 // http://www.siggraph.org/education/materials/HyperGraph/raytrace/rtinter3.htm
 
-__device__ int intersectBox(Ray r, float3 boxmin, float3 boxmax, float *tnear,
-                            float *tfar) {
+__device__ int intersectBox(Ray r, float3 boxmin, float3 boxmax, float* tnear,
+                            float* tfar) {
   // compute intersection of ray with all six bbox planes
   float3 invR = make_float3(1.0f) / r.d;
   float3 tbot = invR * (boxmin - r.o);
@@ -66,7 +66,7 @@ __device__ int intersectBox(Ray r, float3 boxmin, float3 boxmax, float *tnear,
 }
 
 // transform vector by matrix (no translation)
-__device__ float3 mul(const float3x4 &M, const float3 &v) {
+__device__ float3 mul(const float3x4& M, const float3& v) {
   float3 r;
   r.x = dot(v, make_float3(M.m[0]));
   r.y = dot(v, make_float3(M.m[1]));
@@ -75,7 +75,7 @@ __device__ float3 mul(const float3x4 &M, const float3 &v) {
 }
 
 // transform vector by matrix with translation
-__device__ float4 mul(const float3x4 &M, const float4 &v) {
+__device__ float4 mul(const float3x4& M, const float4& v) {
   float4 r;
   r.x = dot(v, M.m[0]);
   r.y = dot(v, M.m[1]);
@@ -85,7 +85,7 @@ __device__ float4 mul(const float3x4 &M, const float4 &v) {
 }
 
 __device__ uint rgbaFloatToInt(float4 rgba) {
-  rgba.x = __saturatef(rgba.x); // clamp to [0.0, 1.0]
+  rgba.x = __saturatef(rgba.x);  // clamp to [0.0, 1.0]
   rgba.y = __saturatef(rgba.y);
   rgba.z = __saturatef(rgba.z);
   rgba.w = __saturatef(rgba.w);
@@ -93,7 +93,7 @@ __device__ uint rgbaFloatToInt(float4 rgba) {
          (uint(rgba.y * 255) << 8) | uint(rgba.x * 255);
 }
 
-__global__ void d_render(uint *d_output, uint imageW, uint imageH,
+__global__ void d_render(uint* d_output, uint imageW, uint imageH,
                          float density, float brightness, float transferOffset,
                          float transferScale) {
   const int maxSteps = 500;
@@ -105,8 +105,7 @@ __global__ void d_render(uint *d_output, uint imageW, uint imageH,
   uint x = blockIdx.x * blockDim.x + threadIdx.x;
   uint y = blockIdx.y * blockDim.y + threadIdx.y;
 
-  if ((x >= imageW) || (y >= imageH))
-    return;
+  if ((x >= imageW) || (y >= imageH)) return;
 
   float u = (x / (float)imageW) * 2.0f - 1.0f;
   float v = (y / (float)imageH) * 2.0f - 1.0f;
@@ -122,11 +121,9 @@ __global__ void d_render(uint *d_output, uint imageW, uint imageH,
   float tnear, tfar;
   int hit = intersectBox(eyeRay, boxMin, boxMax, &tnear, &tfar);
 
-  if (!hit)
-    return;
+  if (!hit) return;
 
-  if (tnear < 0.0f)
-    tnear = 0.0f; // clamp to near plane
+  if (tnear < 0.0f) tnear = 0.0f;  // clamp to near plane
 
   // march along ray from front to back, accumulating color
   float4 sum = make_float4(0.0f);
@@ -156,13 +153,11 @@ __global__ void d_render(uint *d_output, uint imageW, uint imageH,
     sum = sum + col * (1.0f - sum.w);
 
     // exit early if opaque
-    if (sum.w > opacityThreshold)
-      break;
+    if (sum.w > opacityThreshold) break;
 
     t += tstep;
 
-    if (t > tfar)
-      break;
+    if (t > tfar) break;
 
     pos += step;
   }
@@ -177,7 +172,7 @@ extern "C" void setTextureFilterMode(bool bLinearFilter) {
   tex.filterMode = bLinearFilter ? cudaFilterModeLinear : cudaFilterModePoint;
 }
 
-extern "C" void initCuda(void *h_volume, cudaExtent volumeSize) {
+extern "C" void initCuda(void* h_volume, cudaExtent volumeSize) {
   // create 3D array
   cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<VolumeType>();
   checkCudaErrors(cudaMalloc3DArray(&d_volumeArray, &channelDesc, volumeSize));
@@ -193,9 +188,9 @@ extern "C" void initCuda(void *h_volume, cudaExtent volumeSize) {
   checkCudaErrors(cudaMemcpy3D(&copyParams));
 
   // set texture parameters
-  tex.normalized = true; // access with normalized texture coordinates
-  tex.filterMode = cudaFilterModeLinear;     // linear interpolation
-  tex.addressMode[0] = cudaAddressModeClamp; // clamp texture coordinates
+  tex.normalized = true;  // access with normalized texture coordinates
+  tex.filterMode = cudaFilterModeLinear;      // linear interpolation
+  tex.addressMode[0] = cudaAddressModeClamp;  // clamp texture coordinates
   tex.addressMode[1] = cudaAddressModeClamp;
 
   // bind array to 3D texture
@@ -260,7 +255,7 @@ extern "C" void initCuda(void *h_volume, cudaExtent volumeSize) {
   };
 
   cudaChannelFormatDesc channelDesc2 = cudaCreateChannelDesc<float4>();
-  cudaArray *d_transferFuncArray;
+  cudaArray* d_transferFuncArray;
   checkCudaErrors(cudaMallocArray(&d_transferFuncArray, &channelDesc2,
                                   sizeof(transferFunc) / sizeof(float4), 1));
   checkCudaErrors(cudaMemcpyToArray(d_transferFuncArray, 0, 0, transferFunc,
@@ -268,8 +263,9 @@ extern "C" void initCuda(void *h_volume, cudaExtent volumeSize) {
                                     cudaMemcpyHostToDevice));
 
   transferTex.filterMode = cudaFilterModeLinear;
-  transferTex.normalized = true; // access with normalized texture coordinates
-  transferTex.addressMode[0] = cudaAddressModeClamp; // wrap texture coordinates
+  transferTex.normalized = true;  // access with normalized texture coordinates
+  transferTex.addressMode[0] =
+      cudaAddressModeClamp;  // wrap texture coordinates
 
   // Bind the array to the texture
   checkCudaErrors(
@@ -281,7 +277,7 @@ extern "C" void freeCudaBuffers() {
   checkCudaErrors(cudaFreeArray(d_transferFuncArray));
 }
 
-extern "C" void render_kernel(dim3 gridSize, dim3 blockSize, uint *d_output,
+extern "C" void render_kernel(dim3 gridSize, dim3 blockSize, uint* d_output,
                               uint imageW, uint imageH, float density,
                               float brightness, float transferOffset,
                               float transferScale) {
@@ -289,9 +285,9 @@ extern "C" void render_kernel(dim3 gridSize, dim3 blockSize, uint *d_output,
                                     brightness, transferOffset, transferScale);
 }
 
-extern "C" void copyInvViewMatrix(float *invViewMatrix, size_t sizeofMatrix) {
+extern "C" void copyInvViewMatrix(float* invViewMatrix, size_t sizeofMatrix) {
   checkCudaErrors(
       cudaMemcpyToSymbol(c_invViewMatrix, invViewMatrix, sizeofMatrix));
 }
 
-#endif // #ifndef _VOLUMERENDER_KERNEL_CU_
+#endif  // #ifndef _VOLUMERENDER_KERNEL_CU_

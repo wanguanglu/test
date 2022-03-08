@@ -9,24 +9,25 @@
 #include <iostream>
 #include <map>
 
-template <typename Map> void print_map(Map &m) {
+template <typename Map>
+void print_map(Map& m) {
   std::cout << '{';
-  for (auto &p : m) {
+  for (auto& p : m) {
     std::cout << p.first << ':' << p.second << ' ';
   }
   std::cout << "}\n";
 }
 
-void test_out_of_range(const std::map<std::string, int> &m) {
+void test_out_of_range(const std::map<std::string, int>& m) {
   try {
     m.at("out");
-  } catch (std::out_of_range &e) {
+  } catch (std::out_of_range& e) {
     std::cout << "out of range" << std::endl;
     std::cout << e.what() << std::endl;
   }
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   // (1) Default constructor
   std::map<std::string, int> map1;
   map1["something"] = 69;

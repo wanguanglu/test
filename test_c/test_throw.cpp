@@ -17,13 +17,13 @@
 using namespace std;
 
 class Test {
-public:
+ public:
   Test() { throw 1; }
 };
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   try {
-    Test *t = new Test();
+    Test* t = new Test();
   } catch (...) {
     cout << "Catch it" << endl;
   }

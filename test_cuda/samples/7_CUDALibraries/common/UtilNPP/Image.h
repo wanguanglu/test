@@ -17,7 +17,7 @@
 namespace npp {
 
 class Image {
-public:
+ public:
   struct Size {
     unsigned int nWidth;
     unsigned int nHeight;
@@ -27,9 +27,9 @@ public:
     Size(unsigned int nWidthNew, unsigned nHeightNew)
         : nWidth(nWidthNew), nHeight(nHeightNew){};
 
-    Size(const Size &rSize) : nWidth(rSize.nWidth), nHeight(rSize.nHeight){};
+    Size(const Size& rSize) : nWidth(rSize.nWidth), nHeight(rSize.nHeight){};
 
-    Size &operator=(const Size &rSize) {
+    Size& operator=(const Size& rSize) {
       if (&rSize == this) {
         return *this;
       }
@@ -40,7 +40,7 @@ public:
       return *this;
     }
 
-    void swap(Size &rSize) {
+    void swap(Size& rSize) {
       unsigned int nTemp;
       nTemp = nWidth;
       nWidth = rSize.nWidth;
@@ -56,13 +56,13 @@ public:
 
   Image(unsigned int nWidth, unsigned int nHeight) : oSize_(nWidth, nHeight){};
 
-  Image(const Image::Size &rSize) : oSize_(rSize){};
+  Image(const Image::Size& rSize) : oSize_(rSize){};
 
-  Image(const Image &rImage) : oSize_(rImage.oSize_){};
+  Image(const Image& rImage) : oSize_(rImage.oSize_){};
 
   virtual ~Image(){};
 
-  Image &operator=(const Image &rImage) {
+  Image& operator=(const Image& rImage) {
     if (&rImage == this) {
       return *this;
     }
@@ -77,20 +77,20 @@ public:
 
   Size size() const { return oSize_; }
 
-  void swap(Image &rImage) { oSize_.swap(rImage.oSize_); }
+  void swap(Image& rImage) { oSize_.swap(rImage.oSize_); }
 
-private:
+ private:
   Size oSize_;
 };
 
-bool operator==(const Image::Size &rFirst, const Image::Size &rSecond) {
+bool operator==(const Image::Size& rFirst, const Image::Size& rSecond) {
   return rFirst.nWidth == rSecond.nWidth && rFirst.nHeight == rSecond.nHeight;
 }
 
-bool operator!=(const Image::Size &rFirst, const Image::Size &rSecond) {
+bool operator!=(const Image::Size& rFirst, const Image::Size& rSecond) {
   return rFirst.nWidth != rSecond.nWidth || rFirst.nHeight != rSecond.nHeight;
 }
 
-} // namespace npp
+}  // namespace npp
 
-#endif // NV_UTIL_NPP_IMAGE_H
+#endif  // NV_UTIL_NPP_IMAGE_H

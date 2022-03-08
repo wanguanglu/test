@@ -46,17 +46,18 @@ const int BSZ_Y = 4;
 const int BSZ_X = 4;
 
 // Forward Declaration
-void solvePoissonEquation(cudaLibXtDesc *, cudaLibXtDesc *, float **, int, int);
+void solvePoissonEquation(cudaLibXtDesc*, cudaLibXtDesc*, float**, int, int);
 
-__global__ void solvePoisson(cufftComplex *, cufftComplex *, float *, int, int,
+__global__ void solvePoisson(cufftComplex*, cufftComplex*, float*, int, int,
                              int n_gpu);
 
 ///////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
-  printf("\nPoisson equation using CUFFT library on Multiple GPUs is "
-         "starting...\n\n");
+int main(int argc, char** argv) {
+  printf(
+      "\nPoisson equation using CUFFT library on Multiple GPUs is "
+      "starting...\n\n");
 
   int GPU_N;
   checkCudaErrors(cudaGetDeviceCount(&GPU_N));
@@ -72,10 +73,10 @@ int main(int argc, char **argv) {
         s = 0.1, s2 = s * s;
   float *x, *y, *f, *u_a, r2;
 
-  x = (float *)malloc(sizeof(float) * N * N);
-  y = (float *)malloc(sizeof(float) * N * N);
-  f = (float *)malloc(sizeof(float) * N * N);
-  u_a = (float *)malloc(sizeof(float) * N * N);
+  x = (float*)malloc(sizeof(float) * N * N);
+  y = (float*)malloc(sizeof(float) * N * N);
+  f = (float*)malloc(sizeof(float) * N * N);
+  u_a = (float*)malloc(sizeof(float) * N * N);
 
   for (int j = 0; j < N; j++)
     for (int i = 0; i < N; i++) {
@@ -84,11 +85,11 @@ int main(int argc, char **argv) {
       r2 = (x[N * j + i] - 0.5) * (x[N * j + i] - 0.5) +
            (y[N * j + i] - 0.5) * (y[N * j + i] - 0.5);
       f[N * j + i] = (r2 - 2 * s2) / (s2 * s2) * exp(-r2 / (2 * s2));
-      u_a[N * j + i] = exp(-r2 / (2 * s2)); // analytical solution
+      u_a[N * j + i] = exp(-r2 / (2 * s2));  // analytical solution
     }
 
   float *k, *d_k[GPU_COUNT];
-  k = (float *)malloc(sizeof(float) * N);
+  k = (float*)malloc(sizeof(float) * N);
   for (int i = 0; i <= N / 2; i++) {
     k[i] = i * 2 * M_PI;
   }
@@ -97,7 +98,7 @@ int main(int argc, char **argv) {
   }
 
   // Create a complex variable on host
-  Complex *h_f = (Complex *)malloc(sizeof(Complex) * N * N);
+  Complex* h_f = (Complex*)malloc(sizeof(Complex) * N * N);
 
   // Initialize the memory for the signal
   for (int i = 0; i < (N * N); i++) {
@@ -116,8 +117,8 @@ int main(int argc, char **argv) {
 
   // cufftXtSetGPUs() - Define which GPUs to use
   int nGPUs = 2;
-  int *whichGPUs;
-  whichGPUs = (int *)malloc(sizeof(int) * nGPUs);
+  int* whichGPUs;
+  whichGPUs = (int*)malloc(sizeof(int) * nGPUs);
 
   // Iterate all device combinations to see if a supported combo exists
   for (int i = 0; i < GPU_N; i++) {
@@ -161,8 +162,8 @@ int main(int argc, char **argv) {
     exit(EXIT_FAILURE);
   }
 
-  size_t *worksize;
-  worksize = (size_t *)malloc(sizeof(size_t) * nGPUs);
+  size_t* worksize;
+  worksize = (size_t*)malloc(sizeof(size_t) * nGPUs);
 
   // cufftMakePlan2d() - Create the plan
   result = cufftMakePlan2d(planComplex, N, N, CUFFT_C2C, worksize);
@@ -173,7 +174,7 @@ int main(int argc, char **argv) {
 
   for (int i = 0; i < nGPUs; i++) {
     cudaSetDevice(whichGPUs[i]);
-    cudaMalloc((void **)&d_k[i], sizeof(float) * N);
+    cudaMalloc((void**)&d_k[i], sizeof(float) * N);
     cudaMemcpy(d_k[i], k, sizeof(float) * N, cudaMemcpyHostToDevice);
   }
 
@@ -185,21 +186,21 @@ int main(int argc, char **argv) {
 
   // cufftXtMalloc() - Malloc data on multiple GPUs
 
-  result = cufftXtMalloc(planComplex, (cudaLibXtDesc **)&d_f,
+  result = cufftXtMalloc(planComplex, (cudaLibXtDesc**)&d_f,
                          CUFFT_XT_FORMAT_INPLACE);
   if (result != CUFFT_SUCCESS) {
     printf("*XtMalloc failed\n");
     exit(EXIT_FAILURE);
   }
 
-  result = cufftXtMalloc(planComplex, (cudaLibXtDesc **)&d_d_f,
+  result = cufftXtMalloc(planComplex, (cudaLibXtDesc**)&d_d_f,
                          CUFFT_XT_FORMAT_INPLACE);
   if (result != CUFFT_SUCCESS) {
     printf("*XtMalloc failed\n");
     exit(EXIT_FAILURE);
   }
 
-  result = cufftXtMalloc(planComplex, (cudaLibXtDesc **)&d_out,
+  result = cufftXtMalloc(planComplex, (cudaLibXtDesc**)&d_out,
                          CUFFT_XT_FORMAT_INPLACE);
   if (result != CUFFT_SUCCESS) {
     printf("*XtMalloc failed\n");
@@ -241,7 +242,7 @@ int main(int argc, char **argv) {
 
   // Create a variable on host to copy the data from device
   // h_d_out - variable store the output of device
-  Complex *h_d_out = (Complex *)malloc(sizeof(Complex) * N * N);
+  Complex* h_d_out = (Complex*)malloc(sizeof(Complex) * N * N);
 
   // cufftXtMemcpy() - Copy data from multiple GPUs to host
   result =
@@ -251,7 +252,7 @@ int main(int argc, char **argv) {
     exit(EXIT_FAILURE);
   }
 
-  float *out = (float *)malloc(sizeof(float) * N * N);
+  float* out = (float*)malloc(sizeof(float) * N * N);
   float constant = h_d_out[0].x / N * N;
   for (int i = 0; i < N * N; i++) {
     // subtract u[0] to force the arbitrary constant to be 0
@@ -305,7 +306,7 @@ int main(int argc, char **argv) {
 ////////////////////////////////////////////////////////////////////////////////////
 // Launch kernel on  multiple GPU
 ///////////////////////////////////////////////////////////////////////////////////
-void solvePoissonEquation(cudaLibXtDesc *d_ft, cudaLibXtDesc *d_ft_k, float **k,
+void solvePoissonEquation(cudaLibXtDesc* d_ft, cudaLibXtDesc* d_ft_k, float** k,
                           int N, int nGPUs) {
   int device;
   dim3 dimGrid(int(N / BSZ_X), int((N / 2) / BSZ_Y));
@@ -315,8 +316,8 @@ void solvePoissonEquation(cudaLibXtDesc *d_ft, cudaLibXtDesc *d_ft_k, float **k,
     device = d_ft_k->descriptor->GPUs[i];
     cudaSetDevice(device);
     solvePoisson<<<dimGrid, dimBlock>>>(
-        (cufftComplex *)d_ft->descriptor->data[i],
-        (cufftComplex *)d_ft_k->descriptor->data[i], k[i], N, i, nGPUs);
+        (cufftComplex*)d_ft->descriptor->data[i],
+        (cufftComplex*)d_ft_k->descriptor->data[i], k[i], N, i, nGPUs);
   }
 
   // Wait for device to finish all operation
@@ -333,7 +334,7 @@ void solvePoissonEquation(cudaLibXtDesc *d_ft, cudaLibXtDesc *d_ft_k, float **k,
 ////////////////////////////////////////////////////////////////////////////////
 // Kernel for Solving Poisson equation on GPU
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void solvePoisson(cufftComplex *ft, cufftComplex *ft_k, float *k,
+__global__ void solvePoisson(cufftComplex* ft, cufftComplex* ft_k, float* k,
                              int N, int gpu_id, int n_gpu) {
   int i = threadIdx.x + blockIdx.x * blockDim.x;
   int j = threadIdx.y + blockIdx.y * blockDim.y;

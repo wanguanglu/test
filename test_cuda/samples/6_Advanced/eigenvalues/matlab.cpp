@@ -23,7 +23,7 @@
 #include "matlab.h"
 
 // namespace, unnamed
-namespace {} // namespace
+namespace {}  // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 //! Write a tridiagonal, symmetric matrix in vector representation and
@@ -36,8 +36,8 @@ namespace {} // namespace
 //!                  if these are sorted in ascending order
 //! @param  n  size of the matrix
 ///////////////////////////////////////////////////////////////////////////////
-void writeTridiagSymMatlab(const char *filename, float *d, float *s,
-                           float *eigenvals, const unsigned int n) {
+void writeTridiagSymMatlab(const char* filename, float* d, float* s,
+                           float* eigenvals, const unsigned int n) {
   std::ofstream file(filename, std::ios::out);
 
   // write diagonal entries

@@ -19,7 +19,7 @@
 #include <windows.h>
 
 typedef HANDLE CUTThread;
-typedef unsigned(WINAPI *CUT_THREADROUTINE)(void *);
+typedef unsigned(WINAPI* CUT_THREADROUTINE)(void*);
 
 struct CUTBarrier {
   CRITICAL_SECTION criticalSection;
@@ -36,9 +36,9 @@ struct CUTBarrier {
 #include <pthread.h>
 
 typedef pthread_t CUTThread;
-typedef void *(*CUT_THREADROUTINE)(void *);
+typedef void* (*CUT_THREADROUTINE)(void*);
 
-#define CUT_THREADPROC void *
+#define CUT_THREADPROC void*
 #define CUT_THREADEND return 0
 
 struct CUTBarrier {
@@ -55,28 +55,28 @@ extern "C" {
 #endif
 
 // Create thread.
-CUTThread cutStartThread(CUT_THREADROUTINE, void *data);
+CUTThread cutStartThread(CUT_THREADROUTINE, void* data);
 
 // Wait for thread to finish.
 void cutEndThread(CUTThread thread);
 
 // Wait for multiple threads.
-void cutWaitForThreads(const CUTThread *threads, int num);
+void cutWaitForThreads(const CUTThread* threads, int num);
 
 // Create barrier.
 CUTBarrier cutCreateBarrier(int releaseCount);
 
 // Increment barrier. (execution continues)
-void cutIncrementBarrier(CUTBarrier *barrier);
+void cutIncrementBarrier(CUTBarrier* barrier);
 
 // Wait for barrier release.
-void cutWaitForBarrier(CUTBarrier *barrier);
+void cutWaitForBarrier(CUTBarrier* barrier);
 
 // Destroy barrier
-void cutDestroyBarrier(CUTBarrier *barrier);
+void cutDestroyBarrier(CUTBarrier* barrier);
 
 #ifdef __cplusplus
-} // extern "C"
+}  // extern "C"
 #endif
 
-#endif // MULTITHREADING_H
+#endif  // MULTITHREADING_H

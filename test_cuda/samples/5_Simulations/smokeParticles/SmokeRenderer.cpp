@@ -29,16 +29,37 @@
 #define COLOR_ATTENUATION 1
 
 SmokeRenderer::SmokeRenderer(int maxParticles)
-    : mMaxParticles(maxParticles), mNumParticles(0), mPosVbo(0), mVelVbo(0),
-      mColorVbo(0), mIndexBuffer(0), mParticleRadius(0.005f),
-      mDisplayMode(VOLUMETRIC), mWindowW(800), mWindowH(600), mFov(40.0f),
-      m_downSample(2), m_numSlices(32), m_numDisplayedSlices(32), m_sliceNo(0),
-      m_shadowAlpha(0.005f), m_spriteAlpha(0.1f), m_doBlur(false),
-      m_blurRadius(1.0f), m_displayLightBuffer(false),
-      m_lightPos(5.0f, 5.0f, -5.0f), m_lightTarget(0.0f, 0.0f, 0.0f),
-      m_lightColor(1.0f, 1.0f, 0.5f), m_colorAttenuation(0.1f, 0.2f, 0.3f),
-      m_lightBufferSize(256), m_srcLightTexture(0), m_lightDepthTexture(0),
-      m_lightFbo(0), m_imageTex(0), m_depthTex(0), m_imageFbo(0) {
+    : mMaxParticles(maxParticles),
+      mNumParticles(0),
+      mPosVbo(0),
+      mVelVbo(0),
+      mColorVbo(0),
+      mIndexBuffer(0),
+      mParticleRadius(0.005f),
+      mDisplayMode(VOLUMETRIC),
+      mWindowW(800),
+      mWindowH(600),
+      mFov(40.0f),
+      m_downSample(2),
+      m_numSlices(32),
+      m_numDisplayedSlices(32),
+      m_sliceNo(0),
+      m_shadowAlpha(0.005f),
+      m_spriteAlpha(0.1f),
+      m_doBlur(false),
+      m_blurRadius(1.0f),
+      m_displayLightBuffer(false),
+      m_lightPos(5.0f, 5.0f, -5.0f),
+      m_lightTarget(0.0f, 0.0f, 0.0f),
+      m_lightColor(1.0f, 1.0f, 0.5f),
+      m_colorAttenuation(0.1f, 0.2f, 0.3f),
+      m_lightBufferSize(256),
+      m_srcLightTexture(0),
+      m_lightDepthTexture(0),
+      m_lightFbo(0),
+      m_imageTex(0),
+      m_depthTex(0),
+      m_imageFbo(0) {
   // load shader programs
   m_simpleProg = new GLSLProgram(particleVS, simplePS);
   m_particleProg = new GLSLProgram(mblurVS, mblurGS, particlePS);
@@ -91,7 +112,7 @@ void SmokeRenderer::drawPoints(int start, int count, bool sort) {
   if (sort) {
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, mIndexBuffer);
     glDrawElements(GL_POINTS, count, GL_UNSIGNED_INT,
-                   (void *)(start * sizeof(unsigned int)));
+                   (void*)(start * sizeof(unsigned int)));
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
   } else {
     glDrawArrays(GL_POINTS, start, count);
@@ -105,10 +126,10 @@ void SmokeRenderer::drawPoints(int start, int count, bool sort) {
 }
 
 // draw points using given shader program
-void SmokeRenderer::drawPointSprites(GLSLProgram *prog, int start, int count,
+void SmokeRenderer::drawPointSprites(GLSLProgram* prog, int start, int count,
                                      bool shadowed) {
   glEnable(GL_DEPTH_TEST);
-  glDepthMask(GL_FALSE); // don't write depth
+  glDepthMask(GL_FALSE);  // don't write depth
   glEnable(GL_BLEND);
 
   prog->enable();
@@ -131,7 +152,7 @@ void SmokeRenderer::drawPointSprites(GLSLProgram *prog, int start, int count,
 // calculate vectors for half-angle slice rendering
 void SmokeRenderer::calcVectors() {
   // get model view matrix
-  glGetFloatv(GL_MODELVIEW_MATRIX, (float *)m_modelView.get_value());
+  glGetFloatv(GL_MODELVIEW_MATRIX, (float*)m_modelView.get_value());
 
   // calculate eye space light vector
   m_lightVector = normalize(m_lightPos);
@@ -161,8 +182,8 @@ void SmokeRenderer::calcVectors() {
   glLoadIdentity();
   gluPerspective(45.0, 1.0, 1.0, 200.0);
 
-  glGetFloatv(GL_MODELVIEW_MATRIX, (float *)m_lightView.get_value());
-  glGetFloatv(GL_PROJECTION_MATRIX, (float *)m_lightProj.get_value());
+  glGetFloatv(GL_MODELVIEW_MATRIX, (float*)m_lightView.get_value());
+  glGetFloatv(GL_PROJECTION_MATRIX, (float*)m_lightProj.get_value());
 
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
@@ -209,11 +230,11 @@ void SmokeRenderer::drawSlice(int i) {
 void SmokeRenderer::drawSliceLightView(int i) {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
-  glLoadMatrixf((GLfloat *)m_lightView.get_value());
+  glLoadMatrixf((GLfloat*)m_lightView.get_value());
 
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
-  glLoadMatrixf((GLfloat *)m_lightProj.get_value());
+  glLoadMatrixf((GLfloat*)m_lightProj.get_value());
 
   m_lightFbo->Bind();
   glViewport(0, 0, m_lightBufferSize, m_lightBufferSize);
@@ -255,11 +276,10 @@ void SmokeRenderer::drawSlices() {
 
   glActiveTexture(GL_TEXTURE0);
   glMatrixMode(GL_TEXTURE);
-  glLoadMatrixf((GLfloat *)m_shadowMatrix.get_value());
+  glLoadMatrixf((GLfloat*)m_shadowMatrix.get_value());
 
   // render slices
-  if (m_numDisplayedSlices > m_numSlices)
-    m_numDisplayedSlices = m_numSlices;
+  if (m_numDisplayedSlices > m_numSlices) m_numDisplayedSlices = m_numSlices;
 
   for (int i = 0; i < m_numDisplayedSlices; i++) {
     // draw slice from camera view, sampling light buffer
@@ -320,26 +340,26 @@ void SmokeRenderer::compositeResult() {
 
 void SmokeRenderer::render() {
   switch (mDisplayMode) {
-  case POINTS:
-    glColor3f(1.0, 1.0, 1.0);
-    m_simpleProg->enable();
-    drawPoints(0, mNumParticles, false);
-    m_simpleProg->disable();
-    break;
+    case POINTS:
+      glColor3f(1.0, 1.0, 1.0);
+      m_simpleProg->enable();
+      drawPoints(0, mNumParticles, false);
+      m_simpleProg->disable();
+      break;
 
-  case SPRITES:
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-    glColor4f(1.0, 1.0, 1.0, m_spriteAlpha);
-    drawPointSprites(m_particleProg, 0, mNumParticles, false);
-    break;
+    case SPRITES:
+      glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+      glColor4f(1.0, 1.0, 1.0, m_spriteAlpha);
+      drawPointSprites(m_particleProg, 0, mNumParticles, false);
+      break;
 
-  case VOLUMETRIC:
-    drawSlices();
-    compositeResult();
-    break;
+    case VOLUMETRIC:
+      drawSlices();
+      compositeResult();
+      break;
 
-  case NUM_MODES:
-    break;
+    case NUM_MODES:
+      break;
   }
 
   if (m_displayLightBuffer) {
@@ -363,11 +383,11 @@ void SmokeRenderer::beginSceneRender(Target target) {
 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
-    glLoadMatrixf((GLfloat *)m_lightView.get_value());
+    glLoadMatrixf((GLfloat*)m_lightView.get_value());
 
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
-    glLoadMatrixf((GLfloat *)m_lightProj.get_value());
+    glLoadMatrixf((GLfloat*)m_lightProj.get_value());
   } else {
     m_imageFbo->Bind();
     glViewport(0, 0, m_imageW, m_imageH);
@@ -509,7 +529,7 @@ void SmokeRenderer::drawQuad() {
 void SmokeRenderer::drawVector(vec3f v) {
   glBegin(GL_LINES);
   glVertex3f(0.0f, 0.0f, 0.0f);
-  glVertex3fv((float *)&v[0]);
+  glVertex3fv((float*)&v[0]);
   glEnd();
 }
 

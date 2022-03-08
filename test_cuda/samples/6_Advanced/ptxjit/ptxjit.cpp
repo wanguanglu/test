@@ -29,57 +29,57 @@
 
 // helper functions and utilities to work with CUDA
 #include <helper_cuda.h>
-#include <helper_functions.h> // helper for shared that are common to CUDA Samples
+#include <helper_functions.h>  // helper for shared that are common to CUDA Samples
 
 // sample include
 #include "ptxjit.h"
 
-const char *sSDKname = "PTX Just In Time (JIT) Compilation (no-qatest)";
+const char* sSDKname = "PTX Just In Time (JIT) Compilation (no-qatest)";
 
-void ptxJIT(int argc, char **argv, CUmodule *phModule, CUfunction *phKernel,
-            CUlinkState *lState) {
+void ptxJIT(int argc, char** argv, CUmodule* phModule, CUfunction* phKernel,
+            CUlinkState* lState) {
   CUjit_option options[6];
-  void *optionVals[6];
+  void* optionVals[6];
   float walltime;
   char error_log[8192], info_log[8192];
   unsigned int logSize = 8192;
-  void *cuOut;
+  void* cuOut;
   size_t outSize;
   int myErr = 0;
 
   // Setup linker options
   // Return walltime from JIT compilation
   options[0] = CU_JIT_WALL_TIME;
-  optionVals[0] = (void *)&walltime;
+  optionVals[0] = (void*)&walltime;
   // Pass a buffer for info messages
   options[1] = CU_JIT_INFO_LOG_BUFFER;
-  optionVals[1] = (void *)info_log;
+  optionVals[1] = (void*)info_log;
   // Pass the size of the info buffer
   options[2] = CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES;
-  optionVals[2] = (void *)(long)logSize;
+  optionVals[2] = (void*)(long)logSize;
   // Pass a buffer for error message
   options[3] = CU_JIT_ERROR_LOG_BUFFER;
-  optionVals[3] = (void *)error_log;
+  optionVals[3] = (void*)error_log;
   // Pass the size of the error buffer
   options[4] = CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES;
-  optionVals[4] = (void *)(long)logSize;
+  optionVals[4] = (void*)(long)logSize;
   // Make the linker verbose
   options[5] = CU_JIT_LOG_VERBOSE;
-  optionVals[5] = (void *)1;
+  optionVals[5] = (void*)1;
 
   // Create a pending linker invocation
   checkCudaErrors(cuLinkCreate(6, options, optionVals, lState));
 
-  if (sizeof(void *) == 4) {
+  if (sizeof(void*) == 4) {
     // Load the PTX from the string myPtx32
     printf("Loading myPtx32[] program\n");
     // PTX May also be loaded from file, as per below.
-    myErr = cuLinkAddData(*lState, CU_JIT_INPUT_PTX, (void *)myPtx32,
+    myErr = cuLinkAddData(*lState, CU_JIT_INPUT_PTX, (void*)myPtx32,
                           strlen(myPtx32) + 1, 0, 0, 0, 0);
   } else {
     // Load the PTX from the string myPtx (64-bit)
     printf("Loading myPtx[] program\n");
-    myErr = cuLinkAddData(*lState, CU_JIT_INPUT_PTX, (void *)myPtx64,
+    myErr = cuLinkAddData(*lState, CU_JIT_INPUT_PTX, (void*)myPtx64,
                           strlen(myPtx64) + 1, 0, 0, 0, 0);
     // PTX May also be loaded from file, as per below.
     // myErr = cuLinkAddFile(*lState, CU_JIT_INPUT_PTX, "myPtx64.ptx",0,0,0);
@@ -108,7 +108,7 @@ void ptxJIT(int argc, char **argv, CUmodule *phModule, CUfunction *phKernel,
   checkCudaErrors(cuLinkDestroy(*lState));
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   const unsigned int nThreads = 256;
   const unsigned int nBlocks = 64;
   const size_t memSize = nThreads * nBlocks * sizeof(int);
@@ -116,16 +116,16 @@ int main(int argc, char **argv) {
   CUmodule hModule = 0;
   CUfunction hKernel = 0;
   CUlinkState lState;
-  int *d_data = 0;
-  int *h_data = 0;
+  int* d_data = 0;
+  int* h_data = 0;
 
   int cuda_device = 0;
   cudaDeviceProp deviceProp;
 
   printf("[%s] - Starting...\n", sSDKname);
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
-    cuda_device = getCmdLineArgumentInt(argc, (const char **)argv, "device=");
+  if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
+    cuda_device = getCmdLineArgumentInt(argc, (const char**)argv, "device=");
 
     if (cuda_device < 0) {
       printf("Invalid command line parameters\n");
@@ -158,7 +158,7 @@ int main(int argc, char **argv) {
 
   // Allocate memory on host and device (Runtime API)
   // NOTE: The runtime API will create the GPU Context implicitly here
-  if ((h_data = (int *)malloc(memSize)) == NULL) {
+  if ((h_data = (int*)malloc(memSize)) == NULL) {
     std::cerr << "Could not allocate host memory" << std::endl;
     exit(EXIT_FAILURE);
   }

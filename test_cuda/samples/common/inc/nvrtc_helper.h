@@ -9,18 +9,18 @@
 #include <nvrtc.h>
 #include <sstream>
 
-#define NVRTC_SAFE_CALL(Name, x)                                               \
-  do {                                                                         \
-    nvrtcResult result = x;                                                    \
-    if (result != NVRTC_SUCCESS) {                                             \
-      std::cerr << "\nerror: " << Name << " failed with error "                \
-                << nvrtcGetErrorString(result);                                \
-      exit(1);                                                                 \
-    }                                                                          \
+#define NVRTC_SAFE_CALL(Name, x)                                \
+  do {                                                          \
+    nvrtcResult result = x;                                     \
+    if (result != NVRTC_SUCCESS) {                              \
+      std::cerr << "\nerror: " << Name << " failed with error " \
+                << nvrtcGetErrorString(result);                 \
+      exit(1);                                                  \
+    }                                                           \
   } while (0)
 
-void compileFileToPTX(char *filename, int argc, const char **argv,
-                      char **ptxResult, size_t *ptxResultSize) {
+void compileFileToPTX(char* filename, int argc, const char** argv,
+                      char** ptxResult, size_t* ptxResultSize) {
   std::ifstream inputFile(filename,
                           std::ios::in | std::ios::binary | std::ios::ate);
 
@@ -31,7 +31,7 @@ void compileFileToPTX(char *filename, int argc, const char **argv,
 
   std::streampos pos = inputFile.tellg();
   size_t inputSize = (size_t)pos;
-  char *memBlock = new char[inputSize + 1];
+  char* memBlock = new char[inputSize + 1];
 
   inputFile.seekg(0, std::ios::beg);
   inputFile.read(memBlock, inputSize);
@@ -48,7 +48,7 @@ void compileFileToPTX(char *filename, int argc, const char **argv,
   size_t logSize;
   NVRTC_SAFE_CALL("nvrtcGetProgramLogSize",
                   nvrtcGetProgramLogSize(prog, &logSize));
-  char *log = (char *)malloc(sizeof(char) * logSize + 1);
+  char* log = (char*)malloc(sizeof(char) * logSize + 1);
   NVRTC_SAFE_CALL("nvrtcGetProgramLog", nvrtcGetProgramLog(prog, log));
   log[logSize] = '\x0';
 
@@ -63,21 +63,21 @@ void compileFileToPTX(char *filename, int argc, const char **argv,
   // fetch PTX
   size_t ptxSize;
   NVRTC_SAFE_CALL("nvrtcGetPTXSize", nvrtcGetPTXSize(prog, &ptxSize));
-  char *ptx = (char *)malloc(sizeof(char) * ptxSize);
+  char* ptx = (char*)malloc(sizeof(char) * ptxSize);
   NVRTC_SAFE_CALL("nvrtcGetPTX", nvrtcGetPTX(prog, ptx));
   NVRTC_SAFE_CALL("nvrtcDestroyProgram", nvrtcDestroyProgram(&prog));
   *ptxResult = ptx;
   *ptxResultSize = ptxSize;
 }
 
-CUmodule loadPTX(char *ptx, int argc, char **argv) {
+CUmodule loadPTX(char* ptx, int argc, char** argv) {
   CUmodule module;
   CUcontext context;
   int major = 0, minor = 0;
   char deviceName[256];
 
   // Picks the best CUDA device available
-  CUdevice cuDevice = findCudaDeviceDRV(argc, (const char **)argv);
+  CUdevice cuDevice = findCudaDeviceDRV(argc, (const char**)argv);
 
   // get compute capabilities and the devicename
   checkCudaErrors(cuDeviceComputeCapability(&major, &minor, cuDevice));

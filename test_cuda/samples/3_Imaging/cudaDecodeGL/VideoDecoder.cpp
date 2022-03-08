@@ -17,10 +17,10 @@
 #include <cstring>
 #include <string>
 
-VideoDecoder::VideoDecoder(const CUVIDEOFORMAT &rVideoFormat,
-                           CUcontext &rContext,
+VideoDecoder::VideoDecoder(const CUVIDEOFORMAT& rVideoFormat,
+                           CUcontext& rContext,
                            cudaVideoCreateFlags eCreateFlags,
-                           CUvideoctxlock &vidCtxLock)
+                           CUvideoctxlock& vidCtxLock)
     : m_VidCtxLock(vidCtxLock) {
   // get a copy of the CUDA context
   m_Context = rContext;
@@ -29,25 +29,25 @@ VideoDecoder::VideoDecoder(const CUVIDEOFORMAT &rVideoFormat,
   printf("> VideoDecoder::cudaVideoCreateFlags = <%d>", (int)eCreateFlags);
 
   switch (eCreateFlags) {
-  case cudaVideoCreate_Default:
-    printf("Default (VP)\n");
-    break;
+    case cudaVideoCreate_Default:
+      printf("Default (VP)\n");
+      break;
 
-  case cudaVideoCreate_PreferCUDA:
-    printf("Use CUDA decoder\n");
-    break;
+    case cudaVideoCreate_PreferCUDA:
+      printf("Use CUDA decoder\n");
+      break;
 
-  case cudaVideoCreate_PreferDXVA:
-    printf("Use DXVA decoder\n");
-    break;
+    case cudaVideoCreate_PreferDXVA:
+      printf("Use DXVA decoder\n");
+      break;
 
-  case cudaVideoCreate_PreferCUVID:
-    printf("Use CUVID decoder\n");
-    break;
+    case cudaVideoCreate_PreferCUVID:
+      printf("Use CUVID decoder\n");
+      break;
 
-  default:
-    printf("Unknown value\n");
-    break;
+    default:
+      printf("Unknown value\n");
+      break;
   }
 
   printf("\n");
@@ -94,7 +94,7 @@ VideoDecoder::VideoDecoder(const CUVIDEOFORMAT &rVideoFormat,
   oVideoDecodeCreateInfo_.ulTargetWidth = oVideoDecodeCreateInfo_.ulWidth;
   oVideoDecodeCreateInfo_.ulTargetHeight = oVideoDecodeCreateInfo_.ulHeight;
   oVideoDecodeCreateInfo_.ulNumOutputSurfaces =
-      MAX_FRAME_COUNT; // We won't simultaneously map more than 8 surfaces
+      MAX_FRAME_COUNT;  // We won't simultaneously map more than 8 surfaces
   oVideoDecodeCreateInfo_.ulCreationFlags = m_VideoCreateFlags;
   oVideoDecodeCreateInfo_.vidLock = vidCtxLock;
   // create the decoder
@@ -132,17 +132,17 @@ unsigned long VideoDecoder::targetHeight() const {
   return oVideoDecodeCreateInfo_.ulTargetHeight;
 }
 
-void VideoDecoder::decodePicture(CUVIDPICPARAMS *pPictureParameters,
-                                 CUcontext *pContext) {
+void VideoDecoder::decodePicture(CUVIDPICPARAMS* pPictureParameters,
+                                 CUcontext* pContext) {
   // Handle CUDA picture decode (this actually calls the hardware VP/CUDA to
   // decode video frames)
   CUresult oResult = cuvidDecodePicture(oDecoder_, pPictureParameters);
   assert(CUDA_SUCCESS == oResult);
 }
 
-void VideoDecoder::mapFrame(int iPictureIndex, CUdeviceptr *ppDevice,
-                            unsigned int *pPitch,
-                            CUVIDPROCPARAMS *pVideoProcessingParameters) {
+void VideoDecoder::mapFrame(int iPictureIndex, CUdeviceptr* ppDevice,
+                            unsigned int* pPitch,
+                            CUVIDPROCPARAMS* pVideoProcessingParameters) {
   CUresult oResult = cuvidMapVideoFrame(oDecoder_, iPictureIndex, ppDevice,
                                         pPitch, pVideoProcessingParameters);
   assert(CUDA_SUCCESS == oResult);

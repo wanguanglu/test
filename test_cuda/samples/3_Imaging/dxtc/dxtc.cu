@@ -13,7 +13,7 @@
 #include <helper_cuda.h>
 #include <helper_functions.h>
 
-#include <float.h> // for FLT_MAX
+#include <float.h>  // for FLT_MAX
 #include <helper_math.h>
 
 #include "CudaMath.h"
@@ -26,11 +26,12 @@
 
 #define ERROR_THRESHOLD 0.02f
 
-#define NUM_THREADS 64 // Number of threads per block.
+#define NUM_THREADS 64  // Number of threads per block.
 
 #define __debugsync()
 
-template <class T> __device__ inline void swap(T &a, T &b) {
+template <class T>
+__device__ inline void swap(T& a, T& b) {
   T tmp = a;
   a = b;
   b = tmp;
@@ -42,7 +43,7 @@ __constant__ float3 kColorMetric = {1.0f, 1.0f, 1.0f};
 ////////////////////////////////////////////////////////////////////////////////
 // Sort colors
 ////////////////////////////////////////////////////////////////////////////////
-__device__ void sortColors(const float *values, int *ranks) {
+__device__ void sortColors(const float* values, int* ranks) {
   const int tid = threadIdx.x;
 
   int rank = 0;
@@ -66,7 +67,7 @@ __device__ void sortColors(const float *values, int *ranks) {
 ////////////////////////////////////////////////////////////////////////////////
 // Load color block to shared mem
 ////////////////////////////////////////////////////////////////////////////////
-__device__ void loadColorBlock(const uint *image, float3 colors[16],
+__device__ void loadColorBlock(const uint* image, float3 colors[16],
                                float3 sums[16], int xrefs[16],
                                int blockOffset) {
   const int bid = blockIdx.x + blockOffset;
@@ -101,13 +102,13 @@ __device__ void loadColorBlock(const uint *image, float3 colors[16],
 ////////////////////////////////////////////////////////////////////////////////
 // Round color to RGB565 and expand
 ////////////////////////////////////////////////////////////////////////////////
-inline __device__ float3 roundAndExpand(float3 v, ushort *w) {
+inline __device__ float3 roundAndExpand(float3 v, ushort* w) {
   v.x = rintf(__saturatef(v.x) * 31.0f);
   v.y = rintf(__saturatef(v.y) * 63.0f);
   v.z = rintf(__saturatef(v.z) * 31.0f);
 
   *w = ((ushort)v.x << 11) | ((ushort)v.y << 5) | (ushort)v.z;
-  v.x *= 0.03227752766457f; // approximate integer bit expansion.
+  v.x *= 0.03227752766457f;  // approximate integer bit expansion.
   v.y *= 0.01583151765563f;
   v.z *= 0.03227752766457f;
   return v;
@@ -123,8 +124,8 @@ __constant__ const int prods3[4] = {0x040000, 0x000400, 0x040101, 0x010401};
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluate permutations
 ////////////////////////////////////////////////////////////////////////////////
-static __device__ float evalPermutation4(const float3 *colors, uint permutation,
-                                         ushort *start, ushort *end,
+static __device__ float evalPermutation4(const float3* colors, uint permutation,
+                                         ushort* start, ushort* end,
                                          float3 color_sum) {
   // Compute endpoints using least squares.
 #if USE_TABLES
@@ -190,8 +191,8 @@ static __device__ float evalPermutation4(const float3 *colors, uint permutation,
   return (0.111111111111f) * dot(e, kColorMetric);
 }
 
-static __device__ float evalPermutation3(const float3 *colors, uint permutation,
-                                         ushort *start, ushort *end,
+static __device__ float evalPermutation3(const float3* colors, uint permutation,
+                                         ushort* start, ushort* end,
                                          float3 color_sum) {
   // Compute endpoints using least squares.
 #if USE_TABLES
@@ -255,10 +256,10 @@ static __device__ float evalPermutation3(const float3 *colors, uint permutation,
   return (0.25f) * dot(e, kColorMetric);
 }
 
-__device__ void evalAllPermutations(const float3 *colors,
-                                    const uint *permutations, ushort &bestStart,
-                                    ushort &bestEnd, uint &bestPermutation,
-                                    float *errors, float3 color_sum) {
+__device__ void evalAllPermutations(const float3* colors,
+                                    const uint* permutations, ushort& bestStart,
+                                    ushort& bestEnd, uint& bestPermutation,
+                                    float* errors, float3 color_sum) {
   const int idx = threadIdx.x;
 
   float bestError = FLT_MAX;
@@ -292,10 +293,10 @@ __device__ void evalAllPermutations(const float3 *colors,
 
   if (bestStart < bestEnd) {
     swap(bestEnd, bestStart);
-    bestPermutation ^= 0x55555555; // Flip indices.
+    bestPermutation ^= 0x55555555;  // Flip indices.
   }
 
-  __syncthreads(); // Sync here to ensure s_permutations is valid going forward
+  __syncthreads();  // Sync here to ensure s_permutations is valid going forward
 
   for (int i = 0; i < 3; i++) {
     int pidx = idx + NUM_THREADS * i;
@@ -318,7 +319,7 @@ __device__ void evalAllPermutations(const float3 *colors,
       if (bestStart > bestEnd) {
         swap(bestEnd, bestStart);
         bestPermutation ^=
-            (~bestPermutation >> 1) & 0x55555555; // Flip indices.
+            (~bestPermutation >> 1) & 0x55555555;  // Flip indices.
       }
     }
   }
@@ -329,7 +330,7 @@ __device__ void evalAllPermutations(const float3 *colors,
 ////////////////////////////////////////////////////////////////////////////////
 // Find index with minimum error
 ////////////////////////////////////////////////////////////////////////////////
-__device__ int findMinError(float *errors) {
+__device__ int findMinError(float* errors) {
   const int idx = threadIdx.x;
   __shared__ int indices[NUM_THREADS];
   indices[idx] = idx;
@@ -358,7 +359,7 @@ __device__ int findMinError(float *errors) {
 // Save DXT block
 ////////////////////////////////////////////////////////////////////////////////
 __device__ void saveBlockDXT1(ushort start, ushort end, uint permutation,
-                              int xrefs[16], uint2 *result, int blockOffset) {
+                              int xrefs[16], uint2* result, int blockOffset) {
   const int bid = blockIdx.x + blockOffset;
 
   if (start == end) {
@@ -383,8 +384,8 @@ __device__ void saveBlockDXT1(ushort start, ushort end, uint permutation,
 ////////////////////////////////////////////////////////////////////////////////
 // Compress color block
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void compress(const uint *permutations, const uint *image,
-                         uint2 *result, int blockOffset) {
+__global__ void compress(const uint* permutations, const uint* image,
+                         uint2* result, int blockOffset) {
   const int idx = threadIdx.x;
 
   __shared__ float3 colors[16];
@@ -446,7 +447,7 @@ struct BlockDXT1 {
   void decompress(Color32 colors[16]) const;
 };
 
-void BlockDXT1::decompress(Color32 *colors) const {
+void BlockDXT1::decompress(Color32* colors) const {
   Color32 palette[4];
 
   // Does bit expansion before interpolation.
@@ -489,7 +490,7 @@ void BlockDXT1::decompress(Color32 *colors) const {
   }
 }
 
-static int compareColors(const Color32 *b0, const Color32 *b1) {
+static int compareColors(const Color32* b0, const Color32* b1) {
   int sum = 0;
 
   for (int i = 0; i < 16; i++) {
@@ -502,7 +503,7 @@ static int compareColors(const Color32 *b0, const Color32 *b1) {
   return sum;
 }
 
-static int compareBlock(const BlockDXT1 *b0, const BlockDXT1 *b1) {
+static int compareBlock(const BlockDXT1* b0, const BlockDXT1* b1) {
   Color32 colors0[16];
   Color32 colors1[16];
 
@@ -519,18 +520,18 @@ static int compareBlock(const BlockDXT1 *b0, const BlockDXT1 *b1) {
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   printf("%s Starting...\n\n", argv[0]);
 
   // use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  findCudaDevice(argc, (const char **)argv);
+  findCudaDevice(argc, (const char**)argv);
 
   // Load input image.
-  unsigned char *data = NULL;
+  unsigned char* data = NULL;
   uint W, H;
 
-  char *image_path = sdkFindFilePath(INPUT_IMAGE, argv[0]);
+  char* image_path = sdkFindFilePath(INPUT_IMAGE, argv[0]);
 
   if (image_path == 0) {
     printf("Error, unable to find source image  <%s>\n", image_path);
@@ -563,7 +564,7 @@ int main(int argc, char **argv) {
   // Allocate input image.
   const uint memSize = w * h * 4;
   assert(0 != memSize);
-  uint *block_image = (uint *)malloc(memSize);
+  uint* block_image = (uint*)malloc(memSize);
 
   // Convert linear image to block linear.
   for (uint by = 0; by < h / 4; by++) {
@@ -572,33 +573,33 @@ int main(int argc, char **argv) {
         const int x = i & 3;
         const int y = i / 4;
         block_image[(by * w / 4 + bx) * 16 + i] =
-            ((uint *)data)[(by * 4 + y) * 4 * (W / 4) + bx * 4 + x];
+            ((uint*)data)[(by * 4 + y) * 4 * (W / 4) + bx * 4 + x];
       }
     }
   }
 
   // copy into global mem
-  uint *d_data = NULL;
-  checkCudaErrors(cudaMalloc((void **)&d_data, memSize));
+  uint* d_data = NULL;
+  checkCudaErrors(cudaMalloc((void**)&d_data, memSize));
 
   // Result
-  uint *d_result = NULL;
+  uint* d_result = NULL;
   const uint compressedSize = (w / 4) * (h / 4) * 8;
-  checkCudaErrors(cudaMalloc((void **)&d_result, compressedSize));
-  uint *h_result = (uint *)malloc(compressedSize);
+  checkCudaErrors(cudaMalloc((void**)&d_result, compressedSize));
+  uint* h_result = (uint*)malloc(compressedSize);
 
   // Compute permutations.
   uint permutations[1024];
   computePermutations(permutations);
 
   // Copy permutations host to devie.
-  uint *d_permutations = NULL;
-  checkCudaErrors(cudaMalloc((void **)&d_permutations, 1024 * sizeof(uint)));
+  uint* d_permutations = NULL;
+  checkCudaErrors(cudaMalloc((void**)&d_permutations, 1024 * sizeof(uint)));
   checkCudaErrors(cudaMemcpy(d_permutations, permutations, 1024 * sizeof(uint),
                              cudaMemcpyHostToDevice));
 
   // create a timer
-  StopWatchInterface *timer = NULL;
+  StopWatchInterface* timer = NULL;
   sdkCreateTimer(&timer);
 
   // Copy image from host to device
@@ -608,7 +609,7 @@ int main(int argc, char **argv) {
   // Determine launch configuration and run timed computation numIterations
   // times
   uint blocks = ((w + 3) / 4) *
-                ((h + 3) / 4); // rounds up by 1 block in each dim if %4 != 0
+                ((h + 3) / 4);  // rounds up by 1 block in each dim if %4 != 0
 
   int devID;
   cudaDeviceProp deviceProp;
@@ -634,7 +635,7 @@ int main(int argc, char **argv) {
 
     for (int j = 0; j < (int)blocks; j += blocksPerLaunch) {
       compress<<<min(blocksPerLaunch, blocks - j), NUM_THREADS>>>(
-          d_permutations, d_data, (uint2 *)d_result, j);
+          d_permutations, d_data, (uint2*)d_result, j);
     }
   }
 
@@ -644,10 +645,10 @@ int main(int argc, char **argv) {
   checkCudaErrors(cudaDeviceSynchronize());
   sdkStopTimer(&timer);
   double dAvgTime = 1.0e-3 * sdkGetTimerValue(&timer) / (double)numIterations;
-  printf("dxtc, Throughput = %.4f MPixels/s, Time = %.5f s, Size = %u Pixels, "
-         "NumDevsUsed = %i, Workgroup = %d\n",
-         (1.0e-6 * (double)(W * H) / dAvgTime), dAvgTime, (W * H), 1,
-         NUM_THREADS);
+  printf(
+      "dxtc, Throughput = %.4f MPixels/s, Time = %.5f s, Size = %u Pixels, "
+      "NumDevsUsed = %i, Workgroup = %d\n",
+      (1.0e-6 * (double)(W * H) / dAvgTime), dAvgTime, (W * H), 1, NUM_THREADS);
 
   // copy result data from device to host
   checkCudaErrors(
@@ -657,7 +658,7 @@ int main(int argc, char **argv) {
   char output_filename[1024];
   strcpy(output_filename, image_path);
   strcpy(output_filename + strlen(image_path) - 3, "dds");
-  FILE *fp = fopen(output_filename, "wb");
+  FILE* fp = fopen(output_filename, "wb");
 
   if (fp == 0) {
     printf("Error, unable to open output image <%s>\n", output_filename);
@@ -700,7 +701,7 @@ int main(int argc, char **argv) {
   fclose(fp);
 
   // Make sure the generated image is correct.
-  const char *reference_image_path = sdkFindFilePath(REFERENCE_IMAGE, argv[0]);
+  const char* reference_image_path = sdkFindFilePath(REFERENCE_IMAGE, argv[0]);
 
   if (reference_image_path == 0) {
     printf("Error, unable to find reference image\n");
@@ -730,7 +731,7 @@ int main(int argc, char **argv) {
 
   fseek(fp, sizeof(DDSHeader), SEEK_SET);
   uint referenceSize = (W / 4) * (H / 4) * 8;
-  uint *reference = (uint *)malloc(referenceSize);
+  uint* reference = (uint*)malloc(referenceSize);
   fread(reference, referenceSize, 1, fp);
   fclose(fp);
 
@@ -742,8 +743,8 @@ int main(int argc, char **argv) {
       uint referenceBlockIdx = ((y / 4) * (W / 4) + (x / 4));
       uint resultBlockIdx = ((y / 4) * (w / 4) + (x / 4));
 
-      int cmp = compareBlock(((BlockDXT1 *)h_result) + resultBlockIdx,
-                             ((BlockDXT1 *)reference) + referenceBlockIdx);
+      int cmp = compareBlock(((BlockDXT1*)h_result) + resultBlockIdx,
+                             ((BlockDXT1*)reference) + referenceBlockIdx);
 
       if (cmp != 0.0f) {
         printf("Deviation at (%4d,%4d):\t%f rms\n", x / 4, y / 4,

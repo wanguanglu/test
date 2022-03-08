@@ -27,9 +27,9 @@
 #include <cuda_runtime.h>
 
 // Utilities and timing functions
-#include <helper_functions.h> // includes cuda.h and cuda_runtime_api.h
+#include <helper_functions.h>  // includes cuda.h and cuda_runtime_api.h
 
-const char *sampleName = "simpleAssert_nvrtc";
+const char* sampleName = "simpleAssert_nvrtc";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Auto-Verification Code
@@ -37,13 +37,13 @@ bool testResult = true;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Declaration, forward
-void runTest(int argc, char **argv);
+void runTest(int argc, char** argv);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   printf("%s starting...\n", sampleName);
 
   runTest(argc, argv);
@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
   exit(testResult ? EXIT_SUCCESS : EXIT_FAILURE);
 }
 
-void runTest(int argc, char **argv) {
+void runTest(int argc, char** argv) {
   int Nblocks = 2;
   int Nthreads = 32;
 
@@ -76,7 +76,7 @@ void runTest(int argc, char **argv) {
   checkCudaErrors(cuModuleGetFunction(&kernel_addr, module, "testKernel"));
 
   int count = 60;
-  void *args[] = {(void *)&count};
+  void* args[] = {(void*)&count};
 
   checkCudaErrors(cuLaunchKernel(
       kernel_addr, dimGrid.x, dimGrid.y, dimGrid.z, /* grid dim */

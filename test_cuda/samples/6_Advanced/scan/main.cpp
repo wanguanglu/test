@@ -17,23 +17,23 @@
 #include "scan_common.h"
 #include <cuda_runtime.h>
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   printf("%s Starting...\n\n", argv[0]);
 
   // Use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  findCudaDevice(argc, (const char **)argv);
+  findCudaDevice(argc, (const char**)argv);
 
   uint *d_Input, *d_Output;
   uint *h_Input, *h_OutputCPU, *h_OutputGPU;
-  StopWatchInterface *hTimer = NULL;
+  StopWatchInterface* hTimer = NULL;
   const uint N = 13 * 1048576 / 2;
 
   printf("Allocating and initializing host arrays...\n");
   sdkCreateTimer(&hTimer);
-  h_Input = (uint *)malloc(N * sizeof(uint));
-  h_OutputCPU = (uint *)malloc(N * sizeof(uint));
-  h_OutputGPU = (uint *)malloc(N * sizeof(uint));
+  h_Input = (uint*)malloc(N * sizeof(uint));
+  h_OutputCPU = (uint*)malloc(N * sizeof(uint));
+  h_OutputGPU = (uint*)malloc(N * sizeof(uint));
   srand(2009);
 
   for (uint i = 0; i < N; i++) {
@@ -41,8 +41,8 @@ int main(int argc, char **argv) {
   }
 
   printf("Allocating and initializing CUDA arrays...\n");
-  checkCudaErrors(cudaMalloc((void **)&d_Input, N * sizeof(uint)));
-  checkCudaErrors(cudaMalloc((void **)&d_Output, N * sizeof(uint)));
+  checkCudaErrors(cudaMalloc((void**)&d_Input, N * sizeof(uint)));
+  checkCudaErrors(cudaMalloc((void**)&d_Output, N * sizeof(uint)));
   checkCudaErrors(
       cudaMemcpy(d_Input, h_Input, N * sizeof(uint), cudaMemcpyHostToDevice));
 
@@ -100,10 +100,11 @@ int main(int argc, char **argv) {
     // Data log
     if (arrayLength == MAX_SHORT_ARRAY_SIZE) {
       printf("\n");
-      printf("scan, Throughput = %.4f MElements/s, Time = %.5f s, Size = %u "
-             "Elements, NumDevsUsed = %u, Workgroup = %u\n",
-             (1.0e-6 * (double)arrayLength / timerValue), timerValue,
-             (unsigned int)arrayLength, 1, (unsigned int)szWorkgroup);
+      printf(
+          "scan, Throughput = %.4f MElements/s, Time = %.5f s, Size = %u "
+          "Elements, NumDevsUsed = %u, Workgroup = %u\n",
+          (1.0e-6 * (double)arrayLength / timerValue), timerValue,
+          (unsigned int)arrayLength, 1, (unsigned int)szWorkgroup);
       printf("\n");
     }
   }
@@ -156,10 +157,11 @@ int main(int argc, char **argv) {
     // Data log
     if (arrayLength == MAX_LARGE_ARRAY_SIZE) {
       printf("\n");
-      printf("scan, Throughput = %.4f MElements/s, Time = %.5f s, Size = %u "
-             "Elements, NumDevsUsed = %u, Workgroup = %u\n",
-             (1.0e-6 * (double)arrayLength / timerValue), timerValue,
-             (unsigned int)arrayLength, 1, (unsigned int)szWorkgroup);
+      printf(
+          "scan, Throughput = %.4f MElements/s, Time = %.5f s, Size = %u "
+          "Elements, NumDevsUsed = %u, Workgroup = %u\n",
+          (1.0e-6 * (double)arrayLength / timerValue), timerValue,
+          (unsigned int)arrayLength, 1, (unsigned int)szWorkgroup);
       printf("\n");
     }
   }

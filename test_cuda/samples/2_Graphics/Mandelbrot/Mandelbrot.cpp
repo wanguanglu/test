@@ -56,18 +56,18 @@
 #define MAX_EPSILON_ERROR 5.0f
 
 // Define the files that are to be save and the reference images for validation
-const char *sOriginal[] = {"mandelbrot.ppm", "julia.ppm", NULL};
+const char* sOriginal[] = {"mandelbrot.ppm", "julia.ppm", NULL};
 
-const char *sReference[] = {"Mandelbrot_fp32.ppm", "Mandelbrot_fp64.ppm", NULL};
+const char* sReference[] = {"Mandelbrot_fp32.ppm", "Mandelbrot_fp64.ppm", NULL};
 
-const char *sReferenceJulia[] = {"referenceJulia_fp32.ppm",
+const char* sReferenceJulia[] = {"referenceJulia_fp32.ppm",
                                  "referenceJulia_fp64.ppm", NULL};
 
 bool g_isJuliaSet = false;
 bool g_isMoving = true;
 bool g_runCPU = false;
 
-FILE *stream;
+FILE* stream;
 char g_ExecPath[300];
 
 // Set to 1 to run on the CPU instead of the GPU for timing comparison.
@@ -82,13 +82,13 @@ char g_ExecPath[300];
 
 // OpenGL PBO and texture "names"
 GLuint gl_PBO, gl_Tex, gl_Shader;
-struct cudaGraphicsResource *cuda_pbo_resource; // handles OpenGL-CUDA exchange
+struct cudaGraphicsResource* cuda_pbo_resource;  // handles OpenGL-CUDA exchange
 
 // Source image on the host side
-uchar4 *h_Src = 0;
+uchar4* h_Src = 0;
 
 // Destination image on the GPU side
-uchar4 *d_dst = NULL;
+uchar4* d_dst = NULL;
 
 // Original image width and height
 int imageW = 800, imageH = 600;
@@ -124,7 +124,7 @@ int colorSeed = 0;
 uchar4 colors;
 
 // Timer ID
-StopWatchInterface *hTimer = NULL;
+StopWatchInterface* hTimer = NULL;
 
 // User interface variables
 int lastx = 0;
@@ -134,32 +134,32 @@ bool middleClicked = false;
 bool rightClicked = false;
 
 bool haveDoubles = false;
-int numSMs = 0;  // number of multiprocessors
-int version = 1; // Compute Capability
+int numSMs = 0;   // number of multiprocessors
+int version = 1;  // Compute Capability
 
 // Auto-Verification Code
 const int frameCheckNumber = 60;
-int fpsCount = 0;  // FPS count for averaging
-int fpsLimit = 15; // FPS limit for sampling
+int fpsCount = 0;   // FPS count for averaging
+int fpsLimit = 15;  // FPS limit for sampling
 unsigned int frameCount = 0;
 unsigned int g_TotalErrors = 0;
 
-int *pArgc = NULL;
-char **pArgv = NULL;
+int* pArgc = NULL;
+char** pArgv = NULL;
 
-const char *sSDKsample = "CUDA Mandelbrot/Julia Set";
+const char* sSDKsample = "CUDA Mandelbrot/Julia Set";
 
 #define MAX_EPSILON 50
-#define REFRESH_DELAY 10 // ms
+#define REFRESH_DELAY 10  // ms
 
 #ifndef MAX
 #define MAX(a, b) ((a > b) ? a : b)
 #endif
-#define BUFFER_DATA(i) ((char *)0 + i)
+#define BUFFER_DATA(i) ((char*)0 + i)
 
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
 // This is specifically to enable the application to enable/disable vsync
-typedef BOOL(WINAPI *PFNWGLSWAPINTERVALFARPROC)(int);
+typedef BOOL(WINAPI* PFNWGLSWAPINTERVALFARPROC)(int);
 
 void setVSync(int interval) {
   if (WGL_EXT_swap_control) {
@@ -187,13 +187,14 @@ void computeFPS() {
   }
 }
 
-void startJulia(const char *path) {
+void startJulia(const char* path) {
   g_isJuliaSet = true;
   g_isMoving = false;
 
   if ((path == NULL) || (stream = fopen(path, "r")) == NULL) {
-    printf("JuliaSet: params.txt could not be opened.  Using default "
-           "parameters\n");
+    printf(
+        "JuliaSet: params.txt could not be opened.  Using default "
+        "parameters\n");
     xOff = -0.085760;
     yOff = 0.007040;
     scale = 3.200000;
@@ -213,7 +214,7 @@ void startJulia(const char *path) {
 }
 
 // Get a sub-pixel sample location
-void GetSample(int sampleIndex, float &x, float &y) {
+void GetSample(int sampleIndex, float& x, float& y) {
   static const unsigned char pairData[128][2] = {
       {64, 64},  {0, 0},     {1, 63},    {63, 1},    {96, 32},  {97, 95},
       {36, 96},  {30, 31},   {95, 127},  {4, 97},    {33, 62},  {62, 33},
@@ -240,7 +241,7 @@ void GetSample(int sampleIndex, float &x, float &y) {
 
   x = (1.0f / 128.0f) * (0.5f + (float)pairData[sampleIndex][0]);
   y = (1.0f / 128.0f) * (0.5f + (float)pairData[sampleIndex][1]);
-} // GetSample
+}  // GetSample
 
 // render Mandelbrot image using CUDA or CPU
 void renderImage(bool bUseOpenGL, bool fp64, int mode) {
@@ -260,7 +261,7 @@ void renderImage(bool bUseOpenGL, bool fp64, int mode) {
         checkCudaErrors(cudaGraphicsMapResources(1, &cuda_pbo_resource, 0));
         size_t num_bytes;
         checkCudaErrors(cudaGraphicsResourceGetMappedPointer(
-            (void **)&d_dst, &num_bytes, cuda_pbo_resource));
+            (void**)&d_dst, &num_bytes, cuda_pbo_resource));
       }
 
       // Get the anti-alias sub-pixel sample location
@@ -273,7 +274,7 @@ void renderImage(bool bUseOpenGL, bool fp64, int mode) {
 
       // Run the mandelbrot generator
       if (pass &&
-          !startPass) // Use the adaptive sampling version when animating.
+          !startPass)  // Use the adaptive sampling version when animating.
       {
         if (precisionMode)
           RunMandelbrotDSGold1(h_Src, imageW, imageH, crunch, x, y, xJParam,
@@ -305,7 +306,7 @@ void renderImage(bool bUseOpenGL, bool fp64, int mode) {
 #if RUN_TIMING
       printf("CPU = %5.8f\n", 0.001f * sdkGetTimerValue(&hTimer));
 #endif
-    } else // this is the GPU Path
+    } else  // this is the GPU Path
     {
       float timeEstimate;
       int startPass = pass;
@@ -317,7 +318,7 @@ void renderImage(bool bUseOpenGL, bool fp64, int mode) {
         checkCudaErrors(cudaGraphicsMapResources(1, &cuda_pbo_resource, 0));
         size_t num_bytes;
         checkCudaErrors(cudaGraphicsResourceGetMappedPointer(
-            (void **)&d_dst, &num_bytes, cuda_pbo_resource));
+            (void**)&d_dst, &num_bytes, cuda_pbo_resource));
       }
 
       // Render anti-aliasing passes until we run out time (60fps approximately)
@@ -334,7 +335,7 @@ void renderImage(bool bUseOpenGL, bool fp64, int mode) {
 
         // Run the mandelbrot generator
         if (pass &&
-            !startPass) // Use the adaptive sampling version when animating.
+            !startPass)  // Use the adaptive sampling version when animating.
           RunMandelbrot1(d_dst, imageW, imageH, crunch, x, y, xJParam, yJParam,
                          s, colors, pass++, animationFrame, precisionMode,
                          numSMs, g_isJuliaSet, version);
@@ -422,7 +423,7 @@ void displayFunc(void) {
   glutSwapBuffers();
 
   computeFPS();
-} // displayFunc
+}  // displayFunc
 
 void cleanup() {
   if (h_Src) {
@@ -449,190 +450,40 @@ void keyboardFunc(unsigned char k, int, int) {
   int seed;
 
   switch (k) {
-  case '\033':
-  case 'q':
-  case 'Q':
-    printf("Shutting down...\n");
+    case '\033':
+    case 'q':
+    case 'Q':
+      printf("Shutting down...\n");
 
-    // cudaDeviceReset causes the driver to clean up all state. While
-    // not mandatory in normal operation, it is good practice.  It is also
-    // needed to ensure correct operation when the application is being
-    // profiled. Calling cudaDeviceReset causes all profile data to be
-    // flushed before the application exits
-    cudaDeviceReset();
-    exit(EXIT_SUCCESS);
-    break;
+      // cudaDeviceReset causes the driver to clean up all state. While
+      // not mandatory in normal operation, it is good practice.  It is also
+      // needed to ensure correct operation when the application is being
+      // profiled. Calling cudaDeviceReset causes all profile data to be
+      // flushed before the application exits
+      cudaDeviceReset();
+      exit(EXIT_SUCCESS);
+      break;
 
-  case '?':
-    printf("xOff = %5.8f\n", xOff);
-    printf("yOff = %5.8f\n", yOff);
-    printf("scale = %e\n", scale);
-    printf("detail = %d\n", crunch);
-    printf("color = %d\n", colorSeed);
-    printf("xJParam = %5.8f\n", xJParam);
-    printf("yJParam = %5.8f\n", yJParam);
-    printf("\n");
-    break;
+    case '?':
+      printf("xOff = %5.8f\n", xOff);
+      printf("yOff = %5.8f\n", yOff);
+      printf("scale = %e\n", scale);
+      printf("detail = %d\n", crunch);
+      printf("color = %d\n", colorSeed);
+      printf("xJParam = %5.8f\n", xJParam);
+      printf("yJParam = %5.8f\n", yJParam);
+      printf("\n");
+      break;
 
-  case 'e':
-  case 'E':
-    // Reset all values to their defaults
-    g_isJuliaSet = false;
-    g_isMoving = true;
-    g_runCPU = false;
-    printf(
-        "All parameters are reset to defaults. GPU implementation is used.\n");
-    xOff = -0.5;
-    yOff = 0.0;
-    scale = 3.2;
-    xdOff = 0.0;
-    ydOff = 0.0;
-    dscale = 1.0;
-    colorSeed = 0;
-    colors.x = 3;
-    colors.y = 5;
-    colors.z = 7;
-    crunch = 512;
-    animationFrame = 0;
-    animationStep = 0;
-    xJParam = 0.0;
-    yJParam = 0.0;
-    pass = 0;
-    break;
-
-  case 'c':
-    seed = ++colorSeed;
-
-    if (seed) {
-      colors.x = RANDOMBITS(seed, 4);
-      colors.y = RANDOMBITS(seed, 4);
-      colors.z = RANDOMBITS(seed, 4);
-    } else {
-      colors.x = 3;
-      colors.y = 5;
-      colors.z = 7;
-    }
-
-    pass = 0;
-    break;
-
-  case 'C':
-    seed = --colorSeed;
-
-    if (seed) {
-      colors.x = RANDOMBITS(seed, 4);
-      colors.y = RANDOMBITS(seed, 4);
-      colors.z = RANDOMBITS(seed, 4);
-    } else {
-      colors.x = 3;
-      colors.y = 5;
-      colors.z = 7;
-    }
-
-    pass = 0;
-    break;
-
-  case 'a':
-    if (animationStep < 0) {
-      animationStep = 0;
-    } else {
-      animationStep++;
-
-      if (animationStep > 8) {
-        animationStep = 8;
-      }
-    }
-
-    break;
-
-  case 'A':
-    if (animationStep > 0) {
-      animationStep = 0;
-    } else {
-      animationStep--;
-
-      if (animationStep < -8) {
-        animationStep = -8;
-      }
-    }
-
-    break;
-
-  case 'd':
-    if (2 * crunch <= MIN(numSMs * (version < 20 ? 512 : 2048), 0x4000)) {
-      crunch *= 2;
-      pass = 0;
-    }
-
-    printf("detail = %d\n", crunch);
-    break;
-
-  case 'D':
-    if (crunch > 2) {
-      crunch /= 2;
-      pass = 0;
-    }
-
-    printf("detail = %d\n", crunch);
-    break;
-
-  case 'r':
-    colors.x -= 1;
-    pass = 0;
-    break;
-
-  case 'R':
-    colors.x += 1;
-    pass = 0;
-    break;
-
-  case 'g':
-    colors.y -= 1;
-    pass = 0;
-    break;
-
-  case 'G':
-    colors.y += 1;
-    pass = 0;
-    break;
-
-  case 'b':
-    colors.z -= 1;
-    pass = 0;
-    break;
-
-  case 'B':
-    colors.z += 1;
-    pass = 0;
-    break;
-
-  case 's':
-  case 'S':
-    if (g_runCPU) {
-      g_runCPU = false;
-      printf("GPU implementation\n");
-    } else {
-      g_runCPU = true;
-      printf("CPU implementation\n");
-    }
-
-    pass = 0;
-    glutDestroyMenu(glutGetMenu());
-    initMenus();
-    break;
-
-  case 'j':
-  case 'J':
-
-    // toggle between Mandelbrot and Julia sets and reset all parameters
-    if (!g_isJuliaSet) // settings for Julia
-    {
-      g_isJuliaSet = true;
-      startJulia("params.txt");
-    } else // settings for Mandelbrot
-    {
+    case 'e':
+    case 'E':
+      // Reset all values to their defaults
       g_isJuliaSet = false;
       g_isMoving = true;
+      g_runCPU = false;
+      printf(
+          "All parameters are reset to defaults. GPU implementation is "
+          "used.\n");
       xOff = -0.5;
       yOff = 0.0;
       scale = 3.2;
@@ -646,98 +497,249 @@ void keyboardFunc(unsigned char k, int, int) {
       crunch = 512;
       animationFrame = 0;
       animationStep = 0;
+      xJParam = 0.0;
+      yJParam = 0.0;
       pass = 0;
-    }
+      break;
 
-    char fps[30];
-    sprintf(fps, "<CUDA %s Set>", g_isJuliaSet ? "Julia" : "Mandelbrot");
-    glutSetWindowTitle(fps);
+    case 'c':
+      seed = ++colorSeed;
 
-    break;
+      if (seed) {
+        colors.x = RANDOMBITS(seed, 4);
+        colors.y = RANDOMBITS(seed, 4);
+        colors.z = RANDOMBITS(seed, 4);
+      } else {
+        colors.x = 3;
+        colors.y = 5;
+        colors.z = 7;
+      }
 
-  case 'm':
-  case 'M':
-    if (g_isJuliaSet) {
-      g_isMoving = !g_isMoving;
       pass = 0;
-    }
-
-    break;
-
-  case 'p':
-  case 'P':
-#if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-    if (fopen_s(&stream, "params.txt", "w") != 0)
-#else
-    if ((stream = fopen("params.txt", "w")) == NULL)
-#endif
-    {
-      printf("The file params.txt was not opened\n");
       break;
-    }
 
-    fprintf(stream, "%f %f %f %f %f\n", xOff, yOff, scale, xJParam, yJParam);
-    fclose(stream);
-    break;
+    case 'C':
+      seed = --colorSeed;
 
-  case 'o':
-  case 'O':
-#if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-    if (fopen_s(&stream, "params.txt", "r") != 0)
-#else
-    if ((stream = fopen("params.txt", "r")) == NULL)
-#endif
-    {
-      printf("The file params.txt was not opened\n");
+      if (seed) {
+        colors.x = RANDOMBITS(seed, 4);
+        colors.y = RANDOMBITS(seed, 4);
+        colors.z = RANDOMBITS(seed, 4);
+      } else {
+        colors.x = 3;
+        colors.y = 5;
+        colors.z = 7;
+      }
+
+      pass = 0;
+      break;
+
+    case 'a':
+      if (animationStep < 0) {
+        animationStep = 0;
+      } else {
+        animationStep++;
+
+        if (animationStep > 8) {
+          animationStep = 8;
+        }
+      }
 
       break;
-    }
 
-    fseek(stream, 0L, SEEK_SET);
-    fscanf(stream, "%lf %lf %lf %lf %lf", &xOff, &yOff, &scale, &xJParam,
-           &yJParam);
-    xdOff = 0.0;
-    ydOff = 0.0;
-    dscale = 1.0;
-    fclose(stream);
-    pass = 0;
-    break;
+    case 'A':
+      if (animationStep > 0) {
+        animationStep = 0;
+      } else {
+        animationStep--;
 
-  case '4': // Left arrow key
-    xOff -= 0.05f * scale;
-    pass = 0;
-    break;
+        if (animationStep < -8) {
+          animationStep = -8;
+        }
+      }
 
-  case '8': // Up arrow key
-    yOff += 0.05f * scale;
-    pass = 0;
-    break;
+      break;
 
-  case '6': // Right arrow key
-    xOff += 0.05f * scale;
-    pass = 0;
-    break;
+    case 'd':
+      if (2 * crunch <= MIN(numSMs * (version < 20 ? 512 : 2048), 0x4000)) {
+        crunch *= 2;
+        pass = 0;
+      }
 
-  case '2': // Down arrow key
-    yOff -= 0.05f * scale;
-    pass = 0;
-    break;
+      printf("detail = %d\n", crunch);
+      break;
 
-  case '+':
-    scale /= 1.1f;
-    pass = 0;
-    break;
+    case 'D':
+      if (crunch > 2) {
+        crunch /= 2;
+        pass = 0;
+      }
 
-  case '-':
-    scale *= 1.1f;
-    pass = 0;
-    break;
+      printf("detail = %d\n", crunch);
+      break;
 
-  default:
-    break;
+    case 'r':
+      colors.x -= 1;
+      pass = 0;
+      break;
+
+    case 'R':
+      colors.x += 1;
+      pass = 0;
+      break;
+
+    case 'g':
+      colors.y -= 1;
+      pass = 0;
+      break;
+
+    case 'G':
+      colors.y += 1;
+      pass = 0;
+      break;
+
+    case 'b':
+      colors.z -= 1;
+      pass = 0;
+      break;
+
+    case 'B':
+      colors.z += 1;
+      pass = 0;
+      break;
+
+    case 's':
+    case 'S':
+      if (g_runCPU) {
+        g_runCPU = false;
+        printf("GPU implementation\n");
+      } else {
+        g_runCPU = true;
+        printf("CPU implementation\n");
+      }
+
+      pass = 0;
+      glutDestroyMenu(glutGetMenu());
+      initMenus();
+      break;
+
+    case 'j':
+    case 'J':
+
+      // toggle between Mandelbrot and Julia sets and reset all parameters
+      if (!g_isJuliaSet)  // settings for Julia
+      {
+        g_isJuliaSet = true;
+        startJulia("params.txt");
+      } else  // settings for Mandelbrot
+      {
+        g_isJuliaSet = false;
+        g_isMoving = true;
+        xOff = -0.5;
+        yOff = 0.0;
+        scale = 3.2;
+        xdOff = 0.0;
+        ydOff = 0.0;
+        dscale = 1.0;
+        colorSeed = 0;
+        colors.x = 3;
+        colors.y = 5;
+        colors.z = 7;
+        crunch = 512;
+        animationFrame = 0;
+        animationStep = 0;
+        pass = 0;
+      }
+
+      char fps[30];
+      sprintf(fps, "<CUDA %s Set>", g_isJuliaSet ? "Julia" : "Mandelbrot");
+      glutSetWindowTitle(fps);
+
+      break;
+
+    case 'm':
+    case 'M':
+      if (g_isJuliaSet) {
+        g_isMoving = !g_isMoving;
+        pass = 0;
+      }
+
+      break;
+
+    case 'p':
+    case 'P':
+#if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
+      if (fopen_s(&stream, "params.txt", "w") != 0)
+#else
+      if ((stream = fopen("params.txt", "w")) == NULL)
+#endif
+      {
+        printf("The file params.txt was not opened\n");
+        break;
+      }
+
+      fprintf(stream, "%f %f %f %f %f\n", xOff, yOff, scale, xJParam, yJParam);
+      fclose(stream);
+      break;
+
+    case 'o':
+    case 'O':
+#if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
+      if (fopen_s(&stream, "params.txt", "r") != 0)
+#else
+      if ((stream = fopen("params.txt", "r")) == NULL)
+#endif
+      {
+        printf("The file params.txt was not opened\n");
+
+        break;
+      }
+
+      fseek(stream, 0L, SEEK_SET);
+      fscanf(stream, "%lf %lf %lf %lf %lf", &xOff, &yOff, &scale, &xJParam,
+             &yJParam);
+      xdOff = 0.0;
+      ydOff = 0.0;
+      dscale = 1.0;
+      fclose(stream);
+      pass = 0;
+      break;
+
+    case '4':  // Left arrow key
+      xOff -= 0.05f * scale;
+      pass = 0;
+      break;
+
+    case '8':  // Up arrow key
+      yOff += 0.05f * scale;
+      pass = 0;
+      break;
+
+    case '6':  // Right arrow key
+      xOff += 0.05f * scale;
+      pass = 0;
+      break;
+
+    case '2':  // Down arrow key
+      yOff -= 0.05f * scale;
+      pass = 0;
+      break;
+
+    case '+':
+      scale /= 1.1f;
+      pass = 0;
+      break;
+
+    case '-':
+      scale *= 1.1f;
+      pass = 0;
+      break;
+
+    default:
+      break;
   }
 
-} // keyboardFunc
+}  // keyboardFunc
 
 // OpenGL mouse click function
 void clickFunc(int button, int state, int x, int y) {
@@ -770,7 +772,7 @@ void clickFunc(int button, int state, int x, int y) {
   xdOff = 0.0;
   ydOff = 0.0;
   dscale = 1.0;
-} // clickFunc
+}  // clickFunc
 
 // OpenGL mouse motion function
 void motionFunc(int x, int y) {
@@ -796,7 +798,7 @@ void motionFunc(int x, int y) {
   else {
     dscale = 1.0;
   }
-} // motionFunc
+}  // motionFunc
 
 void timerEvent(int value) {
   glutPostRedisplay();
@@ -830,23 +832,23 @@ void initMenus() {
 }
 
 // gl_Shader for displaying floating-point texture
-static const char *shader_code =
+static const char* shader_code =
     "!!ARBfp1.0\n"
     "TEX result.color, fragment.texcoord, texture[0], 2D; \n"
     "END";
 
-GLuint compileASMShader(GLenum program_type, const char *code) {
+GLuint compileASMShader(GLenum program_type, const char* code) {
   GLuint program_id;
   glGenProgramsARB(1, &program_id);
   glBindProgramARB(program_type, program_id);
   glProgramStringARB(program_type, GL_PROGRAM_FORMAT_ASCII_ARB,
-                     (GLsizei)strlen(code), (GLubyte *)code);
+                     (GLsizei)strlen(code), (GLubyte*)code);
 
   GLint error_pos;
   glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &error_pos);
 
   if (error_pos != -1) {
-    const GLubyte *error_string;
+    const GLubyte* error_string;
     error_string = glGetString(GL_PROGRAM_ERROR_STRING_ARB);
     fprintf(stderr, "Program error at position: %d\n%s\n", (int)error_pos,
             error_string);
@@ -881,7 +883,7 @@ void initOpenGLBuffers(int w, int h) {
   }
 
   // allocate new buffers
-  h_Src = (uchar4 *)malloc(w * h * 4);
+  h_Src = (uchar4*)malloc(w * h * 4);
 
   printf("Creating GL texture...\n");
   glEnable(GL_TEXTURE_2D);
@@ -930,7 +932,7 @@ void reshapeFunc(int w, int h) {
   pass = 0;
 }
 
-void initGL(int *argc, char **argv) {
+void initGL(int* argc, char** argv) {
   printf("Initializing GLUT...\n");
   glutInit(argc, argv);
 
@@ -962,10 +964,10 @@ void initGL(int *argc, char **argv) {
   printf("OpenGL window created.\n");
 }
 
-void initData(int argc, char **argv) {
+void initData(int argc, char** argv) {
   // check for hardware double precision support
   int dev = 0;
-  dev = findCudaDevice(argc, (const char **)argv);
+  dev = findCudaDevice(argc, (const char**)argv);
 
   cudaDeviceProp deviceProp;
   checkCudaErrors(cudaGetDeviceProperties(&deviceProp, dev));
@@ -980,16 +982,16 @@ void initData(int argc, char **argv) {
   numSMs = deviceProp.multiProcessorCount;
 
   // initialize some of the arguments
-  if (checkCmdLineFlag(argc, (const char **)argv, "xOff")) {
-    xOff = getCmdLineArgumentFloat(argc, (const char **)argv, "xOff");
+  if (checkCmdLineFlag(argc, (const char**)argv, "xOff")) {
+    xOff = getCmdLineArgumentFloat(argc, (const char**)argv, "xOff");
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "yOff")) {
-    yOff = getCmdLineArgumentFloat(argc, (const char **)argv, "yOff");
+  if (checkCmdLineFlag(argc, (const char**)argv, "yOff")) {
+    yOff = getCmdLineArgumentFloat(argc, (const char**)argv, "yOff");
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "scale")) {
-    scale = getCmdLineArgumentFloat(argc, (const char **)argv, "xOff");
+  if (checkCmdLineFlag(argc, (const char**)argv, "scale")) {
+    scale = getCmdLineArgumentFloat(argc, (const char**)argv, "xOff");
   }
 
   colors.w = 0;
@@ -1002,19 +1004,18 @@ void initData(int argc, char **argv) {
 ////////////////////////////////////////////////////////////////////////////////
 // runAutoTest validates the Mandelbrot and Julia sets without using OpenGL
 ////////////////////////////////////////////////////////////////////////////////
-int runSingleTest(int argc, char **argv) {
+int runSingleTest(int argc, char** argv) {
   char dump_file[256], *ref_file = NULL;
   bool haveDouble = false;
 
   printf("* Running Automatic Test: <%s>\n", sSDKsample);
 
-  strcpy(dump_file, (const char *)"rendered_image.ppm");
+  strcpy(dump_file, (const char*)"rendered_image.ppm");
   // We've already determined that file has been passed in as input, we can grab
   // the file here
-  getCmdLineArgumentString(argc, (const char **)argv, "file",
-                           (char **)&ref_file);
+  getCmdLineArgumentString(argc, (const char**)argv, "file", (char**)&ref_file);
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "fp64")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "fp64")) {
     haveDouble = true;
   }
 
@@ -1024,14 +1025,14 @@ int runSingleTest(int argc, char **argv) {
   // Allocate memory for renderImage (to be able to render into a CUDA memory
   // buffer)
   checkCudaErrors(
-      cudaMalloc((void **)&d_dst, (imageW * imageH * sizeof(uchar4))));
+      cudaMalloc((void**)&d_dst, (imageW * imageH * sizeof(uchar4))));
 
   // Allocate memory for cpu buffer
-  unsigned char *h_dst =
-      (unsigned char *)malloc(sizeof(uchar4) * imageH * imageW);
+  unsigned char* h_dst =
+      (unsigned char*)malloc(sizeof(uchar4) * imageH * imageW);
 
   if (g_isJuliaSet) {
-    char *ref_path = sdkFindFilePath("params.txt", argv[0]);
+    char* ref_path = sdkFindFilePath("params.txt", argv[0]);
     startJulia(ref_path);
 
     for (int i = 0; i < 50; i++) {
@@ -1071,7 +1072,7 @@ int runSingleTest(int argc, char **argv) {
 }
 
 // Performance Test
-void runBenchmark(int argc, char **argv) {
+void runBenchmark(int argc, char** argv) {
   int N = 1000;
   // initialize Data for CUDA
   initData(argc, argv);
@@ -1084,7 +1085,7 @@ void runBenchmark(int argc, char **argv) {
   // Allocate memory for renderImage (to be able to render into a CUDA memory
   // buffer)
   checkCudaErrors(
-      cudaMalloc((void **)&d_dst, (imageW * imageH * sizeof(uchar4))));
+      cudaMalloc((void**)&d_dst, (imageW * imageH * sizeof(uchar4))));
 
   float xs, ys;
 
@@ -1096,7 +1097,7 @@ void runBenchmark(int argc, char **argv) {
   double y = (ys - (double)imageH * 0.5f) * s + yOff;
 
   // Create Timers
-  StopWatchInterface *kernel_timer = NULL;
+  StopWatchInterface* kernel_timer = NULL;
   sdkCreateTimer(&kernel_timer);
   sdkStartTimer(&kernel_timer);
 
@@ -1121,7 +1122,7 @@ void runBenchmark(int argc, char **argv) {
 }
 
 // General initialization call for CUDA Device
-void chooseCudaDevice(int argc, const char **argv, bool bUseOpenGL) {
+void chooseCudaDevice(int argc, const char** argv, bool bUseOpenGL) {
   if (bUseOpenGL) {
     findCudaGLDevice(argc, argv);
   } else {
@@ -1141,7 +1142,7 @@ void printHelp() {
 ////////////////////////////////////////////////////////////////////////////////
 // Main program
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   pArgc = &argc;
   pArgv = argv;
 
@@ -1152,15 +1153,15 @@ int main(int argc, char **argv) {
   printf("[%s] - Starting...\n", sSDKsample);
 
   // parse command line arguments
-  if (checkCmdLineFlag(argc, (const char **)argv, "help")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "help")) {
     printHelp();
     exit(EXIT_SUCCESS);
   }
 
   int mode = 0;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "mode")) {
-    mode = getCmdLineArgumentInt(argc, (const char **)argv, "mode");
+  if (checkCmdLineFlag(argc, (const char**)argv, "mode")) {
+    mode = getCmdLineArgumentInt(argc, (const char**)argv, "mode");
     g_isJuliaSet = mode;
 
   } else {
@@ -1169,11 +1170,11 @@ int main(int argc, char **argv) {
 
   // Set the initial parameters for either Mandelbrot and Julia sets and reset
   // all parameters
-  if (g_isJuliaSet) // settings for Julia
+  if (g_isJuliaSet)  // settings for Julia
   {
-    char *ref_path = sdkFindFilePath("params.txt", argv[0]);
+    char* ref_path = sdkFindFilePath("params.txt", argv[0]);
     startJulia(ref_path);
-  } else // settings for Mandelbrot
+  } else  // settings for Mandelbrot
   {
     g_isMoving = true;
     xOff = -0.5;
@@ -1192,12 +1193,12 @@ int main(int argc, char **argv) {
     pass = 0;
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "file")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "file")) {
     fpsLimit = frameCheckNumber;
 
     // use command-line specified CUDA device, otherwise use device with highest
     // Gflops/s
-    findCudaDevice(argc, (const char **)argv); // no OpenGL usage
+    findCudaDevice(argc, (const char**)argv);  // no OpenGL usage
 
     // If the GPU does not meet SM1.1 capabilities, we will quit
     if (!checkCudaCapabilities(1, 1)) {
@@ -1214,11 +1215,11 @@ int main(int argc, char **argv) {
     // flushed before the application exits
     cudaDeviceReset();
     exit(g_TotalErrors == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
-  } else if (checkCmdLineFlag(argc, (const char **)argv, "benchmark")) {
+  } else if (checkCmdLineFlag(argc, (const char**)argv, "benchmark")) {
     // run benchmark
     //  use command-line specified CUDA device, otherwise use device with
     //  highest Gflops/s
-    chooseCudaDevice(argc, (const char **)argv, false); // no OpenGL usage
+    chooseCudaDevice(argc, (const char**)argv, false);  // no OpenGL usage
 
     // If the GPU does not meet a minimum of SM1.1 capabilities, we will quit
     if (!checkCudaCapabilities(1, 1)) {
@@ -1238,7 +1239,7 @@ int main(int argc, char **argv) {
   }
   // use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  else if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
+  else if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
     printf("[%s]\n", argv[0]);
     printf("   Does not explicitly support -device=n in OpenGL mode\n");
     printf("   To use -device=n, the sample must be running w/o OpenGL\n\n");
@@ -1249,11 +1250,10 @@ int main(int argc, char **argv) {
 
   // use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  chooseCudaDevice(argc, (const char **)argv, true); // yes to OpenGL usage
+  chooseCudaDevice(argc, (const char**)argv, true);  // yes to OpenGL usage
 
   // If the GPU does not meet SM1.1 capabilities, we quit
   if (!checkCudaCapabilities(1, 1)) {
-
     // cudaDeviceReset causes the driver to clean up all state. While
     // not mandatory in normal operation, it is good practice.  It is also
     // needed to ensure correct operation when the application is being
@@ -1284,10 +1284,12 @@ int main(int argc, char **argv) {
   printf("Press [d] or [D] to increase or decrease the detail\n");
   printf("Press [p] to record main parameters to file params.txt\n");
   printf("Press [o] to read main parameters from file params.txt\n");
-  printf("Left mouse button + drag = move (Mandelbrot or Julia) or animate "
-         "(Julia)\n");
-  printf("Press [m] to toggle between move and animate (Julia) for left mouse "
-         "button\n");
+  printf(
+      "Left mouse button + drag = move (Mandelbrot or Julia) or animate "
+      "(Julia)\n");
+  printf(
+      "Press [m] to toggle between move and animate (Julia) for left mouse "
+      "button\n");
   printf("Middle mouse button + drag = Zoom\n");
   printf("Right mouse button = Menu\n");
   printf("Press [?] to print location and scale\n");
@@ -1315,4 +1317,4 @@ int main(int argc, char **argv) {
   // profiled. Calling cudaDeviceReset causes all profile data to be
   // flushed before the application exits
   cudaDeviceReset();
-} // main
+}  // main

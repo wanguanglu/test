@@ -59,13 +59,13 @@ typedef unsigned char uchar;
 #define THRESHOLD 0.30f
 
 // Define the files that are to be save and the reference images for validation
-const char *sOriginal[] = {"volume.ppm", NULL};
+const char* sOriginal[] = {"volume.ppm", NULL};
 
-const char *sReference[] = {"ref_volume.ppm", NULL};
+const char* sReference[] = {"ref_volume.ppm", NULL};
 
-const char *sSDKsample = "CUDA 3D Volume Render";
+const char* sSDKsample = "CUDA 3D Volume Render";
 
-const char *volumeFilename = "Bucky.raw";
+const char* volumeFilename = "Bucky.raw";
 cudaExtent volumeSize = make_cudaExtent(32, 32, 32);
 typedef unsigned char VolumeType;
 
@@ -87,35 +87,35 @@ float transferOffset = 0.0f;
 float transferScale = 1.0f;
 bool linearFiltering = true;
 
-GLuint pbo = 0; // OpenGL pixel buffer object
-GLuint tex = 0; // OpenGL texture object
-struct cudaGraphicsResource
-    *cuda_pbo_resource; // CUDA Graphics Resource (to transfer PBO)
+GLuint pbo = 0;  // OpenGL pixel buffer object
+GLuint tex = 0;  // OpenGL texture object
+struct cudaGraphicsResource*
+    cuda_pbo_resource;  // CUDA Graphics Resource (to transfer PBO)
 
-StopWatchInterface *timer = 0;
+StopWatchInterface* timer = 0;
 
 // Auto-Verification Code
 const int frameCheckNumber = 2;
-int fpsCount = 0; // FPS count for averaging
-int fpsLimit = 1; // FPS limit for sampling
+int fpsCount = 0;  // FPS count for averaging
+int fpsLimit = 1;  // FPS limit for sampling
 int g_Index = 0;
 unsigned int frameCount = 0;
 
-int *pArgc;
-char **pArgv;
+int* pArgc;
+char** pArgv;
 
 #ifndef MAX
 #define MAX(a, b) ((a > b) ? a : b)
 #endif
 
 extern "C" void setTextureFilterMode(bool bLinearFilter);
-extern "C" void initCuda(void *h_volume, cudaExtent volumeSize);
+extern "C" void initCuda(void* h_volume, cudaExtent volumeSize);
 extern "C" void freeCudaBuffers();
-extern "C" void render_kernel(dim3 gridSize, dim3 blockSize, uint *d_output,
+extern "C" void render_kernel(dim3 gridSize, dim3 blockSize, uint* d_output,
                               uint imageW, uint imageH, float density,
                               float brightness, float transferOffset,
                               float transferScale);
-extern "C" void copyInvViewMatrix(float *invViewMatrix, size_t sizeofMatrix);
+extern "C" void copyInvViewMatrix(float* invViewMatrix, size_t sizeofMatrix);
 
 void initPixelBuffer();
 
@@ -141,12 +141,12 @@ void render() {
   copyInvViewMatrix(invViewMatrix, sizeof(float4) * 3);
 
   // map PBO to get CUDA device pointer
-  uint *d_output;
+  uint* d_output;
   // map PBO to get CUDA device pointer
   checkCudaErrors(cudaGraphicsMapResources(1, &cuda_pbo_resource, 0));
   size_t num_bytes;
   checkCudaErrors(cudaGraphicsResourceGetMappedPointer(
-      (void **)&d_output, &num_bytes, cuda_pbo_resource));
+      (void**)&d_output, &num_bytes, cuda_pbo_resource));
   // printf("CUDA mapped PBO: May access %ld bytes\n", num_bytes);
 
   // clear image
@@ -243,59 +243,60 @@ void idle() { glutPostRedisplay(); }
 
 void keyboard(unsigned char key, int x, int y) {
   switch (key) {
-  case 27:
+    case 27:
 #if defined(__APPLE__) || defined(MACOSX)
-    exit(EXIT_SUCCESS);
+      exit(EXIT_SUCCESS);
 #else
-    glutDestroyWindow(glutGetWindow());
-    return;
+      glutDestroyWindow(glutGetWindow());
+      return;
 #endif
-    break;
+      break;
 
-  case 'f':
-    linearFiltering = !linearFiltering;
-    setTextureFilterMode(linearFiltering);
-    break;
+    case 'f':
+      linearFiltering = !linearFiltering;
+      setTextureFilterMode(linearFiltering);
+      break;
 
-  case '+':
-    density += 0.01f;
-    break;
+    case '+':
+      density += 0.01f;
+      break;
 
-  case '-':
-    density -= 0.01f;
-    break;
+    case '-':
+      density -= 0.01f;
+      break;
 
-  case ']':
-    brightness += 0.1f;
-    break;
+    case ']':
+      brightness += 0.1f;
+      break;
 
-  case '[':
-    brightness -= 0.1f;
-    break;
+    case '[':
+      brightness -= 0.1f;
+      break;
 
-  case ';':
-    transferOffset += 0.01f;
-    break;
+    case ';':
+      transferOffset += 0.01f;
+      break;
 
-  case '\'':
-    transferOffset -= 0.01f;
-    break;
+    case '\'':
+      transferOffset -= 0.01f;
+      break;
 
-  case '.':
-    transferScale += 0.01f;
-    break;
+    case '.':
+      transferScale += 0.01f;
+      break;
 
-  case ',':
-    transferScale -= 0.01f;
-    break;
+    case ',':
+      transferScale -= 0.01f;
+      break;
 
-  default:
-    break;
+    default:
+      break;
   }
 
-  printf("density = %.2f, brightness = %.2f, transferOffset = %.2f, "
-         "transferScale = %.2f\n",
-         density, brightness, transferOffset, transferScale);
+  printf(
+      "density = %.2f, brightness = %.2f, transferOffset = %.2f, "
+      "transferScale = %.2f\n",
+      density, brightness, transferOffset, transferScale);
   glutPostRedisplay();
 }
 
@@ -375,7 +376,7 @@ void cleanup() {
   cudaDeviceReset();
 }
 
-void initGL(int *argc, char **argv) {
+void initGL(int* argc, char** argv) {
   // initialize GLUT callback functions
   glutInit(argc, argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
@@ -422,15 +423,15 @@ void initPixelBuffer() {
 }
 
 // Load raw data from disk
-void *loadRawFile(char *filename, size_t size) {
-  FILE *fp = fopen(filename, "rb");
+void* loadRawFile(char* filename, size_t size) {
+  FILE* fp = fopen(filename, "rb");
 
   if (!fp) {
     fprintf(stderr, "Error opening file '%s'\n", filename);
     return 0;
   }
 
-  void *data = malloc(size);
+  void* data = malloc(size);
   size_t read = fread(data, 1, size, fp);
   fclose(fp);
 
@@ -444,7 +445,7 @@ void *loadRawFile(char *filename, size_t size) {
 }
 
 // General initialization call for CUDA Device
-int chooseCudaDevice(int argc, const char **argv, bool bUseOpenGL) {
+int chooseCudaDevice(int argc, const char** argv, bool bUseOpenGL) {
   int result = 0;
 
   if (bUseOpenGL) {
@@ -456,12 +457,11 @@ int chooseCudaDevice(int argc, const char **argv, bool bUseOpenGL) {
   return result;
 }
 
-void runSingleTest(const char *ref_file, const char *exec_path) {
+void runSingleTest(const char* ref_file, const char* exec_path) {
   bool bTestResult = true;
 
-  uint *d_output;
-  checkCudaErrors(
-      cudaMalloc((void **)&d_output, width * height * sizeof(uint)));
+  uint* d_output;
+  checkCudaErrors(cudaMalloc((void**)&d_output, width * height * sizeof(uint)));
   checkCudaErrors(cudaMemset(d_output, 0, width * height * sizeof(uint)));
 
   float modelView[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
@@ -500,15 +500,16 @@ void runSingleTest(const char *ref_file, const char *exec_path) {
   sdkStopTimer(&timer);
   // Get elapsed time and throughput, then log to sample and master logs
   double dAvgTime = sdkGetTimerValue(&timer) / (nIter * 1000.0);
-  printf("volumeRender, Throughput = %.4f MTexels/s, Time = %.5f s, Size = %u "
-         "Texels, NumDevsUsed = %u, Workgroup = %u\n",
-         (1.0e-6 * width * height) / dAvgTime, dAvgTime, (width * height), 1,
-         blockSize.x * blockSize.y);
+  printf(
+      "volumeRender, Throughput = %.4f MTexels/s, Time = %.5f s, Size = %u "
+      "Texels, NumDevsUsed = %u, Workgroup = %u\n",
+      (1.0e-6 * width * height) / dAvgTime, dAvgTime, (width * height), 1,
+      blockSize.x * blockSize.y);
 
   getLastCudaError("Error: render_kernel() execution FAILED");
   checkCudaErrors(cudaDeviceSynchronize());
 
-  unsigned char *h_output = (unsigned char *)malloc(width * height * 4);
+  unsigned char* h_output = (unsigned char*)malloc(width * height * 4);
   checkCudaErrors(cudaMemcpy(h_output, d_output, width * height * 4,
                              cudaMemcpyDeviceToHost));
 
@@ -527,11 +528,11 @@ void runSingleTest(const char *ref_file, const char *exec_path) {
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   pArgc = &argc;
   pArgv = argv;
 
-  char *ref_file = NULL;
+  char* ref_file = NULL;
 
 #if defined(__linux__)
   setenv("DISPLAY", ":0", 0);
@@ -540,15 +541,15 @@ int main(int argc, char **argv) {
   // start logs
   printf("%s Starting...\n\n", sSDKsample);
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "file")) {
-    getCmdLineArgumentString(argc, (const char **)argv, "file", &ref_file);
+  if (checkCmdLineFlag(argc, (const char**)argv, "file")) {
+    getCmdLineArgumentString(argc, (const char**)argv, "file", &ref_file);
     fpsLimit = frameCheckNumber;
   }
 
   if (ref_file) {
     // use command-line specified CUDA device, otherwise use device with highest
     // Gflops/s
-    chooseCudaDevice(argc, (const char **)argv, false);
+    chooseCudaDevice(argc, (const char**)argv, false);
   } else {
     // First initialize OpenGL context, so we can properly set the GL for CUDA.
     // This is necessary in order to achieve optimal performance with
@@ -557,41 +558,40 @@ int main(int argc, char **argv) {
 
     // use command-line specified CUDA device, otherwise use device with highest
     // Gflops/s
-    chooseCudaDevice(argc, (const char **)argv, true);
+    chooseCudaDevice(argc, (const char**)argv, true);
   }
 
   // parse arguments
-  char *filename;
+  char* filename;
 
-  if (getCmdLineArgumentString(argc, (const char **)argv, "volume",
-                               &filename)) {
+  if (getCmdLineArgumentString(argc, (const char**)argv, "volume", &filename)) {
     volumeFilename = filename;
   }
 
   int n;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "size")) {
-    n = getCmdLineArgumentInt(argc, (const char **)argv, "size");
+  if (checkCmdLineFlag(argc, (const char**)argv, "size")) {
+    n = getCmdLineArgumentInt(argc, (const char**)argv, "size");
     volumeSize.width = volumeSize.height = volumeSize.depth = n;
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "xsize")) {
-    n = getCmdLineArgumentInt(argc, (const char **)argv, "xsize");
+  if (checkCmdLineFlag(argc, (const char**)argv, "xsize")) {
+    n = getCmdLineArgumentInt(argc, (const char**)argv, "xsize");
     volumeSize.width = n;
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "ysize")) {
-    n = getCmdLineArgumentInt(argc, (const char **)argv, "ysize");
+  if (checkCmdLineFlag(argc, (const char**)argv, "ysize")) {
+    n = getCmdLineArgumentInt(argc, (const char**)argv, "ysize");
     volumeSize.height = n;
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "zsize")) {
-    n = getCmdLineArgumentInt(argc, (const char **)argv, "zsize");
+  if (checkCmdLineFlag(argc, (const char**)argv, "zsize")) {
+    n = getCmdLineArgumentInt(argc, (const char**)argv, "zsize");
     volumeSize.depth = n;
   }
 
   // load volume data
-  char *path = sdkFindFilePath(volumeFilename, argv[0]);
+  char* path = sdkFindFilePath(volumeFilename, argv[0]);
 
   if (path == 0) {
     printf("Error finding file '%s'\n", volumeFilename);
@@ -600,17 +600,18 @@ int main(int argc, char **argv) {
 
   size_t size = volumeSize.width * volumeSize.height * volumeSize.depth *
                 sizeof(VolumeType);
-  void *h_volume = loadRawFile(path, size);
+  void* h_volume = loadRawFile(path, size);
 
   initCuda(h_volume, volumeSize);
   free(h_volume);
 
   sdkCreateTimer(&timer);
 
-  printf("Press '+' and '-' to change density (0.01 increments)\n"
-         "      ']' and '[' to change brightness\n"
-         "      ';' and ''' to modify transfer function offset\n"
-         "      '.' and ',' to modify transfer function scale\n\n");
+  printf(
+      "Press '+' and '-' to change density (0.01 increments)\n"
+      "      ']' and '[' to change brightness\n"
+      "      ';' and ''' to modify transfer function offset\n"
+      "      '.' and ',' to modify transfer function scale\n\n");
 
   // calculate new grid size
   gridSize = dim3(iDivUp(width, blockSize.x), iDivUp(height, blockSize.y));

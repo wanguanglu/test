@@ -19,7 +19,7 @@
 // define appropriate specialization of rounding_control for built-in types
 #if defined(__x86_64__) && defined(__USE_ISOC99)
 #include <boost/numeric/interval/detail/c99_rounding_control.hpp>
-#elif defined(__i386__) || defined(_M_IX86) || defined(__BORLANDC__) ||        \
+#elif defined(__i386__) || defined(_M_IX86) || defined(__BORLANDC__) || \
     defined(_M_X64)
 #include <boost/numeric/interval/detail/x86_rounding_control.hpp>
 #elif defined(powerpc) || defined(__powerpc__) || defined(__ppc__)
@@ -32,7 +32,7 @@
 #include <boost/numeric/interval/detail/ia64_rounding_control.hpp>
 #endif
 
-#if defined(BOOST_NUMERIC_INTERVAL_NO_HARDWARE) &&                             \
+#if defined(BOOST_NUMERIC_INTERVAL_NO_HARDWARE) && \
     (defined(__USE_ISOC99) || defined(__MSL__))
 #include <boost/numeric/interval/detail/c99_rounding_control.hpp>
 #endif
@@ -60,8 +60,8 @@ template <>
 struct rounded_math<long double> : save_state<rounded_arith_opp<long double>> {
 };
 
-} // namespace interval_lib
-} // namespace numeric
-} // namespace boost
+}  // namespace interval_lib
+}  // namespace numeric
+}  // namespace boost
 
-#endif // BOOST_NUMERIC_INTERVAL_HW_ROUNDING_HPP
+#endif  // BOOST_NUMERIC_INTERVAL_HW_ROUNDING_HPP

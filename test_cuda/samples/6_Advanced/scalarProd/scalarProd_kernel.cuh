@@ -27,7 +27,7 @@
 // 2) ACCUM_N must be a power of two.
 ///////////////////////////////////////////////////////////////////////////////
 #define ACCUM_N 1024
-__global__ void scalarProdGPU(float *d_C, float *d_A, float *d_B, int vectorN,
+__global__ void scalarProdGPU(float* d_C, float* d_A, float* d_B, int vectorN,
                               int elementN) {
   // Accumulators cache
   __shared__ float accumResult[ACCUM_N];
@@ -67,7 +67,6 @@ __global__ void scalarProdGPU(float *d_C, float *d_A, float *d_B, int vectorN,
         accumResult[iAccum] += accumResult[stride + iAccum];
     }
 
-    if (threadIdx.x == 0)
-      d_C[vec] = accumResult[0];
+    if (threadIdx.x == 0) d_C[vec] = accumResult[0];
   }
 }

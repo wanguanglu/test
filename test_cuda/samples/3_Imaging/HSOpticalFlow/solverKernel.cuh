@@ -33,10 +33,10 @@
 /// \param[out] dv1     new vertical displacement approximation
 ///////////////////////////////////////////////////////////////////////////////
 template <int bx, int by>
-__global__ void JacobiIteration(const float *du0, const float *dv0,
-                                const float *Ix, const float *Iy,
-                                const float *Iz, int w, int h, int s,
-                                float alpha, float *du1, float *dv1) {
+__global__ void JacobiIteration(const float* du0, const float* dv0,
+                                const float* Ix, const float* Iy,
+                                const float* Iz, int w, int h, int s,
+                                float alpha, float* du1, float* dv1) {
   volatile __shared__ float du[(bx + 2) * (by + 2)];
   volatile __shared__ float dv[(bx + 2) * (by + 2)];
 
@@ -115,8 +115,7 @@ __global__ void JacobiIteration(const float *du0, const float *dv0,
 
   __syncthreads();
 
-  if (ix >= w || iy >= h)
-    return;
+  if (ix >= w || iy >= h) return;
 
   // now all necessary data are loaded to shared memory
   int left, right, up, down;
@@ -151,9 +150,9 @@ __global__ void JacobiIteration(const float *du0, const float *dv0,
 /// \param[out] du1     new horizontal displacement approximation
 /// \param[out] dv1     new vertical displacement approximation
 ///////////////////////////////////////////////////////////////////////////////
-static void SolveForUpdate(const float *du0, const float *dv0, const float *Ix,
-                           const float *Iy, const float *Iz, int w, int h,
-                           int s, float alpha, float *du1, float *dv1) {
+static void SolveForUpdate(const float* du0, const float* dv0, const float* Ix,
+                           const float* Iy, const float* Iz, int w, int h,
+                           int s, float alpha, float* du1, float* dv1) {
   // CTA size
   dim3 threads(32, 6);
   // grid size

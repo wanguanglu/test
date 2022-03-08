@@ -15,12 +15,12 @@ __device__ uchar4 int_to_uchar4(unsigned int in) {
 // The approach is two pass, a horizontal (scanline) then a vertical
 // (column) pass.
 // This is the horizontal pass kernel.
-__global__ void shfl_intimage_rows(uint4 *img, uint4 *integral_image) {
+__global__ void shfl_intimage_rows(uint4* img, uint4* integral_image) {
   __shared__ int sums[128];
 
   int id = threadIdx.x;
   // pointer to head of current scanline
-  uint4 *scanline = &img[blockIdx.x * 120];
+  uint4* scanline = &img[blockIdx.x * 120];
   uint4 data;
   data = scanline[id];
   int result[16];
@@ -55,18 +55,15 @@ __global__ void shfl_intimage_rows(uint4 *img, uint4 *integral_image) {
 
 #pragma unroll
 
-  for (int i = 4; i <= 7; i++)
-    result[i] += result[3];
+  for (int i = 4; i <= 7; i++) result[i] += result[3];
 
 #pragma unroll
 
-  for (int i = 8; i <= 11; i++)
-    result[i] += result[7];
+  for (int i = 8; i <= 11; i++) result[i] += result[7];
 
 #pragma unroll
 
-  for (int i = 12; i <= 15; i++)
-    result[i] += result[11];
+  for (int i = 12; i <= 15; i++) result[i] += result[11];
 
   sum = result[15];
 
@@ -113,8 +110,7 @@ __global__ void shfl_intimage_rows(uint4 *img, uint4 *integral_image) {
     for (int i = 1; i <= 32; i *= 2) {
       int n = __shfl_up(warp_sum, i, 32);
 
-      if (lane_id >= i)
-        warp_sum += n;
+      if (lane_id >= i) warp_sum += n;
     }
 
     sums[lane_id] = warp_sum;
@@ -280,7 +276,7 @@ __global__ void shfl_intimage_rows(uint4 *img, uint4 *integral_image) {
 // The final set of sums from the block is then propagated, with the block
 // computing "down" the image and adding the running sum to the local
 // block sums.
-__global__ void shfl_vertical_shfl(unsigned int *img, int width, int height) {
+__global__ void shfl_vertical_shfl(unsigned int* img, int width, int height) {
   __shared__ unsigned int sums[32][9];
   int tidx = blockIdx.x * blockDim.x + threadIdx.x;
   // int warp_id = threadIdx.x / warpSize ;
@@ -294,7 +290,7 @@ __global__ void shfl_vertical_shfl(unsigned int *img, int width, int height) {
 
   for (int step = 0; step < 135; step++) {
     unsigned int sum = 0;
-    unsigned int *p = img + (threadIdx.y + step * 8) * width + tidx;
+    unsigned int* p = img + (threadIdx.y + step * 8) * width + tidx;
 
     sum = *p;
     sums[threadIdx.x][threadIdx.y] = sum;
@@ -313,8 +309,7 @@ __global__ void shfl_vertical_shfl(unsigned int *img, int width, int height) {
     for (int i = 1; i <= 8; i *= 2) {
       int n = __shfl_up(partial_sum, i, 32);
 
-      if (lane_id >= i)
-        partial_sum += n;
+      if (lane_id >= i) partial_sum += n;
     }
 
     sums[k][j] = partial_sum;

@@ -19,11 +19,10 @@
 //#include <omp.h>
 #include "cdp_lu.h"
 #include "cdp_lu_utils.h"
-extern __global__ void dgetrf_cdpentry(Parameters *device_params);
+extern __global__ void dgetrf_cdpentry(Parameters* device_params);
 
 // Entry point for dgetrf. We allocate memories and simply call the kernel.
-void dgetrf_test(Parameters *host_params, Parameters *device_params) {
-
+void dgetrf_test(Parameters* host_params, Parameters* device_params) {
   double t_start = time_in_seconds();
 
   // Launch the kernel (just a device-function call in CDP terms)

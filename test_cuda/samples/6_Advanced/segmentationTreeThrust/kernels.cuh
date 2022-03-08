@@ -28,7 +28,7 @@ struct IsGreaterEqualThan : public thrust::unary_function<Input, bool> {
   __host__ __device__ IsGreaterEqualThan(uint upperBound)
       : upperBound_(upperBound) {}
 
-  __host__ __device__ bool operator()(const Input &value) const {
+  __host__ __device__ bool operator()(const Input& value) const {
     return value >= upperBound_;
   }
 
@@ -36,7 +36,7 @@ struct IsGreaterEqualThan : public thrust::unary_function<Input, bool> {
 };
 
 // CUDA kernels.
-__global__ void addScalar(uint *array, int scalar, uint size) {
+__global__ void addScalar(uint* array, int scalar, uint size) {
   uint tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid < size) {
@@ -44,7 +44,7 @@ __global__ void addScalar(uint *array, int scalar, uint size) {
   }
 }
 
-__global__ void markSegments(const uint *verticesOffsets, uint *flags,
+__global__ void markSegments(const uint* verticesOffsets, uint* flags,
                              uint verticesCount) {
   uint tid = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -53,9 +53,9 @@ __global__ void markSegments(const uint *verticesOffsets, uint *flags,
   }
 }
 
-__global__ void getVerticesMapping(const uint *clusteredVerticesIDs,
-                                   const uint *newVerticesIDs,
-                                   uint *verticesMapping, uint verticesCount) {
+__global__ void getVerticesMapping(const uint* clusteredVerticesIDs,
+                                   const uint* newVerticesIDs,
+                                   uint* verticesMapping, uint verticesCount) {
   uint tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid < verticesCount) {
@@ -64,8 +64,8 @@ __global__ void getVerticesMapping(const uint *clusteredVerticesIDs,
   }
 }
 
-__global__ void getSuccessors(const uint *verticesOffsets,
-                              const uint *minScannedEdges, uint *successors,
+__global__ void getSuccessors(const uint* verticesOffsets,
+                              const uint* minScannedEdges, uint* successors,
                               uint verticesCount, uint edgesCount) {
   uint tid = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -78,7 +78,7 @@ __global__ void getSuccessors(const uint *verticesOffsets,
   }
 }
 
-__global__ void removeCycles(uint *successors, uint verticesCount) {
+__global__ void removeCycles(uint* successors, uint verticesCount) {
   uint tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid < verticesCount) {
@@ -95,8 +95,8 @@ __global__ void removeCycles(uint *successors, uint verticesCount) {
   }
 }
 
-__global__ void getRepresentatives(const uint *successors,
-                                   uint *representatives, uint verticesCount) {
+__global__ void getRepresentatives(const uint* successors,
+                                   uint* representatives, uint verticesCount) {
   uint tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid < verticesCount) {
@@ -112,14 +112,14 @@ __global__ void getRepresentatives(const uint *successors,
   }
 }
 
-__global__ void invalidateLoops(const uint *startpoints,
-                                const uint *verticesMapping, uint *edges,
+__global__ void invalidateLoops(const uint* startpoints,
+                                const uint* verticesMapping, uint* edges,
                                 uint edgesCount) {
   uint tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid < edgesCount) {
     uint startpoint = startpoints[tid];
-    uint &endpoint = edges[tid];
+    uint& endpoint = edges[tid];
 
     uint newStartpoint = verticesMapping[startpoint];
     uint newEndpoint = verticesMapping[endpoint];
@@ -130,10 +130,10 @@ __global__ void invalidateLoops(const uint *startpoints,
   }
 }
 
-__global__ void calculateEdgesInfo(const uint *startpoints,
-                                   const uint *verticesMapping,
-                                   const uint *edges, const float *weights,
-                                   uint *newStartpoints, uint *survivedEdgesIDs,
+__global__ void calculateEdgesInfo(const uint* startpoints,
+                                   const uint* verticesMapping,
+                                   const uint* edges, const float* weights,
+                                   uint* newStartpoints, uint* survivedEdgesIDs,
                                    uint edgesCount, uint newVerticesCount) {
   uint tid = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -149,10 +149,10 @@ __global__ void calculateEdgesInfo(const uint *startpoints,
   }
 }
 
-__global__ void makeNewEdges(const uint *survivedEdgesIDs,
-                             const uint *verticesMapping, const uint *edges,
-                             const float *weights, uint *newEdges,
-                             float *newWeights, uint edgesCount) {
+__global__ void makeNewEdges(const uint* survivedEdgesIDs,
+                             const uint* verticesMapping, const uint* edges,
+                             const float* weights, uint* newEdges,
+                             float* newWeights, uint edgesCount) {
   uint tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid < edgesCount) {
@@ -164,4 +164,4 @@ __global__ void makeNewEdges(const uint *survivedEdgesIDs,
   }
 }
 
-#endif // #ifndef _KERNELS_H_
+#endif  // #ifndef _KERNELS_H_

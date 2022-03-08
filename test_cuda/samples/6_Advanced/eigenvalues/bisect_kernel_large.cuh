@@ -27,42 +27,40 @@
 ////////////////////////////////////////////////////////////////////////////////
 //! Write data to global memory
 ////////////////////////////////////////////////////////////////////////////////
-__device__ void
-writeToGmem(const unsigned int tid, const unsigned int tid_2,
-            const unsigned int num_threads_active,
-            const unsigned int num_blocks_mult, float *g_left_one,
-            float *g_right_one, unsigned int *g_pos_one, float *g_left_mult,
-            float *g_right_mult, unsigned int *g_left_count_mult,
-            unsigned int *g_right_count_mult, float *s_left, float *s_right,
-            unsigned short *s_left_count, unsigned short *s_right_count,
-            unsigned int *g_blocks_mult, unsigned int *g_blocks_mult_sum,
-            unsigned short *s_compaction_list, unsigned short *s_cl_helper,
-            unsigned int offset_mult_lambda);
+__device__ void writeToGmem(
+    const unsigned int tid, const unsigned int tid_2,
+    const unsigned int num_threads_active, const unsigned int num_blocks_mult,
+    float* g_left_one, float* g_right_one, unsigned int* g_pos_one,
+    float* g_left_mult, float* g_right_mult, unsigned int* g_left_count_mult,
+    unsigned int* g_right_count_mult, float* s_left, float* s_right,
+    unsigned short* s_left_count, unsigned short* s_right_count,
+    unsigned int* g_blocks_mult, unsigned int* g_blocks_mult_sum,
+    unsigned short* s_compaction_list, unsigned short* s_cl_helper,
+    unsigned int offset_mult_lambda);
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Perform final stream compaction before writing out data
 ////////////////////////////////////////////////////////////////////////////////
 __device__ void compactStreamsFinal(
     const unsigned int tid, const unsigned int tid_2,
-    const unsigned int num_threads_active, unsigned int &offset_mult_lambda,
-    float *s_left, float *s_right, unsigned short *s_left_count,
-    unsigned short *s_right_count, unsigned short *s_cl_one,
-    unsigned short *s_cl_mult, unsigned short *s_cl_blocking,
-    unsigned short *s_cl_helper, unsigned int is_one_lambda,
-    unsigned int is_one_lambda_2, float &left, float &right, float &left_2,
-    float &right_2, unsigned int &left_count, unsigned int &right_count,
-    unsigned int &left_count_2, unsigned int &right_count_2,
+    const unsigned int num_threads_active, unsigned int& offset_mult_lambda,
+    float* s_left, float* s_right, unsigned short* s_left_count,
+    unsigned short* s_right_count, unsigned short* s_cl_one,
+    unsigned short* s_cl_mult, unsigned short* s_cl_blocking,
+    unsigned short* s_cl_helper, unsigned int is_one_lambda,
+    unsigned int is_one_lambda_2, float& left, float& right, float& left_2,
+    float& right_2, unsigned int& left_count, unsigned int& right_count,
+    unsigned int& left_count_2, unsigned int& right_count_2,
     unsigned int c_block_iend, unsigned int c_sum_block,
     unsigned int c_block_iend_2, unsigned int c_sum_block_2);
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Perform scan to compact list of block start addresses
 ////////////////////////////////////////////////////////////////////////////////
-__device__ void
-scanCompactBlocksStartAddress(const unsigned int tid, const unsigned int tid_2,
-                              const unsigned int num_threads_compaction,
-                              unsigned short *s_cl_blocking,
-                              unsigned short *s_cl_helper);
+__device__ void scanCompactBlocksStartAddress(
+    const unsigned int tid, const unsigned int tid_2,
+    const unsigned int num_threads_compaction, unsigned short* s_cl_blocking,
+    unsigned short* s_cl_helper);
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Perform scan to obtain number of eigenvalues before a specific block
@@ -70,8 +68,8 @@ scanCompactBlocksStartAddress(const unsigned int tid, const unsigned int tid_2,
 __device__ void scanSumBlocks(const unsigned int tid, const unsigned int tid_2,
                               const unsigned int num_threads_active,
                               const unsigned int num_threads_compaction,
-                              unsigned short *s_cl_blocking,
-                              unsigned short *s_cl_helper);
+                              unsigned short* s_cl_blocking,
+                              unsigned short* s_cl_helper);
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Perform initial scan for compaction of intervals containing one and
@@ -80,9 +78,9 @@ __device__ void scanSumBlocks(const unsigned int tid, const unsigned int tid_2,
 __device__ void scanInitial(const unsigned int tid, const unsigned int tid_2,
                             const unsigned int num_threads_active,
                             const unsigned int num_threads_compaction,
-                            unsigned short *s_cl_one, unsigned short *s_cl_mult,
-                            unsigned short *s_cl_blocking,
-                            unsigned short *s_cl_helper);
+                            unsigned short* s_cl_one, unsigned short* s_cl_mult,
+                            unsigned short* s_cl_blocking,
+                            unsigned short* s_cl_helper);
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Store all non-empty intervals resulting from the subdivision of the interval
@@ -90,12 +88,12 @@ __device__ void scanInitial(const unsigned int tid, const unsigned int tid_2,
 //! @param  addr  address where to store
 ////////////////////////////////////////////////////////////////////////////////
 __device__ void storeNonEmptyIntervalsLarge(
-    unsigned int addr, const unsigned int num_threads_active, float *s_left,
-    float *s_right, unsigned short *s_left_count, unsigned short *s_right_count,
+    unsigned int addr, const unsigned int num_threads_active, float* s_left,
+    float* s_right, unsigned short* s_left_count, unsigned short* s_right_count,
     float left, float mid, float right, const unsigned short left_count,
     const unsigned short mid_count, const unsigned short right_count,
-    float epsilon, unsigned int &compact_second_chunk,
-    unsigned short *s_compaction_list, unsigned int &is_active_second);
+    float epsilon, unsigned int& compact_second_chunk,
+    unsigned short* s_compaction_list, unsigned int& is_active_second);
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Bisection to find eigenvalues of a real, symmetric, and tridiagonal matrix
@@ -110,13 +108,13 @@ __device__ void storeNonEmptyIntervalsLarge(
 //! @param  epsilon  desired accuracy of eigenvalues to compute
 ////////////////////////////////////////////////////////////////////////////////
 __global__ void bisectKernelLarge(
-    float *g_d, float *g_s, const unsigned int n, const float lg,
+    float* g_d, float* g_s, const unsigned int n, const float lg,
     const float ug, const unsigned int lg_eig_count,
-    const unsigned int ug_eig_count, float epsilon, unsigned int *g_num_one,
-    unsigned int *g_num_blocks_mult, float *g_left_one, float *g_right_one,
-    unsigned int *g_pos_one, float *g_left_mult, float *g_right_mult,
-    unsigned int *g_left_count_mult, unsigned int *g_right_count_mult,
-    unsigned int *g_blocks_mult, unsigned int *g_blocks_mult_sum) {
+    const unsigned int ug_eig_count, float epsilon, unsigned int* g_num_one,
+    unsigned int* g_num_blocks_mult, float* g_left_one, float* g_right_one,
+    unsigned int* g_pos_one, float* g_left_mult, float* g_right_mult,
+    unsigned int* g_left_count_mult, unsigned int* g_right_count_mult,
+    unsigned int* g_blocks_mult, unsigned int* g_blocks_mult_sum) {
   const unsigned int tid = threadIdx.x;
 
   // intervals (store left and right because the subdivision tree is in general
@@ -146,7 +144,7 @@ __global__ void bisectKernelLarge(
   __shared__ unsigned int num_threads_compaction;
 
   // helper for exclusive scan
-  unsigned short *s_compaction_list_exc = s_compaction_list + 1;
+  unsigned short* s_compaction_list_exc = s_compaction_list + 1;
 
   // variables for currently processed interval
   // left and right limit of active interval
@@ -172,7 +170,6 @@ __global__ void bisectKernelLarge(
 
   // set up initial configuration
   if (0 == tid) {
-
     s_left[0] = lg;
     s_right[0] = ug;
     s_left_count[0] = lg_eig_count;
@@ -191,7 +188,6 @@ __global__ void bisectKernelLarge(
   // for all active threads read intervals from the last level
   // the number of (worst case) active threads per level l is 2^l
   while (true) {
-
     subdivideActiveInterval(tid, s_left, s_right, s_left_count, s_right_count,
                             num_threads_active, left, right, left_count,
                             right_count, mid, all_threads_converged);
@@ -225,9 +221,7 @@ __global__ void bisectKernelLarge(
     // exactly one child)  unnecessary to perform a compaction of the second
     // chunk
     if (tid < num_threads_active) {
-
       if (left != right) {
-
         // store intervals
         storeNonEmptyIntervalsLarge(tid, num_threads_active, s_left, s_right,
                                     s_left_count, s_right_count, left, mid,
@@ -235,7 +229,6 @@ __global__ void bisectKernelLarge(
                                     epsilon, compact_second_chunk,
                                     s_compaction_list_exc, is_active_second);
       } else {
-
         // re-write converged interval (has to be stored again because s_left
         // and s_right are used as scratch space for
         // computeNumSmallerEigenvalsLarge()
@@ -255,7 +248,6 @@ __global__ void bisectKernelLarge(
     // scan of (num_threads_active / 2) elements, thus at most
     // (num_threads_active / 4) threads are needed
     if (compact_second_chunk > 0) {
-
       // create indices for compaction
       createIndicesCompaction(s_compaction_list_exc, num_threads_compaction);
 
@@ -268,7 +260,6 @@ __global__ void bisectKernelLarge(
 
     // update state variables
     if (0 == tid) {
-
       // update number of active threads with result of reduction
       num_threads_active += s_compaction_list[num_threads_active];
       num_threads_compaction = ceilPow2(num_threads_active);
@@ -310,12 +301,12 @@ __global__ void bisectKernelLarge(
 
   // compaction list for intervals containing one and multiple eigenvalues
   // do not affect first element for exclusive scan
-  unsigned short *s_cl_one = s_left_count + 1;
-  unsigned short *s_cl_mult = s_right_count + 1;
+  unsigned short* s_cl_one = s_left_count + 1;
+  unsigned short* s_cl_mult = s_right_count + 1;
 
   // compaction list for generating blocks of intervals containing multiple
   // eigenvalues
-  unsigned short *s_cl_blocking = s_compaction_list_exc;
+  unsigned short* s_cl_blocking = s_compaction_list_exc;
   // helper compaction list for generating blocks of intervals
   __shared__ unsigned short s_cl_helper[2 * MAX_THREADS_BLOCK + 1];
 
@@ -343,7 +334,6 @@ __global__ void bisectKernelLarge(
   s_cl_helper[tid] = 0;
 
   if (tid_2 < num_threads_active) {
-
     unsigned int multiplicity = right_count_2 - left_count_2;
     is_one_lambda_2 = (1 == multiplicity);
 
@@ -354,7 +344,6 @@ __global__ void bisectKernelLarge(
     s_cl_blocking[tid_2] = (1 == is_one_lambda_2) ? 0 : multiplicity;
     s_cl_helper[tid_2] = 0;
   } else if (tid_2 < (2 * MAX_THREADS_BLOCK + 1)) {
-
     // clear
     s_cl_blocking[tid_2] = 0;
     s_cl_helper[tid_2] = 0;
@@ -380,13 +369,11 @@ __global__ void bisectKernelLarge(
   // have a subset of threads so that one and only one of them is in each
   // interval)
   if (1 == s_cl_helper[tid]) {
-
     c_block_iend = s_cl_mult[tid] + 1;
     c_sum_block = s_cl_blocking[tid];
   }
 
   if (1 == s_cl_helper[tid_2]) {
-
     c_block_iend_2 = s_cl_mult[tid_2] + 1;
     c_sum_block_2 = s_cl_blocking[tid_2];
   }
@@ -403,7 +390,6 @@ __global__ void bisectKernelLarge(
   __shared__ unsigned int offset_mult_lambda;
 
   if (0 == tid) {
-
     num_blocks_mult = s_cl_blocking[num_threads_active - 1];
     offset_mult_lambda = s_cl_one[num_threads_active - 1];
     num_mult = s_cl_mult[num_threads_active - 1];
@@ -446,26 +432,22 @@ __global__ void bisectKernelLarge(
 ////////////////////////////////////////////////////////////////////////////////
 //! Write data to global memory
 ////////////////////////////////////////////////////////////////////////////////
-__device__ void
-writeToGmem(const unsigned int tid, const unsigned int tid_2,
-            const unsigned int num_threads_active,
-            const unsigned int num_blocks_mult, float *g_left_one,
-            float *g_right_one, unsigned int *g_pos_one, float *g_left_mult,
-            float *g_right_mult, unsigned int *g_left_count_mult,
-            unsigned int *g_right_count_mult, float *s_left, float *s_right,
-            unsigned short *s_left_count, unsigned short *s_right_count,
-            unsigned int *g_blocks_mult, unsigned int *g_blocks_mult_sum,
-            unsigned short *s_compaction_list, unsigned short *s_cl_helper,
-            unsigned int offset_mult_lambda) {
-
+__device__ void writeToGmem(
+    const unsigned int tid, const unsigned int tid_2,
+    const unsigned int num_threads_active, const unsigned int num_blocks_mult,
+    float* g_left_one, float* g_right_one, unsigned int* g_pos_one,
+    float* g_left_mult, float* g_right_mult, unsigned int* g_left_count_mult,
+    unsigned int* g_right_count_mult, float* s_left, float* s_right,
+    unsigned short* s_left_count, unsigned short* s_right_count,
+    unsigned int* g_blocks_mult, unsigned int* g_blocks_mult_sum,
+    unsigned short* s_compaction_list, unsigned short* s_cl_helper,
+    unsigned int offset_mult_lambda) {
   if (tid < offset_mult_lambda) {
-
     g_left_one[tid] = s_left[tid];
     g_right_one[tid] = s_right[tid];
     // right count can be used to order eigenvalues without sorting
     g_pos_one[tid] = s_right_count[tid];
   } else {
-
     g_left_mult[tid - offset_mult_lambda] = s_left[tid];
     g_right_mult[tid - offset_mult_lambda] = s_right[tid];
     g_left_count_mult[tid - offset_mult_lambda] = s_left_count[tid];
@@ -473,22 +455,19 @@ writeToGmem(const unsigned int tid, const unsigned int tid_2,
   }
 
   if (tid_2 < num_threads_active) {
-
     if (tid_2 < offset_mult_lambda) {
-
       g_left_one[tid_2] = s_left[tid_2];
       g_right_one[tid_2] = s_right[tid_2];
       // right count can be used to order eigenvalues without sorting
       g_pos_one[tid_2] = s_right_count[tid_2];
     } else {
-
       g_left_mult[tid_2 - offset_mult_lambda] = s_left[tid_2];
       g_right_mult[tid_2 - offset_mult_lambda] = s_right[tid_2];
       g_left_count_mult[tid_2 - offset_mult_lambda] = s_left_count[tid_2];
       g_right_count_mult[tid_2 - offset_mult_lambda] = s_right_count[tid_2];
     }
 
-  } // end writing out data
+  }  // end writing out data
 
   // note that s_cl_blocking = s_compaction_list + 1;, that is by writing out
   // s_compaction_list we write the exclusive scan result
@@ -508,14 +487,14 @@ writeToGmem(const unsigned int tid, const unsigned int tid_2,
 ////////////////////////////////////////////////////////////////////////////////
 __device__ void compactStreamsFinal(
     const unsigned int tid, const unsigned int tid_2,
-    const unsigned int num_threads_active, unsigned int &offset_mult_lambda,
-    float *s_left, float *s_right, unsigned short *s_left_count,
-    unsigned short *s_right_count, unsigned short *s_cl_one,
-    unsigned short *s_cl_mult, unsigned short *s_cl_blocking,
-    unsigned short *s_cl_helper, unsigned int is_one_lambda,
-    unsigned int is_one_lambda_2, float &left, float &right, float &left_2,
-    float &right_2, unsigned int &left_count, unsigned int &right_count,
-    unsigned int &left_count_2, unsigned int &right_count_2,
+    const unsigned int num_threads_active, unsigned int& offset_mult_lambda,
+    float* s_left, float* s_right, unsigned short* s_left_count,
+    unsigned short* s_right_count, unsigned short* s_cl_one,
+    unsigned short* s_cl_mult, unsigned short* s_cl_blocking,
+    unsigned short* s_cl_helper, unsigned int is_one_lambda,
+    unsigned int is_one_lambda_2, float& left, float& right, float& left_2,
+    float& right_2, unsigned int& left_count, unsigned int& right_count,
+    unsigned int& left_count_2, unsigned int& right_count_2,
     unsigned int c_block_iend, unsigned int c_sum_block,
     unsigned int c_block_iend_2, unsigned int c_sum_block_2) {
   // cache data before performing compaction
@@ -523,7 +502,6 @@ __device__ void compactStreamsFinal(
   right = s_right[tid];
 
   if (tid_2 < num_threads_active) {
-
     left_2 = s_left[tid_2];
     right_2 = s_right[tid_2];
   }
@@ -567,7 +545,6 @@ __device__ void compactStreamsFinal(
   }
 
   if (tid_2 < num_threads_active) {
-
     // store compactly in shared mem
     s_left[ptr_w_2] = left_2;
     s_right[ptr_w_2] = right_2;
@@ -584,11 +561,10 @@ __device__ void compactStreamsFinal(
 ////////////////////////////////////////////////////////////////////////////////
 //! Compute addresses to obtain compact list of block start addresses
 ////////////////////////////////////////////////////////////////////////////////
-__device__ void
-scanCompactBlocksStartAddress(const unsigned int tid, const unsigned int tid_2,
-                              const unsigned int num_threads_compaction,
-                              unsigned short *s_cl_blocking,
-                              unsigned short *s_cl_helper) {
+__device__ void scanCompactBlocksStartAddress(
+    const unsigned int tid, const unsigned int tid_2,
+    const unsigned int num_threads_compaction, unsigned short* s_cl_blocking,
+    unsigned short* s_cl_helper) {
   // prepare for second step of block generation: compaction of the block
   // list itself to efficiently write out these
   s_cl_blocking[tid] = s_cl_helper[tid];
@@ -608,11 +584,9 @@ scanCompactBlocksStartAddress(const unsigned int tid, const unsigned int tid_2,
 
   // build scan tree
   for (int d = (num_threads_compaction >> 1); d > 0; d >>= 1) {
-
     __syncthreads();
 
     if (tid < d) {
-
       unsigned int ai = offset * (2 * tid + 1) - 1;
       unsigned int bi = offset * (2 * tid + 2) - 1;
       s_cl_blocking[bi] = s_cl_blocking[bi] + s_cl_blocking[ai];
@@ -623,13 +597,11 @@ scanCompactBlocksStartAddress(const unsigned int tid, const unsigned int tid_2,
 
   // traverse down tree: first down to level 2 across
   for (int d = 2; d < num_threads_compaction; d <<= 1) {
-
     offset >>= 1;
     __syncthreads();
 
     //
     if (tid < (d - 1)) {
-
       unsigned int ai = offset * (tid + 1) - 1;
       unsigned int bi = ai + (offset >> 1);
       s_cl_blocking[bi] = s_cl_blocking[bi] + s_cl_blocking[ai];
@@ -643,18 +615,16 @@ scanCompactBlocksStartAddress(const unsigned int tid, const unsigned int tid_2,
 __device__ void scanSumBlocks(const unsigned int tid, const unsigned int tid_2,
                               const unsigned int num_threads_active,
                               const unsigned int num_threads_compaction,
-                              unsigned short *s_cl_blocking,
-                              unsigned short *s_cl_helper) {
+                              unsigned short* s_cl_blocking,
+                              unsigned short* s_cl_helper) {
   unsigned int offset = 1;
 
   // first step of scan to build the sum of elements within each block
   // build up tree
   for (int d = num_threads_compaction >> 1; d > 0; d >>= 1) {
-
     __syncthreads();
 
     if (tid < d) {
-
       unsigned int ai = offset * (2 * tid + 1) - 1;
       unsigned int bi = offset * (2 * tid + 2) - 1;
 
@@ -667,12 +637,10 @@ __device__ void scanSumBlocks(const unsigned int tid, const unsigned int tid_2,
   // first step of scan to build the sum of elements within each block
   // traverse down tree
   for (int d = 2; d < (num_threads_compaction - 1); d <<= 1) {
-
     offset >>= 1;
     __syncthreads();
 
     if (tid < (d - 1)) {
-
       unsigned int ai = offset * (tid + 1) - 1;
       unsigned int bi = ai + (offset >> 1);
 
@@ -683,7 +651,6 @@ __device__ void scanSumBlocks(const unsigned int tid, const unsigned int tid_2,
   __syncthreads();
 
   if (0 == tid) {
-
     // move last element of scan to last element that is valid
     // necessary because the number of threads employed for scan is a power
     // of two and not necessarily the number of active threasd
@@ -701,10 +668,9 @@ __device__ void scanSumBlocks(const unsigned int tid, const unsigned int tid_2,
 __device__ void scanInitial(const unsigned int tid, const unsigned int tid_2,
                             const unsigned int num_threads_active,
                             const unsigned int num_threads_compaction,
-                            unsigned short *s_cl_one, unsigned short *s_cl_mult,
-                            unsigned short *s_cl_blocking,
-                            unsigned short *s_cl_helper) {
-
+                            unsigned short* s_cl_one, unsigned short* s_cl_mult,
+                            unsigned short* s_cl_blocking,
+                            unsigned short* s_cl_helper) {
   // perform scan to compactly write out the intervals containing one and
   // multiple eigenvalues
   // also generate tree for blocking of intervals containing multiple
@@ -714,11 +680,9 @@ __device__ void scanInitial(const unsigned int tid, const unsigned int tid_2,
 
   // build scan tree
   for (int d = (num_threads_compaction >> 1); d > 0; d >>= 1) {
-
     __syncthreads();
 
     if (tid < d) {
-
       unsigned int ai = offset * (2 * tid + 1);
       unsigned int bi = offset * (2 * tid + 2) - 1;
 
@@ -732,7 +696,6 @@ __device__ void scanInitial(const unsigned int tid, const unsigned int tid_2,
       // eigenvalues per block that, in turn, is needed to efficiently
       // write out data in the second step
       if ((s_cl_helper[ai - 1] != 1) || (s_cl_helper[bi] != 1)) {
-
         // check how many childs are non terminated
         if (s_cl_helper[ai - 1] == 1) {
           // mark as terminated
@@ -740,13 +703,11 @@ __device__ void scanInitial(const unsigned int tid, const unsigned int tid_2,
         } else if (s_cl_helper[bi] == 1) {
           // mark as terminated
           s_cl_helper[ai - 1] = 1;
-        } else // both childs are non-terminated
+        } else  // both childs are non-terminated
         {
-
           unsigned int temp = s_cl_blocking[bi] + s_cl_blocking[ai - 1];
 
           if (temp > MAX_THREADS_BLOCK) {
-
             // the two child trees have to form separate blocks, terminate trees
             s_cl_helper[ai - 1] = 1;
             s_cl_helper[bi] = 1;
@@ -756,7 +717,7 @@ __device__ void scanInitial(const unsigned int tid, const unsigned int tid_2,
             s_cl_blocking[ai - 1] = 0;
           }
         }
-      } // end s_cl_helper update
+      }  // end s_cl_helper update
     }
 
     offset <<= 1;
@@ -765,13 +726,11 @@ __device__ void scanInitial(const unsigned int tid, const unsigned int tid_2,
   // traverse down tree, this only for stream compaction, not for block
   // construction
   for (int d = 2; d < num_threads_compaction; d <<= 1) {
-
     offset >>= 1;
     __syncthreads();
 
     //
     if (tid < (d - 1)) {
-
       unsigned int ai = offset * (tid + 1) - 1;
       unsigned int bi = ai + (offset >> 1);
 
@@ -786,15 +745,14 @@ __device__ void scanInitial(const unsigned int tid, const unsigned int tid_2,
 //! currently processed by the thread
 ////////////////////////////////////////////////////////////////////////////////
 __device__ void storeNonEmptyIntervalsLarge(
-    unsigned int addr, const unsigned int num_threads_active, float *s_left,
-    float *s_right, unsigned short *s_left_count, unsigned short *s_right_count,
+    unsigned int addr, const unsigned int num_threads_active, float* s_left,
+    float* s_right, unsigned short* s_left_count, unsigned short* s_right_count,
     float left, float mid, float right, const unsigned short left_count,
     const unsigned short mid_count, const unsigned short right_count,
-    float epsilon, unsigned int &compact_second_chunk,
-    unsigned short *s_compaction_list, unsigned int &is_active_second) {
+    float epsilon, unsigned int& compact_second_chunk,
+    unsigned short* s_compaction_list, unsigned int& is_active_second) {
   // check if both child intervals are valid
   if ((left_count != mid_count) && (mid_count != right_count)) {
-
     storeInterval(addr, s_left, s_right, s_left_count, s_right_count, left, mid,
                   left_count, mid_count, epsilon);
 
@@ -802,7 +760,6 @@ __device__ void storeNonEmptyIntervalsLarge(
     s_compaction_list[threadIdx.x] = 1;
     compact_second_chunk = 1;
   } else {
-
     // only one non-empty child interval
 
     // mark that no second child
@@ -820,4 +777,4 @@ __device__ void storeNonEmptyIntervalsLarge(
   }
 }
 
-#endif // #ifndef _BISECT_KERNEL_LARGE_H_
+#endif  // #ifndef _BISECT_KERNEL_LARGE_H_

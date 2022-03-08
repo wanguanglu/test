@@ -9,7 +9,7 @@
 #include <iostream>
 
 class A {
-public:
+ public:
   A() { std::cout << "contruct: " << std::endl; }
 
   ~A() { std::cout << "destruct: " << std::endl; }
@@ -18,18 +18,18 @@ public:
 A Get() { return A(); }
 
 void test() {
-  A &&a = Get();
-  const A &b = A();
+  A&& a = Get();
+  const A& b = A();
   A c;
   // b = c;
 }
 
 void basic_test() {
   int a = 0;
-  const int &b = a;
+  const int& b = a;
   a = 1;
 
   std::cout << "b = " << b << std::endl;
 }
 
-int main(int argc, char *argv[]) { basic_test(); }
+int main(int argc, char* argv[]) { basic_test(); }

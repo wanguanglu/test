@@ -33,7 +33,7 @@
 /**
  * Host main routine
  */
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   char *ptx, *kernel_file;
   size_t ptxSize;
   kernel_file = sdkFindFilePath("vectorAdd_kernel.cu", argv[0]);
@@ -49,13 +49,13 @@ int main(int argc, char **argv) {
   printf("[Vector addition of %d elements]\n", numElements);
 
   // Allocate the host input vector A
-  float *h_A = (float *)malloc(size);
+  float* h_A = (float*)malloc(size);
 
   // Allocate the host input vector B
-  float *h_B = (float *)malloc(size);
+  float* h_B = (float*)malloc(size);
 
   // Allocate the host output vector C
-  float *h_C = (float *)malloc(size);
+  float* h_C = (float*)malloc(size);
 
   // Verify that allocations succeeded
   if (h_A == NULL || h_B == NULL || h_C == NULL) {
@@ -95,8 +95,7 @@ int main(int argc, char **argv) {
   dim3 cudaBlockSize(threadsPerBlock, 1, 1);
   dim3 cudaGridSize(blocksPerGrid, 1, 1);
 
-  void *arr[] = {(void *)&d_A, (void *)&d_B, (void *)&d_C,
-                 (void *)&numElements};
+  void* arr[] = {(void*)&d_A, (void*)&d_B, (void*)&d_C, (void*)&numElements};
   checkCudaErrors(cuLaunchKernel(kernel_addr, cudaGridSize.x, cudaGridSize.y,
                                  cudaGridSize.z, /* grid dim */
                                  cudaBlockSize.x, cudaBlockSize.y,

@@ -18,7 +18,10 @@
 //! Constructor, default
 ////////////////////////////////////////////////////////////////////////////////
 StopWatchLinux::StopWatchLinux()
-    : start_time(), diff_time(0.0), total_time(0.0), running(false),
+    : start_time(),
+      diff_time(0.0),
+      total_time(0.0),
+      running(false),
       clock_sessions(0) {}
 
 ////////////////////////////////////////////////////////////////////////////////

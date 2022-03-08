@@ -21,13 +21,13 @@
 #if defined(_CPPLIB_VER) && (_CPPLIB_VER >= 306)
 // full dinkumware 3.06 and above
 // fully conforming provided the compiler supports it:
-#if !(defined(_GLOBAL_USING) && (_GLOBAL_USING + 0 > 0)) &&                    \
-    !defined(__BORLANDC__) && !defined(_STD) &&                                \
-    !(defined(__ICC) && (__ICC >= 700)) // can be defined in yvals.h
+#if !(defined(_GLOBAL_USING) && (_GLOBAL_USING + 0 > 0)) && \
+    !defined(__BORLANDC__) && !defined(_STD) &&             \
+    !(defined(__ICC) && (__ICC >= 700))  // can be defined in yvals.h
 #define BOOST_NO_STDC_NAMESPACE
 #endif
-#if !(defined(_HAS_MEMBER_TEMPLATES_REBIND) &&                                 \
-      (_HAS_MEMBER_TEMPLATES_REBIND + 0 > 0)) &&                               \
+#if !(defined(_HAS_MEMBER_TEMPLATES_REBIND) &&   \
+      (_HAS_MEMBER_TEMPLATES_REBIND + 0 > 0)) && \
     !(defined(_MSC_VER) && (_MSC_VER > 1300)) && defined(BOOST_MSVC)
 #define BOOST_NO_STD_ALLOCATOR
 #endif
@@ -75,7 +75,7 @@
 #define BOOST_STD_EXTENSION_NAMESPACE stdext
 #endif
 
-#if (defined(_MSC_VER) && (_MSC_VER <= 1300) && !defined(__BORLANDC__)) ||     \
+#if (defined(_MSC_VER) && (_MSC_VER <= 1300) && !defined(__BORLANDC__)) || \
     !defined(_CPPLIB_VER) || (_CPPLIB_VER < 306)
 // if we're using a dinkum lib that's
 // been configured for VC6/7 then there is
@@ -83,7 +83,7 @@
 #define BOOST_NO_STD_ITERATOR_TRAITS
 #endif
 
-#if defined(__ICL) && (__ICL < 800) && defined(_CPPLIB_VER) &&                 \
+#if defined(__ICL) && (__ICL < 800) && defined(_CPPLIB_VER) && \
     (_CPPLIB_VER <= 310)
 // Intel C++ chokes over any non-trivial use of <locale>
 // this may be an overly restrictive define, but regex fails without it:
@@ -101,7 +101,7 @@
 #define BOOST_NO_0X_HDR_REGEX
 #define BOOST_NO_0X_HDR_SYSTEM_ERROR
 #define BOOST_NO_0X_HDR_TYPE_TRAITS
-#define BOOST_NO_STD_UNORDERED // deprecated; see following
+#define BOOST_NO_STD_UNORDERED  // deprecated; see following
 #define BOOST_NO_0X_HDR_UNORDERED_MAP
 #define BOOST_NO_0X_HDR_UNORDERED_SET
 #endif
@@ -127,7 +127,7 @@
 #endif
 
 #ifdef _CPPLIB_VER
-#define BOOST_STDLIB                                                           \
+#define BOOST_STDLIB \
   "Dinkumware standard library version " BOOST_STRINGIZE(_CPPLIB_VER)
 #else
 #define BOOST_STDLIB "Dinkumware standard library version 1.x"

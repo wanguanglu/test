@@ -64,31 +64,47 @@
 
 namespace nv {
 
-template <class T> class vec2;
-template <class T> class vec3;
-template <class T> class vec4;
+template <class T>
+class vec2;
+template <class T>
+class vec3;
+template <class T>
+class vec4;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  Matrix
 //
 ////////////////////////////////////////////////////////////////////////////////
-template <class T> class matrix4 {
-
-public:
+template <class T>
+class matrix4 {
+ public:
   matrix4() { make_identity(); }
 
   matrix4(T t) { set_value(t); }
 
-  matrix4(const T *m) { set_value(m); }
+  matrix4(const T* m) { set_value(m); }
 
   matrix4(T a00, T a01, T a02, T a03, T a10, T a11, T a12, T a13, T a20, T a21,
           T a22, T a23, T a30, T a31, T a32, T a33)
-      : _11(a00), _12(a01), _13(a02), _14(a03), _21(a10), _22(a11), _23(a12),
-        _24(a13), _31(a20), _32(a21), _33(a22), _34(a23), _41(a30), _42(a31),
-        _43(a32), _44(a33) {}
+      : _11(a00),
+        _12(a01),
+        _13(a02),
+        _14(a03),
+        _21(a10),
+        _22(a11),
+        _23(a12),
+        _24(a13),
+        _31(a20),
+        _32(a21),
+        _33(a22),
+        _34(a23),
+        _41(a30),
+        _42(a31),
+        _43(a32),
+        _44(a33) {}
 
-  void get_value(T *mp) const {
+  void get_value(T* mp) const {
     int c = 0;
 
     for (int j = 0; j < 4; j++)
@@ -97,9 +113,9 @@ public:
       }
   }
 
-  const T *get_value() const { return _array; }
+  const T* get_value() const { return _array; }
 
-  void set_value(T *mp) {
+  void set_value(T* mp) {
     int c = 0;
 
     for (int j = 0; j < 4; j++)
@@ -144,25 +160,25 @@ public:
     element(2, 2) = s;
   }
 
-  void set_scale(const vec3<T> &s) {
+  void set_scale(const vec3<T>& s) {
     for (int i = 0; i < 3; i++) {
       element(i, i) = s[i];
     }
   }
 
-  void set_translate(const vec3<T> &t) {
+  void set_translate(const vec3<T>& t) {
     for (int i = 0; i < 3; i++) {
       element(i, 3) = t[i];
     }
   }
 
-  void set_row(int r, const vec4<T> &t) {
+  void set_row(int r, const vec4<T>& t) {
     for (int i = 0; i < 4; i++) {
       element(r, i) = t[i];
     }
   }
 
-  void set_column(int c, const vec4<T> &t) {
+  void set_column(int c, const vec4<T>& t) {
     for (int i = 0; i < 4; i++) {
       element(i, c) = t[i];
     }
@@ -188,7 +204,7 @@ public:
     return v;
   }
 
-  friend matrix4 inverse(const matrix4 &m) {
+  friend matrix4 inverse(const matrix4& m) {
     matrix4 minv;
 
     T r1[8], r2[8], r3[8], r4[8];
@@ -224,7 +240,7 @@ public:
         }
 
       if (scp[i] == 0.0) {
-        return minv; // singular matrix!
+        return minv;  // singular matrix!
       }
     }
 
@@ -268,7 +284,7 @@ public:
     }
 
     if (s[3][3] == 0.0) {
-      return minv; // singular matrix!
+      return minv;  // singular matrix!
     }
 
     //
@@ -307,7 +323,7 @@ public:
     return minv;
   }
 
-  friend matrix4 transpose(const matrix4 &m) {
+  friend matrix4 transpose(const matrix4& m) {
     matrix4 mtrans;
 
     for (int i = 0; i < 4; i++)
@@ -318,7 +334,7 @@ public:
     return mtrans;
   }
 
-  matrix4 &operator*=(const matrix4 &rhs) {
+  matrix4& operator*=(const matrix4& rhs) {
     matrix4 mt(*this);
     set_value(T(0));
 
@@ -331,7 +347,7 @@ public:
     return *this;
   }
 
-  friend matrix4 operator*(const matrix4 &lhs, const matrix4 &rhs) {
+  friend matrix4 operator*(const matrix4& lhs, const matrix4& rhs) {
     matrix4 r(T(0));
 
     for (int i = 0; i < 4; i++)
@@ -344,7 +360,7 @@ public:
   }
 
   // dst = M * src
-  vec4<T> operator*(const vec4<T> &src) const {
+  vec4<T> operator*(const vec4<T>& src) const {
     vec4<T> r;
 
     for (int i = 0; i < 4; i++)
@@ -355,7 +371,7 @@ public:
   }
 
   // dst = src * M
-  friend vec4<T> operator*(const vec4<T> &lhs, const matrix4 &rhs) {
+  friend vec4<T> operator*(const vec4<T>& lhs, const matrix4& rhs) {
     vec4<T> r;
 
     for (int i = 0; i < 4; i++)
@@ -365,15 +381,15 @@ public:
     return r;
   }
 
-  T &operator()(int row, int col) { return element(row, col); }
+  T& operator()(int row, int col) { return element(row, col); }
 
-  const T &operator()(int row, int col) const { return element(row, col); }
+  const T& operator()(int row, int col) const { return element(row, col); }
 
-  T &element(int row, int col) { return _array[row | (col << 2)]; }
+  T& element(int row, int col) { return _array[row | (col << 2)]; }
 
-  const T &element(int row, int col) const { return _array[row | (col << 2)]; }
+  const T& element(int row, int col) const { return _array[row | (col << 2)]; }
 
-  matrix4 &operator*=(const T &r) {
+  matrix4& operator*=(const T& r) {
     for (int i = 0; i < 4; ++i) {
       element(0, i) *= r;
       element(1, i) *= r;
@@ -384,7 +400,7 @@ public:
     return *this;
   }
 
-  matrix4 &operator+=(const matrix4 &mat) {
+  matrix4& operator+=(const matrix4& mat) {
     for (int i = 0; i < 4; ++i) {
       element(0, i) += mat.element(0, i);
       element(1, i) += mat.element(1, i);
@@ -395,7 +411,7 @@ public:
     return *this;
   }
 
-  friend bool operator==(const matrix4 &lhs, const matrix4 &rhs) {
+  friend bool operator==(const matrix4& lhs, const matrix4& rhs) {
     bool r = true;
 
     for (int i = 0; i < 16; i++) {
@@ -405,7 +421,7 @@ public:
     return r;
   }
 
-  friend bool operator!=(const matrix4 &lhs, const matrix4 &rhs) {
+  friend bool operator!=(const matrix4& lhs, const matrix4& rhs) {
     bool r = true;
 
     for (int i = 0; i < 16; i++) {
@@ -417,15 +433,15 @@ public:
 
   union {
     struct {
-      T _11, _12, _13, _14; // standard names for components
-      T _21, _22, _23, _24; // standard names for components
-      T _31, _32, _33, _34; // standard names for components
-      T _41, _42, _43, _44; // standard names for components
+      T _11, _12, _13, _14;  // standard names for components
+      T _21, _22, _23, _24;  // standard names for components
+      T _31, _32, _33, _34;  // standard names for components
+      T _41, _42, _43, _44;  // standard names for components
     };
-    T _array[16]; // array access
+    T _array[16];  // array access
   };
 };
 
-}; // namespace nv
+};  // namespace nv
 
 #endif

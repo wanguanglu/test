@@ -10,8 +10,8 @@
 #include <string>
 
 class Error : public std::runtime_error {
-public:
-  explicit Error(const std::string &s) : std::runtime_error(s) {}
+ public:
+  explicit Error(const std::string& s) : std::runtime_error(s) {}
 };
 
 void test() {
@@ -21,7 +21,7 @@ void test() {
 
 void test2() { abort(); }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   try {
     test();
   } catch (Error e) {

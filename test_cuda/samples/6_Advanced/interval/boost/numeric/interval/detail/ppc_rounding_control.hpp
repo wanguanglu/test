@@ -40,7 +40,7 @@ struct ppc_rounding_control {
     __asm__ __volatile__("mtfsf 255,%0" : : "f"(mode));
   }
 
-  static void get_rounding_mode(rounding_mode &mode) {
+  static void get_rounding_mode(rounding_mode& mode) {
     __asm__ __volatile__("mffs %0" : "=f"(mode));
   }
 
@@ -50,7 +50,7 @@ struct ppc_rounding_control {
   static void toward_zero() { set_rounding_mode(mode_toward_zero.dmode); }
 };
 
-} // namespace detail
+}  // namespace detail
 
 // Do not declare the following C99 symbols if <math.h> provides them.
 // Otherwise, conflicts may occur, due to differences between prototypes.
@@ -61,31 +61,33 @@ double rint(double);
 }
 #endif
 
-template <> struct rounding_control<float> : detail::ppc_rounding_control {
+template <>
+struct rounding_control<float> : detail::ppc_rounding_control {
   static float force_rounding(const float r) {
     float tmp;
     __asm__ __volatile__("frsp %0, %1" : "=f"(tmp) : "f"(r));
     return tmp;
   }
-  static float to_int(const float &x) { return rintf(x); }
+  static float to_int(const float& x) { return rintf(x); }
 };
 
-template <> struct rounding_control<double> : detail::ppc_rounding_control {
-  static const double &force_rounding(const double &r) { return r; }
-  static double to_int(const double &r) { return rint(r); }
+template <>
+struct rounding_control<double> : detail::ppc_rounding_control {
+  static const double& force_rounding(const double& r) { return r; }
+  static double to_int(const double& r) { return rint(r); }
 };
 
 template <>
 struct rounding_control<long double> : detail::ppc_rounding_control {
-  static const long double &force_rounding(const long double &r) { return r; }
-  static long double to_int(const long double &r) {
+  static const long double& force_rounding(const long double& r) { return r; }
+  static long double to_int(const long double& r) {
     return rint(static_cast<double>(r));
   }
 };
 
-} // namespace interval_lib
-} // namespace numeric
-} // namespace boost
+}  // namespace interval_lib
+}  // namespace numeric
+}  // namespace boost
 
 #undef BOOST_NUMERIC_INTERVAL_NO_HARDWARE
 #endif

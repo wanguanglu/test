@@ -42,11 +42,11 @@ __forceinline__ __device__ float length(float2 a) {
 #define MAX_TESSELLATION 32
 struct BezierLine {
   float2 CP[3];
-  float2 *vertexPos;
+  float2* vertexPos;
   int nVertices;
 };
 
-__global__ void computeBezierLinePositions(int lidx, BezierLine *bLines,
+__global__ void computeBezierLinePositions(int lidx, BezierLine* bLines,
                                            int nTessPoints) {
   int idx = threadIdx.x + blockDim.x * blockIdx.x;
 
@@ -70,7 +70,7 @@ __global__ void computeBezierLinePositions(int lidx, BezierLine *bLines,
   }
 }
 
-__global__ void computeBezierLinesCDP(BezierLine *bLines, int nLines) {
+__global__ void computeBezierLinesCDP(BezierLine* bLines, int nLines) {
   int lidx = threadIdx.x + blockDim.x * blockIdx.x;
 
   if (lidx < nLines) {
@@ -81,8 +81,7 @@ __global__ void computeBezierLinesCDP(BezierLine *bLines, int nLines) {
 
     if (bLines[lidx].vertexPos == NULL) {
       bLines[lidx].nVertices = nTessPoints;
-      cudaMalloc((void **)&bLines[lidx].vertexPos,
-                 nTessPoints * sizeof(float2));
+      cudaMalloc((void**)&bLines[lidx].vertexPos, nTessPoints * sizeof(float2));
     }
 
     computeBezierLinePositions<<<ceil((float)bLines[lidx].nVertices / 32.0f),
@@ -90,20 +89,19 @@ __global__ void computeBezierLinesCDP(BezierLine *bLines, int nLines) {
   }
 }
 
-__global__ void freeVertexMem(BezierLine *bLines, int nLines) {
+__global__ void freeVertexMem(BezierLine* bLines, int nLines) {
   int lidx = threadIdx.x + blockDim.x * blockIdx.x;
 
-  if (lidx < nLines)
-    cudaFree(bLines[lidx].vertexPos);
+  if (lidx < nLines) cudaFree(bLines[lidx].vertexPos);
 }
 
-unsigned int checkCapableSM35Device(int argc, char **argv) {
+unsigned int checkCapableSM35Device(int argc, char** argv) {
   // Get device properties
   cudaDeviceProp properties;
   int device_count = 0, device = -1;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
-    device = getCmdLineArgumentInt(argc, (const char **)argv, "device");
+  if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
+    device = getCmdLineArgumentInt(argc, (const char**)argv, "device");
 
     cudaDeviceProp properties;
     checkCudaErrors(cudaGetDeviceProperties(&properties, device));
@@ -112,15 +110,15 @@ unsigned int checkCapableSM35Device(int argc, char **argv) {
         (properties.major == 3 && properties.minor >= 5)) {
       printf("Running on GPU  %d (%s)\n", device, properties.name);
     } else {
-      printf("cdpBezierTessellation requires GPU devices with compute SM 3.5 "
-             "or higher.");
+      printf(
+          "cdpBezierTessellation requires GPU devices with compute SM 3.5 "
+          "or higher.");
       printf("Current GPU device has compute SM %d.%d. Exiting...\n",
              properties.major, properties.minor);
       return EXIT_FAILURE;
     }
 
   } else {
-
     checkCudaErrors(cudaGetDeviceCount(&device_count));
 
     for (int i = 0; i < device_count; ++i) {
@@ -138,8 +136,9 @@ unsigned int checkCapableSM35Device(int argc, char **argv) {
     }
   }
   if (device == -1) {
-    fprintf(stderr, "cdpBezierTessellation requires GPU devices with compute "
-                    "SM 3.5 or higher.  Exiting...\n");
+    fprintf(stderr,
+            "cdpBezierTessellation requires GPU devices with compute "
+            "SM 3.5 or higher.  Exiting...\n");
     return EXIT_WAIVED;
   }
 
@@ -148,8 +147,8 @@ unsigned int checkCapableSM35Device(int argc, char **argv) {
 
 #define N_LINES 256
 #define BLOCK_DIM 64
-int main(int argc, char **argv) {
-  BezierLine *bLines_h = new BezierLine[N_LINES];
+int main(int argc, char** argv) {
+  BezierLine* bLines_h = new BezierLine[N_LINES];
 
   float2 last = {0, 0};
 
@@ -171,8 +170,8 @@ int main(int argc, char **argv) {
     exit(sm35Ret);
   }
 
-  BezierLine *bLines_d;
-  checkCudaErrors(cudaMalloc((void **)&bLines_d, N_LINES * sizeof(BezierLine)));
+  BezierLine* bLines_d;
+  checkCudaErrors(cudaMalloc((void**)&bLines_d, N_LINES * sizeof(BezierLine)));
   checkCudaErrors(cudaMemcpy(bLines_d, bLines_h, N_LINES * sizeof(BezierLine),
                              cudaMemcpyHostToDevice));
   printf("Computing Bezier Lines (CUDA Dynamic Parallelism Version) ... ");

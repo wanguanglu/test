@@ -13,7 +13,7 @@
 #include <stdlib.h>
 
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-#pragma warning(disable : 4996) // disable deprecated warning
+#pragma warning(disable : 4996)  // disable deprecated warning
 #endif
 
 #pragma pack(1)
@@ -45,13 +45,13 @@ typedef struct {
   unsigned char x, y, z, w;
 } uchar4;
 
-extern "C" void LoadBMPFile(uchar4 **dst, unsigned int *width,
-                            unsigned int *height, const char *name) {
+extern "C" void LoadBMPFile(uchar4** dst, unsigned int* width,
+                            unsigned int* height, const char* name) {
   BMPHeader hdr;
   BMPInfoHeader infoHdr;
   int x, y;
 
-  FILE *fd;
+  FILE* fd;
 
   printf("Loading %s...\n", name);
 
@@ -86,7 +86,7 @@ extern "C" void LoadBMPFile(uchar4 **dst, unsigned int *width,
 
   *width = infoHdr.width;
   *height = infoHdr.height;
-  *dst = (uchar4 *)malloc(*width * *height * 4);
+  *dst = (uchar4*)malloc(*width * *height * 4);
 
   printf("BMP width: %u\n", infoHdr.width);
   printf("BMP height: %u\n", infoHdr.height);

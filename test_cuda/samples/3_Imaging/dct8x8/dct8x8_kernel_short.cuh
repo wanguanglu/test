@@ -103,7 +103,7 @@ __device__ inline int unfixo(int x) { return (x + 0x1000) >> 13; }
 *
 * \return None
 */
-__device__ void CUDAshortInplaceDCT(short *SrcDst, int Stride) {
+__device__ void CUDAshortInplaceDCT(short* SrcDst, int Stride) {
   int in0, in1, in2, in3, in4, in5, in6, in7;
   int tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
   int tmp10, tmp11, tmp12, tmp13;
@@ -112,7 +112,7 @@ __device__ void CUDAshortInplaceDCT(short *SrcDst, int Stride) {
 
   int DoubleStride = Stride << 1;
 
-  short *DstPtr = SrcDst;
+  short* DstPtr = SrcDst;
   in0 = *DstPtr;
   DstPtr += Stride;
   in1 = *DstPtr;
@@ -182,7 +182,7 @@ __device__ void CUDAshortInplaceDCT(short *SrcDst, int Stride) {
 *
 * \return None
 */
-__device__ void CUDAshortInplaceDCT(unsigned int *V8) {
+__device__ void CUDAshortInplaceDCT(unsigned int* V8) {
   int in0, in1, in2, in3, in4, in5, in6, in7;
   int tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
   int tmp10, tmp11, tmp12, tmp13;
@@ -255,7 +255,7 @@ __device__ void CUDAshortInplaceDCT(unsigned int *V8) {
 *
 * \return None
 */
-__device__ void CUDAshortInplaceIDCT(short *SrcDst, int Stride) {
+__device__ void CUDAshortInplaceIDCT(short* SrcDst, int Stride) {
   int in0, in1, in2, in3, in4, in5, in6, in7;
   int tmp10, tmp11, tmp12, tmp13;
   int tmp20, tmp21, tmp22, tmp23;
@@ -263,7 +263,7 @@ __device__ void CUDAshortInplaceIDCT(short *SrcDst, int Stride) {
   int tmp40, tmp41, tmp42, tmp43;
   int tmp50, tmp51, tmp52, tmp53;
 
-  short *DstPtr = SrcDst;
+  short* DstPtr = SrcDst;
   in0 = *DstPtr;
   DstPtr += Stride;
   in1 = *DstPtr;
@@ -333,7 +333,7 @@ __device__ void CUDAshortInplaceIDCT(short *SrcDst, int Stride) {
 *
 * \return None
 */
-__device__ void CUDAshortInplaceIDCT(unsigned int *V8) {
+__device__ void CUDAshortInplaceIDCT(unsigned int* V8) {
   int in0, in1, in2, in3, in4, in5, in6, in7;
   int tmp10, tmp11, tmp12, tmp13;
   int tmp20, tmp21, tmp22, tmp23;
@@ -413,7 +413,7 @@ __device__ void CUDAshortInplaceIDCT(unsigned int *V8) {
 #define IMAD(a, b, c) (((a) * (b)) + (c))
 #define IMUL(a, b) ((a) * (b))
 
-__global__ void CUDAkernelShortDCT(short *SrcDst, int ImgStride) {
+__global__ void CUDAkernelShortDCT(short* SrcDst, int ImgStride) {
   __shared__ short block[KERS_BLOCK_HEIGHT * KERS_SMEMBLOCK_STRIDE];
   int OffsThreadInRow = FMUL(threadIdx.y, BLOCK_SIZE) + threadIdx.x;
   int OffsThreadInCol = FMUL(threadIdx.z, BLOCK_SIZE);
@@ -424,7 +424,7 @@ __global__ void CUDAkernelShortDCT(short *SrcDst, int ImgStride) {
   SrcDst +=
       IMAD(IMAD(blockIdx.y, KERS_BLOCK_HEIGHT, OffsThreadInCol), ImgStride,
            IMAD(blockIdx.x, KERS_BLOCK_WIDTH, OffsThreadInRow * 2));
-  short *bl_ptr =
+  short* bl_ptr =
       block + IMAD(OffsThreadInCol, KERS_SMEMBLOCK_STRIDE, OffsThreadInRow * 2);
 
   // load data to shared memory (only first half of threads in each row performs
@@ -433,18 +433,18 @@ __global__ void CUDAkernelShortDCT(short *SrcDst, int ImgStride) {
 #pragma unroll
 
     for (int i = 0; i < BLOCK_SIZE; i++)
-      ((int *)bl_ptr)[i * (KERS_SMEMBLOCK_STRIDE / 2)] =
-          ((int *)SrcDst)[i * (ImgStride / 2)];
+      ((int*)bl_ptr)[i * (KERS_SMEMBLOCK_STRIDE / 2)] =
+          ((int*)SrcDst)[i * (ImgStride / 2)];
   }
 
   __syncthreads();
-  CUDAshortInplaceDCT(block + OffsThreadInCol * KERS_SMEMBLOCK_STRIDE +
-                          OffsThrRowPermuted,
-                      KERS_SMEMBLOCK_STRIDE);
+  CUDAshortInplaceDCT(
+      block + OffsThreadInCol * KERS_SMEMBLOCK_STRIDE + OffsThrRowPermuted,
+      KERS_SMEMBLOCK_STRIDE);
   __syncthreads();
-  CUDAshortInplaceDCT((unsigned int *)(block +
-                                       OffsThreadInRow * KERS_SMEMBLOCK_STRIDE +
-                                       OffsThreadInCol));
+  CUDAshortInplaceDCT((unsigned int*)(block +
+                                      OffsThreadInRow * KERS_SMEMBLOCK_STRIDE +
+                                      OffsThreadInCol));
   __syncthreads();
 
   // store data to global memory (only first half of threads in each row
@@ -453,8 +453,8 @@ __global__ void CUDAkernelShortDCT(short *SrcDst, int ImgStride) {
 #pragma unroll
 
     for (int i = 0; i < BLOCK_SIZE; i++)
-      ((int *)SrcDst)[i * (ImgStride / 2)] =
-          ((int *)bl_ptr)[i * (KERS_SMEMBLOCK_STRIDE / 2)];
+      ((int*)SrcDst)[i * (ImgStride / 2)] =
+          ((int*)bl_ptr)[i * (KERS_SMEMBLOCK_STRIDE / 2)];
   }
 }
 
@@ -472,7 +472,7 @@ __global__ void CUDAkernelShortDCT(short *SrcDst, int ImgStride) {
 * \return None
 */
 
-__global__ void CUDAkernelShortIDCT(short *SrcDst, int ImgStride) {
+__global__ void CUDAkernelShortIDCT(short* SrcDst, int ImgStride) {
   __shared__ short block[KERS_BLOCK_HEIGHT * KERS_SMEMBLOCK_STRIDE];
 
   int OffsThreadInRow = IMAD(threadIdx.y, BLOCK_SIZE, threadIdx.x);
@@ -484,7 +484,7 @@ __global__ void CUDAkernelShortIDCT(short *SrcDst, int ImgStride) {
   SrcDst +=
       IMAD(IMAD(blockIdx.y, KERS_BLOCK_HEIGHT, OffsThreadInCol), ImgStride,
            IMAD(blockIdx.x, KERS_BLOCK_WIDTH, OffsThreadInRow * 2));
-  short *bl_ptr =
+  short* bl_ptr =
       block + IMAD(OffsThreadInCol, KERS_SMEMBLOCK_STRIDE, OffsThreadInRow * 2);
 
   // load data to shared memory (only first half of threads in each row performs
@@ -493,18 +493,18 @@ __global__ void CUDAkernelShortIDCT(short *SrcDst, int ImgStride) {
 #pragma unroll
 
     for (int i = 0; i < BLOCK_SIZE; i++)
-      ((int *)bl_ptr)[i * (KERS_SMEMBLOCK_STRIDE / 2)] =
-          ((int *)SrcDst)[i * (ImgStride / 2)];
+      ((int*)bl_ptr)[i * (KERS_SMEMBLOCK_STRIDE / 2)] =
+          ((int*)SrcDst)[i * (ImgStride / 2)];
   }
 
   __syncthreads();
-  CUDAshortInplaceIDCT(block + OffsThreadInCol * KERS_SMEMBLOCK_STRIDE +
-                           OffsThrRowPermuted,
-                       KERS_SMEMBLOCK_STRIDE);
-  __syncthreads();
   CUDAshortInplaceIDCT(
-      (unsigned int *)(block + OffsThreadInRow * KERS_SMEMBLOCK_STRIDE +
-                       OffsThreadInCol));
+      block + OffsThreadInCol * KERS_SMEMBLOCK_STRIDE + OffsThrRowPermuted,
+      KERS_SMEMBLOCK_STRIDE);
+  __syncthreads();
+  CUDAshortInplaceIDCT((unsigned int*)(block +
+                                       OffsThreadInRow * KERS_SMEMBLOCK_STRIDE +
+                                       OffsThreadInCol));
   __syncthreads();
 
   // store data to global memory (only first half of threads in each row
@@ -513,7 +513,7 @@ __global__ void CUDAkernelShortIDCT(short *SrcDst, int ImgStride) {
 #pragma unroll
 
     for (int i = 0; i < BLOCK_SIZE; i++)
-      ((int *)SrcDst)[i * (ImgStride / 2)] =
-          ((int *)bl_ptr)[i * (KERS_SMEMBLOCK_STRIDE / 2)];
+      ((int*)SrcDst)[i * (ImgStride / 2)] =
+          ((int*)bl_ptr)[i * (KERS_SMEMBLOCK_STRIDE / 2)];
   }
 }

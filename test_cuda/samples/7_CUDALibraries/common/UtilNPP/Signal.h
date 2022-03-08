@@ -16,34 +16,35 @@
 
 namespace npp {
 class Signal {
-public:
+ public:
   Signal() : nSize_(0){};
 
   explicit Signal(size_t nSize) : nSize_(nSize){};
 
-  Signal(const Signal &rSignal) : nSize_(rSignal.nSize_){};
+  Signal(const Signal& rSignal) : nSize_(rSignal.nSize_){};
 
   virtual ~Signal() {}
 
-  Signal &operator=(const Signal &rSignal) {
+  Signal& operator=(const Signal& rSignal) {
     nSize_ = rSignal.nSize_;
     return *this;
   }
 
   size_t size() const { return nSize_; }
 
-  void swap(Signal &rSignal) {
+  void swap(Signal& rSignal) {
     size_t nTemp = nSize_;
     nSize_ = rSignal.nSize_;
     rSignal.nSize_ = nTemp;
   }
 
-private:
+ private:
   size_t nSize_;
 };
 
-template <typename D, class A> class SignalTemplate : public Signal {
-public:
+template <typename D, class A>
+class SignalTemplate : public Signal {
+ public:
   typedef D tData;
 
   SignalTemplate() : aValues_(0) { ; }
@@ -52,7 +53,7 @@ public:
     aValues_ = A::Malloc1D(size());
   }
 
-  SignalTemplate(const SignalTemplate<D, A> &rSignal)
+  SignalTemplate(const SignalTemplate<D, A>& rSignal)
       : Signal(rSignal), aValues_(0) {
     aValues_ = A::Malloc1D(size());
     A::Copy1D(aValues_, rSignal.values(), size());
@@ -60,7 +61,7 @@ public:
 
   virtual ~SignalTemplate() { A::Free1D(aValues_); }
 
-  SignalTemplate &operator=(const SignalTemplate<D, A> &rSignal) {
+  SignalTemplate& operator=(const SignalTemplate<D, A>& rSignal) {
     // in case of self-assignment
     if (&rSignal == this) {
       return *this;
@@ -85,22 +86,22 @@ public:
   /// \param nY Vertical pointer/array offset.
   /// \return Pointer to the pixel array (or first pixel in array with
   /// coordinates (nX, nY).
-  tData *values(int i = 0) { return aValues_ + i; }
+  tData* values(int i = 0) { return aValues_ + i; }
 
-  const tData *values(int i = 0) const { return aValues_ + i; }
+  const tData* values(int i = 0) const { return aValues_ + i; }
 
-  void swap(SignalTemplate<D, A> &rSignal) {
+  void swap(SignalTemplate<D, A>& rSignal) {
     Signal::swap(rSignal);
 
-    tData *aTemp = this->aValues_;
+    tData* aTemp = this->aValues_;
     this->aValues_ = rSignal.aValues_;
     rSignal.aValues_ = aTemp;
   }
 
-private:
-  D *aValues_;
+ private:
+  D* aValues_;
 };
 
-} // namespace npp
+}  // namespace npp
 
-#endif // NV_UTIL_NPP_SIGNAL_H
+#endif  // NV_UTIL_NPP_SIGNAL_H

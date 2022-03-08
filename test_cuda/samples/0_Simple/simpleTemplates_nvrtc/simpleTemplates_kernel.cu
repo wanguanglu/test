@@ -7,11 +7,12 @@
 //! @param g_odata  output data in global memory
 ////////////////////////////////////////////////////////////////////////////////
 
-template <class T> __device__ void testKernel(T *g_idata, T *g_odata) {
+template <class T>
+__device__ void testKernel(T* g_idata, T* g_odata) {
   // Shared mem size is determined by the host app at run time
   SharedMemory<T> smem;
 
-  T *sdata = smem.getPointer();
+  T* sdata = smem.getPointer();
 
   // access thread id
   const unsigned int tid = threadIdx.x;
@@ -33,10 +34,10 @@ template <class T> __device__ void testKernel(T *g_idata, T *g_odata) {
   g_odata[tid] = sdata[tid];
 }
 
-extern "C" __global__ void testFloat(float *p1, float *p2) {
+extern "C" __global__ void testFloat(float* p1, float* p2) {
   testKernel<float>(p1, p2);
 }
 
-extern "C" __global__ void testInt(int *p1, int *p2) {
+extern "C" __global__ void testInt(int* p1, int* p2) {
   testKernel<int>(p1, p2);
 }

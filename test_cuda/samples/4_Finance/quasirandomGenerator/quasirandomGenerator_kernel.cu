@@ -25,9 +25,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 static __constant__ unsigned int c_Table[QRNG_DIMENSIONS][QRNG_RESOLUTION];
 
-static __global__ void
-quasirandomGeneratorKernel(float *d_Output, unsigned int seed, unsigned int N) {
-  unsigned int *dimBase = &c_Table[threadIdx.y][0];
+static __global__ void quasirandomGeneratorKernel(float* d_Output,
+                                                  unsigned int seed,
+                                                  unsigned int N) {
+  unsigned int* dimBase = &c_Table[threadIdx.y][0];
   unsigned int tid = MUL(blockDim.x, blockIdx.x) + threadIdx.x;
   unsigned int threadN = MUL(blockDim.x, gridDim.x);
 
@@ -45,15 +46,15 @@ quasirandomGeneratorKernel(float *d_Output, unsigned int seed, unsigned int N) {
 }
 
 // Table initialization routine
-extern "C" void
-initTableGPU(unsigned int tableCPU[QRNG_DIMENSIONS][QRNG_RESOLUTION]) {
-  checkCudaErrors(cudaMemcpyToSymbol(c_Table, tableCPU,
-                                     QRNG_DIMENSIONS * QRNG_RESOLUTION *
-                                         sizeof(unsigned int)));
+extern "C" void initTableGPU(
+    unsigned int tableCPU[QRNG_DIMENSIONS][QRNG_RESOLUTION]) {
+  checkCudaErrors(cudaMemcpyToSymbol(
+      c_Table, tableCPU,
+      QRNG_DIMENSIONS * QRNG_RESOLUTION * sizeof(unsigned int)));
 }
 
 // Host-side interface
-extern "C" void quasirandomGeneratorGPU(float *d_Output, unsigned int seed,
+extern "C" void quasirandomGeneratorGPU(float* d_Output, unsigned int seed,
                                         unsigned int N) {
   dim3 threads(128, QRNG_DIMENSIONS);
   quasirandomGeneratorKernel<<<128, threads>>>(d_Output, seed, N);
@@ -132,7 +133,7 @@ __device__ inline float MoroInvCNDgpu(unsigned int x) {
 // Main kernel. Choose between transforming
 // input sequence and uniform ascending (0, 1) sequence
 ////////////////////////////////////////////////////////////////////////////////
-static __global__ void inverseCNDKernel(float *d_Output, unsigned int *d_Input,
+static __global__ void inverseCNDKernel(float* d_Output, unsigned int* d_Input,
                                         unsigned int pathN) {
   unsigned int distance = ((unsigned int)-1) / (pathN + 1);
   unsigned int tid = MUL(blockDim.x, blockIdx.x) + threadIdx.x;
@@ -155,7 +156,7 @@ static __global__ void inverseCNDKernel(float *d_Output, unsigned int *d_Input,
   }
 }
 
-extern "C" void inverseCNDgpu(float *d_Output, unsigned int *d_Input,
+extern "C" void inverseCNDgpu(float* d_Output, unsigned int* d_Input,
                               unsigned int N) {
   inverseCNDKernel<<<128, 128>>>(d_Output, d_Input, N);
   getLastCudaError("inverseCNDKernel() execution failed.\n");

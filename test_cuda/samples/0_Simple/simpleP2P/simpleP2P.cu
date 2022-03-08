@@ -23,16 +23,16 @@
 
 // includes, project
 #include <helper_cuda.h>
-#include <helper_functions.h> // helper for shared that are common to CUDA Samples
+#include <helper_functions.h>  // helper for shared that are common to CUDA Samples
 
-__global__ void SimpleKernel(float *src, float *dst) {
+__global__ void SimpleKernel(float* src, float* dst) {
   // Just a dummy kernel, doing enough for us to verify that everything
   // worked
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   dst[idx] = src[idx] * 2.0f;
 }
 
-inline bool IsGPUCapableP2P(cudaDeviceProp *pProp) {
+inline bool IsGPUCapableP2P(cudaDeviceProp* pProp) {
 #ifdef _WIN32
   return (bool)(pProp->tccDriver ? true : false);
 #else
@@ -40,15 +40,16 @@ inline bool IsGPUCapableP2P(cudaDeviceProp *pProp) {
 #endif
 }
 
-inline bool IsAppBuiltAs64() { return sizeof(void *) == 8; }
+inline bool IsAppBuiltAs64() { return sizeof(void*) == 8; }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   printf("[%s] - Starting...\n", argv[0]);
 
   if (!IsAppBuiltAs64()) {
-    printf("%s is only supported with on 64-bit OSs and the application must "
-           "be built as a 64-bit target.  Test is being waived.\n",
-           argv[0]);
+    printf(
+        "%s is only supported with on 64-bit OSs and the application must "
+        "be built as a 64-bit target.  Test is being waived.\n",
+        argv[0]);
     exit(EXIT_WAIVED);
   }
 
@@ -59,17 +60,18 @@ int main(int argc, char **argv) {
   printf("CUDA-capable device count: %i\n", gpu_n);
 
   if (gpu_n < 2) {
-    printf("Two or more GPUs with SM 2.0 or higher capability are required for "
-           "%s.\n",
-           argv[0]);
+    printf(
+        "Two or more GPUs with SM 2.0 or higher capability are required for "
+        "%s.\n",
+        argv[0]);
     printf("Waiving test.\n");
     exit(EXIT_WAIVED);
   }
 
   // Query device properties
   cudaDeviceProp prop[64];
-  int gpuid[64];     // we want to find the first two GPU's that can support P2P
-  int gpu_count = 0; // GPUs that meet the criteria
+  int gpuid[64];  // we want to find the first two GPU's that can support P2P
+  int gpu_count = 0;  // GPUs that meet the criteria
 
   for (int i = 0; i < gpu_n; i++) {
     checkCudaErrors(cudaGetDeviceProperties(&prop[i], i));
@@ -92,9 +94,10 @@ int main(int argc, char **argv) {
 
   // Check for TCC for Windows
   if (gpu_count < 2) {
-    printf("\nTwo or more GPUs with SM 2.0 or higher capability are required "
-           "for %s.\n",
-           argv[0]);
+    printf(
+        "\nTwo or more GPUs with SM 2.0 or higher capability are required "
+        "for %s.\n",
+        argv[0]);
 #ifdef _WIN32
     printf("\nAlso, a TCC driver must be installed and enabled to run %s.\n",
            argv[0]);
@@ -115,7 +118,7 @@ int main(int argc, char **argv) {
   printf("\nChecking GPU(s) for support of peer to peer memory access...\n");
 
   int can_access_peer;
-  int p2pCapableGPUs[2]; // We take only 1 pair of P2P capable GPUs
+  int p2pCapableGPUs[2];  // We take only 1 pair of P2P capable GPUs
   p2pCapableGPUs[0] = p2pCapableGPUs[1] = -1;
 
   // Show all the combinations of supported P2P GPUs
@@ -137,11 +140,13 @@ int main(int argc, char **argv) {
   }
 
   if (p2pCapableGPUs[0] == -1 || p2pCapableGPUs[1] == -1) {
-    printf("Two or more GPUs with SM 2.0 or higher capability are required for "
-           "%s.\n",
-           argv[0]);
-    printf("Peer to Peer access is not available amongst GPUs in the system, "
-           "waiving test.\n");
+    printf(
+        "Two or more GPUs with SM 2.0 or higher capability are required for "
+        "%s.\n",
+        argv[0]);
+    printf(
+        "Peer to Peer access is not available amongst GPUs in the system, "
+        "waiving test.\n");
 
     for (int i = 0; i < gpu_count; i++) {
       checkCudaErrors(cudaSetDevice(gpuid[i]));
@@ -191,14 +196,14 @@ int main(int argc, char **argv) {
   printf("Allocating buffers (%iMB on GPU%d, GPU%d and CPU Host)...\n",
          int(buf_size / 1024 / 1024), gpuid[0], gpuid[1]);
   checkCudaErrors(cudaSetDevice(gpuid[0]));
-  float *g0;
+  float* g0;
   checkCudaErrors(cudaMalloc(&g0, buf_size));
   checkCudaErrors(cudaSetDevice(gpuid[1]));
-  float *g1;
+  float* g1;
   checkCudaErrors(cudaMalloc(&g1, buf_size));
-  float *h0;
+  float* h0;
   checkCudaErrors(
-      cudaMallocHost(&h0, buf_size)); // Automatically portable with UVA
+      cudaMallocHost(&h0, buf_size));  // Automatically portable with UVA
 
   // Create CUDA event handles
   printf("Creating event handles...\n");
@@ -247,9 +252,10 @@ int main(int argc, char **argv) {
 
   // Run kernel on GPU 1, reading input from the GPU 0 buffer, writing
   // output to the GPU 1 buffer
-  printf("Run kernel on GPU%d, taking source data from GPU%d and writing to "
-         "GPU%d...\n",
-         gpuid[1], gpuid[0], gpuid[1]);
+  printf(
+      "Run kernel on GPU%d, taking source data from GPU%d and writing to "
+      "GPU%d...\n",
+      gpuid[1], gpuid[0], gpuid[1]);
   checkCudaErrors(cudaSetDevice(gpuid[1]));
   SimpleKernel<<<blocks, threads>>>(g0, g1);
 
@@ -257,9 +263,10 @@ int main(int argc, char **argv) {
 
   // Run kernel on GPU 0, reading input from the GPU 1 buffer, writing
   // output to the GPU 0 buffer
-  printf("Run kernel on GPU%d, taking source data from GPU%d and writing to "
-         "GPU%d...\n",
-         gpuid[0], gpuid[1], gpuid[0]);
+  printf(
+      "Run kernel on GPU%d, taking source data from GPU%d and writing to "
+      "GPU%d...\n",
+      gpuid[0], gpuid[1], gpuid[0]);
   checkCudaErrors(cudaSetDevice(gpuid[0]));
   SimpleKernel<<<blocks, threads>>>(g1, g0);
 
@@ -320,7 +327,7 @@ int main(int argc, char **argv) {
     exit(EXIT_SUCCESS);
   }
 
-#else // Using CUDA 3.2 or older
+#else  // Using CUDA 3.2 or older
   printf("simpleP2P requires CUDA 4.0 to build and run, waiving testing\n");
   exit(EXIT_WAIVED);
 #endif

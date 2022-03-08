@@ -13,8 +13,8 @@
 #define DDS_H
 
 #if !defined(MAKEFOURCC)
-#define MAKEFOURCC(ch0, ch1, ch2, ch3)                                         \
-  ((unsigned int)(ch0) | ((unsigned int)(ch1) << 8) |                          \
+#define MAKEFOURCC(ch0, ch1, ch2, ch3)                \
+  ((unsigned int)(ch0) | ((unsigned int)(ch1) << 8) | \
    ((unsigned int)(ch2) << 16) | ((unsigned int)(ch3) << 24))
 #endif
 
@@ -65,4 +65,4 @@ static const uint DDSCAPS_TEXTURE = 0x00001000U;
 static const uint DDPF_FOURCC = 0x00000004U;
 static const uint DDSD_LINEARSIZE = 0x00080000U;
 
-#endif // DDS_H
+#endif  // DDS_H

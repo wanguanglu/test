@@ -26,17 +26,27 @@ using std::string;
 using std::vector;
 
 // Helper templates to support float and double in same code
-template <typename L, typename R> struct TYPE_IS {
+template <typename L, typename R>
+struct TYPE_IS {
   static const bool test = false;
 };
-template <typename L> struct TYPE_IS<L, L> { static const bool test = true; };
-template <bool, class L, class R> struct IF { typedef R type; };
-template <class L, class R> struct IF<true, L, R> { typedef L type; };
+template <typename L>
+struct TYPE_IS<L, L> {
+  static const bool test = true;
+};
+template <bool, class L, class R>
+struct IF {
+  typedef R type;
+};
+template <class L, class R>
+struct IF<true, L, R> {
+  typedef L type;
+};
 
 // RNG init kernel
 template <typename rngState_t, typename rngDirectionVectors_t>
-__global__ void initRNG(rngState_t *const rngStates,
-                        rngDirectionVectors_t *const rngDirections) {
+__global__ void initRNG(rngState_t* const rngStates,
+                        rngDirectionVectors_t* const rngDirections) {
   // Determine thread ID
   unsigned int tid = blockIdx.x * blockDim.x + threadIdx.x;
   unsigned int step = gridDim.x * blockDim.x;
@@ -68,22 +78,22 @@ __device__ unsigned int reduce_sum(unsigned int in) {
   return sdata[0];
 }
 
-__device__ inline void getPoint(float &x, float &y, curandStateSobol32 &state1,
-                                curandStateSobol32 &state2) {
+__device__ inline void getPoint(float& x, float& y, curandStateSobol32& state1,
+                                curandStateSobol32& state2) {
   x = curand_uniform(&state1);
   y = curand_uniform(&state2);
 }
-__device__ inline void getPoint(double &x, double &y,
-                                curandStateSobol64 &state1,
-                                curandStateSobol64 &state2) {
+__device__ inline void getPoint(double& x, double& y,
+                                curandStateSobol64& state1,
+                                curandStateSobol64& state2) {
   x = curand_uniform_double(&state1);
   y = curand_uniform_double(&state2);
 }
 
 // Estimator kernel
 template <typename Real, typename rngState_t>
-__global__ void computeValue(unsigned int *const results,
-                             rngState_t *const rngStates,
+__global__ void computeValue(unsigned int* const results,
+                             rngState_t* const rngStates,
                              const unsigned int numSims) {
   // Determine thread ID
   unsigned int bid = blockIdx.x;
@@ -120,10 +130,12 @@ __global__ void computeValue(unsigned int *const results,
 template <typename Real>
 PiEstimator<Real>::PiEstimator(unsigned int numSims, unsigned int device,
                                unsigned int threadBlockSize)
-    : m_numSims(numSims), m_device(device), m_threadBlockSize(threadBlockSize) {
-}
+    : m_numSims(numSims),
+      m_device(device),
+      m_threadBlockSize(threadBlockSize) {}
 
-template <typename Real> Real PiEstimator<Real>::operator()() {
+template <typename Real>
+Real PiEstimator<Real>::operator()() {
   cudaError_t cudaResult = cudaSuccess;
   struct cudaDeviceProp deviceProperties;
   struct cudaFuncAttributes funcAttributes;
@@ -215,9 +227,9 @@ template <typename Real> Real PiEstimator<Real>::operator()() {
   }
 
   // Allocate memory for RNG states and direction vectors
-  curandStateSobol_sz *d_rngStates = 0;
-  curandDirectionVectors_sz *d_rngDirections = 0;
-  cudaResult = cudaMalloc((void **)&d_rngStates,
+  curandStateSobol_sz* d_rngStates = 0;
+  curandDirectionVectors_sz* d_rngDirections = 0;
+  cudaResult = cudaMalloc((void**)&d_rngStates,
                           2 * grid.x * block.x * sizeof(curandStateSobol_sz));
 
   if (cudaResult != cudaSuccess) {
@@ -226,7 +238,7 @@ template <typename Real> Real PiEstimator<Real>::operator()() {
     throw std::runtime_error(msg);
   }
 
-  cudaResult = cudaMalloc((void **)&d_rngDirections,
+  cudaResult = cudaMalloc((void**)&d_rngDirections,
                           2 * sizeof(curandDirectionVectors_sz));
 
   if (cudaResult != cudaSuccess) {
@@ -238,8 +250,8 @@ template <typename Real> Real PiEstimator<Real>::operator()() {
 
   // Allocate memory for result
   // Each thread block will produce one result
-  unsigned int *d_results = 0;
-  cudaResult = cudaMalloc((void **)&d_results, grid.x * sizeof(unsigned int));
+  unsigned int* d_results = 0;
+  cudaResult = cudaMalloc((void**)&d_results, grid.x * sizeof(unsigned int));
 
   if (cudaResult != cudaSuccess) {
     string msg("Could not allocate memory on device for partial results: ");
@@ -249,13 +261,14 @@ template <typename Real> Real PiEstimator<Real>::operator()() {
 
   // Generate direction vectors on the host and copy to the device
   if (typeid(Real) == typeid(float)) {
-    curandDirectionVectors32_t *rngDirections;
+    curandDirectionVectors32_t* rngDirections;
     curandStatus_t curandResult = curandGetDirectionVectors32(
         &rngDirections, CURAND_DIRECTION_VECTORS_32_JOEKUO6);
 
     if (curandResult != CURAND_STATUS_SUCCESS) {
-      string msg("Could not get direction vectors for quasi-random number "
-                 "generator: ");
+      string msg(
+          "Could not get direction vectors for quasi-random number "
+          "generator: ");
       msg += curandResult;
       throw std::runtime_error(msg);
     }
@@ -270,13 +283,14 @@ template <typename Real> Real PiEstimator<Real>::operator()() {
       throw std::runtime_error(msg);
     }
   } else if (typeid(Real) == typeid(double)) {
-    curandDirectionVectors64_t *rngDirections;
+    curandDirectionVectors64_t* rngDirections;
     curandStatus_t curandResult = curandGetDirectionVectors64(
         &rngDirections, CURAND_DIRECTION_VECTORS_64_JOEKUO6);
 
     if (curandResult != CURAND_STATUS_SUCCESS) {
-      string msg("Could not get direction vectors for quasi-random number "
-                 "generator: ");
+      string msg(
+          "Could not get direction vectors for quasi-random number "
+          "generator: ");
       msg += curandResult;
       throw std::runtime_error(msg);
     }
@@ -291,8 +305,9 @@ template <typename Real> Real PiEstimator<Real>::operator()() {
       throw std::runtime_error(msg);
     }
   } else {
-    string msg("Could not get direction vectors for random number generator of "
-               "specified type");
+    string msg(
+        "Could not get direction vectors for random number generator of "
+        "specified type");
     throw std::runtime_error(msg);
   }
 

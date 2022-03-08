@@ -16,7 +16,7 @@
 
 #include <assert.h>
 
-VideoSource::VideoSource(const std::string sFileName, FrameQueue *pFrameQueue)
+VideoSource::VideoSource(const std::string sFileName, FrameQueue* pFrameQueue)
     : hVideoSource_(0) {
   // fill in SourceData struct as much as we can
   // right now. Client must specify parser at a later point
@@ -29,9 +29,9 @@ VideoSource::VideoSource(const std::string sFileName, FrameQueue *pFrameQueue)
   // Fill parameter struct
   memset(&oVideoSourceParameters, 0, sizeof(CUVIDSOURCEPARAMS));
   oVideoSourceParameters.pUserData =
-      &oSourceData_; // will be passed to data handlers
+      &oSourceData_;  // will be passed to data handlers
   oVideoSourceParameters.pfnVideoDataHandler =
-      HandleVideoData; // our local video-handler callback
+      HandleVideoData;  // our local video-handler callback
   oVideoSourceParameters.pfnAudioDataHandler = 0;
   // now create the actual source
   CUresult oResult = cuvidCreateVideoSource(&hVideoSource_, sFileName.c_str(),
@@ -42,8 +42,8 @@ VideoSource::VideoSource(const std::string sFileName, FrameQueue *pFrameQueue)
 VideoSource::~VideoSource() { cuvidDestroyVideoSource(hVideoSource_); }
 
 void VideoSource::ReloadVideo(const std::string sFileName,
-                              FrameQueue *pFrameQueue,
-                              VideoParser *pVideoParser) {
+                              FrameQueue* pFrameQueue,
+                              VideoParser* pVideoParser) {
   // fill in SourceData struct as much as we can right now. Client must specify
   // parser at a later point
   assert(0 != pFrameQueue);
@@ -56,9 +56,9 @@ void VideoSource::ReloadVideo(const std::string sFileName,
   // Fill parameter struct
   memset(&oVideoSourceParameters, 0, sizeof(CUVIDSOURCEPARAMS));
   oVideoSourceParameters.pUserData =
-      &oSourceData_; // will be passed to data handlers
+      &oSourceData_;  // will be passed to data handlers
   oVideoSourceParameters.pfnVideoDataHandler =
-      HandleVideoData; // our local video-handler callback
+      HandleVideoData;  // our local video-handler callback
   oVideoSourceParameters.pfnAudioDataHandler = 0;
   // now create the actual source
   CUresult oResult = cuvidCreateVideoSource(&hVideoSource_, sFileName.c_str(),
@@ -75,16 +75,16 @@ VideoSource::format() const {
   return oFormat;
 }
 
-void VideoSource::getSourceDimensions(unsigned int &width,
-                                      unsigned int &height) {
+void VideoSource::getSourceDimensions(unsigned int& width,
+                                      unsigned int& height) {
   CUVIDEOFORMAT rCudaVideoFormat = format();
 
   width = rCudaVideoFormat.coded_width;
   height = rCudaVideoFormat.coded_height;
 }
 
-void VideoSource::getDisplayDimensions(unsigned int &width,
-                                       unsigned int &height) {
+void VideoSource::getDisplayDimensions(unsigned int& width,
+                                       unsigned int& height) {
   CUVIDEOFORMAT rCudaVideoFormat = format();
 
   width = abs(rCudaVideoFormat.display_area.right -
@@ -93,12 +93,12 @@ void VideoSource::getDisplayDimensions(unsigned int &width,
                rCudaVideoFormat.display_area.top);
 }
 
-void VideoSource::getProgressive(bool &progressive) {
+void VideoSource::getProgressive(bool& progressive) {
   CUVIDEOFORMAT rCudaVideoFormat = format();
   progressive = (rCudaVideoFormat.progressive_sequence != 0);
 }
 
-void VideoSource::setParser(VideoParser &rVideoParser) {
+void VideoSource::setParser(VideoParser& rVideoParser) {
   oSourceData_.hVideoParser = rVideoParser.hParser_;
 }
 
@@ -118,9 +118,9 @@ bool VideoSource::isStarted() {
   return (cuvidGetVideoSourceState(hVideoSource_) == cudaVideoState_Started);
 }
 
-int VideoSource::HandleVideoData(void *pUserData,
-                                 CUVIDSOURCEDATAPACKET *pPacket) {
-  VideoSourceData *pVideoSourceData = (VideoSourceData *)pUserData;
+int VideoSource::HandleVideoData(void* pUserData,
+                                 CUVIDSOURCEDATAPACKET* pPacket) {
+  VideoSourceData* pVideoSourceData = (VideoSourceData*)pUserData;
 
   // Parser calls back for decode & display within cuvidParseVideoData
   if (!pVideoSourceData->pFrameQueue->isDecodeFinished()) {
@@ -134,8 +134,8 @@ int VideoSource::HandleVideoData(void *pUserData,
   return !pVideoSourceData->pFrameQueue->isDecodeFinished();
 }
 
-std::ostream &operator<<(std::ostream &rOutputStream,
-                         const CUVIDEOFORMAT &rCudaVideoFormat) {
+std::ostream& operator<<(std::ostream& rOutputStream,
+                         const CUVIDEOFORMAT& rCudaVideoFormat) {
   rOutputStream << "\tVideoCodec      : ";
 
   if ((rCudaVideoFormat.codec <= cudaVideoCodec_UYVY) &&
@@ -170,24 +170,24 @@ std::ostream &operator<<(std::ostream &rOutputStream,
   rOutputStream << "\tChroma format   : ";
 
   switch (rCudaVideoFormat.chroma_format) {
-  case cudaVideoChromaFormat_Monochrome:
-    rOutputStream << "Monochrome\n";
-    break;
+    case cudaVideoChromaFormat_Monochrome:
+      rOutputStream << "Monochrome\n";
+      break;
 
-  case cudaVideoChromaFormat_420:
-    rOutputStream << "4:2:0\n";
-    break;
+    case cudaVideoChromaFormat_420:
+      rOutputStream << "4:2:0\n";
+      break;
 
-  case cudaVideoChromaFormat_422:
-    rOutputStream << "4:2:2\n";
-    break;
+    case cudaVideoChromaFormat_422:
+      rOutputStream << "4:2:2\n";
+      break;
 
-  case cudaVideoChromaFormat_444:
-    rOutputStream << "4:4:4\n";
-    break;
+    case cudaVideoChromaFormat_444:
+      rOutputStream << "4:4:4\n";
+      break;
 
-  default:
-    rOutputStream << "unknown\n";
+    default:
+      rOutputStream << "unknown\n";
   }
 
   rOutputStream << "\tBitrate         : ";

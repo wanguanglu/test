@@ -9,7 +9,7 @@
 
 //  generic BSD config options:
 
-#if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__) &&  \
+#if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__) && \
     !defined(__DragonFly__)
 #error "This platform is not BSD"
 #endif
@@ -37,7 +37,7 @@
 // FreeBSD 3.x has pthreads support, but defines _POSIX_THREADS in <pthread.h>
 // and not in <unistd.h>
 //
-#if (defined(__FreeBSD__) && (__FreeBSD__ <= 3)) || defined(__OpenBSD__) ||    \
+#if (defined(__FreeBSD__) && (__FreeBSD__ <= 3)) || defined(__OpenBSD__) || \
     defined(__DragonFly__)
 #define BOOST_HAS_PTHREADS
 #endif
@@ -46,7 +46,7 @@
 // No wide character support in the BSD header files:
 //
 #if defined(__NetBSD__)
-#define __NetBSD_GCC__                                                         \
+#define __NetBSD_GCC__ \
   (__GNUC__ * 1000000 + __GNUC_MINOR__ * 1000 + __GNUC_PATCHLEVEL__)
 // XXX - the following is required until c++config.h
 //       defines _GLIBCXX_HAVE_SWPRINTF and friends
@@ -55,7 +55,7 @@
 #define _GLIBCXX_HAVE_SWPRINTF 1
 #endif
 
-#if !((defined(__FreeBSD__) && (__FreeBSD__ >= 5)) ||                          \
+#if !((defined(__FreeBSD__) && (__FreeBSD__ >= 5)) || \
       (__NetBSD_GCC__ >= 2095003) || defined(__DragonFly__))
 #define BOOST_NO_CWCHAR
 #endif

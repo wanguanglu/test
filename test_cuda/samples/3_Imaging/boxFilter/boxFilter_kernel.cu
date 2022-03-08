@@ -27,7 +27,7 @@ cudaArray *d_array, *d_tempArray;
 // call returns an error
 #define checkCudaErrors(err) __checkCudaErrors(err, __FILE__, __LINE__)
 
-inline void __checkCudaErrors(cudaError err, const char *file, const int line) {
+inline void __checkCudaErrors(cudaError err, const char* file, const int line) {
   if (cudaSuccess != err) {
     fprintf(stderr, "%s(%i) : CUDA Runtime API error %d: %s.\n", file, line,
             (int)err, cudaGetErrorString(err));
@@ -73,7 +73,7 @@ inline void __checkCudaErrors(cudaError err, const char *file, const int line) {
 */
 
 // process row
-__device__ void d_boxfilter_x(float *id, float *od, int w, int h, int r) {
+__device__ void d_boxfilter_x(float* id, float* od, int w, int h, int r) {
   float scale = 1.0f / (float)((r << 1) + 1);
 
   float t;
@@ -108,7 +108,7 @@ __device__ void d_boxfilter_x(float *id, float *od, int w, int h, int r) {
 }
 
 // process column
-__device__ void d_boxfilter_y(float *id, float *od, int w, int h, int r) {
+__device__ void d_boxfilter_y(float* id, float* od, int w, int h, int r) {
   float scale = 1.0f / (float)((r << 1) + 1);
 
   float t;
@@ -142,13 +142,13 @@ __device__ void d_boxfilter_y(float *id, float *od, int w, int h, int r) {
   }
 }
 
-__global__ void d_boxfilter_x_global(float *id, float *od, int w, int h,
+__global__ void d_boxfilter_x_global(float* id, float* od, int w, int h,
                                      int r) {
   unsigned int y = blockIdx.x * blockDim.x + threadIdx.x;
   d_boxfilter_x(&id[y * w], &od[y * w], w, h, r);
 }
 
-__global__ void d_boxfilter_y_global(float *id, float *od, int w, int h,
+__global__ void d_boxfilter_y_global(float* id, float* od, int w, int h,
                                      int r) {
   unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
   d_boxfilter_y(&id[x], &od[x], w, h, r);
@@ -156,7 +156,7 @@ __global__ void d_boxfilter_y_global(float *id, float *od, int w, int h,
 
 // texture version
 // texture fetches automatically clamp to edge of image
-__global__ void d_boxfilter_x_tex(float *od, int w, int h, int r) {
+__global__ void d_boxfilter_x_tex(float* od, int w, int h, int r) {
   float scale = 1.0f / (float)((r << 1) + 1);
   unsigned int y = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -175,7 +175,7 @@ __global__ void d_boxfilter_x_tex(float *od, int w, int h, int r) {
   }
 }
 
-__global__ void d_boxfilter_y_tex(float *od, int w, int h, int r) {
+__global__ void d_boxfilter_y_tex(float* od, int w, int h, int r) {
   float scale = 1.0f / (float)((r << 1) + 1);
   unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -199,7 +199,7 @@ __global__ void d_boxfilter_y_tex(float *od, int w, int h, int r) {
 
 // convert floating point rgba color to 32-bit integer
 __device__ unsigned int rgbaFloatToInt(float4 rgba) {
-  rgba.x = __saturatef(rgba.x); // clamp to [0.0, 1.0]
+  rgba.x = __saturatef(rgba.x);  // clamp to [0.0, 1.0]
   rgba.y = __saturatef(rgba.y);
   rgba.z = __saturatef(rgba.z);
   rgba.w = __saturatef(rgba.w);
@@ -211,15 +211,15 @@ __device__ unsigned int rgbaFloatToInt(float4 rgba) {
 
 __device__ float4 rgbaIntToFloat(unsigned int c) {
   float4 rgba;
-  rgba.x = (c & 0xff) * 0.003921568627f;         //  /255.0f;
-  rgba.y = ((c >> 8) & 0xff) * 0.003921568627f;  //  /255.0f;
-  rgba.z = ((c >> 16) & 0xff) * 0.003921568627f; //  /255.0f;
-  rgba.w = ((c >> 24) & 0xff) * 0.003921568627f; //  /255.0f;
+  rgba.x = (c & 0xff) * 0.003921568627f;          //  /255.0f;
+  rgba.y = ((c >> 8) & 0xff) * 0.003921568627f;   //  /255.0f;
+  rgba.z = ((c >> 16) & 0xff) * 0.003921568627f;  //  /255.0f;
+  rgba.w = ((c >> 24) & 0xff) * 0.003921568627f;  //  /255.0f;
   return rgba;
 }
 
 // row pass using texture lookups
-__global__ void d_boxfilter_rgba_x(unsigned int *od, int w, int h, int r) {
+__global__ void d_boxfilter_rgba_x(unsigned int* od, int w, int h, int r) {
   float scale = 1.0f / (float)((r << 1) + 1);
   unsigned int y = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -242,7 +242,7 @@ __global__ void d_boxfilter_rgba_x(unsigned int *od, int w, int h, int r) {
 }
 
 // column pass using coalesced global memory reads
-__global__ void d_boxfilter_rgba_y(unsigned int *id, unsigned int *od, int w,
+__global__ void d_boxfilter_rgba_y(unsigned int* id, unsigned int* od, int w,
                                    int h, int r) {
   unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
   id = &id[x];
@@ -281,7 +281,7 @@ __global__ void d_boxfilter_rgba_y(unsigned int *id, unsigned int *od, int w,
   }
 }
 
-extern "C" void initTexture(int width, int height, void *pImage, bool useRGBA) {
+extern "C" void initTexture(int width, int height, void* pImage, bool useRGBA) {
   int size = width * height * (useRGBA ? sizeof(uchar4) : sizeof(float));
 
   // copy image data to array
@@ -331,9 +331,9 @@ extern "C" void freeTextures() {
     iterations - number of iterations
 
 */
-extern "C" double boxFilter(float *d_src, float *d_temp, float *d_dest,
+extern "C" double boxFilter(float* d_src, float* d_temp, float* d_dest,
                             int width, int height, int radius, int iterations,
-                            int nthreads, StopWatchInterface *timer) {
+                            int nthreads, StopWatchInterface* timer) {
   // var for kernel timing
   double dKernelTime = 0.0;
 
@@ -366,10 +366,10 @@ extern "C" double boxFilter(float *d_src, float *d_temp, float *d_dest,
 }
 
 // RGBA version
-extern "C" double boxFilterRGBA(unsigned int *d_src, unsigned int *d_temp,
-                                unsigned int *d_dest, int width, int height,
+extern "C" double boxFilterRGBA(unsigned int* d_src, unsigned int* d_temp,
+                                unsigned int* d_dest, int width, int height,
                                 int radius, int iterations, int nthreads,
-                                StopWatchInterface *timer) {
+                                StopWatchInterface* timer) {
   checkCudaErrors(cudaBindTextureToArray(rgbaTex, d_array));
 
   // var for kernel computation timing
@@ -403,4 +403,4 @@ extern "C" double boxFilterRGBA(unsigned int *d_src, unsigned int *d_temp,
   return ((dKernelTime / 1000.) / (double)iterations);
 }
 
-#endif // #ifndef _BOXFILTER_KERNEL_H_
+#endif  // #ifndef _BOXFILTER_KERNEL_H_

@@ -24,12 +24,11 @@
 /// \param[in]  count vector size
 /// \param[out] sum   result
 ///////////////////////////////////////////////////////////////////////////////
-__global__ void AddKernel(const float *op1, const float *op2, int count,
-                          float *sum) {
+__global__ void AddKernel(const float* op1, const float* op2, int count,
+                          float* sum) {
   const int pos = threadIdx.x + blockIdx.x * blockDim.x;
 
-  if (pos >= count)
-    return;
+  if (pos >= count) return;
 
   sum[pos] = op1[pos] + op2[pos];
 }
@@ -41,7 +40,7 @@ __global__ void AddKernel(const float *op1, const float *op2, int count,
 /// \param[in]  count vector size
 /// \param[out] sum   result
 ///////////////////////////////////////////////////////////////////////////////
-static void Add(const float *op1, const float *op2, int count, float *sum) {
+static void Add(const float* op1, const float* op2, int count, float* sum) {
   dim3 threads(256);
   dim3 blocks(iDivUp(count, threads.x));
 

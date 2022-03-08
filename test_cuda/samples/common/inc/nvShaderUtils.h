@@ -29,7 +29,7 @@ namespace nv {
 //
 //
 ////////////////////////////////////////////////////////////
-inline GLuint CompileGLSLShader(GLenum target, const char *shader) {
+inline GLuint CompileGLSLShader(GLenum target, const char* shader) {
   GLuint object;
 
   object = glCreateShader(target);
@@ -62,9 +62,9 @@ inline GLuint CompileGLSLShader(GLenum target, const char *shader) {
 //
 //
 ////////////////////////////////////////////////////////////
-inline GLuint CompileGLSLShaderFromFile(GLenum target, const char *filename) {
-  FILE *shaderFile;
-  char *text;
+inline GLuint CompileGLSLShaderFromFile(GLenum target, const char* filename) {
+  FILE* shaderFile;
+  char* text;
   long size;
   size_t fsize = 0;
 
@@ -115,7 +115,7 @@ inline GLuint LinkGLSLProgram(GLuint vertexShader, GLuint fragmentShader) {
   GLint charsWritten, infoLogLength;
   glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogLength);
 
-  char *infoLog = new char[infoLogLength];
+  char* infoLog = new char[infoLogLength];
   glGetProgramInfoLog(program, infoLogLength, &charsWritten, infoLog);
   printf(infoLog);
   delete[] infoLog;
@@ -151,7 +151,7 @@ inline GLuint LinkGLSLProgram(GLuint vertexShader, GLuint geometryShader,
   GLint charsWritten, infoLogLength;
   glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogLength);
 
-  char *infoLog = new char[infoLogLength];
+  char* infoLog = new char[infoLogLength];
   glGetProgramInfoLog(program, infoLogLength, &charsWritten, infoLog);
   printf(infoLog);
   delete[] infoLog;
@@ -172,19 +172,19 @@ inline GLuint LinkGLSLProgram(GLuint vertexShader, GLuint geometryShader,
 //
 //
 ////////////////////////////////////////////////////////////
-inline GLuint CompileASMShader(GLenum program_type, const char *code) {
+inline GLuint CompileASMShader(GLenum program_type, const char* code) {
   GLuint program_id;
   glGenProgramsARB(1, &program_id);
   glBindProgramARB(program_type, program_id);
   glProgramStringARB(program_type, GL_PROGRAM_FORMAT_ASCII_ARB,
-                     (GLsizei)strlen(code), (GLubyte *)code);
+                     (GLsizei)strlen(code), (GLubyte*)code);
 
   GLint error_pos;
   glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &error_pos);
 
   if (error_pos != -1) {
 #ifdef NV_REPORT_COMPILE_ERRORS
-    const GLubyte *error_string;
+    const GLubyte* error_string;
     error_string = glGetString(GL_PROGRAM_ERROR_STRING_ARB);
     fprintf(stderr, "Program error at position: %d\n%s\n", (int)error_pos,
             error_string);
@@ -198,9 +198,9 @@ inline GLuint CompileASMShader(GLenum program_type, const char *code) {
 //
 //
 ////////////////////////////////////////////////////////////
-inline GLuint CompileASMShaderFromFile(GLenum target, const char *filename) {
-  FILE *shaderFile;
-  char *text;
+inline GLuint CompileASMShaderFromFile(GLenum target, const char* filename) {
+  FILE* shaderFile;
+  char* text;
   long size;
   size_t fsize = 0;
 
@@ -239,5 +239,5 @@ inline GLuint CompileASMShaderFromFile(GLenum target, const char *filename) {
   return program_id;
 }
 
-} // namespace nv
+}  // namespace nv
 #endif

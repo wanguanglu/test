@@ -39,18 +39,18 @@ typedef float2 Complex;
 static __device__ __host__ inline Complex ComplexAdd(Complex, Complex);
 static __device__ __host__ inline Complex ComplexScale(Complex, float);
 static __device__ __host__ inline Complex ComplexMul(Complex, Complex);
-static __global__ void ComplexPointwiseMulAndScale(Complex *, const Complex *,
+static __global__ void ComplexPointwiseMulAndScale(Complex*, const Complex*,
                                                    int, float);
 
 // Filtering functions
-void Convolve(const Complex *, int, const Complex *, int, Complex *);
+void Convolve(const Complex*, int, const Complex*, int, Complex*);
 
 // Padding functions
-int PadData(const Complex *, Complex **, int, const Complex *, Complex **, int);
+int PadData(const Complex*, Complex**, int, const Complex*, Complex**, int);
 
 ////////////////////////////////////////////////////////////////////////////////
 // declaration, forward
-void runTest(int argc, char **argv);
+void runTest(int argc, char** argv);
 
 // The filter size is assumed to be a number smaller than the signal size
 #define SIGNAL_SIZE 50
@@ -59,18 +59,18 @@ void runTest(int argc, char **argv);
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) { runTest(argc, argv); }
+int main(int argc, char** argv) { runTest(argc, argv); }
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Run a simple test for CUDA
 ////////////////////////////////////////////////////////////////////////////////
-void runTest(int argc, char **argv) {
+void runTest(int argc, char** argv) {
   printf("[simpleCUFFT] is starting...\n");
 
-  findCudaDevice(argc, (const char **)argv);
+  findCudaDevice(argc, (const char**)argv);
 
   // Allocate host memory for the signal
-  Complex *h_signal = (Complex *)malloc(sizeof(Complex) * SIGNAL_SIZE);
+  Complex* h_signal = (Complex*)malloc(sizeof(Complex) * SIGNAL_SIZE);
 
   // Initialize the memory for the signal
   for (unsigned int i = 0; i < SIGNAL_SIZE; ++i) {
@@ -79,8 +79,8 @@ void runTest(int argc, char **argv) {
   }
 
   // Allocate host memory for the filter
-  Complex *h_filter_kernel =
-      (Complex *)malloc(sizeof(Complex) * FILTER_KERNEL_SIZE);
+  Complex* h_filter_kernel =
+      (Complex*)malloc(sizeof(Complex) * FILTER_KERNEL_SIZE);
 
   // Initialize the memory for the filter
   for (unsigned int i = 0; i < FILTER_KERNEL_SIZE; ++i) {
@@ -89,23 +89,23 @@ void runTest(int argc, char **argv) {
   }
 
   // Pad signal and filter kernel
-  Complex *h_padded_signal;
-  Complex *h_padded_filter_kernel;
+  Complex* h_padded_signal;
+  Complex* h_padded_filter_kernel;
   int new_size =
       PadData(h_signal, &h_padded_signal, SIGNAL_SIZE, h_filter_kernel,
               &h_padded_filter_kernel, FILTER_KERNEL_SIZE);
   int mem_size = sizeof(Complex) * new_size;
 
   // Allocate device memory for signal
-  Complex *d_signal;
-  checkCudaErrors(cudaMalloc((void **)&d_signal, mem_size));
+  Complex* d_signal;
+  checkCudaErrors(cudaMalloc((void**)&d_signal, mem_size));
   // Copy host memory to device
   checkCudaErrors(
       cudaMemcpy(d_signal, h_padded_signal, mem_size, cudaMemcpyHostToDevice));
 
   // Allocate device memory for filter kernel
-  Complex *d_filter_kernel;
-  checkCudaErrors(cudaMalloc((void **)&d_filter_kernel, mem_size));
+  Complex* d_filter_kernel;
+  checkCudaErrors(cudaMalloc((void**)&d_filter_kernel, mem_size));
 
   // Copy host memory to device
   checkCudaErrors(cudaMemcpy(d_filter_kernel, h_padded_filter_kernel, mem_size,
@@ -117,10 +117,10 @@ void runTest(int argc, char **argv) {
 
   // Transform signal and kernel
   printf("Transforming signal cufftExecC2C\n");
-  checkCudaErrors(cufftExecC2C(plan, (cufftComplex *)d_signal,
-                               (cufftComplex *)d_signal, CUFFT_FORWARD));
-  checkCudaErrors(cufftExecC2C(plan, (cufftComplex *)d_filter_kernel,
-                               (cufftComplex *)d_filter_kernel, CUFFT_FORWARD));
+  checkCudaErrors(cufftExecC2C(plan, (cufftComplex*)d_signal,
+                               (cufftComplex*)d_signal, CUFFT_FORWARD));
+  checkCudaErrors(cufftExecC2C(plan, (cufftComplex*)d_filter_kernel,
+                               (cufftComplex*)d_filter_kernel, CUFFT_FORWARD));
 
   // Multiply the coefficients together and normalize the result
   printf("Launching ComplexPointwiseMulAndScale<<< >>>\n");
@@ -132,17 +132,17 @@ void runTest(int argc, char **argv) {
 
   // Transform signal back
   printf("Transforming signal back cufftExecC2C\n");
-  checkCudaErrors(cufftExecC2C(plan, (cufftComplex *)d_signal,
-                               (cufftComplex *)d_signal, CUFFT_INVERSE));
+  checkCudaErrors(cufftExecC2C(plan, (cufftComplex*)d_signal,
+                               (cufftComplex*)d_signal, CUFFT_INVERSE));
 
   // Copy device memory to host
-  Complex *h_convolved_signal = h_padded_signal;
+  Complex* h_convolved_signal = h_padded_signal;
   checkCudaErrors(cudaMemcpy(h_convolved_signal, d_signal, mem_size,
                              cudaMemcpyDeviceToHost));
 
   // Allocate host memory for the convolution result
-  Complex *h_convolved_signal_ref =
-      (Complex *)malloc(sizeof(Complex) * SIGNAL_SIZE);
+  Complex* h_convolved_signal_ref =
+      (Complex*)malloc(sizeof(Complex) * SIGNAL_SIZE);
 
   // Convolve on the host
   Convolve(h_signal, SIGNAL_SIZE, h_filter_kernel, FILTER_KERNEL_SIZE,
@@ -150,8 +150,8 @@ void runTest(int argc, char **argv) {
 
   // check result
   bool bTestResult =
-      sdkCompareL2fe((float *)h_convolved_signal_ref,
-                     (float *)h_convolved_signal, 2 * SIGNAL_SIZE, 1e-5f);
+      sdkCompareL2fe((float*)h_convolved_signal_ref, (float*)h_convolved_signal,
+                     2 * SIGNAL_SIZE, 1e-5f);
 
   // Destroy CUFFT context
   checkCudaErrors(cufftDestroy(plan));
@@ -175,21 +175,21 @@ void runTest(int argc, char **argv) {
 }
 
 // Pad data
-int PadData(const Complex *signal, Complex **padded_signal, int signal_size,
-            const Complex *filter_kernel, Complex **padded_filter_kernel,
+int PadData(const Complex* signal, Complex** padded_signal, int signal_size,
+            const Complex* filter_kernel, Complex** padded_filter_kernel,
             int filter_kernel_size) {
   int minRadius = filter_kernel_size / 2;
   int maxRadius = filter_kernel_size - minRadius;
   int new_size = signal_size + maxRadius;
 
   // Pad signal
-  Complex *new_data = (Complex *)malloc(sizeof(Complex) * new_size);
+  Complex* new_data = (Complex*)malloc(sizeof(Complex) * new_size);
   memcpy(new_data + 0, signal, signal_size * sizeof(Complex));
   memset(new_data + signal_size, 0, (new_size - signal_size) * sizeof(Complex));
   *padded_signal = new_data;
 
   // Pad filter
-  new_data = (Complex *)malloc(sizeof(Complex) * new_size);
+  new_data = (Complex*)malloc(sizeof(Complex) * new_size);
   memcpy(new_data + 0, filter_kernel + minRadius, maxRadius * sizeof(Complex));
   memset(new_data + maxRadius, 0,
          (new_size - filter_kernel_size) * sizeof(Complex));
@@ -205,9 +205,9 @@ int PadData(const Complex *signal, Complex **padded_signal, int signal_size,
 ////////////////////////////////////////////////////////////////////////////////
 
 // Computes convolution on the host
-void Convolve(const Complex *signal, int signal_size,
-              const Complex *filter_kernel, int filter_kernel_size,
-              Complex *filtered_signal) {
+void Convolve(const Complex* signal, int signal_size,
+              const Complex* filter_kernel, int filter_kernel_size,
+              Complex* filtered_signal) {
   int minRadius = filter_kernel_size / 2;
   int maxRadius = filter_kernel_size - minRadius;
 
@@ -257,7 +257,7 @@ static __device__ __host__ inline Complex ComplexMul(Complex a, Complex b) {
 }
 
 // Complex pointwise multiplication
-static __global__ void ComplexPointwiseMulAndScale(Complex *a, const Complex *b,
+static __global__ void ComplexPointwiseMulAndScale(Complex* a, const Complex* b,
                                                    int size, float scale) {
   const int numThreads = blockDim.x * gridDim.x;
   const int threadID = blockIdx.x * blockDim.x + threadIdx.x;

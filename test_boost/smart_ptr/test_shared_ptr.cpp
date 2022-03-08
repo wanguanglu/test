@@ -10,14 +10,13 @@
 #include <logging.h>
 
 class Test {
-public:
+ public:
   Test() { log_info("construct."); }
 
   ~Test() { log_info("destruct."); }
 };
 
-int main(int argc, char *argv[]) {
-
+int main(int argc, char* argv[]) {
   boost::shared_ptr<Test> ptr = boost::shared_ptr<Test>(new Test());
   boost::shared_ptr<Test> ptr2 = ptr;
   log_info("ptr2.use_count():%d.", ptr.use_count());

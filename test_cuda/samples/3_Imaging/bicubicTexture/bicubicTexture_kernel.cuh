@@ -30,12 +30,12 @@ enum Mode {
 
 texture<uchar, 2, cudaReadModeNormalizedFloat> tex;
 texture<uchar, 2, cudaReadModeElementType>
-    tex2; // need to use cudaReadModeElementType for tex2Dgather
+    tex2;  // need to use cudaReadModeElementType for tex2Dgather
 
 // w0, w1, w2, and w3 are the four cubic B-spline basis functions
 __host__ __device__ float w0(float a) {
   //    return (1.0f/6.0f)*(-a*a*a + 3.0f*a*a - 3.0f*a + 1.0f);
-  return (1.0f / 6.0f) * (a * (a * (-a + 3.0f) - 3.0f) + 1.0f); // optimized
+  return (1.0f / 6.0f) * (a * (a * (-a + 3.0f) - 3.0f) + 1.0f);  // optimized
 }
 
 __host__ __device__ float w1(float a) {
@@ -64,7 +64,8 @@ __device__ float h0(float a) {
 __device__ float h1(float a) { return 1.0f + w3(a) / (w2(a) + w3(a)) + 0.5f; }
 
 // filter 4 values using cubic splines
-template <class T> __device__ T cubicFilter(float x, T c0, T c1, T c2, T c3) {
+template <class T>
+__device__ T cubicFilter(float x, T c0, T c1, T c2, T c3) {
   T r;
   r = c0 * w0(x);
   r += c1 * w1(x);
@@ -74,7 +75,7 @@ template <class T> __device__ T cubicFilter(float x, T c0, T c1, T c2, T c3) {
 }
 
 // slow but precise bicubic lookup using 16 texture lookups
-template <class T, class R> // texture data type, return type
+template <class T, class R>  // texture data type, return type
 __device__ R tex2DBicubic(
     const texture<T, 2, cudaReadModeNormalizedFloat> texref, float x, float y) {
   x -= 0.5f;
@@ -101,7 +102,7 @@ __device__ R tex2DBicubic(
 
 // fast bicubic texture lookup using 4 bilinear lookups
 // assumes texture is set to non-normalized coordinates, point sampling
-template <class T, class R> // texture data type, return type
+template <class T, class R>  // texture data type, return type
 __device__ R tex2DFastBicubic(
     const texture<T, 2, cudaReadModeNormalizedFloat> texref, float x, float y) {
   x -= 0.5f;
@@ -128,14 +129,14 @@ __device__ R tex2DFastBicubic(
 }
 
 // higher-precision 2D bilinear lookup
-template <class T, class R> // texture data type, return type
+template <class T, class R>  // texture data type, return type
 __device__ R tex2DBilinear(const texture<T, 2, cudaReadModeNormalizedFloat> tex,
                            float x, float y) {
   x -= 0.5f;
   y -= 0.5f;
-  float px = floorf(x); // integer position
+  float px = floorf(x);  // integer position
   float py = floorf(y);
-  float fx = x - px; // fractional position
+  float fx = x - px;  // fractional position
   float fy = y - py;
   px += 0.5f;
   py += 0.5f;
@@ -163,15 +164,15 @@ __device__ R tex2DBilinear(const texture<T, 2, cudaReadModeNormalizedFloat> tex,
     w: (0, 0)
 */
 
-template <class T, class R> // texture data type, return type
-__device__ float
-tex2DBilinearGather(const texture<T, 2, cudaReadModeElementType> texref,
-                    float x, float y, int comp = 0) {
+template <class T, class R>  // texture data type, return type
+__device__ float tex2DBilinearGather(
+    const texture<T, 2, cudaReadModeElementType> texref, float x, float y,
+    int comp = 0) {
   x -= 0.5f;
   y -= 0.5f;
-  float px = floorf(x); // integer position
+  float px = floorf(x);  // integer position
   float py = floorf(y);
-  float fx = x - px; // fractional position
+  float fx = x - px;  // fractional position
   float fy = y - py;
 
   R samples = tex2Dgather(texref, px + 0.5f, py + 0.5f, comp);
@@ -204,7 +205,8 @@ __host__ __device__ float catrom_w3(float a) {
   return a * a * (-0.5f + 0.5f * a);
 }
 
-template <class T> __device__ T catRomFilter(float x, T c0, T c1, T c2, T c3) {
+template <class T>
+__device__ T catRomFilter(float x, T c0, T c1, T c2, T c3) {
   T r;
   r = c0 * catrom_w0(x);
   r += c1 * catrom_w1(x);
@@ -214,7 +216,7 @@ template <class T> __device__ T catRomFilter(float x, T c0, T c1, T c2, T c3) {
 }
 
 // Note - can't use bilinear trick here because of negative lobes
-template <class T, class R> // texture data type, return type
+template <class T, class R>  // texture data type, return type
 __device__ R tex2DCatRom(
     const texture<T, 2, cudaReadModeNormalizedFloat> texref, float x, float y) {
   x -= 0.5f;
@@ -242,7 +244,7 @@ __device__ R tex2DCatRom(
 // test functions
 
 // render image using normal bilinear texture lookup
-__global__ void d_render(uchar4 *d_output, uint width, uint height, float tx,
+__global__ void d_render(uchar4* d_output, uint width, uint height, float tx,
                          float ty, float scale, float cx, float cy) {
   uint x = __umul24(blockIdx.x, blockDim.x) + threadIdx.x;
   uint y = __umul24(blockIdx.y, blockDim.y) + threadIdx.y;
@@ -261,7 +263,7 @@ __global__ void d_render(uchar4 *d_output, uint width, uint height, float tx,
 }
 
 // render image using bicubic texture lookup
-__global__ void d_renderBicubic(uchar4 *d_output, uint width, uint height,
+__global__ void d_renderBicubic(uchar4* d_output, uint width, uint height,
                                 float tx, float ty, float scale, float cx,
                                 float cy) {
   uint x = __umul24(blockIdx.x, blockDim.x) + threadIdx.x;
@@ -279,7 +281,7 @@ __global__ void d_renderBicubic(uchar4 *d_output, uint width, uint height,
 }
 
 // render image using fast bicubic texture lookup
-__global__ void d_renderFastBicubic(uchar4 *d_output, uint width, uint height,
+__global__ void d_renderFastBicubic(uchar4* d_output, uint width, uint height,
                                     float tx, float ty, float scale, float cx,
                                     float cy) {
   uint x = __umul24(blockIdx.x, blockDim.x) + threadIdx.x;
@@ -297,7 +299,7 @@ __global__ void d_renderFastBicubic(uchar4 *d_output, uint width, uint height,
 }
 
 // render image using Catmull-Rom texture lookup
-__global__ void d_renderCatRom(uchar4 *d_output, uint width, uint height,
+__global__ void d_renderCatRom(uchar4* d_output, uint width, uint height,
                                float tx, float ty, float scale, float cx,
                                float cy) {
   uint x = __umul24(blockIdx.x, blockDim.x) + threadIdx.x;
@@ -314,4 +316,4 @@ __global__ void d_renderCatRom(uchar4 *d_output, uint width, uint height,
   }
 }
 
-#endif // _BICUBICTEXTURE_KERNEL_CUH_
+#endif  // _BICUBICTEXTURE_KERNEL_CUH_

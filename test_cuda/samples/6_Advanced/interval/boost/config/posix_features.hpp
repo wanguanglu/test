@@ -41,14 +41,14 @@
 // Strictly speaking this may catch platforms with a
 // non-functioning stub <pthreads.h>, but such occurrences should
 // occur very rarely if at all.
-#if defined(_POSIX_THREADS) && (_POSIX_THREADS + 0 >= 0) &&                    \
+#if defined(_POSIX_THREADS) && (_POSIX_THREADS + 0 >= 0) && \
     !defined(BOOST_HAS_WINTHREADS) && !defined(BOOST_HAS_MPTASKS)
 #define BOOST_HAS_PTHREADS
 #endif
 
 // BOOST_HAS_NANOSLEEP:
 // This is predicated on _POSIX_TIMERS or _XOPEN_REALTIME:
-#if (defined(_POSIX_TIMERS) && (_POSIX_TIMERS + 0 >= 0)) ||                    \
+#if (defined(_POSIX_TIMERS) && (_POSIX_TIMERS + 0 >= 0)) || \
     (defined(_XOPEN_REALTIME) && (_XOPEN_REALTIME + 0 >= 0))
 #define BOOST_HAS_NANOSLEEP
 #endif
@@ -64,10 +64,10 @@
 // BOOST_HAS_SCHED_YIELD:
 // This is predicated on _POSIX_PRIORITY_SCHEDULING or
 // on _POSIX_THREAD_PRIORITY_SCHEDULING or on _XOPEN_REALTIME.
-#if defined(_POSIX_PRIORITY_SCHEDULING) &&                                     \
-        (_POSIX_PRIORITY_SCHEDULING + 0 > 0) ||                                \
-    (defined(_POSIX_THREAD_PRIORITY_SCHEDULING) &&                             \
-     (_POSIX_THREAD_PRIORITY_SCHEDULING + 0 > 0)) ||                           \
+#if defined(_POSIX_PRIORITY_SCHEDULING) &&           \
+        (_POSIX_PRIORITY_SCHEDULING + 0 > 0) ||      \
+    (defined(_POSIX_THREAD_PRIORITY_SCHEDULING) &&   \
+     (_POSIX_THREAD_PRIORITY_SCHEDULING + 0 > 0)) || \
     (defined(_XOPEN_REALTIME) && (_XOPEN_REALTIME + 0 >= 0))
 #define BOOST_HAS_SCHED_YIELD
 #endif

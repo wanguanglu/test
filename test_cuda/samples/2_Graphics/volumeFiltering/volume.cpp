@@ -17,7 +17,7 @@
 #include <helper_cuda.h>
 #include <helper_math.h>
 
-void Volume_init(Volume *vol, cudaExtent dataSize, void *h_data,
+void Volume_init(Volume* vol, cudaExtent dataSize, void* h_data,
                  int allowStore) {
   // create 3D array
   vol->channelDesc = cudaCreateChannelDesc<VolumeType>();
@@ -39,7 +39,7 @@ void Volume_init(Volume *vol, cudaExtent dataSize, void *h_data,
   }
 }
 
-void Volume_deinit(Volume *vol) {
+void Volume_deinit(Volume* vol) {
   checkCudaErrors(cudaFreeArray(vol->content));
   vol->content = 0;
 }

@@ -19,22 +19,22 @@ struct Student {
   int age_;
 };
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   boost::object_pool<Student> alloctor(1, 2);
   std::cout << alloctor.get_next_size() << std::endl;
-  Student *a = alloctor.construct();
+  Student* a = alloctor.construct();
   std::cout << a << "\t" << alloctor.get_next_size() << std::endl;
-  Student *b = alloctor.construct();
+  Student* b = alloctor.construct();
   alloctor.destroy(a);
   alloctor.destroy(b);
 
   std::cout << b << "\t" << alloctor.get_next_size() << std::endl;
 
   std::cout << "--------------" << std::endl;
-  Student *c = alloctor.malloc();
+  Student* c = alloctor.malloc();
   std::cout << c << "\t" << alloctor.get_next_size() << std::endl;
   alloctor.free(c);
-  Student *d = alloctor.construct();
+  Student* d = alloctor.construct();
   std::cout << d << "\t" << alloctor.get_next_size() << std::endl;
   alloctor.destroy(d);
 

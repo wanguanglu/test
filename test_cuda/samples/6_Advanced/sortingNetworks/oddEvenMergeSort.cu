@@ -20,8 +20,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Monolithic Bacther's sort kernel for short arrays fitting into shared memory
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void oddEvenMergeSortShared(uint *d_DstKey, uint *d_DstVal,
-                                       uint *d_SrcKey, uint *d_SrcVal,
+__global__ void oddEvenMergeSortShared(uint* d_DstKey, uint* d_DstVal,
+                                       uint* d_SrcKey, uint* d_SrcVal,
                                        uint arrayLength, uint dir) {
   // Shared memory storage for one or more small vectors
   __shared__ uint s_key[SHARED_SIZE_LIMIT];
@@ -74,8 +74,8 @@ __global__ void oddEvenMergeSortShared(uint *d_DstKey, uint *d_DstVal,
 // Odd-even merge sort iteration kernel
 // for large arrays (not fitting into shared memory)
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void oddEvenMergeGlobal(uint *d_DstKey, uint *d_DstVal,
-                                   uint *d_SrcKey, uint *d_SrcVal,
+__global__ void oddEvenMergeGlobal(uint* d_DstKey, uint* d_DstVal,
+                                   uint* d_SrcKey, uint* d_SrcVal,
                                    uint arrayLength, uint size, uint stride,
                                    uint dir) {
   uint global_comparatorI = blockIdx.x * blockDim.x + threadIdx.x;
@@ -118,14 +118,13 @@ __global__ void oddEvenMergeGlobal(uint *d_DstKey, uint *d_DstVal,
 // Interface function
 ////////////////////////////////////////////////////////////////////////////////
 // Helper function
-extern "C" uint factorRadix2(uint *log2L, uint L);
+extern "C" uint factorRadix2(uint* log2L, uint L);
 
-extern "C" void oddEvenMergeSort(uint *d_DstKey, uint *d_DstVal, uint *d_SrcKey,
-                                 uint *d_SrcVal, uint batchSize,
+extern "C" void oddEvenMergeSort(uint* d_DstKey, uint* d_DstVal, uint* d_SrcKey,
+                                 uint* d_SrcVal, uint batchSize,
                                  uint arrayLength, uint dir) {
   // Nothing to sort
-  if (arrayLength < 2)
-    return;
+  if (arrayLength < 2) return;
 
   // Only power-of-two array lengths are supported by this implementation
   uint log2L;

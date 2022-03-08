@@ -27,7 +27,7 @@
 // - Threads are synced
 // - For every pixel inside the block weights are considered to be constants
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void NLM2(TColor *dst, int imageW, int imageH, float Noise,
+__global__ void NLM2(TColor* dst, int imageW, int imageH, float Noise,
                      float lerpC) {
   // Weights cache
   __shared__ float fWeights[BLOCKDIM_X * BLOCKDIM_Y];
@@ -110,7 +110,7 @@ __global__ void NLM2(TColor *dst, int imageW, int imageH, float Noise,
   }
 }
 
-extern "C" void cuda_NLM2(TColor *d_dst, int imageW, int imageH, float Noise,
+extern "C" void cuda_NLM2(TColor* d_dst, int imageW, int imageH, float Noise,
                           float LerpC) {
   dim3 threads(BLOCKDIM_X, BLOCKDIM_Y);
   dim3 grid(iDivUp(imageW, BLOCKDIM_X), iDivUp(imageH, BLOCKDIM_Y));
@@ -121,7 +121,7 @@ extern "C" void cuda_NLM2(TColor *d_dst, int imageW, int imageH, float Noise,
 ////////////////////////////////////////////////////////////////////////////////
 // Stripped NLM2 kernel, only highlighting areas with different LERP directions
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void NLM2diag(TColor *dst, int imageW, int imageH, float Noise,
+__global__ void NLM2diag(TColor* dst, int imageW, int imageH, float Noise,
                          float LerpC) {
   // Weights cache
   __shared__ float fWeights[BLOCKDIM_X * BLOCKDIM_Y];
@@ -180,7 +180,7 @@ __global__ void NLM2diag(TColor *dst, int imageW, int imageH, float Noise,
   };
 }
 
-extern "C" void cuda_NLM2diag(TColor *d_dst, int imageW, int imageH,
+extern "C" void cuda_NLM2diag(TColor* d_dst, int imageW, int imageH,
                               float Noise, float LerpC) {
   dim3 threads(BLOCKDIM_X, BLOCKDIM_Y);
   dim3 grid(iDivUp(imageW, BLOCKDIM_X), iDivUp(imageH, BLOCKDIM_Y));

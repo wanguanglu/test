@@ -78,18 +78,18 @@ FGAPI void FGAPIENTRY glutMenuDestroyFunc(void (*callback)(void));
  */
 FGAPI void FGAPIENTRY glutSetOption(GLenum option_flag, int value);
 /* A.Donev: User-data manipulation */
-FGAPI void *FGAPIENTRY glutGetWindowData(void);
-FGAPI void FGAPIENTRY glutSetWindowData(void *data);
-FGAPI void *FGAPIENTRY glutGetMenuData(void);
-FGAPI void FGAPIENTRY glutSetMenuData(void *data);
+FGAPI void* FGAPIENTRY glutGetWindowData(void);
+FGAPI void FGAPIENTRY glutSetWindowData(void* data);
+FGAPI void* FGAPIENTRY glutGetMenuData(void);
+FGAPI void FGAPIENTRY glutSetMenuData(void* data);
 
 /*
  * Font stuff, see freeglut_font.c
  */
-FGAPI int FGAPIENTRY glutBitmapHeight(void *font);
-FGAPI GLfloat FGAPIENTRY glutStrokeHeight(void *font);
-FGAPI void FGAPIENTRY glutBitmapString(void *font, const unsigned char *string);
-FGAPI void FGAPIENTRY glutStrokeString(void *font, const unsigned char *string);
+FGAPI int FGAPIENTRY glutBitmapHeight(void* font);
+FGAPI GLfloat FGAPIENTRY glutStrokeHeight(void* font);
+FGAPI void FGAPIENTRY glutBitmapString(void* font, const unsigned char* string);
+FGAPI void FGAPIENTRY glutStrokeString(void* font, const unsigned char* string);
 
 /*
  * Geometry functions, see freeglut_geometry.c
@@ -110,7 +110,7 @@ FGAPI void FGAPIENTRY glutSolidCylinder(GLdouble radius, GLdouble height,
 /*
  * Extension functions, see freeglut_ext.c
  */
-FGAPI void *FGAPIENTRY glutGetProcAddress(const char *procName);
+FGAPI void* FGAPIENTRY glutGetProcAddress(const char* procName);
 
 #ifdef __cplusplus
 }

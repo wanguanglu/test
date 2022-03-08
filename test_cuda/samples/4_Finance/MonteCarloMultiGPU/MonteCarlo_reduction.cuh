@@ -13,7 +13,7 @@
 #define MONTECARLO_REDUCTION_CUH
 
 template <class T, unsigned int blockSize>
-__device__ void sumReduceSharedMem(volatile T *sum, volatile T *sum2, int tid) {
+__device__ void sumReduceSharedMem(volatile T* sum, volatile T* sum2, int tid) {
   // do reduction in shared mem
   if (blockSize >= 512) {
     if (tid < 256) {
@@ -84,7 +84,7 @@ __device__ void sumReduceSharedMem(volatile T *sum, volatile T *sum2, int tid) {
 #define UNROLL_REDUCTION
 
 template <class T, int SUM_N, int blockSize>
-__device__ void sumReduce(T *sum, T *sum2) {
+__device__ void sumReduce(T* sum, T* sum2) {
 #ifdef UNROLL_REDUCTION
 
   for (int pos = threadIdx.x; pos < SUM_N; pos += blockSize) {

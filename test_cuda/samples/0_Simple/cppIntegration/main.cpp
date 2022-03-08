@@ -25,13 +25,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // declaration, forward
-extern "C" bool runTest(const int argc, const char **argv, char *data,
-                        int2 *data_int2, unsigned int len);
+extern "C" bool runTest(const int argc, const char** argv, char* data,
+                        int2* data_int2, unsigned int len);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   // input data
   int len = 16;
   // the data has some zero padding at the end so that the size is a multiple of
@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
   bool bTestResult;
 
   // run the device part of the program
-  bTestResult = runTest(argc, (const char **)argv, str, i2, len);
+  bTestResult = runTest(argc, (const char**)argv, str, i2, len);
 
   std::cout << str << std::endl;
 

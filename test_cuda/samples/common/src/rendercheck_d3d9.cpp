@@ -28,15 +28,16 @@
 #include <rendercheck_d3d9.h>
 
 // originally copied from checkrender_gl.cpp and slightly modified
-bool CheckRenderD3D9::PPMvsPPM(const char *src_file, const char *ref_file,
-                               const char *exec_path, const float epsilon,
+bool CheckRenderD3D9::PPMvsPPM(const char* src_file, const char* ref_file,
+                               const char* exec_path, const float epsilon,
                                const float threshold) {
-  char *ref_file_path = sdkFindFilePath(ref_file, exec_path);
+  char* ref_file_path = sdkFindFilePath(ref_file, exec_path);
 
   if (ref_file_path == NULL) {
-    printf("CheckRenderD3D9::PPMvsPPM unable to find <%s> in <%s> Aborting "
-           "comparison!\n",
-           ref_file, exec_path);
+    printf(
+        "CheckRenderD3D9::PPMvsPPM unable to find <%s> in <%s> Aborting "
+        "comparison!\n",
+        ref_file, exec_path);
     printf(">>> Check info.xml and [project//data] folder <%s> <<<\n",
            ref_file);
     printf("Aborting comparison!\n");
@@ -48,9 +49,9 @@ bool CheckRenderD3D9::PPMvsPPM(const char *src_file, const char *ref_file,
           true);
 };
 
-HRESULT CheckRenderD3D9::BackbufferToPPM(IDirect3DDevice9 *pDevice,
-                                         const char *zFileName) {
-  IDirect3DSurface9 *pSurface = NULL;
+HRESULT CheckRenderD3D9::BackbufferToPPM(IDirect3DDevice9* pDevice,
+                                         const char* zFileName) {
+  IDirect3DSurface9* pSurface = NULL;
 
   if (FAILED(
           pDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pSurface))) {
@@ -68,9 +69,9 @@ HRESULT CheckRenderD3D9::BackbufferToPPM(IDirect3DDevice9 *pDevice,
   return hr;
 }
 
-HRESULT CheckRenderD3D9::SurfaceToPPM(IDirect3DDevice9 *pDevice,
-                                      IDirect3DSurface9 *pSurface,
-                                      const char *zFileName) {
+HRESULT CheckRenderD3D9::SurfaceToPPM(IDirect3DDevice9* pDevice,
+                                      IDirect3DSurface9* pSurface,
+                                      const char* zFileName) {
   D3DSURFACE_DESC pDesc;
   pSurface->GetDesc(&pDesc);
 
@@ -80,7 +81,7 @@ HRESULT CheckRenderD3D9::SurfaceToPPM(IDirect3DDevice9 *pDevice,
     return E_INVALIDARG;
   }
 
-  IDirect3DTexture9 *pTargetTex = NULL;
+  IDirect3DTexture9* pTargetTex = NULL;
 
   if (FAILED(pDevice->CreateTexture(pDesc.Width, pDesc.Height, 1,
                                     D3DUSAGE_DYNAMIC, pDesc.Format,
@@ -89,7 +90,7 @@ HRESULT CheckRenderD3D9::SurfaceToPPM(IDirect3DDevice9 *pDevice,
     return E_FAIL;
   }
 
-  IDirect3DSurface9 *pTargetSurface = NULL;
+  IDirect3DSurface9* pTargetSurface = NULL;
 
   if (FAILED(pTargetTex->GetSurfaceLevel(0, &pTargetSurface))) {
     printf("Unable to get surface for surface transfer! Aborting...\n");
@@ -114,26 +115,26 @@ HRESULT CheckRenderD3D9::SurfaceToPPM(IDirect3DDevice9 *pDevice,
   // ok.
   //      however, if we want the saved image to be properly colored, then we
   //      can swizzle the color bytes here.
-  unsigned char *pPPMData = new unsigned char[pDesc.Width * pDesc.Height * 4];
+  unsigned char* pPPMData = new unsigned char[pDesc.Width * pDesc.Height * 4];
 
   for (unsigned int iHeight = 0; iHeight < pDesc.Height; iHeight++) {
-#if 1 // swizzle to implment RGB to BGR conversion.
+#if 1  // swizzle to implment RGB to BGR conversion.
 
     for (unsigned int iWidth = 0; iWidth < pDesc.Width; iWidth++) {
-      DWORD color = *(DWORD *)((unsigned char *)(lockedRect.pBits) +
-                               iHeight * lockedRect.Pitch + iWidth * 4);
+      DWORD color = *(DWORD*)((unsigned char*)(lockedRect.pBits) +
+                              iHeight * lockedRect.Pitch + iWidth * 4);
 
       // R<->B, [7:0] <-> [23:16], swizzle
       color = ((color & 0xFF) << 16) | (color & 0xFF00) |
               ((color & 0xFF0000) >> 16) | (color & 0xFF000000);
 
       memcpy(&(pPPMData[(iHeight * pDesc.Width + iWidth) * 4]),
-             (unsigned char *)&color, 4);
+             (unsigned char*)&color, 4);
     }
 
 #else
     memcpy(&(pPPMData[iHeight * pDesc.Width * 4]),
-           (unsigned char *)(lockedRect.pBits) + iHeight * lockedRect.Pitch,
+           (unsigned char*)(lockedRect.pBits) + iHeight * lockedRect.Pitch,
            pDesc.Width * 4);
 #endif
   }

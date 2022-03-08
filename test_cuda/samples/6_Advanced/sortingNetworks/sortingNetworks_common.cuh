@@ -21,8 +21,8 @@
 #define UMUL(a, b) __umul24((a), (b))
 #define UMAD(a, b, c) (UMUL((a), (b)) + (c))
 
-__device__ inline void Comparator(uint &keyA, uint &valA, uint &keyB,
-                                  uint &valB, uint dir) {
+__device__ inline void Comparator(uint& keyA, uint& valA, uint& keyB,
+                                  uint& valB, uint dir) {
   uint t;
 
   if ((keyA > keyB) == dir) {

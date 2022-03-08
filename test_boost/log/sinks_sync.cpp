@@ -31,7 +31,6 @@ enum severity_level { normal, warning, error };
 typedef sinks::synchronous_sink<sinks::text_ostream_backend> sink_t;
 
 void init_logging() {
-
   boost::shared_ptr<logging::core> core = logging::core::get();
 
   // Create a backend and initialize it with a stream
@@ -55,12 +54,11 @@ void init_logging() {
   {
     sink_t::locked_backend_ptr p = sink->locked_backend();
     p->add_stream(boost::make_shared<std::ofstream>("sample.log"));
-  } // the backend gets released here
+  }  // the backend gets released here
 }
 //]
 
-int main(int, char *[]) {
-
+int main(int, char*[]) {
   init_logging();
 
   src::severity_channel_logger<severity_level> lg(keywords::channel = "net");

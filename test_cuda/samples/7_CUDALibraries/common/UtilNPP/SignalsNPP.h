@@ -20,11 +20,12 @@
 
 namespace npp {
 // forward declaration
-template <typename D, class A> class SignalCPU;
+template <typename D, class A>
+class SignalCPU;
 
 template <typename D>
 class SignalNPP : public npp::SignalTemplate<D, npp::SignalAllocator<D>> {
-public:
+ public:
   SignalNPP() { ; }
 
   explicit SignalNPP(size_t nSize)
@@ -32,13 +33,13 @@ public:
     ;
   }
 
-  SignalNPP(const SignalNPP<D> &rSignal)
+  SignalNPP(const SignalNPP<D>& rSignal)
       : SignalTemplate<D, npp::SignalAllocator<D>>(rSignal) {
     ;
   }
 
   template <class X>
-  explicit SignalNPP(const SignalCPU<D, X> &rSignal)
+  explicit SignalNPP(const SignalCPU<D, X>& rSignal)
       : SignalTemplate<D, npp::SignalAllocator<D>>(rSignal.size()) {
     npp::SignalAllocator<D>::HostToDeviceCopy1D(
         SignalTemplate<D, npp::SignalAllocator<D>>::values(), rSignal.values(),
@@ -47,19 +48,19 @@ public:
 
   virtual ~SignalNPP() { ; }
 
-  SignalNPP &operator=(const SignalNPP<D> &rSignal) {
+  SignalNPP& operator=(const SignalNPP<D>& rSignal) {
     SignalTemplate<D, npp::SignalAllocator<D>>::operator=(rSignal);
 
     return *this;
   }
 
-  void copyTo(D *pValues) const {
+  void copyTo(D* pValues) const {
     npp::SignalAllocator<D>::DeviceToHostCopy1D(
         pValues, SignalTemplate<D, npp::SignalAllocator<D>>::values(),
         SignalTemplate<D, npp::SignalAllocator<D>>::size());
   }
 
-  void copyFrom(D *pValues) {
+  void copyFrom(D* pValues) {
     npp::SignalAllocator<D>::HostToDeviceCopy1D(
         SignalTemplate<D, npp::SignalAllocator<D>>::values(), pValues,
         SignalTemplate<D, npp::SignalAllocator<D>>::size());
@@ -78,6 +79,6 @@ typedef SignalNPP<Npp64sc> SignalNPP_64sc;
 typedef SignalNPP<Npp64f> SignalNPP_64f;
 typedef SignalNPP<Npp64fc> SignalNPP_64fc;
 
-} // namespace npp
+}  // namespace npp
 
-#endif // NV_UTIL_NPP_SIGNALS_NPP_H
+#endif  // NV_UTIL_NPP_SIGNALS_NPP_H

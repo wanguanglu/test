@@ -20,8 +20,8 @@
 // __STL_STATIC_CONST_INIT_BUG implies BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
 // for versions prior to 4.1(beta)
 //
-#if (defined(__STL_STATIC_CONST_INIT_BUG) ||                                   \
-     defined(_STLP_STATIC_CONST_INIT_BUG)) &&                                  \
+#if (defined(__STL_STATIC_CONST_INIT_BUG) ||  \
+     defined(_STLP_STATIC_CONST_INIT_BUG)) && \
     (__SGI_STL_PORT <= 0x400)
 #define BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
 #endif
@@ -30,7 +30,7 @@
 // If STLport thinks that there is no partial specialisation, then there is no
 // std::iterator traits:
 //
-#if !(defined(_STLP_CLASS_PARTIAL_SPECIALIZATION) ||                           \
+#if !(defined(_STLP_CLASS_PARTIAL_SPECIALIZATION) || \
       defined(__STL_CLASS_PARTIAL_SPECIALIZATION))
 #define BOOST_NO_STD_ITERATOR_TRAITS
 #endif
@@ -38,7 +38,7 @@
 //
 // No new style iostreams on GCC without STLport's iostreams enabled:
 //
-#if (defined(__GNUC__) && (__GNUC__ < 3)) &&                                   \
+#if (defined(__GNUC__) && (__GNUC__ < 3)) && \
     !(defined(__SGI_STL_OWN_IOSTREAMS) || defined(_STLP_OWN_IOSTREAMS))
 #define BOOST_NO_STRINGSTREAM
 #endif
@@ -46,7 +46,7 @@
 //
 // No new iostreams implies no std::locale, and no std::stringstream:
 //
-#if defined(__STL_NO_IOSTREAMS) || defined(__STL_NO_NEW_IOSTREAMS) ||          \
+#if defined(__STL_NO_IOSTREAMS) || defined(__STL_NO_NEW_IOSTREAMS) || \
     defined(_STLP_NO_IOSTREAMS) || defined(_STLP_NO_NEW_IOSTREAMS)
 #define BOOST_NO_STD_LOCALE
 #define BOOST_NO_STRINGSTREAM
@@ -57,19 +57,19 @@
 // then the io stream facets are not available in namespace std::
 //
 #ifdef _STLPORT_VERSION
-#if !(_STLPORT_VERSION >= 0x500) && !defined(_STLP_OWN_IOSTREAMS) &&           \
-    defined(_STLP_USE_NAMESPACES) && defined(BOOST_NO_USING_TEMPLATE) &&       \
+#if !(_STLPORT_VERSION >= 0x500) && !defined(_STLP_OWN_IOSTREAMS) &&     \
+    defined(_STLP_USE_NAMESPACES) && defined(BOOST_NO_USING_TEMPLATE) && \
     !defined(__BORLANDC__)
 #define BOOST_NO_STD_LOCALE
 #endif
 #else
-#if !defined(__SGI_STL_OWN_IOSTREAMS) && defined(__STL_USE_NAMESPACES) &&      \
+#if !defined(__SGI_STL_OWN_IOSTREAMS) && defined(__STL_USE_NAMESPACES) && \
     defined(BOOST_NO_USING_TEMPLATE) && !defined(__BORLANDC__)
 #define BOOST_NO_STD_LOCALE
 #endif
 #endif
 
-#if defined(_STLPORT_VERSION) &&                                               \
+#if defined(_STLPORT_VERSION) && \
     ((_STLPORT_VERSION < 0x500) || (_STLPORT_VERSION >= 0x520))
 #define BOOST_NO_STD_UNORDERED
 #endif
@@ -91,12 +91,12 @@
 //
 #define BOOST_HAS_PARTIAL_STD_ALLOCATOR
 
-#if !defined(_STLP_MEMBER_TEMPLATE_CLASSES) ||                                 \
+#if !defined(_STLP_MEMBER_TEMPLATE_CLASSES) || \
     defined(_STLP_DONT_SUPPORT_REBIND_MEMBER_TEMPLATE)
 #define BOOST_NO_STD_ALLOCATOR
 #endif
 
-#if defined(_STLP_NO_MEMBER_TEMPLATE_KEYWORD) && defined(BOOST_MSVC) &&        \
+#if defined(_STLP_NO_MEMBER_TEMPLATE_KEYWORD) && defined(BOOST_MSVC) && \
     (BOOST_MSVC <= 1300)
 #define BOOST_NO_STD_ALLOCATOR
 #endif
@@ -164,14 +164,14 @@ using ::abs;
 namespace std {
 using _STLP_VENDOR_CSTD::strcmp;
 using _STLP_VENDOR_CSTD::strcpy;
-} // namespace std
+}  // namespace std
 #endif
 #endif
 
 //
 // std::use_facet may be non-standard, uses a class instead:
 //
-#if defined(__STL_NO_EXPLICIT_FUNCTION_TMPL_ARGS) ||                           \
+#if defined(__STL_NO_EXPLICIT_FUNCTION_TMPL_ARGS) || \
     defined(_STLP_NO_EXPLICIT_FUNCTION_TMPL_ARGS)
 #define BOOST_NO_STD_USE_FACET
 #define BOOST_HAS_STLP_USE_FACET
@@ -210,13 +210,13 @@ using _STLP_VENDOR_CSTD::strcpy;
 // with std::min/max
 //
 #if defined(__GNUC__) && (__GNUC__ < 3)
-#include <algorithm> // for std::min and std::max
+#include <algorithm>  // for std::min and std::max
 #define BOOST_USING_STD_MIN() ((void)0)
 #define BOOST_USING_STD_MAX() ((void)0)
 namespace boost {
 using std::max;
 using std::min;
-} // namespace boost
+}  // namespace boost
 #endif
 
 //  C++0x headers not yet implemented
@@ -240,9 +240,9 @@ using std::min;
 #define BOOST_NO_0X_HDR_THREAD
 #define BOOST_NO_0X_HDR_TUPLE
 #define BOOST_NO_0X_HDR_TYPE_TRAITS
-#define BOOST_NO_STD_UNORDERED // deprecated; see following
+#define BOOST_NO_STD_UNORDERED  // deprecated; see following
 #define BOOST_NO_0X_HDR_UNORDERED_MAP
 #define BOOST_NO_0X_HDR_UNORDERED_SET
 
-#define BOOST_STDLIB                                                           \
+#define BOOST_STDLIB \
   "STLPort standard library version " BOOST_STRINGIZE(__SGI_STL_PORT)

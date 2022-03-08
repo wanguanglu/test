@@ -12,7 +12,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // KNN kernel
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void KNN(TColor *dst, int imageW, int imageH, float Noise,
+__global__ void KNN(TColor* dst, int imageW, int imageH, float Noise,
                     float lerpC) {
   const int ix = blockDim.x * blockIdx.x + threadIdx.x;
   const int iy = blockDim.y * blockIdx.y + threadIdx.y;
@@ -71,7 +71,7 @@ __global__ void KNN(TColor *dst, int imageW, int imageH, float Noise,
   };
 }
 
-extern "C" void cuda_KNN(TColor *d_dst, int imageW, int imageH, float Noise,
+extern "C" void cuda_KNN(TColor* d_dst, int imageW, int imageH, float Noise,
                          float lerpC) {
   dim3 threads(BLOCKDIM_X, BLOCKDIM_Y);
   dim3 grid(iDivUp(imageW, BLOCKDIM_X), iDivUp(imageH, BLOCKDIM_Y));
@@ -82,7 +82,7 @@ extern "C" void cuda_KNN(TColor *d_dst, int imageW, int imageH, float Noise,
 ////////////////////////////////////////////////////////////////////////////////
 // Stripped KNN kernel, only highlighting areas with different LERP directions
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void KNNdiag(TColor *dst, int imageW, int imageH, float Noise,
+__global__ void KNNdiag(TColor* dst, int imageW, int imageH, float Noise,
                         float lerpC) {
   const int ix = blockDim.x * blockIdx.x + threadIdx.x;
   const int iy = blockDim.y * blockIdx.y + threadIdx.y;
@@ -121,7 +121,7 @@ __global__ void KNNdiag(TColor *dst, int imageW, int imageH, float Noise,
   };
 }
 
-extern "C" void cuda_KNNdiag(TColor *d_dst, int imageW, int imageH, float Noise,
+extern "C" void cuda_KNNdiag(TColor* d_dst, int imageW, int imageH, float Noise,
                              float lerpC) {
   dim3 threads(BLOCKDIM_X, BLOCKDIM_Y);
   dim3 grid(iDivUp(imageW, BLOCKDIM_X), iDivUp(imageH, BLOCKDIM_Y));

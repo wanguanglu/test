@@ -29,22 +29,22 @@
 
 // RNGs
 class RNG {
-public:
+ public:
   enum RngType { Pseudo, Quasi, ScrambledQuasi };
   RNG(unsigned long prngSeed, unsigned int qrngDimensions,
       unsigned int nSamples);
   virtual ~RNG();
 
   float getNextU01(void);
-  void getInfoString(std::string &msg);
+  void getInfoString(std::string& msg);
   void selectRng(RngType type);
   void resetSeed(void);
   void resetDimensions(void);
   void incrementDimensions(void);
 
-private:
+ private:
   // Generators
-  curandGenerator_t *m_pCurrent;
+  curandGenerator_t* m_pCurrent;
   curandGenerator_t m_prng;
   curandGenerator_t m_qrng;
   curandGenerator_t m_sqrng;
@@ -64,8 +64,8 @@ private:
   void setBatchSize(void);
 
   // Buffers
-  float *m_h_samples;
-  float *m_d_samples;
+  float* m_h_samples;
+  float* m_d_samples;
 
   static const unsigned int s_maxQrngDimensions;
 };

@@ -23,7 +23,7 @@
 
 // This is a kernel that does no real work but runs at least for a specified
 // number of clocks
-__global__ void clock_block(clock_t *d_o, clock_t clock_count) {
+__global__ void clock_block(clock_t* d_o, clock_t clock_count) {
   unsigned int start_clock = (unsigned int)clock();
 
   clock_t clock_offset = 0;
@@ -48,7 +48,7 @@ __global__ void clock_block(clock_t *d_o, clock_t clock_count) {
 }
 
 // Single warp reduction kernel
-__global__ void sum(clock_t *d_clocks, int N) {
+__global__ void sum(clock_t* d_clocks, int N) {
   __shared__ clock_t s_clocks[32];
 
   clock_t my_sum = 0;
@@ -71,25 +71,25 @@ __global__ void sum(clock_t *d_clocks, int N) {
   d_clocks[0] = s_clocks[0];
 }
 
-int main(int argc, char **argv) {
-  int nkernels = 8;            // number of concurrent kernels
-  int nstreams = nkernels + 1; // use one more stream than concurrent kernel
-  int nbytes = nkernels * sizeof(clock_t); // number of data bytes
-  float kernel_time = 10;                  // time the kernel should run in ms
-  float elapsed_time;                      // timing variables
+int main(int argc, char** argv) {
+  int nkernels = 8;             // number of concurrent kernels
+  int nstreams = nkernels + 1;  // use one more stream than concurrent kernel
+  int nbytes = nkernels * sizeof(clock_t);  // number of data bytes
+  float kernel_time = 10;                   // time the kernel should run in ms
+  float elapsed_time;                       // timing variables
   int cuda_device = 0;
 
   printf("[%s] - Starting...\n", argv[0]);
 
   // get number of kernels if overridden on the command line
-  if (checkCmdLineFlag(argc, (const char **)argv, "nkernels")) {
-    nkernels = getCmdLineArgumentInt(argc, (const char **)argv, "nkernels");
+  if (checkCmdLineFlag(argc, (const char**)argv, "nkernels")) {
+    nkernels = getCmdLineArgumentInt(argc, (const char**)argv, "nkernels");
     nstreams = nkernels + 1;
   }
 
   // use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  cuda_device = findCudaDevice(argc, (const char **)argv);
+  cuda_device = findCudaDevice(argc, (const char**)argv);
 
   cudaDeviceProp deviceProp;
   checkCudaErrors(cudaGetDevice(&cuda_device));
@@ -105,16 +105,16 @@ int main(int argc, char **argv) {
          deviceProp.major, deviceProp.minor, deviceProp.multiProcessorCount);
 
   // allocate host memory
-  clock_t *a = 0; // pointer to the array data in host memory
-  checkCudaErrors(cudaMallocHost((void **)&a, nbytes));
+  clock_t* a = 0;  // pointer to the array data in host memory
+  checkCudaErrors(cudaMallocHost((void**)&a, nbytes));
 
   // allocate device memory
-  clock_t *d_a = 0; // pointers to data and init value in the device memory
-  checkCudaErrors(cudaMalloc((void **)&d_a, nbytes));
+  clock_t* d_a = 0;  // pointers to data and init value in the device memory
+  checkCudaErrors(cudaMalloc((void**)&d_a, nbytes));
 
   // allocate and initialize an array of stream handles
-  cudaStream_t *streams =
-      (cudaStream_t *)malloc(nstreams * sizeof(cudaStream_t));
+  cudaStream_t* streams =
+      (cudaStream_t*)malloc(nstreams * sizeof(cudaStream_t));
 
   for (int i = 0; i < nstreams; i++) {
     checkCudaErrors(cudaStreamCreate(&(streams[i])));
@@ -128,8 +128,8 @@ int main(int argc, char **argv) {
   // the events are used for synchronization only and hence do not need to
   // record timings this also makes events not introduce global sync points when
   // recorded which is critical to get overlap
-  cudaEvent_t *kernelEvent;
-  kernelEvent = (cudaEvent_t *)malloc(nkernels * sizeof(cudaEvent_t));
+  cudaEvent_t* kernelEvent;
+  kernelEvent = (cudaEvent_t*)malloc(nkernels * sizeof(cudaEvent_t));
 
   for (int i = 0; i < nkernels; i++) {
     checkCudaErrors(

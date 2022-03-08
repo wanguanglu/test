@@ -42,22 +42,22 @@
 
 using namespace std;
 
-const char *image_filename = "lena_bw.pgm";
-const char *ref_filename = "ref_rotated.pgm";
-float angle = 0.5f; // angle to rotate image by (in radians)
+const char* image_filename = "lena_bw.pgm";
+const char* ref_filename = "ref_rotated.pgm";
+float angle = 0.5f;  // angle to rotate image by (in radians)
 
 #define MIN_EPSILON_ERROR 5e-3f
 
 ////////////////////////////////////////////////////////////////////////////////
 // declaration, forward
-void runTest(int argc, char **argv);
+void runTest(int argc, char** argv);
 
-extern "C" void computeGold(float *reference, float *idata,
+extern "C" void computeGold(float* reference, float* idata,
                             const unsigned int len);
 
-static CUresult initCUDA(int argc, char **argv, CUfunction *);
+static CUresult initCUDA(int argc, char** argv, CUfunction*);
 
-const char *sSDKsample = "simpleTextureDrv (Driver API)";
+const char* sSDKsample = "simpleTextureDrv (Driver API)";
 
 // define input ptx file for different platforms
 #if defined(_WIN64) || defined(__LP64__)
@@ -76,7 +76,7 @@ const char *sSDKsample = "simpleTextureDrv (Driver API)";
 #define checkCudaErrors(err) __checkCudaErrors(err, __FILE__, __LINE__)
 
 // These are the inline versions for all of the SDK helper functions
-inline void __checkCudaErrors(CUresult err, const char *file, const int line) {
+inline void __checkCudaErrors(CUresult err, const char* file, const int line) {
   if (CUDA_SUCCESS != err) {
     fprintf(stderr,
             "checkCudaErrors() Driver API error = %04d \"%s\" from file <%s>, "
@@ -86,7 +86,7 @@ inline void __checkCudaErrors(CUresult err, const char *file, const int line) {
   }
 }
 
-inline int cudaDeviceInit(int ARGC, char **ARGV) {
+inline int cudaDeviceInit(int ARGC, char** ARGV) {
   int cuDevice = 0;
   int deviceCount = 0;
   CUresult err = cuInit(0);
@@ -101,7 +101,7 @@ inline int cudaDeviceInit(int ARGC, char **ARGV) {
   }
 
   int dev = 0;
-  dev = getCmdLineArgumentInt(ARGC, (const char **)ARGV, "device=");
+  dev = getCmdLineArgumentInt(ARGC, (const char**)ARGV, "device=");
 
   if (dev < 0) {
     dev = 0;
@@ -122,7 +122,7 @@ inline int cudaDeviceInit(int ARGC, char **ARGV) {
   char name[100];
   cuDeviceGetName(name, 100, cuDevice);
 
-  if (checkCmdLineFlag(ARGC, (const char **)ARGV, "quiet") == false) {
+  if (checkCmdLineFlag(ARGC, (const char**)ARGV, "quiet") == false) {
     printf("> Using CUDA Device [%d]: %s\n", dev, name);
   }
 
@@ -194,12 +194,12 @@ inline int getMaxGflopsDeviceId() {
 }
 
 // General initialization call to pick the best CUDA Device
-inline CUdevice findCudaDevice(int argc, char **argv, int *p_devID) {
+inline CUdevice findCudaDevice(int argc, char** argv, int* p_devID) {
   CUdevice cuDevice;
   int devID = 0;
 
   // If the command-line has a device number specified, use it
-  if (checkCmdLineFlag(argc, (const char **)argv, "device")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "device")) {
     devID = cudaDeviceInit(argc, argv);
 
     if (devID < 0) {
@@ -240,8 +240,8 @@ void showHelp() {
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
-  if (checkCmdLineFlag(argc, (const char **)argv, "help")) {
+int main(int argc, char** argv) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "help")) {
     showHelp();
     return 0;
   }
@@ -252,7 +252,7 @@ int main(int argc, char **argv) {
 ////////////////////////////////////////////////////////////////////////////////
 //! Run a simple test for CUDA
 ////////////////////////////////////////////////////////////////////////////////
-void runTest(int argc, char **argv) {
+void runTest(int argc, char** argv) {
   bool bTestResults = true;
 
   // initialize CUDA
@@ -263,9 +263,9 @@ void runTest(int argc, char **argv) {
   }
 
   // load image from disk
-  float *h_data = NULL;
+  float* h_data = NULL;
   unsigned int width, height;
-  char *image_path = sdkFindFilePath(image_filename, argv[0]);
+  char* image_path = sdkFindFilePath(image_filename, argv[0]);
 
   if (image_path == NULL) {
     printf("Unable to find image file: '%s'\n", image_filename);
@@ -278,8 +278,8 @@ void runTest(int argc, char **argv) {
   printf("Loaded '%s', %d x %d pixels\n", image_filename, width, height);
 
   // load reference image from image (output)
-  float *h_data_ref = (float *)malloc(size);
-  char *ref_path = sdkFindFilePath(ref_filename, argv[0]);
+  float* h_data_ref = (float*)malloc(size);
+  char* ref_path = sdkFindFilePath(ref_filename, argv[0]);
 
   if (ref_path == NULL) {
     printf("Unable to find reference file %s\n", ref_filename);
@@ -330,12 +330,12 @@ void runTest(int argc, char **argv) {
   // In this CUDA Sample, we illustrate both ways to pass parameters
   // and specify parameters.  By default we use the simpler method.
   int block_size = 8;
-  StopWatchInterface *timer = NULL;
+  StopWatchInterface* timer = NULL;
 
   if (1) {
     // This is the new CUDA 4.0 API for Kernel Parameter passing and Kernel
     // Launching (simpler method)
-    void *args[5] = {&d_data, &width, &height, &angle};
+    void* args[5] = {&d_data, &width, &height, &angle};
 
     checkCudaErrors(cuLaunchKernel(transform, (width / block_size),
                                    (height / block_size), 1, block_size,
@@ -356,23 +356,23 @@ void runTest(int argc, char **argv) {
 
     // pass in launch parameters (not actually de-referencing CUdeviceptr).
     // CUdeviceptr is storing the value of the parameters
-    *((CUdeviceptr *)&argBuffer[offset]) = d_data;
+    *((CUdeviceptr*)&argBuffer[offset]) = d_data;
     offset += sizeof(d_data);
-    *((unsigned int *)&argBuffer[offset]) = width;
+    *((unsigned int*)&argBuffer[offset]) = width;
     offset += sizeof(width);
-    *((unsigned int *)&argBuffer[offset]) = height;
+    *((unsigned int*)&argBuffer[offset]) = height;
     offset += sizeof(height);
-    *((float *)&argBuffer[offset]) = angle;
+    *((float*)&argBuffer[offset]) = angle;
     offset += sizeof(angle);
 
-    void *kernel_launch_config[5] = {CU_LAUNCH_PARAM_BUFFER_POINTER, argBuffer,
+    void* kernel_launch_config[5] = {CU_LAUNCH_PARAM_BUFFER_POINTER, argBuffer,
                                      CU_LAUNCH_PARAM_BUFFER_SIZE, &offset,
                                      CU_LAUNCH_PARAM_END};
 
     // new CUDA 4.0 Driver API Kernel launch call (warmup)
     checkCudaErrors(cuLaunchKernel(
         transform, (width / block_size), (height / block_size), 1, block_size,
-        block_size, 1, 0, NULL, NULL, (void **)&kernel_launch_config));
+        block_size, 1, 0, NULL, NULL, (void**)&kernel_launch_config));
     checkCudaErrors(cuCtxSynchronize());
     sdkCreateTimer(&timer);
     sdkStartTimer(&timer);
@@ -380,7 +380,7 @@ void runTest(int argc, char **argv) {
     // launch kernel again for performance measurement
     checkCudaErrors(cuLaunchKernel(
         transform, (width / block_size), (height / block_size), 1, block_size,
-        block_size, 1, 0, 0, NULL, (void **)&kernel_launch_config));
+        block_size, 1, 0, 0, NULL, (void**)&kernel_launch_config));
   }
 
   checkCudaErrors(cuCtxSynchronize());
@@ -391,7 +391,7 @@ void runTest(int argc, char **argv) {
   sdkDeleteTimer(&timer);
 
   // allocate mem for the result on host side
-  float *h_odata = (float *)malloc(size);
+  float* h_odata = (float*)malloc(size);
   // copy result from device to host
   checkCudaErrors(cuMemcpyDtoH(h_odata, d_data, size));
 
@@ -403,7 +403,7 @@ void runTest(int argc, char **argv) {
   printf("Wrote '%s'\n", output_filename);
 
   // write regression file if necessary
-  if (checkCmdLineFlag(argc, (const char **)argv, "regression")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "regression")) {
     // write file for regression test
     sdkWriteFile<float>("./data/regression.dat", h_odata, width * height, 0.0f,
                         false);
@@ -431,9 +431,9 @@ void runTest(int argc, char **argv) {
   exit(bTestResults ? EXIT_SUCCESS : EXIT_FAILURE);
 }
 
-bool inline findModulePath(const char *module_file, string &module_path,
-                           char **argv, string &ptx_source) {
-  char *actual_path = sdkFindFilePath(module_file, argv[0]);
+bool inline findModulePath(const char* module_file, string& module_path,
+                           char** argv, string& ptx_source) {
+  char* actual_path = sdkFindFilePath(module_file, argv[0]);
 
   if (actual_path) {
     module_path = actual_path;
@@ -449,10 +449,10 @@ bool inline findModulePath(const char *module_file, string &module_path,
     printf("> findModulePath <%s>\n", module_path.c_str());
 
     if (module_path.rfind(".ptx") != string::npos) {
-      FILE *fp = fopen(module_path.c_str(), "rb");
+      FILE* fp = fopen(module_path.c_str(), "rb");
       fseek(fp, 0, SEEK_END);
       int file_size = ftell(fp);
-      char *buf = new char[file_size + 1];
+      char* buf = new char[file_size + 1];
       fseek(fp, 0, SEEK_SET);
       fread(buf, sizeof(char), file_size, fp);
       fclose(fp);
@@ -470,7 +470,7 @@ bool inline findModulePath(const char *module_file, string &module_path,
 //! kernel function.  After the module is loaded, cuModuleGetFunction
 //! retrieves the CUDA function pointer "cuFunction"
 ////////////////////////////////////////////////////////////////////////////////
-static CUresult initCUDA(int argc, char **argv, CUfunction *transform) {
+static CUresult initCUDA(int argc, char** argv, CUfunction* transform) {
   CUfunction cuFunction = 0;
   CUresult status;
   int major = 0, minor = 0, devID = 0;
@@ -495,8 +495,9 @@ static CUresult initCUDA(int argc, char **argv, CUfunction *transform) {
   // first search for the module_path before we try to load the results
   if (!findModulePath(PTX_FILE, module_path, argv, ptx_source)) {
     if (!findModulePath(CUBIN_FILE, module_path, argv, ptx_source)) {
-      printf("> findModulePath could not find <simpleTexture_kernel> ptx or "
-             "cubin\n");
+      printf(
+          "> findModulePath could not find <simpleTexture_kernel> ptx or "
+          "cubin\n");
       status = CUDA_ERROR_NOT_FOUND;
       goto Error;
     }
@@ -507,26 +508,26 @@ static CUresult initCUDA(int argc, char **argv, CUfunction *transform) {
   if (module_path.rfind("ptx") != string::npos) {
     // in this branch we use compilation with parameters
     const unsigned int jitNumOptions = 3;
-    CUjit_option *jitOptions = new CUjit_option[jitNumOptions];
-    void **jitOptVals = new void *[jitNumOptions];
+    CUjit_option* jitOptions = new CUjit_option[jitNumOptions];
+    void** jitOptVals = new void*[jitNumOptions];
 
     // set up size of compilation log buffer
     jitOptions[0] = CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES;
     int jitLogBufferSize = 1024;
-    jitOptVals[0] = (void *)(size_t)jitLogBufferSize;
+    jitOptVals[0] = (void*)(size_t)jitLogBufferSize;
 
     // set up pointer to the compilation log buffer
     jitOptions[1] = CU_JIT_INFO_LOG_BUFFER;
-    char *jitLogBuffer = new char[jitLogBufferSize];
+    char* jitLogBuffer = new char[jitLogBufferSize];
     jitOptVals[1] = jitLogBuffer;
 
     // set up pointer to set the Maximum # of registers for a particular kernel
     jitOptions[2] = CU_JIT_MAX_REGISTERS;
     int jitRegCount = 32;
-    jitOptVals[2] = (void *)(size_t)jitRegCount;
+    jitOptVals[2] = (void*)(size_t)jitRegCount;
 
     status = cuModuleLoadDataEx(&cuModule, ptx_source.c_str(), jitNumOptions,
-                                jitOptions, (void **)jitOptVals);
+                                jitOptions, (void**)jitOptVals);
 
     printf("> PTX JIT log:\n%s\n", jitLogBuffer);
   } else {

@@ -9,15 +9,15 @@
  *
  */
 
-#include <helper_cuda.h> // CUDA device initialization helper functions
+#include <helper_cuda.h>  // CUDA device initialization helper functions
 #include <helper_functions.h>
 #include <helper_math.h>
 
-__constant__ float cGaussian[64]; // gaussian array in device side
+__constant__ float cGaussian[64];  // gaussian array in device side
 texture<uchar4, 2, cudaReadModeNormalizedFloat> rgbaTex;
 
-uint *dImage = NULL; // original image
-uint *dTemp = NULL;  // temp array for iterations
+uint* dImage = NULL;  // original image
+uint* dTemp = NULL;   // temp array for iterations
 size_t pitch;
 
 /*
@@ -52,7 +52,6 @@ size_t pitch;
 
 // Euclidean Distance (x, y, d) = exp((|x - y| / d)^2 / 2)
 __device__ float euclideanLen(float4 a, float4 b, float d) {
-
   float mod = (b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y) +
               (b.z - a.z) * (b.z - a.z);
 
@@ -60,7 +59,7 @@ __device__ float euclideanLen(float4 a, float4 b, float d) {
 }
 
 __device__ uint rgbaFloatToInt(float4 rgba) {
-  rgba.x = __saturatef(fabs(rgba.x)); // clamp to [0.0, 1.0]
+  rgba.x = __saturatef(fabs(rgba.x));  // clamp to [0.0, 1.0]
   rgba.y = __saturatef(fabs(rgba.y));
   rgba.z = __saturatef(fabs(rgba.z));
   rgba.w = __saturatef(fabs(rgba.w));
@@ -70,15 +69,15 @@ __device__ uint rgbaFloatToInt(float4 rgba) {
 
 __device__ float4 rgbaIntToFloat(uint c) {
   float4 rgba;
-  rgba.x = (c & 0xff) * 0.003921568627f;         //  /255.0f;
-  rgba.y = ((c >> 8) & 0xff) * 0.003921568627f;  //  /255.0f;
-  rgba.z = ((c >> 16) & 0xff) * 0.003921568627f; //  /255.0f;
-  rgba.w = ((c >> 24) & 0xff) * 0.003921568627f; //  /255.0f;
+  rgba.x = (c & 0xff) * 0.003921568627f;          //  /255.0f;
+  rgba.y = ((c >> 8) & 0xff) * 0.003921568627f;   //  /255.0f;
+  rgba.z = ((c >> 16) & 0xff) * 0.003921568627f;  //  /255.0f;
+  rgba.w = ((c >> 24) & 0xff) * 0.003921568627f;  //  /255.0f;
   return rgba;
 }
 
 // column pass using coalesced global memory reads
-__global__ void d_bilateral_filter(uint *od, int w, int h, float e_d, int r) {
+__global__ void d_bilateral_filter(uint* od, int w, int h, float e_d, int r) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -94,8 +93,8 @@ __global__ void d_bilateral_filter(uint *od, int w, int h, float e_d, int r) {
   for (int i = -r; i <= r; i++) {
     for (int j = -r; j <= r; j++) {
       float4 curPix = tex2D(rgbaTex, x + j, y + i);
-      factor = cGaussian[i + r] * cGaussian[j + r] * // domain factor
-               euclideanLen(curPix, center, e_d);    // range factor
+      factor = cGaussian[i + r] * cGaussian[j + r] *  // domain factor
+               euclideanLen(curPix, center, e_d);     // range factor
 
       t += factor * curPix;
       sum += factor;
@@ -105,7 +104,7 @@ __global__ void d_bilateral_filter(uint *od, int w, int h, float e_d, int r) {
   od[y * w + x] = rgbaFloatToInt(t / sum);
 }
 
-extern "C" void initTexture(int width, int height, uint *hImage) {
+extern "C" void initTexture(int width, int height, uint* hImage) {
   // copy image data to array
   checkCudaErrors(
       cudaMallocPitch(&dImage, &pitch, sizeof(uint) * width, height));
@@ -160,9 +159,9 @@ extern "C" void updateGaussian(float delta, int radius) {
 */
 
 // RGBA version
-extern "C" double bilateralFilterRGBA(uint *dDest, int width, int height,
+extern "C" double bilateralFilterRGBA(uint* dDest, int width, int height,
                                       float e_d, int radius, int iterations,
-                                      StopWatchInterface *timer) {
+                                      StopWatchInterface* timer) {
   // var for kernel computation timing
   double dKernelTime;
 

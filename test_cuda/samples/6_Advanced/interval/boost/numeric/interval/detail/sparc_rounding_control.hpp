@@ -29,7 +29,7 @@ namespace detail {
 struct sparc_rounding_control {
   typedef unsigned int rounding_mode;
 
-  static void set_rounding_mode(const rounding_mode &mode) {
+  static void set_rounding_mode(const rounding_mode& mode) {
 #if defined(__GNUC__)
     __asm__ __volatile__("ld %0, %%fsr" : : "m"(mode));
 #elif defined(__SUNPRO_CC)
@@ -42,7 +42,7 @@ struct sparc_rounding_control {
 #endif
   }
 
-  static void get_rounding_mode(rounding_mode &mode) {
+  static void get_rounding_mode(rounding_mode& mode) {
 #if defined(__GNUC__)
     __asm__ __volatile__("st %%fsr, %0" : "=m"(mode));
 #elif defined(__SUNPRO_CC)
@@ -68,32 +68,34 @@ struct sparc_rounding_control {
 #endif
 };
 
-} // namespace detail
+}  // namespace detail
 
 extern "C" {
 float rintf(float);
 double rint(double);
 }
 
-template <> struct rounding_control<float> : detail::sparc_rounding_control {
-  static const float &force_rounding(const float &x) { return x; }
-  static float to_int(const float &x) { return rintf(x); }
+template <>
+struct rounding_control<float> : detail::sparc_rounding_control {
+  static const float& force_rounding(const float& x) { return x; }
+  static float to_int(const float& x) { return rintf(x); }
 };
 
-template <> struct rounding_control<double> : detail::sparc_rounding_control {
-  static const double &force_rounding(const double &x) { return x; }
-  static double to_int(const double &x) { return rint(x); }
+template <>
+struct rounding_control<double> : detail::sparc_rounding_control {
+  static const double& force_rounding(const double& x) { return x; }
+  static double to_int(const double& x) { return rint(x); }
 };
 
 template <>
 struct rounding_control<long double> : detail::sparc_rounding_control {
-  static const long double &force_rounding(const long double &x) { return x; }
-  static long double to_int(const long double &x) { return rint(x); }
+  static const long double& force_rounding(const long double& x) { return x; }
+  static long double to_int(const long double& x) { return rint(x); }
 };
 
-} // namespace interval_lib
-} // namespace numeric
-} // namespace boost
+}  // namespace interval_lib
+}  // namespace numeric
+}  // namespace boost
 
 #undef BOOST_NUMERIC_INTERVAL_NO_HARDWARE
 

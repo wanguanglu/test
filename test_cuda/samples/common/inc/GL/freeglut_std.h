@@ -44,7 +44,7 @@ extern "C" {
 #define FGAPI
 #define FGAPIENTRY
 
-#pragma comment(                                                               \
+#pragma comment( \
     lib, "freeglut_static.lib") /* link with Win32 static freeglut lib */
 
 #else
@@ -154,41 +154,41 @@ extern "C" {
  * Steve Baker suggested to make it binary compatible with GLUT:
  */
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-#define GLUT_STROKE_ROMAN ((void *)0x0000)
-#define GLUT_STROKE_MONO_ROMAN ((void *)0x0001)
-#define GLUT_BITMAP_9_BY_15 ((void *)0x0002)
-#define GLUT_BITMAP_8_BY_13 ((void *)0x0003)
-#define GLUT_BITMAP_TIMES_ROMAN_10 ((void *)0x0004)
-#define GLUT_BITMAP_TIMES_ROMAN_24 ((void *)0x0005)
-#define GLUT_BITMAP_HELVETICA_10 ((void *)0x0006)
-#define GLUT_BITMAP_HELVETICA_12 ((void *)0x0007)
-#define GLUT_BITMAP_HELVETICA_18 ((void *)0x0008)
+#define GLUT_STROKE_ROMAN ((void*)0x0000)
+#define GLUT_STROKE_MONO_ROMAN ((void*)0x0001)
+#define GLUT_BITMAP_9_BY_15 ((void*)0x0002)
+#define GLUT_BITMAP_8_BY_13 ((void*)0x0003)
+#define GLUT_BITMAP_TIMES_ROMAN_10 ((void*)0x0004)
+#define GLUT_BITMAP_TIMES_ROMAN_24 ((void*)0x0005)
+#define GLUT_BITMAP_HELVETICA_10 ((void*)0x0006)
+#define GLUT_BITMAP_HELVETICA_12 ((void*)0x0007)
+#define GLUT_BITMAP_HELVETICA_18 ((void*)0x0008)
 #else
 /*
  * I don't really know if it's a good idea... But here it goes:
  */
-extern void *glutStrokeRoman;
-extern void *glutStrokeMonoRoman;
-extern void *glutBitmap9By15;
-extern void *glutBitmap8By13;
-extern void *glutBitmapTimesRoman10;
-extern void *glutBitmapTimesRoman24;
-extern void *glutBitmapHelvetica10;
-extern void *glutBitmapHelvetica12;
-extern void *glutBitmapHelvetica18;
+extern void* glutStrokeRoman;
+extern void* glutStrokeMonoRoman;
+extern void* glutBitmap9By15;
+extern void* glutBitmap8By13;
+extern void* glutBitmapTimesRoman10;
+extern void* glutBitmapTimesRoman24;
+extern void* glutBitmapHelvetica10;
+extern void* glutBitmapHelvetica12;
+extern void* glutBitmapHelvetica18;
 
 /*
  * Those pointers will be used by following definitions:
  */
-#define GLUT_STROKE_ROMAN ((void *)&glutStrokeRoman)
-#define GLUT_STROKE_MONO_ROMAN ((void *)&glutStrokeMonoRoman)
-#define GLUT_BITMAP_9_BY_15 ((void *)&glutBitmap9By15)
-#define GLUT_BITMAP_8_BY_13 ((void *)&glutBitmap8By13)
-#define GLUT_BITMAP_TIMES_ROMAN_10 ((void *)&glutBitmapTimesRoman10)
-#define GLUT_BITMAP_TIMES_ROMAN_24 ((void *)&glutBitmapTimesRoman24)
-#define GLUT_BITMAP_HELVETICA_10 ((void *)&glutBitmapHelvetica10)
-#define GLUT_BITMAP_HELVETICA_12 ((void *)&glutBitmapHelvetica12)
-#define GLUT_BITMAP_HELVETICA_18 ((void *)&glutBitmapHelvetica18)
+#define GLUT_STROKE_ROMAN ((void*)&glutStrokeRoman)
+#define GLUT_STROKE_MONO_ROMAN ((void*)&glutStrokeMonoRoman)
+#define GLUT_BITMAP_9_BY_15 ((void*)&glutBitmap9By15)
+#define GLUT_BITMAP_8_BY_13 ((void*)&glutBitmap8By13)
+#define GLUT_BITMAP_TIMES_ROMAN_10 ((void*)&glutBitmapTimesRoman10)
+#define GLUT_BITMAP_TIMES_ROMAN_24 ((void*)&glutBitmapTimesRoman24)
+#define GLUT_BITMAP_HELVETICA_10 ((void*)&glutBitmapHelvetica10)
+#define GLUT_BITMAP_HELVETICA_12 ((void*)&glutBitmapHelvetica12)
+#define GLUT_BITMAP_HELVETICA_18 ((void*)&glutBitmapHelvetica18)
 #endif
 
 /*
@@ -351,11 +351,11 @@ extern void *glutBitmapHelvetica18;
 /*
  * Initialization functions, see fglut_init.c
  */
-FGAPI void FGAPIENTRY glutInit(int *pargc, char **argv);
+FGAPI void FGAPIENTRY glutInit(int* pargc, char** argv);
 FGAPI void FGAPIENTRY glutInitWindowPosition(int x, int y);
 FGAPI void FGAPIENTRY glutInitWindowSize(int width, int height);
 FGAPI void FGAPIENTRY glutInitDisplayMode(unsigned int displayMode);
-FGAPI void FGAPIENTRY glutInitDisplayString(const char *displayMode);
+FGAPI void FGAPIENTRY glutInitDisplayString(const char* displayMode);
 
 /*
  * Process loop function, see freeglut_main.c
@@ -365,14 +365,14 @@ FGAPI void FGAPIENTRY glutMainLoop(void);
 /*
  * Window management functions, see freeglut_window.c
  */
-FGAPI int FGAPIENTRY glutCreateWindow(const char *title);
+FGAPI int FGAPIENTRY glutCreateWindow(const char* title);
 FGAPI int FGAPIENTRY glutCreateSubWindow(int window, int x, int y, int width,
                                          int height);
 FGAPI void FGAPIENTRY glutDestroyWindow(int window);
 FGAPI void FGAPIENTRY glutSetWindow(int window);
 FGAPI int FGAPIENTRY glutGetWindow(void);
-FGAPI void FGAPIENTRY glutSetWindowTitle(const char *title);
-FGAPI void FGAPIENTRY glutSetIconTitle(const char *title);
+FGAPI void FGAPIENTRY glutSetWindowTitle(const char* title);
+FGAPI void FGAPIENTRY glutSetIconTitle(const char* title);
 FGAPI void FGAPIENTRY glutReshapeWindow(int width, int height);
 FGAPI void FGAPIENTRY glutPositionWindow(int x, int y);
 FGAPI void FGAPIENTRY glutShowWindow(void);
@@ -413,11 +413,11 @@ FGAPI int FGAPIENTRY glutCreateMenu(void (*callback)(int menu));
 FGAPI void FGAPIENTRY glutDestroyMenu(int menu);
 FGAPI int FGAPIENTRY glutGetMenu(void);
 FGAPI void FGAPIENTRY glutSetMenu(int menu);
-FGAPI void FGAPIENTRY glutAddMenuEntry(const char *label, int value);
-FGAPI void FGAPIENTRY glutAddSubMenu(const char *label, int subMenu);
-FGAPI void FGAPIENTRY glutChangeToMenuEntry(int item, const char *label,
+FGAPI void FGAPIENTRY glutAddMenuEntry(const char* label, int value);
+FGAPI void FGAPIENTRY glutAddSubMenu(const char* label, int subMenu);
+FGAPI void FGAPIENTRY glutChangeToMenuEntry(int item, const char* label,
                                             int value);
-FGAPI void FGAPIENTRY glutChangeToSubMenu(int item, const char *label,
+FGAPI void FGAPIENTRY glutChangeToSubMenu(int item, const char* label,
                                           int value);
 FGAPI void FGAPIENTRY glutRemoveMenuItem(int item);
 FGAPI void FGAPIENTRY glutAttachMenu(int button);
@@ -475,12 +475,12 @@ FGAPI int FGAPIENTRY glutLayerGet(GLenum query);
 /*
  * Font stuff, see freeglut_font.c
  */
-FGAPI void FGAPIENTRY glutBitmapCharacter(void *font, int character);
-FGAPI int FGAPIENTRY glutBitmapWidth(void *font, int character);
-FGAPI void FGAPIENTRY glutStrokeCharacter(void *font, int character);
-FGAPI int FGAPIENTRY glutStrokeWidth(void *font, int character);
-FGAPI int FGAPIENTRY glutBitmapLength(void *font, const unsigned char *string);
-FGAPI int FGAPIENTRY glutStrokeLength(void *font, const unsigned char *string);
+FGAPI void FGAPIENTRY glutBitmapCharacter(void* font, int character);
+FGAPI int FGAPIENTRY glutBitmapWidth(void* font, int character);
+FGAPI void FGAPIENTRY glutStrokeCharacter(void* font, int character);
+FGAPI int FGAPIENTRY glutStrokeWidth(void* font, int character);
+FGAPI int FGAPIENTRY glutBitmapLength(void* font, const unsigned char* string);
+FGAPI int FGAPIENTRY glutStrokeLength(void* font, const unsigned char* string);
 
 /*
  * Geometry functions, see freeglut_geometry.c
@@ -518,7 +518,7 @@ FGAPI void FGAPIENTRY glutSolidTeapot(GLdouble size);
 /*
  * Game mode functions, see freeglut_gamemode.c
  */
-FGAPI void FGAPIENTRY glutGameModeString(const char *string);
+FGAPI void FGAPIENTRY glutGameModeString(const char* string);
 FGAPI int FGAPIENTRY glutEnterGameMode(void);
 FGAPI void FGAPIENTRY glutLeaveGameMode(void);
 FGAPI int FGAPIENTRY glutGameModeGet(GLenum query);
@@ -551,7 +551,7 @@ FGAPI void FGAPIENTRY glutForceJoystickFunc(void);
 /*
  * Misc functions, see freeglut_misc.c
  */
-FGAPI int FGAPIENTRY glutExtensionSupported(const char *extension);
+FGAPI int FGAPIENTRY glutExtensionSupported(const char* extension);
 FGAPI void FGAPIENTRY glutReportErrors(void);
 
 #ifdef __cplusplus

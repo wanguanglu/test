@@ -41,14 +41,13 @@ double CND(double d) {
   double cnd = RSQRT2PI * exp(-0.5 * d * d) *
                (K * (A1 + K * (A2 + K * (A3 + K * (A4 + K * A5)))));
 
-  if (d > 0)
-    cnd = 1.0 - cnd;
+  if (d > 0) cnd = 1.0 - cnd;
 
   return cnd;
 }
 
 // Black-Scholes formula for call value
-extern "C" void BlackScholesCall(float &callValue, TOptionData optionData) {
+extern "C" void BlackScholesCall(float& callValue, TOptionData optionData) {
   double S = optionData.S;
   double X = optionData.X;
   double T = optionData.T;
@@ -74,8 +73,8 @@ static double endCallValue(double S, double X, double r, double MuByT,
   return (callValue > 0) ? callValue : 0;
 }
 
-extern "C" void MonteCarloCPU(TOptionValue &callValue, TOptionData optionData,
-                              float *h_Samples, int pathN) {
+extern "C" void MonteCarloCPU(TOptionValue& callValue, TOptionData optionData,
+                              float* h_Samples, int pathN) {
   const double S = optionData.S;
   const double X = optionData.X;
   const double T = optionData.T;
@@ -84,7 +83,7 @@ extern "C" void MonteCarloCPU(TOptionValue &callValue, TOptionData optionData,
   const double MuByT = (R - 0.5 * V * V) * T;
   const double VBySqrtT = V * sqrt(T);
 
-  float *samples;
+  float* samples;
   curandGenerator_t gen;
 
   checkCudaErrors(curandCreateGeneratorHost(&gen, CURAND_RNG_PSEUDO_DEFAULT));
@@ -94,7 +93,7 @@ extern "C" void MonteCarloCPU(TOptionValue &callValue, TOptionData optionData,
   if (h_Samples != NULL) {
     samples = h_Samples;
   } else {
-    samples = (float *)malloc(pathN * sizeof(float));
+    samples = (float*)malloc(pathN * sizeof(float));
     checkCudaErrors(curandGenerateNormal(gen, samples, pathN, 0.0, 1.0));
   }
 
@@ -103,15 +102,13 @@ extern "C" void MonteCarloCPU(TOptionValue &callValue, TOptionData optionData,
   double sum = 0, sum2 = 0;
 
   for (int pos = 0; pos < pathN; pos++) {
-
     double sample = samples[pos];
     double callValue = endCallValue(S, X, sample, MuByT, VBySqrtT);
     sum += callValue;
     sum2 += callValue * callValue;
   }
 
-  if (h_Samples == NULL)
-    free(samples);
+  if (h_Samples == NULL) free(samples);
 
   checkCudaErrors(curandDestroyGenerator(gen));
 

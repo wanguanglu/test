@@ -19,7 +19,7 @@
 #define MUL(a, b) __umul24(a, b)
 
 // Global variables for nvrtc outputs
-char *ptx;
+char* ptx;
 size_t ptxSize;
 CUmodule module;
 
@@ -50,7 +50,7 @@ void quasirandomGeneratorGPU(CUdeviceptr d_Output, unsigned int seed,
   checkCudaErrors(
       cuModuleGetFunction(&kernel_addr, module, "quasirandomGeneratorKernel"));
 
-  void *args[] = {(void *)&d_Output, (void *)&seed, (void *)&N};
+  void* args[] = {(void*)&d_Output, (void*)&seed, (void*)&N};
   checkCudaErrors(cuLaunchKernel(kernel_addr, cudaGridSize.x, cudaGridSize.y,
                                  cudaGridSize.z, /* grid dim */
                                  threads.x, threads.y,
@@ -70,7 +70,7 @@ void inverseCNDgpu(CUdeviceptr d_Output, unsigned int N) {
   checkCudaErrors(
       cuModuleGetFunction(&kernel_addr, module, "inverseCNDKernel"));
 
-  void *args[] = {(void *)&d_Output, (void *)&N};
+  void* args[] = {(void*)&d_Output, (void*)&N};
   checkCudaErrors(cuLaunchKernel(kernel_addr, cudaGridSize.x, cudaGridSize.y,
                                  cudaGridSize.z, /* grid dim */
                                  threads.x, threads.y,

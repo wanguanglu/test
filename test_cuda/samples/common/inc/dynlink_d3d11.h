@@ -22,13 +22,13 @@
 
 // Standard Windows includes
 #include <assert.h>
-#include <commctrl.h> // for InitCommonControls()
+#include <commctrl.h>  // for InitCommonControls()
 #include <initguid.h>
 #include <limits.h>
 #include <math.h>
 #include <mmsystem.h>
-#include <new.h>      // for placement new
-#include <shellapi.h> // for ExtractIcon()
+#include <new.h>       // for placement new
+#include <shellapi.h>  // for ExtractIcon()
 #include <shlobj.h>
 #include <stdio.h>
 #include <wchar.h>
@@ -68,29 +68,31 @@
 #pragma deprecated("_tcsncat")
 #endif
 
-#pragma warning(disable : 4996) // disable deprecated warning
+#pragma warning(disable : 4996)  // disable deprecated warning
 #include <strsafe.h>
 #pragma warning(default : 4996)
 
-typedef HRESULT(WINAPI *LPCREATEDXGIFACTORY)(REFIID, void **);
-typedef HRESULT(WINAPI *LPD3D11CREATEDEVICEANDSWAPCHAIN)(
-    __in_opt IDXGIAdapter *pAdapter, D3D_DRIVER_TYPE DriverType,
+typedef HRESULT(WINAPI* LPCREATEDXGIFACTORY)(REFIID, void**);
+typedef HRESULT(WINAPI* LPD3D11CREATEDEVICEANDSWAPCHAIN)(
+    __in_opt IDXGIAdapter* pAdapter, D3D_DRIVER_TYPE DriverType,
     HMODULE Software, UINT Flags,
-    __in_ecount_opt(FeatureLevels) CONST D3D_FEATURE_LEVEL *pFeatureLevels,
+    __in_ecount_opt(FeatureLevels) CONST D3D_FEATURE_LEVEL* pFeatureLevels,
     UINT FeatureLevels, UINT SDKVersion,
-    __in_opt CONST DXGI_SWAP_CHAIN_DESC *pSwapChainDesc,
-    __out_opt IDXGISwapChain **ppSwapChain, __out_opt ID3D11Device **ppDevice,
-    __out_opt D3D_FEATURE_LEVEL *pFeatureLevel,
-    __out_opt ID3D11DeviceContext **ppImmediateContext);
-typedef HRESULT(WINAPI *LPD3D11CREATEDEVICE)(
-    IDXGIAdapter *, D3D_DRIVER_TYPE, HMODULE, UINT32, D3D_FEATURE_LEVEL *, UINT,
-    UINT32, ID3D11Device **, D3D_FEATURE_LEVEL *, ID3D11DeviceContext **);
-typedef void(WINAPI *LPD3DX11COMPILEFROMMEMORY)(
+    __in_opt CONST DXGI_SWAP_CHAIN_DESC* pSwapChainDesc,
+    __out_opt IDXGISwapChain** ppSwapChain, __out_opt ID3D11Device** ppDevice,
+    __out_opt D3D_FEATURE_LEVEL* pFeatureLevel,
+    __out_opt ID3D11DeviceContext** ppImmediateContext);
+typedef HRESULT(WINAPI* LPD3D11CREATEDEVICE)(IDXGIAdapter*, D3D_DRIVER_TYPE,
+                                             HMODULE, UINT32,
+                                             D3D_FEATURE_LEVEL*, UINT, UINT32,
+                                             ID3D11Device**, D3D_FEATURE_LEVEL*,
+                                             ID3D11DeviceContext**);
+typedef void(WINAPI* LPD3DX11COMPILEFROMMEMORY)(
     LPCSTR pSrcData, SIZE_T SrcDataLen, LPCSTR pFileName,
-    CONST D3D10_SHADER_MACRO *pDefines, LPD3D10INCLUDE pInclude,
+    CONST D3D10_SHADER_MACRO* pDefines, LPD3D10INCLUDE pInclude,
     LPCSTR pFunctionName, LPCSTR pProfile, UINT Flags1, UINT Flags2,
-    ID3DX11ThreadPump *pPump, ID3D10Blob **ppShader, ID3D10Blob **ppErrorMsgs,
-    HRESULT *pHResult);
+    ID3DX11ThreadPump* pPump, ID3D10Blob** ppShader, ID3D10Blob** ppErrorMsgs,
+    HRESULT* pHResult);
 
 static HMODULE s_hModDXGI = NULL;
 static LPCREATEDXGIFACTORY sFnPtr_CreateDXGIFactory = NULL;
@@ -147,7 +149,7 @@ static bool dynlinkLoadD3D11API(void) {
   if (s_hModD3DX11 != NULL) {
     sFnPtr_D3DX11CompileFromMemory = (LPD3DX11COMPILEFROMMEMORY)GetProcAddress(
         s_hModD3DX11, "D3DX11CompileFromMemory");
-  } else // if absent try to take it from DirectX 2010 Feb
+  } else  // if absent try to take it from DirectX 2010 Feb
   {
     s_hModD3DX11 = LoadLibrary("D3DX11d_42.dll");
 

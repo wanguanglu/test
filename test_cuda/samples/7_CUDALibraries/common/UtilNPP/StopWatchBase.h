@@ -18,21 +18,22 @@ namespace npp {
 ///     This class uses high-precision timers. It is implemented
 /// using templates and inline functions to cause minimal call-overhead
 /// and provide the most accurate timings.
-template <class OSPolicy> class StopWatchBase : public OSPolicy {
-public:
+template <class OSPolicy>
+class StopWatchBase : public OSPolicy {
+ public:
   // generic, specialized type
   typedef StopWatchBase<OSPolicy> SelfType;
   // generic, specialized type pointer
-  typedef StopWatchBase<OSPolicy> *SelfTypePtr;
+  typedef StopWatchBase<OSPolicy>* SelfTypePtr;
 
-public:
+ public:
   //! Constructor, default
   StopWatchBase();
 
   // Destructor
   ~StopWatchBase();
 
-public:
+ public:
   //! Start time measurement
   inline void start();
 
@@ -47,17 +48,17 @@ public:
   //! time between the last start() and stop call is returned
   inline const double elapsed() const;
 
-private:
+ private:
   //! Constructor, copy (not implemented)
-  StopWatchBase(const StopWatchBase &);
+  StopWatchBase(const StopWatchBase&);
 
   //! Assignment operator (not implemented)
-  StopWatchBase &operator=(const StopWatchBase &);
+  StopWatchBase& operator=(const StopWatchBase&);
 };
 
 // include, implementation
 #include "StopWatchBase.inl"
 
-} // namespace npp
+}  // namespace npp
 
-#endif // NV_NPP_UTIL_STOP_WATCH_BASE_H
+#endif  // NV_NPP_UTIL_STOP_WATCH_BASE_H

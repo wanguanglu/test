@@ -13,7 +13,7 @@
  *
  */
 
-const static char *const sSDKsample = "HSOpticalFlow";
+const static char* const sSDKsample = "HSOpticalFlow";
 
 // CPU-GPU discrepancy threshold for self-test
 const float THRESHOLD = 0.05f;
@@ -35,9 +35,9 @@ const float THRESHOLD = 0.05f;
 /// \param[in] u    horizontal displacement
 /// \param[in] v    vertical displacement
 ///////////////////////////////////////////////////////////////////////////////
-void WriteFloFile(const char *name, int w, int h, int s, const float *u,
-                  const float *v) {
-  FILE *stream;
+void WriteFloFile(const char* name, int w, int h, int s, const float* u,
+                  const float* v) {
+  FILE* stream;
   stream = fopen(name, "wb");
 
   if (stream == 0) {
@@ -73,17 +73,17 @@ void WriteFloFile(const char *name, int w, int h, int s, const float *u,
 /// \param[in]  exePath  executable file path
 /// \return true if image is successfully loaded or false otherwise
 ///////////////////////////////////////////////////////////////////////////////
-bool LoadImageAsFP32(float *&img_data, int &img_w, int &img_h, int &img_s,
-                     const char *name, const char *exePath) {
+bool LoadImageAsFP32(float*& img_data, int& img_w, int& img_h, int& img_s,
+                     const char* name, const char* exePath) {
   printf("Loading \"%s\" ...\n", name);
-  char *name_ = sdkFindFilePath(name, exePath);
+  char* name_ = sdkFindFilePath(name, exePath);
 
   if (!name_) {
     printf("File not found\n");
     return false;
   }
 
-  unsigned char *data = 0;
+  unsigned char* data = 0;
   unsigned int w = 0, h = 0;
   bool result = sdkLoadPPM4ub(name_, &data, &w, &h);
 
@@ -121,8 +121,8 @@ bool LoadImageAsFP32(float *&img_data, int &img_w, int &img_h, int &img_s,
 /// \param[in] h_v      vertical displacement
 /// \return true if discrepancy is lower than a given threshold
 ///////////////////////////////////////////////////////////////////////////////
-bool CompareWithGold(int width, int height, int stride, const float *h_uGold,
-                     const float *h_vGold, const float *h_u, const float *h_v) {
+bool CompareWithGold(int width, int height, int stride, const float* h_uGold,
+                     const float* h_vGold, const float* h_u, const float* h_v) {
   float error = 0.0f;
 
   for (int i = 0; i < height; ++i) {
@@ -142,16 +142,16 @@ bool CompareWithGold(int width, int height, int stride, const float *h_uGold,
 ///////////////////////////////////////////////////////////////////////////////
 /// application entry point
 ///////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   // welcome message
   printf("%s Starting...\n\n", sSDKsample);
 
   // pick GPU
-  findCudaDevice(argc, (const char **)argv);
+  findCudaDevice(argc, (const char**)argv);
 
   // find images
-  const char *const sourceFrameName = "frame10.ppm";
-  const char *const targetFrameName = "frame11.ppm";
+  const char* const sourceFrameName = "frame10.ppm";
+  const char* const targetFrameName = "frame11.ppm";
 
   // image dimensions
   int width;
@@ -160,8 +160,8 @@ int main(int argc, char **argv) {
   int stride;
 
   // flow is computed from source image to target image
-  float *h_source; // source image, host memory
-  float *h_target; // target image, host memory
+  float* h_source;  // source image, host memory
+  float* h_target;  // target image, host memory
 
   // load image from file
   if (!LoadImageAsFP32(h_source, width, height, stride, sourceFrameName,
@@ -175,12 +175,12 @@ int main(int argc, char **argv) {
   }
 
   // allocate host memory for CPU results
-  float *h_uGold = new float[stride * height];
-  float *h_vGold = new float[stride * height];
+  float* h_uGold = new float[stride * height];
+  float* h_vGold = new float[stride * height];
 
   // allocate host memory for GPU results
-  float *h_u = new float[stride * height];
-  float *h_v = new float[stride * height];
+  float* h_u = new float[stride * height];
+  float* h_v = new float[stride * height];
 
   // smoothness
   // if image brightness is not within [0,1]

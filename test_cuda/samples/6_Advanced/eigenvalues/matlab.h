@@ -35,8 +35,8 @@
 //!                  if these are sorted in ascending order
 //! @param  n  size of the matrix
 ///////////////////////////////////////////////////////////////////////////////
-extern "C" void writeTridiagSymMatlab(const char *filename, float *d, float *s,
-                                      float *eigenvals, const unsigned int n);
+extern "C" void writeTridiagSymMatlab(const char* filename, float* d, float* s,
+                                      float* eigenvals, const unsigned int n);
 
 ///////////////////////////////////////////////////////////////////////////////
 //! Write matrix to a file in Matlab format
@@ -46,7 +46,7 @@ extern "C" void writeTridiagSymMatlab(const char *filename, float *d, float *s,
 //! @param  mat_size  size of the (square) matrix \a mat
 ///////////////////////////////////////////////////////////////////////////////
 template <class T, class S>
-void writeMatrixMatlab(T &file, const char *mat_name, S *&mat,
+void writeMatrixMatlab(T& file, const char* mat_name, S*& mat,
                        const unsigned int mat_size);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ void writeMatrixMatlab(T &file, const char *mat_name, S *&mat,
 //! @param  vec_len  length of the vector
 ///////////////////////////////////////////////////////////////////////////////
 template <class T, class S>
-void writeVectorMatlab(T &file, const char *vec_name, S *&vec,
+void writeVectorMatlab(T& file, const char* vec_name, S*& vec,
                        const unsigned int vec_len);
 
 // implementations
@@ -70,16 +70,14 @@ void writeVectorMatlab(T &file, const char *vec_name, S *&vec,
 //! @param  mat_size  size of the (square) matrix \a mat
 ///////////////////////////////////////////////////////////////////////////////
 template <class T, class S>
-void writeMatrixMatlab(T &file, const char *mat_name, S *&mat,
+void writeMatrixMatlab(T& file, const char* mat_name, S*& mat,
                        const unsigned int mat_size) {
-
   const unsigned int pitch = sizeof(S) * mat_size;
 
   file << mat_name << " = [";
 
   for (unsigned int i = 0; i < mat_size; ++i) {
     for (unsigned int j = 0; j < mat_size; ++j) {
-
       file << getMatrix(mat, pitch, i, j) << " ";
     }
 
@@ -99,7 +97,7 @@ void writeMatrixMatlab(T &file, const char *mat_name, S *&mat,
 //! @param  vec_len  length of the vector
 ///////////////////////////////////////////////////////////////////////////////
 template <class T, class S>
-void writeVectorMatlab(T &file, const char *vec_name, S *&vec,
+void writeVectorMatlab(T& file, const char* vec_name, S*& vec,
                        const unsigned int vec_len) {
   file << vec_name << " = [";
 
@@ -110,4 +108,4 @@ void writeVectorMatlab(T &file, const char *vec_name, S *&vec,
   file << "];\n";
 }
 
-#endif // _MATLAB_H_
+#endif  // _MATLAB_H_

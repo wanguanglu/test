@@ -71,7 +71,7 @@ __shared__ float CurBlockLocal2[BLOCK_SIZE2];
 *
 * \return None
 */
-__global__ void CUDAkernel1DCT(float *Dst, int ImgWidth, int OffsetXBlocks,
+__global__ void CUDAkernel1DCT(float* Dst, int ImgWidth, int OffsetXBlocks,
                                int OffsetYBlocks) {
   // Block index
   const int bx = blockIdx.x + OffsetXBlocks;
@@ -151,7 +151,7 @@ __global__ void CUDAkernel1DCT(float *Dst, int ImgWidth, int OffsetXBlocks,
 *
 * \return None
 */
-__global__ void CUDAkernel1IDCT(float *Dst, int ImgWidth, int OffsetXBlocks,
+__global__ void CUDAkernel1IDCT(float* Dst, int ImgWidth, int OffsetXBlocks,
                                 int OffsetYBlocks) {
   // Block index
   int bx = blockIdx.x + OffsetXBlocks;

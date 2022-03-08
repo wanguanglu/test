@@ -45,8 +45,8 @@ CUmodule module;
 // Host-side interface to GPU binomialOptions
 ////////////////////////////////////////////////////////////////////////////////
 
-extern "C" void binomialOptionsGPU(real *callValue, TOptionData *optionData,
-                                   int optN, int argc, char **argv) {
+extern "C" void binomialOptionsGPU(real* callValue, TOptionData* optionData,
+                                   int optN, int argc, char** argv) {
   if (!moduleLoaded) {
     kernel_file = sdkFindFilePath("binomialOptions_kernel.cu", argv[0]);
     compileFileToPTX(kernel_file, 0, NULL, &ptx, &ptxSize);

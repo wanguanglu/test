@@ -34,16 +34,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Test driver
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   cudaError_t error;
   printf("%s Starting...\n\n", argv[0]);
 
   printf("Starting up CUDA context...\n");
-  int dev = findCudaDevice(argc, (const char **)argv);
+  int dev = findCudaDevice(argc, (const char**)argv);
 
   uint *h_InputKey, *h_InputVal, *h_OutputKeyGPU, *h_OutputValGPU;
   uint *d_InputKey, *d_InputVal, *d_OutputKey, *d_OutputVal;
-  StopWatchInterface *hTimer = NULL;
+  StopWatchInterface* hTimer = NULL;
 
   const uint N = 1048576;
   const uint DIR = 0;
@@ -52,10 +52,10 @@ int main(int argc, char **argv) {
 
   printf("Allocating and initializing host arrays...\n\n");
   sdkCreateTimer(&hTimer);
-  h_InputKey = (uint *)malloc(N * sizeof(uint));
-  h_InputVal = (uint *)malloc(N * sizeof(uint));
-  h_OutputKeyGPU = (uint *)malloc(N * sizeof(uint));
-  h_OutputValGPU = (uint *)malloc(N * sizeof(uint));
+  h_InputKey = (uint*)malloc(N * sizeof(uint));
+  h_InputVal = (uint*)malloc(N * sizeof(uint));
+  h_OutputKeyGPU = (uint*)malloc(N * sizeof(uint));
+  h_OutputValGPU = (uint*)malloc(N * sizeof(uint));
   srand(2001);
 
   for (uint i = 0; i < N; i++) {
@@ -64,13 +64,13 @@ int main(int argc, char **argv) {
   }
 
   printf("Allocating and initializing CUDA arrays...\n\n");
-  error = cudaMalloc((void **)&d_InputKey, N * sizeof(uint));
+  error = cudaMalloc((void**)&d_InputKey, N * sizeof(uint));
   checkCudaErrors(error);
-  error = cudaMalloc((void **)&d_InputVal, N * sizeof(uint));
+  error = cudaMalloc((void**)&d_InputVal, N * sizeof(uint));
   checkCudaErrors(error);
-  error = cudaMalloc((void **)&d_OutputKey, N * sizeof(uint));
+  error = cudaMalloc((void**)&d_OutputKey, N * sizeof(uint));
   checkCudaErrors(error);
-  error = cudaMalloc((void **)&d_OutputVal, N * sizeof(uint));
+  error = cudaMalloc((void**)&d_OutputVal, N * sizeof(uint));
   checkCudaErrors(error);
   error = cudaMemcpy(d_InputKey, h_InputKey, N * sizeof(uint),
                      cudaMemcpyHostToDevice);
@@ -106,10 +106,11 @@ int main(int argc, char **argv) {
 
     if (arrayLength == N) {
       double dTimeSecs = 1.0e-3 * sdkGetTimerValue(&hTimer) / numIterations;
-      printf("sortingNetworks-bitonic, Throughput = %.4f MElements/s, Time = "
-             "%.5f s, Size = %u elements, NumDevsUsed = %u, Workgroup = %u\n",
-             (1.0e-6 * (double)arrayLength / dTimeSecs), dTimeSecs, arrayLength,
-             1, threadCount);
+      printf(
+          "sortingNetworks-bitonic, Throughput = %.4f MElements/s, Time = "
+          "%.5f s, Size = %u elements, NumDevsUsed = %u, Workgroup = %u\n",
+          (1.0e-6 * (double)arrayLength / dTimeSecs), dTimeSecs, arrayLength, 1,
+          threadCount);
     }
 
     printf("\nValidating the results...\n");

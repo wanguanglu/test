@@ -5,4 +5,4 @@ typedef unsigned char uchar;
 typedef unsigned int uint;
 typedef unsigned long long int ullint;
 
-#endif // #ifndef _COMMON_CUH_
+#endif  // #ifndef _COMMON_CUH_

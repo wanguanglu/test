@@ -12,7 +12,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // NLM kernel
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void NLM(TColor *dst, int imageW, int imageH, float Noise,
+__global__ void NLM(TColor* dst, int imageW, int imageH, float Noise,
                     float lerpC) {
   const int ix = blockDim.x * blockIdx.x + threadIdx.x;
   const int iy = blockDim.y * blockIdx.y + threadIdx.y;
@@ -76,7 +76,7 @@ __global__ void NLM(TColor *dst, int imageW, int imageH, float Noise,
   }
 }
 
-extern "C" void cuda_NLM(TColor *d_dst, int imageW, int imageH, float Noise,
+extern "C" void cuda_NLM(TColor* d_dst, int imageW, int imageH, float Noise,
                          float lerpC) {
   dim3 threads(BLOCKDIM_X, BLOCKDIM_Y);
   dim3 grid(iDivUp(imageW, BLOCKDIM_X), iDivUp(imageH, BLOCKDIM_Y));
@@ -87,7 +87,7 @@ extern "C" void cuda_NLM(TColor *d_dst, int imageW, int imageH, float Noise,
 ////////////////////////////////////////////////////////////////////////////////
 // Stripped NLM kernel, only highlighting areas with different LERP directions
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void NLMdiag(TColor *dst, unsigned int imageW, unsigned int imageH,
+__global__ void NLMdiag(TColor* dst, unsigned int imageW, unsigned int imageH,
                         float Noise, float lerpC) {
   const int ix = blockDim.x * blockIdx.x + threadIdx.x;
   const int iy = blockDim.y * blockIdx.y + threadIdx.y;
@@ -102,7 +102,6 @@ __global__ void NLMdiag(TColor *dst, unsigned int imageW, unsigned int imageH,
     // Cycle through NLM window, surrounding (x, y) texel
     for (float i = -NLM_WINDOW_RADIUS; i <= NLM_WINDOW_RADIUS; i++)
       for (float j = -NLM_WINDOW_RADIUS; j <= NLM_WINDOW_RADIUS; j++) {
-
         // Find color distance between (x, y) and (x + j, y + i)
         float weightIJ = 0;
 
@@ -128,7 +127,7 @@ __global__ void NLMdiag(TColor *dst, unsigned int imageW, unsigned int imageH,
   };
 }
 
-extern "C" void cuda_NLMdiag(TColor *d_dst, int imageW, int imageH, float Noise,
+extern "C" void cuda_NLMdiag(TColor* d_dst, int imageW, int imageH, float Noise,
                              float lerpC) {
   dim3 threads(BLOCKDIM_X, BLOCKDIM_Y);
   dim3 grid(iDivUp(imageW, BLOCKDIM_X), iDivUp(imageH, BLOCKDIM_Y));

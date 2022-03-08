@@ -29,7 +29,7 @@ namespace keywords = boost::log::keywords;
 
 BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(my_logger, src::logger_mt);
 int main() {
-  src::logger_mt &lg = my_logger::get();
+  src::logger_mt& lg = my_logger::get();
 
   logging::record rec = lg.open_record();
   if (rec) {

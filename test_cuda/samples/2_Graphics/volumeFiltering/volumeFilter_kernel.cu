@@ -57,17 +57,17 @@ static unsigned int iDivUp(size_t a, size_t b) {
   size_t val = (a % b != 0) ? (a / b + 1) : (a / b);
   if (val > UINT_MAX) {
     fprintf(stderr, "\nUINT_MAX limit exceeded in iDivUp() exiting.....\n");
-    exit(EXIT_FAILURE); // val exceeds limit
+    exit(EXIT_FAILURE);  // val exceeds limit
   }
 
   return static_cast<unsigned int>(val);
 }
 
-extern "C" Volume *VolumeFilter_runFilter(Volume *input, Volume *output0,
-                                          Volume *output1, int iterations,
-                                          int numWeights, float4 *weights,
+extern "C" Volume* VolumeFilter_runFilter(Volume* input, Volume* output0,
+                                          Volume* output1, int iterations,
+                                          int numWeights, float4* weights,
                                           float postWeightOffset) {
-  Volume *swap = 0;
+  Volume* swap = 0;
   cudaExtent size = input->size;
   unsigned int dim = 32 / sizeof(VolumeType);
   dim3 blockSize(dim, dim, 1);

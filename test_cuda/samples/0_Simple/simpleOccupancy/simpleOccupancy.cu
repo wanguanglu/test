@@ -9,7 +9,7 @@
  *
  */
 
-#include <helper_cuda.h> // helper functions for CUDA error check
+#include <helper_cuda.h>  // helper functions for CUDA error check
 #include <iostream>
 
 const int manualBlockSize = 32;
@@ -22,7 +22,7 @@ const int manualBlockSize = 32;
 // execution configuration, including anything the launch configurator
 // API suggests.
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void square(int *array, int arrayCount) {
+__global__ void square(int* array, int arrayCount) {
   extern __shared__ int dynamicSmem[];
   int idx = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -42,7 +42,7 @@ __global__ void square(int *array, int arrayCount) {
 // This wrapper routine computes the occupancy of kernel, and reports
 // it in terms of active warps / maximum warps per SM.
 ////////////////////////////////////////////////////////////////////////////////
-static double reportPotentialOccupancy(void *kernel, int blockSize,
+static double reportPotentialOccupancy(void* kernel, int blockSize,
                                        size_t dynamicSMem) {
   int device;
   cudaDeviceProp prop;
@@ -83,7 +83,7 @@ static double reportPotentialOccupancy(void *kernel, int blockSize,
 // This function configures the launch based on the "automatic"
 // argument, records the runtime, and reports occupancy and runtime.
 ////////////////////////////////////////////////////////////////////////////////
-static int launchConfig(int *array, int arrayCount, bool automatic) {
+static int launchConfig(int* array, int arrayCount, bool automatic) {
   int blockSize;
   int minGridSize;
   int gridSize;
@@ -101,8 +101,7 @@ static int launchConfig(int *array, int arrayCount, bool automatic) {
 
   if (automatic) {
     checkCudaErrors(cudaOccupancyMaxPotentialBlockSize(
-        &minGridSize, &blockSize, (void *)square, dynamicSMemUsage,
-        arrayCount));
+        &minGridSize, &blockSize, (void*)square, dynamicSMemUsage, arrayCount));
 
     std::cout << "Suggested block size: " << blockSize << std::endl
               << "Minimum grid size for maximum occupancy: " << minGridSize
@@ -131,7 +130,7 @@ static int launchConfig(int *array, int arrayCount, bool automatic) {
   // Calculate occupancy
   //
   potentialOccupancy =
-      reportPotentialOccupancy((void *)square, blockSize, dynamicSMemUsage);
+      reportPotentialOccupancy((void*)square, blockSize, dynamicSMemUsage);
 
   std::cout << "Potential occupancy: " << potentialOccupancy * 100 << "%"
             << std::endl;
@@ -151,8 +150,8 @@ static int launchConfig(int *array, int arrayCount, bool automatic) {
 // verifies the result.
 ////////////////////////////////////////////////////////////////////////////////
 static int test(bool automaticLaunchConfig, const int count = 1000000) {
-  int *array;
-  int *dArray;
+  int* array;
+  int* dArray;
   int size = count * sizeof(int);
 
   array = new int[count];

@@ -34,8 +34,9 @@
 #include "Pixel.h"
 
 namespace npp {
-template <typename D, size_t N, class A> class ImagePacked : public npp::Image {
-public:
+template <typename D, size_t N, class A>
+class ImagePacked : public npp::Image {
+ public:
   typedef npp::Pixel<D, N> tPixel;
   typedef D tData;
   static const size_t gnChannels = N;
@@ -53,11 +54,11 @@ public:
     aPixels_ = A::Malloc2D(width(), height(), &nPitch_, bTight);
   }
 
-  ImagePacked(const tSize &rSize) : Image(rSize), aPixels_(0), nPitch_(0) {
+  ImagePacked(const tSize& rSize) : Image(rSize), aPixels_(0), nPitch_(0) {
     aPixels_ = A::Malloc2D(width(), height(), &nPitch_);
   }
 
-  ImagePacked(const ImagePacked<D, N, A> &rImage)
+  ImagePacked(const ImagePacked<D, N, A>& rImage)
       : Image(rImage), aPixels_(0), nPitch_(rImage.pitch()) {
     aPixels_ = A::Malloc2D(width(), height(), &nPitch_);
     A::Copy2D(aPixels_, nPitch_, rImage.pixels(), rImage.pitch(), width(),
@@ -66,7 +67,7 @@ public:
 
   virtual ~ImagePacked() { A::Free2D(aPixels_); }
 
-  ImagePacked &operator=(const ImagePacked<D, N, A> &rImage) {
+  ImagePacked& operator=(const ImagePacked<D, N, A>& rImage) {
     // in case of self-assignment
     if (&rImage == this) {
       return *this;
@@ -95,30 +96,30 @@ public:
   /// \param nY Vertical pointer/array offset.
   /// \return Pointer to the pixel array (or first pixel in array with
   /// coordinates (nX, nY).
-  tPixel *pixels(int nX = 0, int nY = 0) {
-    return reinterpret_cast<tPixel *>(
-        reinterpret_cast<unsigned char *>(aPixels_) + nY * pitch() +
+  tPixel* pixels(int nX = 0, int nY = 0) {
+    return reinterpret_cast<tPixel*>(
+        reinterpret_cast<unsigned char*>(aPixels_) + nY * pitch() +
         nX * gnChannels * sizeof(D));
   }
 
-  const tPixel *pixels(int nX = 0, int nY = 0) const {
-    return reinterpret_cast<const tPixel *>(
-        reinterpret_cast<unsigned char *>(aPixels_) + nY * pitch() +
+  const tPixel* pixels(int nX = 0, int nY = 0) const {
+    return reinterpret_cast<const tPixel*>(
+        reinterpret_cast<unsigned char*>(aPixels_) + nY * pitch() +
         nX * gnChannels * sizeof(D));
   }
 
-  D *data(int nX = 0, int nY = 0) {
-    return reinterpret_cast<D *>(pixels(nX, nY));
+  D* data(int nX = 0, int nY = 0) {
+    return reinterpret_cast<D*>(pixels(nX, nY));
   }
 
-  const D *data(int nX = 0, int nY = 0) const {
-    return reinterpret_cast<const D *>(pixels(nX, nY));
+  const D* data(int nX = 0, int nY = 0) const {
+    return reinterpret_cast<const D*>(pixels(nX, nY));
   }
 
-  void swap(ImagePacked<D, N, A> &rImage) {
+  void swap(ImagePacked<D, N, A>& rImage) {
     Image::swap(rImage);
 
-    tData *aTemp = aPixels_;
+    tData* aTemp = aPixels_;
     aPixels_ = rImage.aPixels_;
     rImage.aPixels_ = aTemp;
 
@@ -127,11 +128,11 @@ public:
     rImage.nPitch_ = nTemp;
   }
 
-private:
-  D *aPixels_;
+ private:
+  D* aPixels_;
   unsigned int nPitch_;
 };
 
-} // namespace npp
+}  // namespace npp
 
-#endif // NV_IMAGE_IPP_H
+#endif  // NV_IMAGE_IPP_H

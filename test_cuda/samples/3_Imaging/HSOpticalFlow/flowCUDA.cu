@@ -39,34 +39,34 @@
 /// \param[out] u            horizontal displacement
 /// \param[out] v            vertical displacement
 ///////////////////////////////////////////////////////////////////////////////
-void ComputeFlowCUDA(const float *I0, const float *I1, int width, int height,
+void ComputeFlowCUDA(const float* I0, const float* I1, int width, int height,
                      int stride, float alpha, int nLevels, int nWarpIters,
-                     int nSolverIters, float *u, float *v) {
+                     int nSolverIters, float* u, float* v) {
   printf("Computing optical flow on GPU...\n");
 
   // pI0 and pI1 will hold device pointers
-  const float **pI0 = new const float *[nLevels];
-  const float **pI1 = new const float *[nLevels];
+  const float** pI0 = new const float*[nLevels];
+  const float** pI1 = new const float*[nLevels];
 
-  int *pW = new int[nLevels];
-  int *pH = new int[nLevels];
-  int *pS = new int[nLevels];
+  int* pW = new int[nLevels];
+  int* pH = new int[nLevels];
+  int* pS = new int[nLevels];
 
   // device memory pointers
-  float *d_tmp;
-  float *d_du0;
-  float *d_dv0;
-  float *d_du1;
-  float *d_dv1;
+  float* d_tmp;
+  float* d_du0;
+  float* d_dv0;
+  float* d_du1;
+  float* d_dv1;
 
-  float *d_Ix;
-  float *d_Iy;
-  float *d_Iz;
+  float* d_Ix;
+  float* d_Iy;
+  float* d_Iz;
 
-  float *d_u;
-  float *d_v;
-  float *d_nu;
-  float *d_nv;
+  float* d_u;
+  float* d_v;
+  float* d_nu;
+  float* d_nv;
 
   const int dataSize = stride * height * sizeof(float);
 
@@ -92,9 +92,9 @@ void ComputeFlowCUDA(const float *I0, const float *I1, int width, int height,
   checkCudaErrors(cudaMalloc(pI0 + currentLevel, dataSize));
   checkCudaErrors(cudaMalloc(pI1 + currentLevel, dataSize));
 
-  checkCudaErrors(cudaMemcpy((void *)pI0[currentLevel], I0, dataSize,
+  checkCudaErrors(cudaMemcpy((void*)pI0[currentLevel], I0, dataSize,
                              cudaMemcpyHostToDevice));
-  checkCudaErrors(cudaMemcpy((void *)pI1[currentLevel], I1, dataSize,
+  checkCudaErrors(cudaMemcpy((void*)pI1[currentLevel], I1, dataSize,
                              cudaMemcpyHostToDevice));
 
   pW[currentLevel] = width;
@@ -112,10 +112,10 @@ void ComputeFlowCUDA(const float *I0, const float *I1, int width, int height,
         cudaMalloc(pI1 + currentLevel - 1, ns * nh * sizeof(float)));
 
     Downscale(pI0[currentLevel], pW[currentLevel], pH[currentLevel],
-              pS[currentLevel], nw, nh, ns, (float *)pI0[currentLevel - 1]);
+              pS[currentLevel], nw, nh, ns, (float*)pI0[currentLevel - 1]);
 
     Downscale(pI1[currentLevel], pW[currentLevel], pH[currentLevel],
-              pS[currentLevel], nw, nh, ns, (float *)pI1[currentLevel - 1]);
+              pS[currentLevel], nw, nh, ns, (float*)pI1[currentLevel - 1]);
 
     pW[currentLevel - 1] = nw;
     pH[currentLevel - 1] = nh;
@@ -127,7 +127,6 @@ void ComputeFlowCUDA(const float *I0, const float *I1, int width, int height,
 
   // compute flow
   for (; currentLevel < nLevels; ++currentLevel) {
-
     for (int warpIter = 0; warpIter < nWarpIters; ++warpIter) {
       checkCudaErrors(cudaMemset(d_du0, 0, dataSize));
       checkCudaErrors(cudaMemset(d_dv0, 0, dataSize));
@@ -180,8 +179,8 @@ void ComputeFlowCUDA(const float *I0, const float *I1, int width, int height,
 
   // cleanup
   for (int i = 0; i < nLevels; ++i) {
-    checkCudaErrors(cudaFree((void *)pI0[i]));
-    checkCudaErrors(cudaFree((void *)pI1[i]));
+    checkCudaErrors(cudaFree((void*)pI0[i]));
+    checkCudaErrors(cudaFree((void*)pI1[i]));
   }
 
   delete[] pI0;

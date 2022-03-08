@@ -24,11 +24,11 @@
 // ----------------------------------------------------------------------------------------
 
 // Utilities and system includes
-#include <helper_cuda.h>   // helper for cuda error checking functions
-#include <helper_image.h>  // helper for image and data comparison
-#include <helper_string.h> // helper for string parsing
+#include <helper_cuda.h>    // helper for cuda error checking functions
+#include <helper_image.h>   // helper for image and data comparison
+#include <helper_string.h>  // helper for string parsing
 
-const char *sSDKsample = "Transpose";
+const char* sSDKsample = "Transpose";
 
 // Each block transposes/copies a tile of TILE_DIM x TILE_DIM elements
 // using TILE_DIM x BLOCK_ROWS threads, so that each thread transposes
@@ -61,7 +61,7 @@ int MAX_TILES = (FLOOR(MATRIX_SIZE_X, 512) * FLOOR(MATRIX_SIZE_Y, 512)) /
 // width and height must be integral multiples of TILE_DIM
 // -------------------------------------------------------
 
-__global__ void copy(float *odata, float *idata, int width, int height) {
+__global__ void copy(float* odata, float* idata, int width, int height) {
   int xIndex = blockIdx.x * TILE_DIM + threadIdx.x;
   int yIndex = blockIdx.y * TILE_DIM + threadIdx.y;
 
@@ -72,7 +72,7 @@ __global__ void copy(float *odata, float *idata, int width, int height) {
   }
 }
 
-__global__ void copySharedMem(float *odata, float *idata, int width,
+__global__ void copySharedMem(float* odata, float* idata, int width,
                               int height) {
   __shared__ float tile[TILE_DIM][TILE_DIM];
 
@@ -101,7 +101,7 @@ __global__ void copySharedMem(float *odata, float *idata, int width,
 // width and height must be integral multiples of TILE_DIM
 // -------------------------------------------------------
 
-__global__ void transposeNaive(float *odata, float *idata, int width,
+__global__ void transposeNaive(float* odata, float* idata, int width,
                                int height) {
   int xIndex = blockIdx.x * TILE_DIM + threadIdx.x;
   int yIndex = blockIdx.y * TILE_DIM + threadIdx.y;
@@ -116,7 +116,7 @@ __global__ void transposeNaive(float *odata, float *idata, int width,
 
 // coalesced transpose (with bank conflicts)
 
-__global__ void transposeCoalesced(float *odata, float *idata, int width,
+__global__ void transposeCoalesced(float* odata, float* idata, int width,
                                    int height) {
   __shared__ float tile[TILE_DIM][TILE_DIM];
 
@@ -141,7 +141,7 @@ __global__ void transposeCoalesced(float *odata, float *idata, int width,
 
 // Coalesced transpose with no bank conflicts
 
-__global__ void transposeNoBankConflicts(float *odata, float *idata, int width,
+__global__ void transposeNoBankConflicts(float* odata, float* idata, int width,
                                          int height) {
   __shared__ float tile[TILE_DIM][TILE_DIM + 1];
 
@@ -176,7 +176,7 @@ __global__ void transposeNoBankConflicts(float *odata, float *idata, int width,
 // blockIdx_y and replacement of blockIdx.x and bloclIdx.y with the subscripted
 // versions in the remaining code
 
-__global__ void transposeDiagonal(float *odata, float *idata, int width,
+__global__ void transposeDiagonal(float* odata, float* idata, int width,
                                   int height) {
   __shared__ float tile[TILE_DIM][TILE_DIM + 1];
 
@@ -223,7 +223,7 @@ __global__ void transposeDiagonal(float *odata, float *idata, int width,
 //     components of a full transpose
 // --------------------------------------------------------------------
 
-__global__ void transposeFineGrained(float *odata, float *idata, int width,
+__global__ void transposeFineGrained(float* odata, float* idata, int width,
                                      int height) {
   __shared__ float block[TILE_DIM][TILE_DIM + 1];
 
@@ -242,7 +242,7 @@ __global__ void transposeFineGrained(float *odata, float *idata, int width,
   }
 }
 
-__global__ void transposeCoarseGrained(float *odata, float *idata, int width,
+__global__ void transposeCoarseGrained(float* odata, float* idata, int width,
                                        int height) {
   __shared__ float block[TILE_DIM][TILE_DIM + 1];
 
@@ -269,7 +269,7 @@ __global__ void transposeCoarseGrained(float *odata, float *idata, int width,
 // host utility routines
 // ---------------------
 
-void computeTransposeGold(float *gold, float *idata, const int size_x,
+void computeTransposeGold(float* gold, float* idata, const int size_x,
                           const int size_y) {
   for (int y = 0; y < size_y; ++y) {
     for (int x = 0; x < size_x; ++x) {
@@ -278,12 +278,12 @@ void computeTransposeGold(float *gold, float *idata, const int size_x,
   }
 }
 
-void getParams(int argc, char **argv, cudaDeviceProp &deviceProp, int &size_x,
-               int &size_y, int max_tile_dim) {
+void getParams(int argc, char** argv, cudaDeviceProp& deviceProp, int& size_x,
+               int& size_y, int max_tile_dim) {
   // set matrix size (if (x,y) dim of matrix is not square, then this will have
   // to be modified
-  if (checkCmdLineFlag(argc, (const char **)argv, "dimX")) {
-    size_x = getCmdLineArgumentInt(argc, (const char **)argv, "dimX");
+  if (checkCmdLineFlag(argc, (const char**)argv, "dimX")) {
+    size_x = getCmdLineArgumentInt(argc, (const char**)argv, "dimX");
 
     if (size_x > max_tile_dim) {
       printf("> MatrixSize X = %d is greater than the recommended size = %d\n",
@@ -296,8 +296,8 @@ void getParams(int argc, char **argv, cudaDeviceProp &deviceProp, int &size_x,
     size_x = FLOOR(size_x, 512);
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "dimY")) {
-    size_y = getCmdLineArgumentInt(argc, (const char **)argv, "dimY");
+  if (checkCmdLineFlag(argc, (const char**)argv, "dimY")) {
+    size_y = getCmdLineArgumentInt(argc, (const char**)argv, "dimY");
 
     if (size_y > max_tile_dim) {
       printf("> MatrixSize Y = %d is greater than the recommended size = %d\n",
@@ -312,7 +312,7 @@ void getParams(int argc, char **argv, cudaDeviceProp &deviceProp, int &size_x,
     if ((deviceProp.major == 1 && deviceProp.minor >= 2) ||
         deviceProp.major > 1) {
       size_y = FLOOR(size_y, 512);
-    } else // else for SM10,SM11 we round down to a multiple of 384
+    } else  // else for SM10,SM11 we round down to a multiple of 384
     {
       size_y = FLOOR(size_y, 384);
     }
@@ -331,16 +331,16 @@ void showHelp() {
 // main
 // ----
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   // Start logs
   printf("%s Starting...\n\n", sSDKsample);
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "help")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "help")) {
     showHelp();
     return 0;
   }
 
-  int devID = findCudaDevice(argc, (const char **)argv);
+  int devID = findCudaDevice(argc, (const char**)argv);
   cudaDeviceProp deviceProp;
 
   // get number of SMs on this GPU
@@ -362,7 +362,7 @@ int main(int argc, char **argv) {
   // tests
   int size_x, size_y, max_matrix_dim, matrix_size_test;
 
-  matrix_size_test = 512; // we round down max_matrix_dim for this perf test
+  matrix_size_test = 512;  // we round down max_matrix_dim for this perf test
   total_tiles = (float)MAX_TILES / scale_factor;
 
   max_matrix_dim =
@@ -386,9 +386,10 @@ int main(int argc, char **argv) {
   getParams(argc, argv, deviceProp, size_x, size_y, max_matrix_dim);
 
   if (size_x != size_y) {
-    printf("\n[%s] does not support non-square matrices (row_dim_size(%d) != "
-           "col_dim_size(%d))\nExiting...\n\n",
-           sSDKsample, size_x, size_y);
+    printf(
+        "\n[%s] does not support non-square matrices (row_dim_size(%d) != "
+        "col_dim_size(%d))\nExiting...\n\n",
+        sSDKsample, size_x, size_y);
 
     // cudaDeviceReset causes the driver to clean up all state. While
     // not mandatory in normal operation, it is good practice.  It is also
@@ -400,9 +401,10 @@ int main(int argc, char **argv) {
   }
 
   if (size_x % TILE_DIM != 0 || size_y % TILE_DIM != 0) {
-    printf("[%s] Matrix size must be integral multiple of tile "
-           "size\nExiting...\n\n",
-           sSDKsample);
+    printf(
+        "[%s] Matrix size must be integral multiple of tile "
+        "size\nExiting...\n\n",
+        sSDKsample);
 
     // cudaDeviceReset causes the driver to clean up all state. While
     // not mandatory in normal operation, it is good practice.  It is also
@@ -414,8 +416,8 @@ int main(int argc, char **argv) {
   }
 
   // kernel pointer and descriptor
-  void (*kernel)(float *, float *, int, int);
-  const char *kernelName;
+  void (*kernel)(float*, float*, int, int);
+  const char* kernelName;
 
   // execution configuration parameters
   dim3 grid(size_x / TILE_DIM, size_y / TILE_DIM),
@@ -454,15 +456,15 @@ int main(int argc, char **argv) {
   }
 
   // allocate host memory
-  float *h_idata = (float *)malloc(mem_size);
-  float *h_odata = (float *)malloc(mem_size);
-  float *transposeGold = (float *)malloc(mem_size);
-  float *gold;
+  float* h_idata = (float*)malloc(mem_size);
+  float* h_odata = (float*)malloc(mem_size);
+  float* transposeGold = (float*)malloc(mem_size);
+  float* gold;
 
   // allocate device memory
   float *d_idata, *d_odata;
-  checkCudaErrors(cudaMalloc((void **)&d_idata, mem_size));
-  checkCudaErrors(cudaMalloc((void **)&d_odata, mem_size));
+  checkCudaErrors(cudaMalloc((void**)&d_idata, mem_size));
+  checkCudaErrors(cudaMalloc((void**)&d_odata, mem_size));
 
   // initialize host data
   for (int i = 0; i < (size_x * size_y); ++i) {
@@ -477,10 +479,11 @@ int main(int argc, char **argv) {
   computeTransposeGold(transposeGold, h_idata, size_x, size_y);
 
   // print out common data for all kernels
-  printf("\nMatrix size: %dx%d (%dx%d tiles), tile size: %dx%d, block size: "
-         "%dx%d\n\n",
-         size_x, size_y, size_x / TILE_DIM, size_y / TILE_DIM, TILE_DIM,
-         TILE_DIM, TILE_DIM, BLOCK_ROWS);
+  printf(
+      "\nMatrix size: %dx%d (%dx%d tiles), tile size: %dx%d, block size: "
+      "%dx%d\n\n",
+      size_x, size_y, size_x / TILE_DIM, size_y / TILE_DIM, TILE_DIM, TILE_DIM,
+      TILE_DIM, BLOCK_ROWS);
 
   // initialize events
   checkCudaErrors(cudaEventCreate(&start));
@@ -495,45 +498,45 @@ int main(int argc, char **argv) {
   for (int k = 0; k < 8; k++) {
     // set kernel pointer
     switch (k) {
-    case 0:
-      kernel = &copy;
-      kernelName = "simple copy       ";
-      break;
+      case 0:
+        kernel = &copy;
+        kernelName = "simple copy       ";
+        break;
 
-    case 1:
-      kernel = &copySharedMem;
-      kernelName = "shared memory copy";
-      break;
+      case 1:
+        kernel = &copySharedMem;
+        kernelName = "shared memory copy";
+        break;
 
-    case 2:
-      kernel = &transposeNaive;
-      kernelName = "naive             ";
-      break;
+      case 2:
+        kernel = &transposeNaive;
+        kernelName = "naive             ";
+        break;
 
-    case 3:
-      kernel = &transposeCoalesced;
-      kernelName = "coalesced         ";
-      break;
+      case 3:
+        kernel = &transposeCoalesced;
+        kernelName = "coalesced         ";
+        break;
 
-    case 4:
-      kernel = &transposeNoBankConflicts;
-      kernelName = "optimized         ";
-      break;
+      case 4:
+        kernel = &transposeNoBankConflicts;
+        kernelName = "optimized         ";
+        break;
 
-    case 5:
-      kernel = &transposeCoarseGrained;
-      kernelName = "coarse-grained    ";
-      break;
+      case 5:
+        kernel = &transposeCoarseGrained;
+        kernelName = "coarse-grained    ";
+        break;
 
-    case 6:
-      kernel = &transposeFineGrained;
-      kernelName = "fine-grained      ";
-      break;
+      case 6:
+        kernel = &transposeFineGrained;
+        kernelName = "fine-grained      ";
+        break;
 
-    case 7:
-      kernel = &transposeDiagonal;
-      kernelName = "diagonal          ";
-      break;
+      case 7:
+        kernel = &transposeDiagonal;
+        kernelName = "diagonal          ";
+        break;
     }
 
     // set reference solution
@@ -541,8 +544,8 @@ int main(int argc, char **argv) {
       gold = h_idata;
     } else if (kernel == &transposeCoarseGrained ||
                kernel == &transposeFineGrained) {
-      gold = h_odata; // fine- and coarse-grained kernels are not full
-                      // transposes, so bypass check
+      gold = h_odata;  // fine- and coarse-grained kernels are not full
+                       // transposes, so bypass check
     } else {
       gold = transposeGold;
     }
@@ -589,10 +592,11 @@ int main(int argc, char **argv) {
     // report effective bandwidths
     float kernelBandwidth = 2.0f * 1000.0f * mem_size / (1024 * 1024 * 1024) /
                             (kernelTime / NUM_REPS);
-    printf("transpose %s, Throughput = %.4f GB/s, Time = %.5f ms, Size = %u "
-           "fp32 elements, NumDevsUsed = %u, Workgroup = %u\n",
-           kernelName, kernelBandwidth, kernelTime / NUM_REPS,
-           (size_x * size_y), 1, TILE_DIM * BLOCK_ROWS);
+    printf(
+        "transpose %s, Throughput = %.4f GB/s, Time = %.5f ms, Size = %u "
+        "fp32 elements, NumDevsUsed = %u, Workgroup = %u\n",
+        kernelName, kernelBandwidth, kernelTime / NUM_REPS, (size_x * size_y),
+        1, TILE_DIM * BLOCK_ROWS);
   }
 
   // cleanup

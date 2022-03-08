@@ -23,7 +23,7 @@
 #include "cdp_lu.h"
 #include "cdp_lu_utils.h"
 
-void memsetup(Parameters &host_params) {
+void memsetup(Parameters& host_params) {
   srand(host_params.seed);
 
   // Initialise with the base params, and do any necessary randomisation
@@ -38,18 +38,18 @@ void memsetup(Parameters &host_params) {
   size_t piv_len = host_params.piv_len * sizeof(int);
 
   // Allocate memories
-  host_params.host_A = (double *)malloc(len);
-  host_params.host_LU = (double *)malloc(len);
-  host_params.host_piv = (int *)malloc(piv_len);
+  host_params.host_A = (double*)malloc(len);
+  host_params.host_LU = (double*)malloc(len);
+  host_params.host_piv = (int*)malloc(piv_len);
 
-  checkCudaErrors(cudaMalloc((void **)&host_params.device_A, len));
-  checkCudaErrors(cudaMalloc((void **)&host_params.device_LU, len));
-  checkCudaErrors(cudaMalloc((void **)&host_params.device_piv, piv_len));
-  checkCudaErrors(cudaMalloc((void **)&host_params.device_info, sizeof(int)));
+  checkCudaErrors(cudaMalloc((void**)&host_params.device_A, len));
+  checkCudaErrors(cudaMalloc((void**)&host_params.device_LU, len));
+  checkCudaErrors(cudaMalloc((void**)&host_params.device_piv, piv_len));
+  checkCudaErrors(cudaMalloc((void**)&host_params.device_info, sizeof(int)));
 
   // Initialise source with random (seeded) data
   // srand(params[b].seed);
-  double *ptr = host_params.host_A;
+  double* ptr = host_params.host_A;
 
   for (int i = 0; i < host_params.data_len; i++)
     ptr[i] = (double)rand() / 32768.0;
@@ -57,7 +57,7 @@ void memsetup(Parameters &host_params) {
   memset(host_params.host_piv, 0, piv_len);
   host_params.host_info = 0;
 
-  memcpy(host_params.host_LU, host_params.host_A, len); // copy reference data
+  memcpy(host_params.host_LU, host_params.host_A, len);  // copy reference data
 
   // Now upload it to the GPU. TODO: copy A to LU on the device..
   checkCudaErrors(cudaMemcpy(host_params.device_A, host_params.host_A, len,
@@ -70,7 +70,7 @@ void memsetup(Parameters &host_params) {
                              sizeof(int), cudaMemcpyHostToDevice));
 }
 
-void finalize(Parameters &host_params) {
+void finalize(Parameters& host_params) {
   free(host_params.host_A);
   free(host_params.host_LU);
   free(host_params.host_piv);
@@ -82,7 +82,7 @@ void finalize(Parameters &host_params) {
 }
 
 // Figure out the command line
-void set_defaults(Parameters &host_params, int matrix_size) {
+void set_defaults(Parameters& host_params, int matrix_size) {
   // Set default params
   host_params.seed = 4321;
   host_params.m = host_params.n = host_params.lda = matrix_size;
@@ -90,37 +90,36 @@ void set_defaults(Parameters &host_params, int matrix_size) {
 
 // This is the main launch entry point. We have to package up our pointers
 // into arrays and then decide if we're launching pthreads or CNP blocks.
-void launch(Parameters &host_params) {
+void launch(Parameters& host_params) {
   // Create a device-side copy of the params array...
-  Parameters *device_params;
-  checkCudaErrors(cudaMalloc((void **)&device_params, sizeof(Parameters)));
+  Parameters* device_params;
+  checkCudaErrors(cudaMalloc((void**)&device_params, sizeof(Parameters)));
   checkCudaErrors(cudaMemcpy(device_params, &host_params, sizeof(Parameters),
                              cudaMemcpyHostToDevice));
   dgetrf_test(&host_params, device_params);
   checkCudaErrors(cudaFree(device_params));
 }
 
-bool checkresult(Parameters &host_params) {
+bool checkresult(Parameters& host_params) {
   printf("Checking results... ");
 
   size_t len = host_params.data_len * host_params.data_size;
   size_t piv_len = host_params.piv_len * sizeof(int);
 
-  double *device_I;
-  double *host_I = (double *)malloc(len);
+  double* device_I;
+  double* host_I = (double*)malloc(len);
   // initialize identity matrix
   memset(host_I, 0, len);
 
-  for (int i = 0; i < host_params.n; i++)
-    host_I[i * host_params.lda + i] = 1.0;
+  for (int i = 0; i < host_params.n; i++) host_I[i * host_params.lda + i] = 1.0;
 
-  checkCudaErrors(cudaMalloc((void **)&(device_I), len));
+  checkCudaErrors(cudaMalloc((void**)&(device_I), len));
   checkCudaErrors(cudaMemcpy(device_I, host_I, len, cudaMemcpyHostToDevice));
 
   // allocate arrays for result checking
-  double *device_result;
-  double *host_result = (double *)malloc(len);
-  checkCudaErrors(cudaMalloc((void **)&(device_result), len));
+  double* device_result;
+  double* host_result = (double*)malloc(len);
+  checkCudaErrors(cudaMalloc((void**)&(device_result), len));
   checkCudaErrors(cudaMemset(device_result, 0, len));
 
   cublasHandle_t cb_handle = NULL;
@@ -137,16 +136,14 @@ bool checkresult(Parameters &host_params) {
                           host_params.n, &alpha, host_params.device_LU, lda,
                           device_I, lda, device_result, lda);
 
-  if (status != CUBLAS_STATUS_SUCCESS)
-    errorExit("checkresult: cublas failed");
+  if (status != CUBLAS_STATUS_SUCCESS) errorExit("checkresult: cublas failed");
 
   status = cublasDtrmm_v2(cb_handle, CUBLAS_SIDE_RIGHT, CUBLAS_FILL_MODE_UPPER,
                           CUBLAS_OP_N, CUBLAS_DIAG_NON_UNIT, host_params.m,
                           host_params.n, &alpha, host_params.device_LU, lda,
                           device_result, lda, device_result, lda);
 
-  if (status != CUBLAS_STATUS_SUCCESS)
-    errorExit("checkresult: cublas failed");
+  if (status != CUBLAS_STATUS_SUCCESS) errorExit("checkresult: cublas failed");
 
   checkCudaErrors(cudaStreamSynchronize(stream));
 
@@ -158,16 +155,14 @@ bool checkresult(Parameters &host_params) {
 
   // Rebuild the permutation vector.
   int mn = MIN(host_params.m, host_params.n);
-  int *perm = (int *)malloc(mn * sizeof(int));
+  int* perm = (int*)malloc(mn * sizeof(int));
 
-  for (int i = 0; i < mn; ++i)
-    perm[i] = i;
+  for (int i = 0; i < mn; ++i) perm[i] = i;
 
   for (int i = 0; i < mn; ++i) {
     int j = host_params.host_piv[i];
 
-    if (j >= mn)
-      errorExit("Invalid pivot");
+    if (j >= mn) errorExit("Invalid pivot");
 
     if (i != j) {
       int tmp = perm[i];
@@ -194,8 +189,7 @@ bool checkresult(Parameters &host_params) {
       }
 
   status = cublasDestroy(cb_handle);
-  if (status != CUBLAS_STATUS_SUCCESS)
-    errorExit("checkresult: cublas failed");
+  if (status != CUBLAS_STATUS_SUCCESS) errorExit("checkresult: cublas failed");
 
   free(perm);
   free(host_I);
@@ -206,7 +200,7 @@ bool checkresult(Parameters &host_params) {
   return ok;
 }
 
-bool launch_test(Parameters &host_params) {
+bool launch_test(Parameters& host_params) {
   memsetup(host_params);
   launch(host_params);
   bool result = checkresult(host_params);
@@ -214,7 +208,7 @@ bool launch_test(Parameters &host_params) {
   return result;
 }
 
-void print_usage(const char *exec_name) {
+void print_usage(const char* exec_name) {
   printf("Usage: %s -matrix_size=N <-device=N>(optional)\n", exec_name);
   printf(
       "  matrix_size: the size of a NxN matrix. It must be greater than 0.\n");
@@ -223,7 +217,7 @@ void print_usage(const char *exec_name) {
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
 #if CUDART_VERSION < 5000
 #error cdpLU requires CUDA 5.0 to run, waiving testing...
 #endif
@@ -232,15 +226,15 @@ int main(int argc, char **argv) {
 
   int matrix_size = 1024;
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "help") ||
-      checkCmdLineFlag(argc, (const char **)argv, "h")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "help") ||
+      checkCmdLineFlag(argc, (const char**)argv, "h")) {
     print_usage(argv[0]);
     exit(EXIT_SUCCESS);
   }
 
-  if (checkCmdLineFlag(argc, (const char **)argv, "matrix_size")) {
+  if (checkCmdLineFlag(argc, (const char**)argv, "matrix_size")) {
     matrix_size =
-        getCmdLineArgumentInt(argc, (const char **)argv, "matrix_size");
+        getCmdLineArgumentInt(argc, (const char**)argv, "matrix_size");
 
     if (matrix_size <= 0) {
       printf("Invalid matrix size given on the command-line: %d\n",
@@ -254,7 +248,7 @@ int main(int argc, char **argv) {
 
   // The test requires CUDA 5 or greater.
   // The test requires an architecture SM35 or greater (CDP capable).
-  int cuda_device = findCudaDevice(argc, (const char **)argv);
+  int cuda_device = findCudaDevice(argc, (const char**)argv);
   cudaDeviceProp deviceProps;
   checkCudaErrors(cudaGetDeviceProperties(&deviceProps, cuda_device));
   int cdpCapable = (deviceProps.major == 3 && deviceProps.minor >= 5) ||
@@ -264,8 +258,9 @@ int main(int argc, char **argv) {
          deviceProps.name, deviceProps.major, deviceProps.minor);
 
   if (!cdpCapable) {
-    printf("cdpLUDecomposition requires SM 3.5 or higher to use CUDA Dynamic "
-           "Parallelism.  Exiting...\n");
+    printf(
+        "cdpLUDecomposition requires SM 3.5 or higher to use CUDA Dynamic "
+        "Parallelism.  Exiting...\n");
 
     // cudaDeviceReset causes the driver to clean up all state. While
     // not mandatory in normal operation, it is good practice.  It is also
@@ -280,9 +275,10 @@ int main(int argc, char **argv) {
   memset(&host_params, 0, sizeof(Parameters));
   set_defaults(host_params, matrix_size);
 
-  printf("Compute LU decomposition of a random %dx%d matrix using CUDA Dynamic "
-         "Parallelism\n",
-         matrix_size, matrix_size);
+  printf(
+      "Compute LU decomposition of a random %dx%d matrix using CUDA Dynamic "
+      "Parallelism\n",
+      matrix_size, matrix_size);
   printf("Launching single task from device...\n");
   bool result = launch_test(host_params);
 

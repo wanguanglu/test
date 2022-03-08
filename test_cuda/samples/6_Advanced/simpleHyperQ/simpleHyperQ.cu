@@ -21,11 +21,11 @@
 #include <helper_functions.h>
 #include <stdio.h>
 
-const char *sSDKsample = "hyperQ";
+const char* sSDKsample = "hyperQ";
 
 // This subroutine does no real work but runs for at least the specified number
 // of clock ticks.
-__device__ void clock_block(clock_t *d_o, clock_t clock_count) {
+__device__ void clock_block(clock_t* d_o, clock_t clock_count) {
   unsigned int start_clock = (unsigned int)clock();
 
   clock_t clock_offset = 0;
@@ -52,15 +52,15 @@ __device__ void clock_block(clock_t *d_o, clock_t clock_count) {
 // We create two identical kernels calling clock_block(), we create two so that
 // we can identify dependencies in the profile timeline ("kernel_B" is always
 // dependent on "kernel_A" in the same stream).
-__global__ void kernel_A(clock_t *d_o, clock_t clock_count) {
+__global__ void kernel_A(clock_t* d_o, clock_t clock_count) {
   clock_block(d_o, clock_count);
 }
-__global__ void kernel_B(clock_t *d_o, clock_t clock_count) {
+__global__ void kernel_B(clock_t* d_o, clock_t clock_count) {
   clock_block(d_o, clock_count);
 }
 
 // Single-warp reduction kernel (note: this is not optimized for simplicity)
-__global__ void sum(clock_t *d_clocks, int N) {
+__global__ void sum(clock_t* d_clocks, int N) {
   __shared__ clock_t s_clocks[32];
 
   clock_t my_sum = 0;
@@ -85,22 +85,22 @@ __global__ void sum(clock_t *d_clocks, int N) {
   }
 }
 
-int main(int argc, char **argv) {
-  int nstreams = 32;      // One stream for each pair of kernels
-  float kernel_time = 10; // Time each kernel should run in ms
+int main(int argc, char** argv) {
+  int nstreams = 32;       // One stream for each pair of kernels
+  float kernel_time = 10;  // Time each kernel should run in ms
   float elapsed_time;
   int cuda_device = 0;
 
   printf("starting %s...\n", sSDKsample);
 
   // Get number of streams (if overridden on the command line)
-  if (checkCmdLineFlag(argc, (const char **)argv, "nstreams")) {
-    nstreams = getCmdLineArgumentInt(argc, (const char **)argv, "nstreams");
+  if (checkCmdLineFlag(argc, (const char**)argv, "nstreams")) {
+    nstreams = getCmdLineArgumentInt(argc, (const char**)argv, "nstreams");
   }
 
   // Use command-line specified CUDA device, otherwise use device with
   // highest Gflops/s
-  cuda_device = findCudaDevice(argc, (const char **)argv);
+  cuda_device = findCudaDevice(argc, (const char**)argv);
 
   // Get device properties
   cudaDeviceProp deviceProp;
@@ -110,8 +110,9 @@ int main(int argc, char **argv) {
   // HyperQ is available in devices of Compute Capability 3.5 and higher
   if (deviceProp.major < 3 || (deviceProp.major == 3 && deviceProp.minor < 5)) {
     if (deviceProp.concurrentKernels == 0) {
-      printf("> GPU does not support concurrent kernel execution (SM 3.5 or "
-             "higher required)\n");
+      printf(
+          "> GPU does not support concurrent kernel execution (SM 3.5 or "
+          "higher required)\n");
       printf("  CUDA kernel runs will be serialized\n");
     } else {
       printf("> GPU does not support HyperQ\n");
@@ -123,16 +124,16 @@ int main(int argc, char **argv) {
          deviceProp.major, deviceProp.minor, deviceProp.multiProcessorCount);
 
   // Allocate host memory for the output (reduced to a single value)
-  clock_t *a = 0;
-  checkCudaErrors(cudaMallocHost((void **)&a, sizeof(clock_t)));
+  clock_t* a = 0;
+  checkCudaErrors(cudaMallocHost((void**)&a, sizeof(clock_t)));
 
   // Allocate device memory for the output (one value for each kernel)
-  clock_t *d_a = 0;
-  checkCudaErrors(cudaMalloc((void **)&d_a, 2 * nstreams * sizeof(clock_t)));
+  clock_t* d_a = 0;
+  checkCudaErrors(cudaMalloc((void**)&d_a, 2 * nstreams * sizeof(clock_t)));
 
   // Allocate and initialize an array of stream handles
-  cudaStream_t *streams =
-      (cudaStream_t *)malloc(nstreams * sizeof(cudaStream_t));
+  cudaStream_t* streams =
+      (cudaStream_t*)malloc(nstreams * sizeof(cudaStream_t));
 
   for (int i = 0; i < nstreams; i++) {
     checkCudaErrors(cudaStreamCreate(&(streams[i])));
@@ -175,13 +176,15 @@ int main(int argc, char **argv) {
   checkCudaErrors(cudaEventSynchronize(stop_event));
   checkCudaErrors(cudaEventElapsedTime(&elapsed_time, start_event, stop_event));
 
-  printf("Expected time for serial execution of %d sets of kernels is between "
-         "approx. %.3fs and %.3fs\n",
-         nstreams, (nstreams + 1) * kernel_time / 1000.0f,
-         2 * nstreams * kernel_time / 1000.0f);
-  printf("Expected time for fully concurrent execution of %d sets of kernels "
-         "is approx. %.3fs\n",
-         nstreams, 2 * kernel_time / 1000.0f);
+  printf(
+      "Expected time for serial execution of %d sets of kernels is between "
+      "approx. %.3fs and %.3fs\n",
+      nstreams, (nstreams + 1) * kernel_time / 1000.0f,
+      2 * nstreams * kernel_time / 1000.0f);
+  printf(
+      "Expected time for fully concurrent execution of %d sets of kernels "
+      "is approx. %.3fs\n",
+      nstreams, 2 * kernel_time / 1000.0f);
   printf("Measured time for sample = %.3fs\n", elapsed_time / 1000.0f);
 
   bool bTestResult = (a[0] >= total_clocks);

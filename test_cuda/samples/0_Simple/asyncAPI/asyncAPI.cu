@@ -27,14 +27,14 @@
 
 // includes, project
 #include <helper_cuda.h>
-#include <helper_functions.h> // helper utility functions
+#include <helper_functions.h>  // helper utility functions
 
-__global__ void increment_kernel(int *g_data, int inc_value) {
+__global__ void increment_kernel(int* g_data, int inc_value) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   g_data[idx] = g_data[idx] + inc_value;
 }
 
-bool correct_output(int *data, const int n, const int x) {
+bool correct_output(int* data, const int n, const int x) {
   for (int i = 0; i < n; i++)
     if (data[i] != x) {
       printf("Error! data[%d] = %d, ref = %d\n", i, data[i], x);
@@ -44,14 +44,14 @@ bool correct_output(int *data, const int n, const int x) {
   return true;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   int devID;
   cudaDeviceProp deviceProps;
 
   printf("[%s] - Starting...\n", argv[0]);
 
   // This will pick the best possible CUDA capable device
-  devID = findCudaDevice(argc, (const char **)argv);
+  devID = findCudaDevice(argc, (const char**)argv);
 
   // get device name
   checkCudaErrors(cudaGetDeviceProperties(&deviceProps, devID));
@@ -62,13 +62,13 @@ int main(int argc, char *argv[]) {
   int value = 26;
 
   // allocate host memory
-  int *a = 0;
-  checkCudaErrors(cudaMallocHost((void **)&a, nbytes));
+  int* a = 0;
+  checkCudaErrors(cudaMallocHost((void**)&a, nbytes));
   memset(a, 0, nbytes);
 
   // allocate device memory
-  int *d_a = 0;
-  checkCudaErrors(cudaMalloc((void **)&d_a, nbytes));
+  int* d_a = 0;
+  checkCudaErrors(cudaMalloc((void**)&d_a, nbytes));
   checkCudaErrors(cudaMemset(d_a, 255, nbytes));
 
   // set kernel launch configuration
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
   checkCudaErrors(cudaEventCreate(&start));
   checkCudaErrors(cudaEventCreate(&stop));
 
-  StopWatchInterface *timer = NULL;
+  StopWatchInterface* timer = NULL;
   sdkCreateTimer(&timer);
   sdkResetTimer(&timer);
 

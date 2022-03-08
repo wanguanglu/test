@@ -75,9 +75,9 @@ static __inline__ unsigned cuRand(void) {
 #define CUDA_ZNEW (cuda_z = 36969 * (cuda_z & 65535) + (cuda_z >> 16))
 #define CUDA_WNEW (cuda_w = 18000 * (cuda_w & 65535) + (cuda_w >> 16))
 #define CUDA_MWC ((CUDA_ZNEW << 16) + CUDA_WNEW)
-#define CUDA_SHR3                                                              \
-  (cuda_jsr = cuda_jsr ^ (cuda_jsr << 17),                                     \
-   cuda_jsr = cuda_jsr ^ (cuda_jsr >> 13),                                     \
+#define CUDA_SHR3                          \
+  (cuda_jsr = cuda_jsr ^ (cuda_jsr << 17), \
+   cuda_jsr = cuda_jsr ^ (cuda_jsr >> 13), \
    cuda_jsr = cuda_jsr ^ (cuda_jsr << 5))
 #define CUDA_CONG (cuda_jcong = 69069 * cuda_jcong + 1234567)
 #define KISS ((CUDA_MWC ^ CUDA_CONG) + CUDA_SHR3)
@@ -90,11 +90,14 @@ static __inline__ unsigned cuRand(void) {
 // cuGet and cuEqual versions
 //============================================================================================
 
-template <typename T_ELEM> __inline__ __device__ __host__ T_ELEM cuGet(double);
-template <> __inline__ __device__ __host__ float cuGet<float>(double x) {
+template <typename T_ELEM>
+__inline__ __device__ __host__ T_ELEM cuGet(double);
+template <>
+__inline__ __device__ __host__ float cuGet<float>(double x) {
   return float(x);
 }
-template <> __inline__ __device__ __host__ double cuGet<double>(double x) {
+template <>
+__inline__ __device__ __host__ double cuGet<double>(double x) {
   return double(x);
 }
 

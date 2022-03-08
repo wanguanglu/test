@@ -84,8 +84,8 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 //
 // Only include what follows for known and supported compilers:
 //
-#if defined(BOOST_MSVC) || defined(__BORLANDC__) ||                            \
-    (defined(__MWERKS__) && defined(_WIN32) && (__MWERKS__ >= 0x3000)) ||      \
+#if defined(BOOST_MSVC) || defined(__BORLANDC__) ||                       \
+    (defined(__MWERKS__) && defined(_WIN32) && (__MWERKS__ >= 0x3000)) || \
     (defined(__ICL) && defined(_MSC_EXTENSIONS) && (_MSC_VER >= 1200))
 
 #ifndef BOOST_VERSION_HPP
@@ -100,9 +100,9 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 // error check:
 //
 #if defined(__MSVC_RUNTIME_CHECKS) && !defined(_DEBUG)
-#pragma message(                                                               \
+#pragma message( \
     "Using the /RTC option without specifying a debug runtime will lead to linker errors")
-#pragma message(                                                               \
+#pragma message( \
     "Hint: go to the code generation options and switch to one of the debugging runtimes")
 #error "Incompatible build options"
 #endif
@@ -167,7 +167,7 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 #define BOOST_LIB_TOOLSET "cw9"
 
 #endif
-#endif // BOOST_LIB_TOOLSET
+#endif  // BOOST_LIB_TOOLSET
 
 //
 // select thread opt:
@@ -182,14 +182,14 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 
 #ifdef _DLL
 
-#if (defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION)) &&                  \
+#if (defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION)) && \
     (defined(_STLP_OWN_IOSTREAMS) || defined(__STL_OWN_IOSTREAMS))
 
 #if defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))
 #define BOOST_LIB_RT_OPT "-gdp"
 #elif defined(_DEBUG)
 #define BOOST_LIB_RT_OPT "-gdp"
-#pragma message(                                                               \
+#pragma message( \
     "warning: STLPort debug versions are built with /D_STLP_DEBUG=1")
 #error "Build options aren't compatible with pre-built libraries"
 #else
@@ -202,7 +202,7 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 #define BOOST_LIB_RT_OPT "-gdpn"
 #elif defined(_DEBUG)
 #define BOOST_LIB_RT_OPT "-gdpn"
-#pragma message(                                                               \
+#pragma message( \
     "warning: STLPort debug versions are built with /D_STLP_DEBUG=1")
 #error "Build options aren't compatible with pre-built libraries"
 #else
@@ -221,14 +221,14 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 
 #else
 
-#if (defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION)) &&                  \
+#if (defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION)) && \
     (defined(_STLP_OWN_IOSTREAMS) || defined(__STL_OWN_IOSTREAMS))
 
 #if defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))
 #define BOOST_LIB_RT_OPT "-sgdp"
 #elif defined(_DEBUG)
 #define BOOST_LIB_RT_OPT "-sgdp"
-#pragma message(                                                               \
+#pragma message( \
     "warning: STLPort debug versions are built with /D_STLP_DEBUG=1")
 #error "Build options aren't compatible with pre-built libraries"
 #else
@@ -241,7 +241,7 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 #define BOOST_LIB_RT_OPT "-sgdpn"
 #elif defined(_DEBUG)
 #define BOOST_LIB_RT_OPT "-sgdpn"
-#pragma message(                                                               \
+#pragma message( \
     "warning: STLPort debug versions are built with /D_STLP_DEBUG=1")
 #error "Build options aren't compatible with pre-built libraries"
 #else
@@ -272,7 +272,7 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 // sanity check:
 //
 #if defined(__STL_DEBUG) || defined(_STLP_DEBUG)
-#error                                                                         \
+#error \
     "Pre-built versions of the Boost libraries are not provided in STLPort-debug form"
 #endif
 
@@ -302,7 +302,7 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 #if (defined(_DLL) || defined(_RTLDLL)) && defined(BOOST_DYN_LINK)
 #define BOOST_LIB_PREFIX
 #elif defined(BOOST_DYN_LINK)
-#error                                                                         \
+#error \
     "Mixing a dll boost library with a static runtime is a really bad idea..."
 #else
 #define BOOST_LIB_PREFIX "lib"
@@ -311,8 +311,8 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 //
 // now include the lib:
 //
-#if defined(BOOST_LIB_NAME) && defined(BOOST_LIB_PREFIX) &&                    \
-    defined(BOOST_LIB_TOOLSET) && defined(BOOST_LIB_THREAD_OPT) &&             \
+#if defined(BOOST_LIB_NAME) && defined(BOOST_LIB_PREFIX) &&        \
+    defined(BOOST_LIB_TOOLSET) && defined(BOOST_LIB_THREAD_OPT) && \
     defined(BOOST_LIB_RT_OPT) && defined(BOOST_LIB_VERSION)
 
 #ifndef BOOST_AUTO_LINK_NOMANGLE
@@ -321,8 +321,8 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
                     BOOST_LIB_NAME) "-" BOOST_LIB_TOOLSET BOOST_LIB_THREAD_OPT \
                     BOOST_LIB_RT_OPT "-" BOOST_LIB_VERSION ".lib")
 #ifdef BOOST_LIB_DIAGNOSTIC
-#pragma message("Linking to lib file: " BOOST_LIB_PREFIX BOOST_STRINGIZE(      \
-    BOOST_LIB_NAME) "-" BOOST_LIB_TOOLSET BOOST_LIB_THREAD_OPT                 \
+#pragma message("Linking to lib file: " BOOST_LIB_PREFIX BOOST_STRINGIZE( \
+    BOOST_LIB_NAME) "-" BOOST_LIB_TOOLSET BOOST_LIB_THREAD_OPT            \
                     BOOST_LIB_RT_OPT "-" BOOST_LIB_VERSION ".lib")
 #endif
 #else
@@ -336,7 +336,7 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 #error "some required macros where not defined (internal logic error)."
 #endif
 
-#endif // _MSC_VER || __BORLANDC__
+#endif  // _MSC_VER || __BORLANDC__
 
 //
 // finally undef any macros we may have set:
