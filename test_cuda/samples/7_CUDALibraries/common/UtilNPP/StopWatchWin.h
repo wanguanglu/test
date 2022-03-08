@@ -18,130 +18,111 @@
 #undef min
 #undef max
 
-namespace npp
-{
+namespace npp {
 
-    /// Windows specific implementation of StopWatch
-    class StopWatchWin
-    {
-        protected:
+/// Windows specific implementation of StopWatch
+class StopWatchWin {
+protected:
+  //! Constructor, default
+  StopWatchWin();
 
-            //! Constructor, default
-            StopWatchWin();
+  // Destructor
+  ~StopWatchWin();
 
-            // Destructor
-            ~StopWatchWin();
+public:
+  //! Start time measurement
+  inline void start();
 
-        public:
+  //! Stop time measurement
+  inline void stop();
 
-            //! Start time measurement
-            inline void start();
+  //! Reset time counters to zero
+  inline void reset();
 
-            //! Stop time measurement
-            inline void stop();
+  //! Time in msec. after start. If the stop watch is still running (i.e. there
+  //! was no call to stop()) then the elapsed time is returned, otherwise the
+  //! time between the last start() and stop call is returned
+  inline const double elapsed() const;
 
-            //! Reset time counters to zero
-            inline void reset();
+private:
+  // member variables
 
-            //! Time in msec. after start. If the stop watch is still running (i.e. there
-            //! was no call to stop()) then the elapsed time is returned, otherwise the
-            //! time between the last start() and stop call is returned
-            inline const double elapsed() const;
+  //! Start of measurement
+  LARGE_INTEGER start_time;
+  //! End of measurement
+  LARGE_INTEGER end_time;
 
+  //! Time difference between the last start and stop
+  double diff_time;
 
-        private:
+  //! TOTAL time difference between starts and stops
+  double total_time;
 
-            // member variables
+  //! flag if the stop watch is running
+  bool running;
 
-            //! Start of measurement
-            LARGE_INTEGER  start_time;
-            //! End of measurement
-            LARGE_INTEGER  end_time;
+  //! tick frequency
+  static double freq;
 
-            //! Time difference between the last start and stop
-            double  diff_time;
+  //! flag if the frequency has been set
+  static bool freq_set;
+};
 
-            //! TOTAL time difference between starts and stops
-            double  total_time;
+// functions, inlined
 
-            //! flag if the stop watch is running
-            bool running;
+////////////////////////////////////////////////////////////////////////////////
+//! Start time measurement
+////////////////////////////////////////////////////////////////////////////////
+inline void StopWatchWin::start() {
+  QueryPerformanceCounter((LARGE_INTEGER *)&start_time);
+  running = true;
+}
 
-            //! tick frequency
-            static double  freq;
+////////////////////////////////////////////////////////////////////////////////
+//! Stop time measurement and increment add to the current diff_time summation
+//! variable. Also increment the number of times this clock has been run.
+////////////////////////////////////////////////////////////////////////////////
+inline void StopWatchWin::stop() {
+  QueryPerformanceCounter((LARGE_INTEGER *)&end_time);
+  diff_time =
+      (float)(((double)end_time.QuadPart - (double)start_time.QuadPart) / freq);
 
-            //! flag if the frequency has been set
-            static  bool  freq_set;
-    };
+  total_time += diff_time;
+  running = false;
+}
 
-    // functions, inlined
+////////////////////////////////////////////////////////////////////////////////
+//! Reset the timer to 0. Does not change the timer running state but does
+//! recapture this point in time as the current start time if it is running.
+////////////////////////////////////////////////////////////////////////////////
+inline void StopWatchWin::reset() {
+  diff_time = 0;
+  total_time = 0;
 
-    ////////////////////////////////////////////////////////////////////////////////
-    //! Start time measurement
-    ////////////////////////////////////////////////////////////////////////////////
-    inline void
-    StopWatchWin::start()
-    {
-        QueryPerformanceCounter((LARGE_INTEGER *) &start_time);
-        running = true;
-    }
+  if (running) {
+    QueryPerformanceCounter((LARGE_INTEGER *)&start_time);
+  }
+}
 
-    ////////////////////////////////////////////////////////////////////////////////
-    //! Stop time measurement and increment add to the current diff_time summation
-    //! variable. Also increment the number of times this clock has been run.
-    ////////////////////////////////////////////////////////////////////////////////
-    inline void
-    StopWatchWin::stop()
-    {
-        QueryPerformanceCounter((LARGE_INTEGER *) &end_time);
-        diff_time = (float)
-                    (((double) end_time.QuadPart - (double) start_time.QuadPart) / freq);
+////////////////////////////////////////////////////////////////////////////////
+//! Time in msec. after start. If the stop watch is still running (i.e. there
+//! was no call to stop()) then the elapsed time is returned added to the
+//! current diff_time sum, otherwise the current summed time difference alone
+//! is returned.
+////////////////////////////////////////////////////////////////////////////////
+inline const double StopWatchWin::elapsed() const {
+  // Return the TOTAL time to date
+  double retval = total_time;
 
-        total_time += diff_time;
-        running = false;
-    }
+  if (running) {
+    LARGE_INTEGER temp;
+    QueryPerformanceCounter((LARGE_INTEGER *)&temp);
+    retval += (((double)(temp.QuadPart - start_time.QuadPart)) / freq);
+  }
 
-    ////////////////////////////////////////////////////////////////////////////////
-    //! Reset the timer to 0. Does not change the timer running state but does
-    //! recapture this point in time as the current start time if it is running.
-    ////////////////////////////////////////////////////////////////////////////////
-    inline void
-    StopWatchWin::reset()
-    {
-        diff_time = 0;
-        total_time = 0;
+  return retval;
+}
 
-        if (running)
-        {
-            QueryPerformanceCounter((LARGE_INTEGER *) &start_time);
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    //! Time in msec. after start. If the stop watch is still running (i.e. there
-    //! was no call to stop()) then the elapsed time is returned added to the
-    //! current diff_time sum, otherwise the current summed time difference alone
-    //! is returned.
-    ////////////////////////////////////////////////////////////////////////////////
-    inline const double
-    StopWatchWin::elapsed() const
-    {
-        // Return the TOTAL time to date
-        double retval = total_time;
-
-        if (running)
-        {
-            LARGE_INTEGER temp;
-            QueryPerformanceCounter((LARGE_INTEGER *) &temp);
-            retval +=
-                (((double)(temp.QuadPart - start_time.QuadPart)) / freq);
-        }
-
-        return retval;
-    }
-
-} // npp namespace
+} // namespace npp
 
 #endif // NV_NPP_UTIL_STOP_WATCH_WIN_H
-

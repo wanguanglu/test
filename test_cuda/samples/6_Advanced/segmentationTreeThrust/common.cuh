@@ -6,4 +6,3 @@ typedef unsigned int uint;
 typedef unsigned long long int ullint;
 
 #endif // #ifndef _COMMON_CUH_
-

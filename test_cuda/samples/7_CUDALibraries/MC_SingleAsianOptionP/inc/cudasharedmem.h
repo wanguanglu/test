@@ -47,34 +47,36 @@
 //      }
 //****************************************************************************
 
-// This is the un-specialized struct.  Note that we prevent instantiation of this
-// struct by making it abstract (i.e. with pure virtual methods).
-template <typename T>
-struct SharedMemory
-{
-    // Ensure that we won't compile any un-specialized types
-    virtual __device__ T &operator*() = 0;
-    virtual __device__ T &operator[](int i) = 0;
+// This is the un-specialized struct.  Note that we prevent instantiation of
+// this struct by making it abstract (i.e. with pure virtual methods).
+template <typename T> struct SharedMemory {
+  // Ensure that we won't compile any un-specialized types
+  virtual __device__ T &operator*() = 0;
+  virtual __device__ T &operator[](int i) = 0;
 };
 
-#define BUILD_SHAREDMEMORY_TYPE(t, n) \
-    template <> \
-    struct SharedMemory<t> \
-    { \
-        __device__ t &operator*() { extern __shared__ t n[]; return *n; } \
-        __device__ t &operator[](int i) { extern __shared__ t n[]; return n[i]; } \
-    }
+#define BUILD_SHAREDMEMORY_TYPE(t, n)                                          \
+  template <> struct SharedMemory<t> {                                         \
+    __device__ t &operator*() {                                                \
+      extern __shared__ t n[];                                                 \
+      return *n;                                                               \
+    }                                                                          \
+    __device__ t &operator[](int i) {                                          \
+      extern __shared__ t n[];                                                 \
+      return n[i];                                                             \
+    }                                                                          \
+  }
 
-BUILD_SHAREDMEMORY_TYPE(int,            s_int);
-BUILD_SHAREDMEMORY_TYPE(unsigned int,   s_uint);
-BUILD_SHAREDMEMORY_TYPE(char,           s_char);
-BUILD_SHAREDMEMORY_TYPE(unsigned char,  s_uchar);
-BUILD_SHAREDMEMORY_TYPE(short,          s_short);
+BUILD_SHAREDMEMORY_TYPE(int, s_int);
+BUILD_SHAREDMEMORY_TYPE(unsigned int, s_uint);
+BUILD_SHAREDMEMORY_TYPE(char, s_char);
+BUILD_SHAREDMEMORY_TYPE(unsigned char, s_uchar);
+BUILD_SHAREDMEMORY_TYPE(short, s_short);
 BUILD_SHAREDMEMORY_TYPE(unsigned short, s_ushort);
-BUILD_SHAREDMEMORY_TYPE(long,           s_long);
-BUILD_SHAREDMEMORY_TYPE(unsigned long,  s_ulong);
-BUILD_SHAREDMEMORY_TYPE(bool,           s_bool);
-BUILD_SHAREDMEMORY_TYPE(float,          s_float);
-BUILD_SHAREDMEMORY_TYPE(double,         s_double);
+BUILD_SHAREDMEMORY_TYPE(long, s_long);
+BUILD_SHAREDMEMORY_TYPE(unsigned long, s_ulong);
+BUILD_SHAREDMEMORY_TYPE(bool, s_bool);
+BUILD_SHAREDMEMORY_TYPE(float, s_float);
+BUILD_SHAREDMEMORY_TYPE(double, s_double);
 
 #endif

@@ -21,28 +21,26 @@
 #include "cdp_lu_utils.h"
 extern __global__ void dgetrf_cdpentry(Parameters *device_params);
 
-
 // Entry point for dgetrf. We allocate memories and simply call the kernel.
-void dgetrf_test(Parameters *host_params, Parameters *device_params)
-{
+void dgetrf_test(Parameters *host_params, Parameters *device_params) {
 
+  double t_start = time_in_seconds();
 
-    double t_start = time_in_seconds();
+  // Launch the kernel (just a device-function call in CDP terms)
+  dgetrf_cdpentry<<<1, 1>>>(device_params);
+  checkCudaErrors(cudaDeviceSynchronize());
 
-    // Launch the kernel (just a device-function call in CDP terms)
-    dgetrf_cdpentry<<< 1, 1 >>>(device_params);
-    checkCudaErrors(cudaDeviceSynchronize());
+  double gpu_sec = time_in_seconds() - t_start;
 
-    double gpu_sec = time_in_seconds() - t_start;
+  // Check our return data
+  /*
+  for(int b=0; b<batch; b++)
+  {
+      if(*(params[b].hostmem.info) != 0)
+          printf("Degenerate matrix %d/%d.\n", b+1, batch);
+  } */
 
-    // Check our return data
-    /*
-    for(int b=0; b<batch; b++)
-    {
-        if(*(params[b].hostmem.info) != 0)
-            printf("Degenerate matrix %d/%d.\n", b+1, batch);
-    } */
-
-    double flop_count = (double) host_params->flop_count;
-    printf("GPU perf(dgetrf)= %.3f Gflops\n", flop_count / (1000000000.*gpu_sec));
+  double flop_count = (double)host_params->flop_count;
+  printf("GPU perf(dgetrf)= %.3f Gflops\n",
+         flop_count / (1000000000. * gpu_sec));
 }

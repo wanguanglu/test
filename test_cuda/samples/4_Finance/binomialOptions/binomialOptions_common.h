@@ -9,8 +9,6 @@
  *
  */
 
-
-
 #ifndef BINOMIALOPTIONS_COMMON_H
 #define BINOMIALOPTIONS_COMMON_H
 
@@ -19,24 +17,20 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Global types
 ////////////////////////////////////////////////////////////////////////////////
-typedef struct
-{
-    real S;
-    real X;
-    real T;
-    real R;
-    real V;
+typedef struct {
+  real S;
+  real X;
+  real T;
+  real R;
+  real V;
 } TOptionData;
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Global parameters
 ////////////////////////////////////////////////////////////////////////////////
-//Number of time steps
-#define   NUM_STEPS 2048
-//Max option batch size
+// Number of time steps
+#define NUM_STEPS 2048
+// Max option batch size
 #define MAX_OPTIONS 1024
-
-
 
 #endif

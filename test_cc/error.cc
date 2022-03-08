@@ -1,17 +1,17 @@
 /**
-* @file   error.cc
-* @author wanguanglu(mail@wanguanglu.com)
-* @date   2017/02/08 11:00:11
-* @brief 
-*  
-**/
-#include <string>
-#include <stdexcept>
+ * @file   error.cc
+ * @author wanguanglu(mail@wanguanglu.com)
+ * @date   2017/02/08 11:00:11
+ * @brief
+ *
+ **/
 #include <iostream>
+#include <stdexcept>
+#include <string>
 
 class Error : public std::runtime_error {
 public:
-  explicit Error(const std::string &s) : std::runtime_error(s){}
+  explicit Error(const std::string &s) : std::runtime_error(s) {}
 };
 
 void test() {
@@ -19,20 +19,16 @@ void test() {
   throw Error(error_info);
 }
 
-void test2() {
-  abort();
-}
+void test2() { abort(); }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   try {
     test();
   } catch (Error e) {
-    std::cout<<"Error: "<<e.what()<<std::endl;
+    std::cout << "Error: " << e.what() << std::endl;
   }
 
-  //test();
+  // test();
   test2();
   return 0;
 }
-
-

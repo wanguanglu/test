@@ -32,7 +32,6 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
 '''This file generates shell code for the setup.SHELL scripts to set environment variables'''
 
 from __future__ import print_function
@@ -51,12 +50,20 @@ IS_WINDOWS = (system == 'Windows')
 
 # subfolder of workspace prepended to CMAKE_PREFIX_PATH
 ENV_VAR_SUBFOLDERS = {
-    'CMAKE_PREFIX_PATH': '',
-    'CPATH': 'include',
-    'LD_LIBRARY_PATH' if not IS_DARWIN else 'DYLD_LIBRARY_PATH': ['lib', os.path.join('lib', 'x86_64-linux-gnu')],
-    'PATH': 'bin',
-    'PKG_CONFIG_PATH': [os.path.join('lib', 'pkgconfig'), os.path.join('lib', 'x86_64-linux-gnu', 'pkgconfig')],
-    'PYTHONPATH': 'lib/python2.7/dist-packages',
+    'CMAKE_PREFIX_PATH':
+    '',
+    'CPATH':
+    'include',
+    'LD_LIBRARY_PATH' if not IS_DARWIN else 'DYLD_LIBRARY_PATH':
+    ['lib', os.path.join('lib', 'x86_64-linux-gnu')],
+    'PATH':
+    'bin',
+    'PKG_CONFIG_PATH': [
+        os.path.join('lib', 'pkgconfig'),
+        os.path.join('lib', 'x86_64-linux-gnu', 'pkgconfig')
+    ],
+    'PYTHONPATH':
+    'lib/python2.7/dist-packages',
 }
 
 
@@ -78,7 +85,11 @@ def rollback_env_variables(environ, env_var_subfolders):
                 environ[key] = value
                 lines.append(assignment(key, value))
     if lines:
-        lines.insert(0, comment('reset environment variables by unrolling modifications based on all workspaces in CMAKE_PREFIX_PATH'))
+        lines.insert(
+            0,
+            comment(
+                'reset environment variables by unrolling modifications based on all workspaces in CMAKE_PREFIX_PATH'
+            ))
     return lines
 
 
@@ -93,15 +104,24 @@ def _rollback_env_variable(environ, name, subfolder):
     env_paths = [path for path in value.split(os.pathsep) if path]
     value_modified = False
     if subfolder:
-        if subfolder.startswith(os.path.sep) or (os.path.altsep and subfolder.startswith(os.path.altsep)):
+        if subfolder.startswith(
+                os.path.sep) or (os.path.altsep
+                                 and subfolder.startswith(os.path.altsep)):
             subfolder = subfolder[1:]
-        if subfolder.endswith(os.path.sep) or (os.path.altsep and subfolder.endswith(os.path.altsep)):
+        if subfolder.endswith(
+                os.path.sep) or (os.path.altsep
+                                 and subfolder.endswith(os.path.altsep)):
             subfolder = subfolder[:-1]
-    for ws_path in _get_workspaces(environ, include_fuerte=True, include_non_existing=True):
-        path_to_find = os.path.join(ws_path, subfolder) if subfolder else ws_path
+    for ws_path in _get_workspaces(environ,
+                                   include_fuerte=True,
+                                   include_non_existing=True):
+        path_to_find = os.path.join(ws_path,
+                                    subfolder) if subfolder else ws_path
         path_to_remove = None
         for env_path in env_paths:
-            env_path_clean = env_path[:-1] if env_path and env_path[-1] in [os.path.sep, os.path.altsep] else env_path
+            env_path_clean = env_path[:-1] if env_path and env_path[-1] in [
+                os.path.sep, os.path.altsep
+            ] else env_path
             if env_path_clean == path_to_find:
                 path_to_remove = env_path
                 break
@@ -123,7 +143,12 @@ def _get_workspaces(environ, include_fuerte=False, include_non_existing=False):
     value = environ[env_name] if env_name in environ else ''
     paths = [path for path in value.split(os.pathsep) if path]
     # remove non-workspace paths
-    workspaces = [path for path in paths if os.path.isfile(os.path.join(path, CATKIN_MARKER_FILE)) or (include_fuerte and path.startswith('/opt/ros/fuerte')) or (include_non_existing and not os.path.exists(path))]
+    workspaces = [
+        path for path in paths
+        if os.path.isfile(os.path.join(path, CATKIN_MARKER_FILE)) or (
+            include_fuerte and path.startswith('/opt/ros/fuerte')) or (
+                include_non_existing and not os.path.exists(path))
+    ]
     return workspaces
 
 
@@ -133,14 +158,18 @@ def prepend_env_variables(environ, env_var_subfolders, workspaces):
     for the all workspaces.
     '''
     lines = []
-    lines.append(comment('prepend folders of workspaces to environment variables'))
+    lines.append(
+        comment('prepend folders of workspaces to environment variables'))
 
     paths = [path for path in workspaces.split(os.pathsep) if path]
 
     prefix = _prefix_env_variable(environ, 'CMAKE_PREFIX_PATH', paths, '')
     lines.append(prepend(environ, 'CMAKE_PREFIX_PATH', prefix))
 
-    for key in sorted([key for key in env_var_subfolders.keys() if key != 'CMAKE_PREFIX_PATH']):
+    for key in sorted([
+            key for key in env_var_subfolders.keys()
+            if key != 'CMAKE_PREFIX_PATH'
+    ]):
         subfolder = env_var_subfolders[key]
         prefix = _prefix_env_variable(environ, key, paths, subfolder)
         lines.append(prepend(environ, key, prefix))
@@ -211,9 +240,14 @@ def find_env_hooks(environ, cmake_prefix_path):
     generic_env_hooks_by_filename = {}
     specific_env_hooks_by_filename = {}
     generic_env_hook_ext = 'bat' if IS_WINDOWS else 'sh'
-    specific_env_hook_ext = environ['CATKIN_SHELL'] if not IS_WINDOWS and 'CATKIN_SHELL' in environ and environ['CATKIN_SHELL'] else None
+    specific_env_hook_ext = environ[
+        'CATKIN_SHELL'] if not IS_WINDOWS and 'CATKIN_SHELL' in environ and environ[
+            'CATKIN_SHELL'] else None
     # remove non-workspace paths
-    workspaces = [path for path in cmake_prefix_path.split(os.pathsep) if path and os.path.isfile(os.path.join(path, CATKIN_MARKER_FILE))]
+    workspaces = [
+        path for path in cmake_prefix_path.split(os.pathsep)
+        if path and os.path.isfile(os.path.join(path, CATKIN_MARKER_FILE))
+    ]
     for workspace in reversed(workspaces):
         env_hook_dir = os.path.join(workspace, 'etc', 'catkin', 'profile.d')
         if os.path.isdir(env_hook_dir):
@@ -221,36 +255,50 @@ def find_env_hooks(environ, cmake_prefix_path):
                 if filename.endswith('.%s' % generic_env_hook_ext):
                     # remove previous env hook with same name if present
                     if filename in generic_env_hooks_by_filename:
-                        i = generic_env_hooks.index(generic_env_hooks_by_filename[filename])
+                        i = generic_env_hooks.index(
+                            generic_env_hooks_by_filename[filename])
                         generic_env_hooks.pop(i)
                         generic_env_hooks_workspace.pop(i)
                     # append env hook
-                    generic_env_hooks.append(os.path.join(env_hook_dir, filename))
+                    generic_env_hooks.append(
+                        os.path.join(env_hook_dir, filename))
                     generic_env_hooks_workspace.append(workspace)
-                    generic_env_hooks_by_filename[filename] = generic_env_hooks[-1]
-                elif specific_env_hook_ext is not None and filename.endswith('.%s' % specific_env_hook_ext):
+                    generic_env_hooks_by_filename[
+                        filename] = generic_env_hooks[-1]
+                elif specific_env_hook_ext is not None and filename.endswith(
+                        '.%s' % specific_env_hook_ext):
                     # remove previous env hook with same name if present
                     if filename in specific_env_hooks_by_filename:
-                        i = specific_env_hooks.index(specific_env_hooks_by_filename[filename])
+                        i = specific_env_hooks.index(
+                            specific_env_hooks_by_filename[filename])
                         specific_env_hooks.pop(i)
                         specific_env_hooks_workspace.pop(i)
                     # append env hook
-                    specific_env_hooks.append(os.path.join(env_hook_dir, filename))
+                    specific_env_hooks.append(
+                        os.path.join(env_hook_dir, filename))
                     specific_env_hooks_workspace.append(workspace)
-                    specific_env_hooks_by_filename[filename] = specific_env_hooks[-1]
+                    specific_env_hooks_by_filename[
+                        filename] = specific_env_hooks[-1]
     env_hooks = generic_env_hooks + specific_env_hooks
     env_hooks_workspace = generic_env_hooks_workspace + specific_env_hooks_workspace
     count = len(env_hooks)
     lines.append(assignment('_CATKIN_ENVIRONMENT_HOOKS_COUNT', count))
     for i in range(count):
-        lines.append(assignment('_CATKIN_ENVIRONMENT_HOOKS_%d' % i, env_hooks[i]))
-        lines.append(assignment('_CATKIN_ENVIRONMENT_HOOKS_%d_WORKSPACE' % i, env_hooks_workspace[i]))
+        lines.append(
+            assignment('_CATKIN_ENVIRONMENT_HOOKS_%d' % i, env_hooks[i]))
+        lines.append(
+            assignment('_CATKIN_ENVIRONMENT_HOOKS_%d_WORKSPACE' % i,
+                       env_hooks_workspace[i]))
     return lines
 
 
 def _parse_arguments(args=None):
-    parser = argparse.ArgumentParser(description='Generates code blocks for the setup.SHELL script.')
-    parser.add_argument('--extend', action='store_true', help='Skip unsetting previous environment variables to extend context')
+    parser = argparse.ArgumentParser(
+        description='Generates code blocks for the setup.SHELL script.')
+    parser.add_argument(
+        '--extend',
+        action='store_true',
+        help='Skip unsetting previous environment variables to extend context')
     return parser.parse_known_args(args=args)[0]
 
 
@@ -263,7 +311,8 @@ if __name__ == '__main__':
             sys.exit(1)
 
         # environment at generation time
-        CMAKE_PREFIX_PATH = '/home/wanguanglu/work/ros_study/1.create_package/devel;/opt/ros/indigo'.split(';')
+        CMAKE_PREFIX_PATH = '/home/wanguanglu/work/ros_study/1.create_package/devel;/opt/ros/indigo'.split(
+            ';')
         # prepend current workspace if not already part of CPP
         base_path = os.path.dirname(__file__)
         if base_path not in CMAKE_PREFIX_PATH:
@@ -274,7 +323,8 @@ if __name__ == '__main__':
         lines = []
         if not args.extend:
             lines += rollback_env_variables(environ, ENV_VAR_SUBFOLDERS)
-        lines += prepend_env_variables(environ, ENV_VAR_SUBFOLDERS, CMAKE_PREFIX_PATH)
+        lines += prepend_env_variables(environ, ENV_VAR_SUBFOLDERS,
+                                       CMAKE_PREFIX_PATH)
         lines += find_env_hooks(environ, CMAKE_PREFIX_PATH)
         print('\n'.join(lines))
 

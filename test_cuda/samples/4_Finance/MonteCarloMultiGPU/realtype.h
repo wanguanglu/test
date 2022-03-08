@@ -14,13 +14,10 @@
 
 //#define DOUBLE_PRECISION
 
-
 #ifndef DOUBLE_PRECISION
 typedef float real;
 #else
 typedef double real;
 #endif
-
-
 
 #endif

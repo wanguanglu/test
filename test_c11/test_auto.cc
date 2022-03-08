@@ -1,10 +1,10 @@
 /**
-* @file   test_auto.cpp
-* @author wanguanglu(mail@wanguanglu.com)
-* @date   2017/06/05 19:42:52
-* @brief 
-*  
-**/
+ * @file   test_auto.cpp
+ * @author wanguanglu(mail@wanguanglu.com)
+ * @date   2017/06/05 19:42:52
+ * @brief
+ *
+ **/
 
 #include <iostream>
 #include <map>
@@ -12,21 +12,21 @@
 #include <typeinfo>
 
 void basic_test() {
-  auto x = 5;   // type of x is int
+  auto x = 5; // type of x is int
   std::cout << "type of x is " << typeid(x).name() << std::endl;
 
-  auto pi = new auto(1);    // type of pi is int*
+  auto pi = new auto(1); // type of pi is int*
   std::cout << "type of pi is " << typeid(pi).name() << std::endl;
 
-  const auto *v = &x, u = 6;  // type if v is const int*, type of u is const int
+  const auto *v = &x, u = 6; // type if v is const int*, type of u is const int
   std::cout << "type of v is " << typeid(v).name() << std::endl;
   std::cout << "type of u is " << typeid(u).name() << std::endl;
 
-  static auto y = 0.0;  // type of y is static double
+  static auto y = 0.0; // type of y is static double
   std::cout << "type of y is " << typeid(y).name() << std::endl;
 
   // auto int r;  // error
-  // auto s;  // error, 
+  // auto s;  // error,
 }
 
 void map_iterator() {
@@ -36,7 +36,7 @@ void map_iterator() {
   }
 
   for (std::map<int, int>::iterator it = result_map.begin();
-      it != result_map.end(); it++) {
+       it != result_map.end(); it++) {
     std::cout << it->first << "\t" << it->second << std::endl;
   }
 
@@ -69,20 +69,15 @@ void unordered_multimap_iterator() {
 
 class A {
 public:
-  static int Get() {
-    return 1;
-  }
+  static int Get() { return 1; }
 };
 
 class B {
 public:
-  static std::string Get() {
-    return "class B";
-  }
+  static std::string Get() { return "class B"; }
 };
 
-template <typename T>
-void Get() {
+template <typename T> void Get() {
   auto info = T::Get();
   std::cout << info << std::endl;
 }
@@ -92,8 +87,8 @@ void TestGet() {
   Get<B>();
 }
 
-int main(int argc, char* argv[]) {
-//  TestGet();
+int main(int argc, char *argv[]) {
+  //  TestGet();
   basic_test();
   return 0;
 }

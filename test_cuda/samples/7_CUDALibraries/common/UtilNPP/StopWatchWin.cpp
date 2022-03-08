@@ -17,35 +17,29 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Variables, static
 
-namespace npp
-{
-    double StopWatchWin::freq;
+namespace npp {
+double StopWatchWin::freq;
 
-    bool   StopWatchWin::freq_set;
+bool StopWatchWin::freq_set;
 
-    StopWatchWin::StopWatchWin() :
-        start_time(),
-        end_time(),
-        diff_time(0.0),
-        total_time(0.0),
-        running(false)
-    {
-        if (! freq_set)
-        {
-            // helper variable
-            LARGE_INTEGER temp;
+StopWatchWin::StopWatchWin()
+    : start_time(), end_time(), diff_time(0.0), total_time(0.0),
+      running(false) {
+  if (!freq_set) {
+    // helper variable
+    LARGE_INTEGER temp;
 
-            // get the tick frequency from the OS
-            QueryPerformanceFrequency((LARGE_INTEGER *) &temp);
+    // get the tick frequency from the OS
+    QueryPerformanceFrequency((LARGE_INTEGER *)&temp);
 
-            // convert to type in which it is needed
-            freq = ((double) temp.QuadPart) / 1000.0;
+    // convert to type in which it is needed
+    freq = ((double)temp.QuadPart) / 1000.0;
 
-            // rememeber query
-            freq_set = true;
-        }
-    }
+    // rememeber query
+    freq_set = true;
+  }
+}
 
-    StopWatchWin::~StopWatchWin() { }
+StopWatchWin::~StopWatchWin() {}
 
-} // npp namespace
+} // namespace npp

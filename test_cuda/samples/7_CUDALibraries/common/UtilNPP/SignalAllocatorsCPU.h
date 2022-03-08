@@ -14,36 +14,22 @@
 
 #include "Exceptions.h"
 
-namespace npp
-{
+namespace npp {
 
-    template <typename D>
-    class SignalAllocatorCPU
-    {
-        public:
-            static
-            D *
-            Malloc1D(unsigned int nSize)
-            {
-                return new D[nSize];;
-            };
+template <typename D> class SignalAllocatorCPU {
+public:
+  static D *Malloc1D(unsigned int nSize) {
+    return new D[nSize];
+    ;
+  };
 
-            static
-            void
-            Free1D(D *pPixels)
-            {
-                delete[] pPixels;
-            };
+  static void Free1D(D *pPixels) { delete[] pPixels; };
 
-            static
-            void
-            Copy1D(D *pDst, const D *pSrc, size_t nSize)
-            {
-                memcpy(pDst, pSrc, nSize * sizeof(D));
-            };
+  static void Copy1D(D *pDst, const D *pSrc, size_t nSize) {
+    memcpy(pDst, pSrc, nSize * sizeof(D));
+  };
+};
 
-    };
-
-} // npp namespace
+} // namespace npp
 
 #endif // NV_UTIL_NPP_SIGNAL_ALLOCATORS_CPU_H

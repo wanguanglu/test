@@ -21,164 +21,123 @@
 #define dbgprintf(x)
 #endif
 
-FrameQueue::FrameQueue():
-    nReadPosition_(0)
-    , nFramesInQueue_(0)
-    , bEndOfDecode_(0)
-{
+FrameQueue::FrameQueue()
+    : nReadPosition_(0), nFramesInQueue_(0), bEndOfDecode_(0) {
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-    InitializeCriticalSection(&oCriticalSection_);
+  InitializeCriticalSection(&oCriticalSection_);
 #endif
-    memset(aDisplayQueue_, 0, cnMaximumSize * sizeof(CUVIDPARSERDISPINFO));
-    memset((void *)aIsFrameInUse_, 0, cnMaximumSize * sizeof(int));
+  memset(aDisplayQueue_, 0, cnMaximumSize * sizeof(CUVIDPARSERDISPINFO));
+  memset((void *)aIsFrameInUse_, 0, cnMaximumSize * sizeof(int));
 }
 
-FrameQueue::~FrameQueue()
-{
+FrameQueue::~FrameQueue() {
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-    DeleteCriticalSection(&oCriticalSection_);
+  DeleteCriticalSection(&oCriticalSection_);
 #endif
 }
 
-
-void
-FrameQueue::enter_CS(CRITICAL_SECTION *pCS)
-{
+void FrameQueue::enter_CS(CRITICAL_SECTION *pCS) {
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-    EnterCriticalSection(pCS);
+  EnterCriticalSection(pCS);
 #endif
 }
 
-
-void
-FrameQueue::leave_CS(CRITICAL_SECTION *pCS)
-{
+void FrameQueue::leave_CS(CRITICAL_SECTION *pCS) {
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-    LeaveCriticalSection(pCS);
+  LeaveCriticalSection(pCS);
 #endif
 }
 
-void
-FrameQueue::set_event(HANDLE event)
-{
+void FrameQueue::set_event(HANDLE event) {
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-    SetEvent(event);
+  SetEvent(event);
 #endif
 }
 
-void
-FrameQueue::reset_event(HANDLE event)
-{
+void FrameQueue::reset_event(HANDLE event) {
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-    ResetEvent(event);
+  ResetEvent(event);
 #endif
 }
 
-void
-FrameQueue::enqueue(const CUVIDPARSERDISPINFO *pPicParams)
-{
-    // Mark the frame as 'in-use' so we don't re-use it for decoding until it is no longer needed
-    // for display
-    aIsFrameInUse_[pPicParams->picture_index] = true;
+void FrameQueue::enqueue(const CUVIDPARSERDISPINFO *pPicParams) {
+  // Mark the frame as 'in-use' so we don't re-use it for decoding until it is
+  // no longer needed for display
+  aIsFrameInUse_[pPicParams->picture_index] = true;
 
-    // Wait until we have a free entry in the display queue (should never block if we have enough entries)
-    do
-    {
-        bool bPlacedFrame = false;
-        enter_CS(&oCriticalSection_);
-
-        if (nFramesInQueue_ < (int)FrameQueue::cnMaximumSize)
-        {
-            int iWritePosition = (nReadPosition_ + nFramesInQueue_) % cnMaximumSize;
-            aDisplayQueue_[iWritePosition] = *pPicParams;
-            nFramesInQueue_++;
-            bPlacedFrame = true;
-        }
-
-        leave_CS(&oCriticalSection_);
-
-        if (bPlacedFrame) // Done
-            break;
-
-        sleep(1);   // Wait a bit
-    }
-    while (!bEndOfDecode_);
-
-}
-
-// if no valid picture can be return the pic-info's picture_index will
-// be -1.
-bool
-FrameQueue::dequeue(CUVIDPARSERDISPINFO *pDisplayInfo)
-{
-    pDisplayInfo->picture_index = -1;
-    bool bHaveNewFrame = false;
-
+  // Wait until we have a free entry in the display queue (should never block if
+  // we have enough entries)
+  do {
+    bool bPlacedFrame = false;
     enter_CS(&oCriticalSection_);
 
-    if (nFramesInQueue_ > 0)
-    {
-        int iEntry = nReadPosition_;
-        *pDisplayInfo = aDisplayQueue_[iEntry];
-        nReadPosition_ = (iEntry+1) % cnMaximumSize;
-        nFramesInQueue_--;
-        bHaveNewFrame = true;
+    if (nFramesInQueue_ < (int)FrameQueue::cnMaximumSize) {
+      int iWritePosition = (nReadPosition_ + nFramesInQueue_) % cnMaximumSize;
+      aDisplayQueue_[iWritePosition] = *pPicParams;
+      nFramesInQueue_++;
+      bPlacedFrame = true;
     }
 
     leave_CS(&oCriticalSection_);
 
-    return bHaveNewFrame;
+    if (bPlacedFrame) // Done
+      break;
+
+    sleep(1); // Wait a bit
+  } while (!bEndOfDecode_);
 }
 
-void
-FrameQueue::releaseFrame(const CUVIDPARSERDISPINFO *pPicParams)
-{
-    aIsFrameInUse_[pPicParams->picture_index] = false;
+// if no valid picture can be return the pic-info's picture_index will
+// be -1.
+bool FrameQueue::dequeue(CUVIDPARSERDISPINFO *pDisplayInfo) {
+  pDisplayInfo->picture_index = -1;
+  bool bHaveNewFrame = false;
+
+  enter_CS(&oCriticalSection_);
+
+  if (nFramesInQueue_ > 0) {
+    int iEntry = nReadPosition_;
+    *pDisplayInfo = aDisplayQueue_[iEntry];
+    nReadPosition_ = (iEntry + 1) % cnMaximumSize;
+    nFramesInQueue_--;
+    bHaveNewFrame = true;
+  }
+
+  leave_CS(&oCriticalSection_);
+
+  return bHaveNewFrame;
 }
 
-bool
-FrameQueue::isInUse(int nPictureIndex)
-const
-{
-    assert(nPictureIndex >= 0);
-    assert(nPictureIndex < (int)cnMaximumSize);
-
-    return (0 != aIsFrameInUse_[nPictureIndex]);
+void FrameQueue::releaseFrame(const CUVIDPARSERDISPINFO *pPicParams) {
+  aIsFrameInUse_[pPicParams->picture_index] = false;
 }
 
-bool
-FrameQueue::isDecodeFinished()
-const
-{
-    return (nFramesInQueue_ == 0 && 0 != bEndOfDecode_);
+bool FrameQueue::isInUse(int nPictureIndex) const {
+  assert(nPictureIndex >= 0);
+  assert(nPictureIndex < (int)cnMaximumSize);
+
+  return (0 != aIsFrameInUse_[nPictureIndex]);
 }
 
-void
-FrameQueue::endDecode()
-{
-    bEndOfDecode_ = true;
+bool FrameQueue::isDecodeFinished() const {
+  return (nFramesInQueue_ == 0 && 0 != bEndOfDecode_);
 }
 
-
+void FrameQueue::endDecode() { bEndOfDecode_ = true; }
 
 // Spins until frame becomes available or decoding
 // gets canceled.
 // If the requested frame is available the method returns true.
 // If decoding was interrupted before the requested frame becomes
 // available, the method returns false.
-bool
-FrameQueue::waitUntilFrameAvailable(int nPictureIndex)
-{
-    while (isInUse(nPictureIndex))
-    {
-        sleep(1);   // Decoder is getting too far ahead from display
+bool FrameQueue::waitUntilFrameAvailable(int nPictureIndex) {
+  while (isInUse(nPictureIndex)) {
+    sleep(1); // Decoder is getting too far ahead from display
 
-        if (0 != bEndOfDecode_)
-        {
-            return false;
-        }
+    if (0 != bEndOfDecode_) {
+      return false;
     }
+  }
 
-    return true;
+  return true;
 }
-

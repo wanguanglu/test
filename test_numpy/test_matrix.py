@@ -9,5 +9,3 @@ print np.expand_dims(b, -1)
 print
 
 print np.expand_dims(a, -1)
-
-

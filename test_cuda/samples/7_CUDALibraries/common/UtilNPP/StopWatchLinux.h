@@ -16,142 +16,120 @@
 #include <ctime>
 #include <sys/time.h>
 
-namespace npp
-{
+namespace npp {
 
-    /// Windows specific implementation of StopWatch
-    class StopWatchLinux
-    {
+/// Windows specific implementation of StopWatch
+class StopWatchLinux {
 
-        protected:
+protected:
+  //! Constructor, default
+  StopWatchLinux();
 
-            //! Constructor, default
-            StopWatchLinux();
+  // Destructor
+  ~StopWatchLinux();
 
-            // Destructor
-            ~StopWatchLinux();
+public:
+  //! Start time measurement
+  inline void start();
 
-        public:
+  //! Stop time measurement
+  inline void stop();
 
-            //! Start time measurement
-            inline void start();
+  //! Reset time counters to zero
+  inline void reset();
 
-            //! Stop time measurement
-            inline void stop();
+  //! Time in msec. after start. If the stop watch is still running (i.e. there
+  //! was no call to stop()) then the elapsed time is returned, otherwise the
+  //! time between the last start() and stop call is returned
+  inline const double elapsed() const;
 
-            //! Reset time counters to zero
-            inline void reset();
+private:
+  // helper functions
 
-            //! Time in msec. after start. If the stop watch is still running (i.e. there
-            //! was no call to stop()) then the elapsed time is returned, otherwise the
-            //! time between the last start() and stop call is returned
-            inline const double elapsed() const;
+  //! Get difference between start time and current time
+  inline double getDiffTime() const;
 
+private:
+  // member variables
 
-        private:
+  //! Start of measurement
+  struct timeval start_time;
 
-            // helper functions
+  //! Time difference between the last start and stop
+  double diff_time;
 
-            //! Get difference between start time and current time
-            inline double getDiffTime() const;
+  //! TOTAL time difference between starts and stops
+  double total_time;
 
-        private:
+  //! flag if the stop watch is running
+  bool running;
+};
 
-            // member variables
+// functions, inlined
 
-            //! Start of measurement
-            struct timeval  start_time;
+////////////////////////////////////////////////////////////////////////////////
+//! Start time measurement
+////////////////////////////////////////////////////////////////////////////////
+inline void StopWatchLinux::start() {
 
-            //! Time difference between the last start and stop
-            double  diff_time;
+  gettimeofday(&start_time, 0);
+  running = true;
+}
 
-            //! TOTAL time difference between starts and stops
-            double  total_time;
+////////////////////////////////////////////////////////////////////////////////
+//! Stop time measurement and increment add to the current diff_time summation
+//! variable. Also increment the number of times this clock has been run.
+////////////////////////////////////////////////////////////////////////////////
+inline void StopWatchLinux::stop() {
 
-            //! flag if the stop watch is running
-            bool running;
-    };
+  diff_time = getDiffTime();
+  total_time += diff_time;
+  running = false;
+}
 
-    // functions, inlined
+////////////////////////////////////////////////////////////////////////////////
+//! Reset the timer to 0. Does not change the timer running state but does
+//! recapture this point in time as the current start time if it is running.
+////////////////////////////////////////////////////////////////////////////////
+inline void StopWatchLinux::reset() {
+  diff_time = 0;
+  total_time = 0;
 
-    ////////////////////////////////////////////////////////////////////////////////
-    //! Start time measurement
-    ////////////////////////////////////////////////////////////////////////////////
-    inline void
-    StopWatchLinux::start()
-    {
+  if (running) {
+    gettimeofday(&start_time, 0);
+  }
+}
 
-        gettimeofday(&start_time, 0);
-        running = true;
-    }
+////////////////////////////////////////////////////////////////////////////////
+//! Time in msec. after start. If the stop watch is still running (i.e. there
+//! was no call to stop()) then the elapsed time is returned added to the
+//! current diff_time sum, otherwise the current summed time difference alone
+//! is returned.
+////////////////////////////////////////////////////////////////////////////////
+inline const double StopWatchLinux::elapsed() const {
+  // Return the TOTAL time to date
+  double retval = total_time;
 
-    ////////////////////////////////////////////////////////////////////////////////
-    //! Stop time measurement and increment add to the current diff_time summation
-    //! variable. Also increment the number of times this clock has been run.
-    ////////////////////////////////////////////////////////////////////////////////
-    inline void
-    StopWatchLinux::stop()
-    {
+  if (running) {
 
-        diff_time = getDiffTime();
-        total_time += diff_time;
-        running = false;
-    }
+    retval += getDiffTime();
+  }
 
-    ////////////////////////////////////////////////////////////////////////////////
-    //! Reset the timer to 0. Does not change the timer running state but does
-    //! recapture this point in time as the current start time if it is running.
-    ////////////////////////////////////////////////////////////////////////////////
-    inline void
-    StopWatchLinux::reset()
-    {
-        diff_time = 0;
-        total_time = 0;
+  return retval;
+}
 
-        if (running)
-        {
-            gettimeofday(&start_time, 0);
-        }
-    }
+////////////////////////////////////////////////////////////////////////////////
 
-    ////////////////////////////////////////////////////////////////////////////////
-    //! Time in msec. after start. If the stop watch is still running (i.e. there
-    //! was no call to stop()) then the elapsed time is returned added to the
-    //! current diff_time sum, otherwise the current summed time difference alone
-    //! is returned.
-    ////////////////////////////////////////////////////////////////////////////////
-    inline const double
-    StopWatchLinux::elapsed() const
-    {
-        // Return the TOTAL time to date
-        double retval = total_time;
+////////////////////////////////////////////////////////////////////////////////
+inline double StopWatchLinux::getDiffTime() const {
+  struct timeval t_time;
+  gettimeofday(&t_time, 0);
 
-        if (running)
-        {
+  // time difference in milli-seconds
+  return (1000.0 * (t_time.tv_sec - start_time.tv_sec) +
+          (0.001 * (t_time.tv_usec - start_time.tv_usec)));
+}
 
-            retval += getDiffTime();
-        }
-
-        return retval;
-    }
-
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    inline double
-    StopWatchLinux::getDiffTime() const
-    {
-        struct timeval t_time;
-        gettimeofday(&t_time, 0);
-
-        // time difference in milli-seconds
-        return (1000.0 * (t_time.tv_sec - start_time.tv_sec)
-                + (0.001 * (t_time.tv_usec - start_time.tv_usec)));
-    }
-
-} // npp namespace
+} // namespace npp
 
 #endif // NV_NPP_UTIL_STOP_WATCH_LINUX_H
-

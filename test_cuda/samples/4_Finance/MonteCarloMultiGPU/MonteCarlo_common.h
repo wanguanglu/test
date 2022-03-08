@@ -11,78 +11,72 @@
 
 #ifndef MONTECARLO_COMMON_H
 #define MONTECARLO_COMMON_H
-#include "realtype.h"
 #include "curand_kernel.h"
+#include "realtype.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Global types
 ////////////////////////////////////////////////////////////////////////////////
-typedef struct
-{
-    float S;
-    float X;
-    float T;
-    float R;
-    float V;
+typedef struct {
+  float S;
+  float X;
+  float T;
+  float R;
+  float V;
 } TOptionData;
 
 typedef struct
-        //#ifdef __CUDACC__
-        //__align__(8)
-        //#endif
+//#ifdef __CUDACC__
+//__align__(8)
+//#endif
 {
-    float Expected;
-    float Confidence;
+  float Expected;
+  float Confidence;
 } TOptionValue;
 
-//GPU outputs before CPU postprocessing
-typedef struct
-{
-    real Expected;
-    real Confidence;
+// GPU outputs before CPU postprocessing
+typedef struct {
+  real Expected;
+  real Confidence;
 } __TOptionValue;
 
+typedef struct {
+  // Device ID for multi-GPU version
+  int device;
+  // Option count for this plan
+  int optionCount;
 
+  // Host-side data source and result destination
+  TOptionData *optionData;
+  TOptionValue *callValue;
 
-typedef struct
-{
-    //Device ID for multi-GPU version
-    int device;
-    //Option count for this plan
-    int optionCount;
+  // Temporary Host-side pinned memory for async + faster data transfers
+  __TOptionValue *h_CallValue;
 
-    //Host-side data source and result destination
-    TOptionData  *optionData;
-    TOptionValue *callValue;
+  // Device- and host-side option data
+  void *d_OptionData;
+  void *h_OptionData;
 
-    //Temporary Host-side pinned memory for async + faster data transfers
-    __TOptionValue *h_CallValue;
+  // Device-side option values
+  void *d_CallValue;
 
-    // Device- and host-side option data
-    void * d_OptionData;
-    void * h_OptionData;
+  // Intermediate device-side buffers
+  void *d_Buffer;
 
-    // Device-side option values
-    void * d_CallValue;
+  // random number generator states
+  curandState *rngStates;
 
-    //Intermediate device-side buffers
-    void *d_Buffer;
+  // Pseudorandom samples count
+  int pathN;
 
-    //random number generator states
-    curandState *rngStates;
+  // Time stamp
+  float time;
 
-    //Pseudorandom samples count
-    int pathN;
-
-    //Time stamp
-    float time;
-
-    int gridSize;
+  int gridSize;
 } TOptionPlan;
 
-
 extern "C" void initMonteCarloGPU(TOptionPlan *plan);
-extern "C" void MonteCarloGPU(TOptionPlan *plan, cudaStream_t stream=0);
+extern "C" void MonteCarloGPU(TOptionPlan *plan, cudaStream_t stream = 0);
 extern "C" void closeMonteCarloGPU(TOptionPlan *plan);
 
 #endif

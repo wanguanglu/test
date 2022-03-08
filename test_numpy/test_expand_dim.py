@@ -14,4 +14,3 @@ print v
 print
 
 print np.max(v, 0)
-

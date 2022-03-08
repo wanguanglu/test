@@ -30,7 +30,6 @@
  * source code with only those rights set forth herein.
  */
 
-
 /*
 *
 *  -- LAPACK auxiliary routine (version 3.2) --
@@ -87,23 +86,21 @@
 
 // based on swap_rows - in just folds in the loop from the cpu,
 // so there is no going in and out of the gpu
-__global__ void dlaswp(int n, double *A, int lda, int *ipiv, int k1, int k2)
-{
-    for (; k1 < k2 ; ++k1)
-    {
-        int src_row = k1;
-        int dst_row = ipiv[k1];
+__global__ void dlaswp(int n, double *A, int lda, int *ipiv, int k1, int k2) {
+  for (; k1 < k2; ++k1) {
+    int src_row = k1;
+    int dst_row = ipiv[k1];
 
-        for (int col_id = threadIdx.x ; col_id < n ; col_id += blockDim.x)
-        {
-            double A_tmp = A[col_id*lda + src_row];
-            A[col_id*lda + src_row] = A[col_id*lda + dst_row];
-            A[col_id*lda + dst_row] = A_tmp;
+    for (int col_id = threadIdx.x; col_id < n; col_id += blockDim.x) {
+      double A_tmp = A[col_id * lda + src_row];
+      A[col_id * lda + src_row] = A[col_id * lda + dst_row];
+      A[col_id * lda + dst_row] = A_tmp;
 
-            __syncthreads();
-        }
-
-        // TODO: we have very poor coalescing here. Can't we do better? Launch one warp of threads per column and
-        // ask those threads to reorder the column, for example.
+      __syncthreads();
     }
+
+    // TODO: we have very poor coalescing here. Can't we do better? Launch one
+    // warp of threads per column and ask those threads to reorder the column,
+    // for example.
+  }
 }

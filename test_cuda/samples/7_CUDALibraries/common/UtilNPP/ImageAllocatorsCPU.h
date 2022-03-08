@@ -14,51 +14,37 @@
 
 #include "Exceptions.h"
 
-namespace npp
-{
+namespace npp {
 
-    template <typename D, size_t N>
-    class ImageAllocatorCPU
-    {
-        public:
-            static
-            D *
-            Malloc2D(unsigned int nWidth, unsigned int nHeight, unsigned int *pPitch)
-            {
-                NPP_ASSERT(nWidth * nHeight > 0);
+template <typename D, size_t N> class ImageAllocatorCPU {
+public:
+  static D *Malloc2D(unsigned int nWidth, unsigned int nHeight,
+                     unsigned int *pPitch) {
+    NPP_ASSERT(nWidth * nHeight > 0);
 
-                D *pResult = new D[nWidth * N * nHeight];
-                *pPitch = nWidth * sizeof(D) * N;
+    D *pResult = new D[nWidth * N * nHeight];
+    *pPitch = nWidth * sizeof(D) * N;
 
-                return pResult;
-            };
+    return pResult;
+  };
 
-            static
-            void
-            Free2D(D *pPixels)
-            {
-                delete[] pPixels;
-            };
+  static void Free2D(D *pPixels) { delete[] pPixels; };
 
-            static
-            void
-            Copy2D(D *pDst, size_t nDstPitch, const D *pSrc, size_t nSrcPitch, size_t nWidth, size_t nHeight)
-            {
-                const void *pSrcLine = pSrc;
-                void        *pDstLine = pDst;
+  static void Copy2D(D *pDst, size_t nDstPitch, const D *pSrc, size_t nSrcPitch,
+                     size_t nWidth, size_t nHeight) {
+    const void *pSrcLine = pSrc;
+    void *pDstLine = pDst;
 
-                for (size_t iLine = 0; iLine < nHeight; ++iLine)
-                {
-                    // copy one line worth of data
-                    memcpy(pDst, pSrc, nWidth * N * sizeof(D));
-                    // move data pointers to next line
-                    pDst += nDstPitch;
-                    pSrc += nSrcPitch;
-                }
-            };
+    for (size_t iLine = 0; iLine < nHeight; ++iLine) {
+      // copy one line worth of data
+      memcpy(pDst, pSrc, nWidth * N * sizeof(D));
+      // move data pointers to next line
+      pDst += nDstPitch;
+      pSrc += nSrcPitch;
+    }
+  };
+};
 
-    };
-
-} // npp namespace
+} // namespace npp
 
 #endif // NV_UTIL_NPP_IMAGE_ALLOCATORS_CPU_H

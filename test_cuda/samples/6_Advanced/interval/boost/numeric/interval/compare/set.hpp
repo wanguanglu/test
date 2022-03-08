@@ -20,75 +20,69 @@ namespace interval_lib {
 namespace compare {
 namespace set {
 
-template<class T, class Policies1, class Policies2> inline
-bool operator<(const interval<T, Policies1>& x, const interval<T, Policies2>& y)
-{
+template <class T, class Policies1, class Policies2>
+inline bool operator<(const interval<T, Policies1> &x,
+                      const interval<T, Policies2> &y) {
   return proper_subset(x, y);
 }
 
-template<class T, class Policies> inline
-bool operator<(const interval<T, Policies>& x, const T& y)
-{
+template <class T, class Policies>
+inline bool operator<(const interval<T, Policies> &x, const T &y) {
   throw comparison_error();
 }
 
-template<class T, class Policies1, class Policies2> inline
-bool operator<=(const interval<T, Policies1>& x, const interval<T, Policies2>& y)
-{
+template <class T, class Policies1, class Policies2>
+inline bool operator<=(const interval<T, Policies1> &x,
+                       const interval<T, Policies2> &y) {
   return subset(x, y);
 }
 
-template<class T, class Policies> inline
-bool operator<=(const interval<T, Policies>& x, const T& y)
-{
+template <class T, class Policies>
+inline bool operator<=(const interval<T, Policies> &x, const T &y) {
   throw comparison_error();
 }
 
-template<class T, class Policies1, class Policies2> inline
-bool operator>(const interval<T, Policies1>& x, const interval<T, Policies2>& y)
-{
+template <class T, class Policies1, class Policies2>
+inline bool operator>(const interval<T, Policies1> &x,
+                      const interval<T, Policies2> &y) {
   return proper_subset(y, x);
 }
 
-template<class T, class Policies> inline
-bool operator>(const interval<T, Policies>& x, const T& y)
-{
+template <class T, class Policies>
+inline bool operator>(const interval<T, Policies> &x, const T &y) {
   throw comparison_error();
 }
 
-template<class T, class Policies1, class Policies2> inline
-bool operator>=(const interval<T, Policies1>& x, const interval<T, Policies2>& y)
-{
+template <class T, class Policies1, class Policies2>
+inline bool operator>=(const interval<T, Policies1> &x,
+                       const interval<T, Policies2> &y) {
   return subset(y, x);
 }
 
-template<class T, class Policies> inline
-bool operator>=(const interval<T, Policies>& x, const T& y)
-{
+template <class T, class Policies>
+inline bool operator>=(const interval<T, Policies> &x, const T &y) {
   throw comparison_error();
 }
 
-template<class T, class Policies1, class Policies2> inline
-bool operator==(const interval<T, Policies1>& x, const interval<T, Policies2>& y)
-{
+template <class T, class Policies1, class Policies2>
+inline bool operator==(const interval<T, Policies1> &x,
+                       const interval<T, Policies2> &y) {
   return equal(y, x);
 }
 
-template<class T, class Policies> inline
-bool operator==(const interval<T, Policies>& x, const T& y)
-{
+template <class T, class Policies>
+inline bool operator==(const interval<T, Policies> &x, const T &y) {
   throw comparison_error();
 }
 
-template<class T, class Policies1, class Policies2> inline
-bool operator!=(const interval<T, Policies1>& x, const interval<T, Policies2>& y)
-{
+template <class T, class Policies1, class Policies2>
+inline bool operator!=(const interval<T, Policies1> &x,
+                       const interval<T, Policies2> &y) {
   return !equal(y, x);
 }
 
-template<class T, class Policies> inline
-bool operator!=(const interval<T, Policies>& x, const T& y)
-{
+template <class T, class Policies>
+inline bool operator!=(const interval<T, Policies> &x, const T &y) {
   throw comparison_error();
 }
 

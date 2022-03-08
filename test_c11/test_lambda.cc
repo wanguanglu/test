@@ -1,10 +1,10 @@
 /**
-* @file   test_lambda.cpp
-* @author wanguanglu(mail@wanguanglu.com)
-* @date   2017/10/11 10:17:30
-* @brief 
-*  
-**/
+ * @file   test_lambda.cpp
+ * @author wanguanglu(mail@wanguanglu.com)
+ * @date   2017/10/11 10:17:30
+ * @brief
+ *
+ **/
 
 #include <functional>
 #include <iostream>
@@ -25,7 +25,7 @@ void test() {
   // like all callable objects, closures can be captured in std::function
   // (this may incur unnecessary overhead)
   std::function<int(int)> func3 = [](int i) { return i + 4; };
-  std::cout << "func3: " << func3(6) << '\n'; 
+  std::cout << "func3: " << func3(6) << '\n';
 }
 
 void test_capture() {
@@ -47,14 +47,14 @@ void test_capture() {
   func2();
   std::cout << "After call func2(): " << a << std::endl;
 
-  auto func3 = [=] () {
+  auto func3 = [=]() {
     std::cout << a << std::endl;
     // a += 1; // Compile error.
     std::cout << b << std::endl;
   };
   func3();
 
-  auto func4 = [&] () {
+  auto func4 = [&]() {
     std::cout << a << std::endl;
     a += 1;
     std::cout << b << std::endl;
@@ -101,6 +101,7 @@ public:
     };
     func2();
   }
+
 private:
   int x = 0;
   int y = 0;
@@ -111,7 +112,7 @@ void test_this() {
   a.TestLambda();
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   // test();
   // test_capture();
   test_this();

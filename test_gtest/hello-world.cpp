@@ -4,11 +4,11 @@
 
 class Salutation {
 public:
-  static std::string greet(const std::string& name);
+  static std::string greet(const std::string &name);
 };
 
 // In the class implementation file
-std::string Salutation::greet(const std::string& name) {
+std::string Salutation::greet(const std::string &name) {
   std::ostringstream s;
   s << "Hello " << name << "!";
   return s.str();

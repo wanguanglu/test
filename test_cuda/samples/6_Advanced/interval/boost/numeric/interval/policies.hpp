@@ -20,9 +20,7 @@ namespace interval_lib {
  * policies class
  */
 
-template<class Rounding, class Checking>
-struct policies
-{
+template <class Rounding, class Checking> struct policies {
   typedef Rounding rounding;
   typedef Checking checking;
 };
@@ -31,24 +29,22 @@ struct policies
  * policies switching classes
  */
 
-template<class OldInterval, class NewRounding>
-class change_rounding
-{
+template <class OldInterval, class NewRounding> class change_rounding {
   typedef typename OldInterval::base_type T;
   typedef typename OldInterval::traits_type p;
   typedef typename p::checking checking;
+
 public:
-  typedef interval<T, policies<NewRounding, checking> > type;
+  typedef interval<T, policies<NewRounding, checking>> type;
 };
 
-template<class OldInterval, class NewChecking>
-class change_checking
-{
+template <class OldInterval, class NewChecking> class change_checking {
   typedef typename OldInterval::base_type T;
   typedef typename OldInterval::traits_type p;
   typedef typename p::rounding rounding;
+
 public:
-  typedef interval<T, policies<rounding, NewChecking> > type;
+  typedef interval<T, policies<rounding, NewChecking>> type;
 };
 
 /*
@@ -56,13 +52,12 @@ public:
  * at each operation, rather than once and for all.
  */
 
-template<class OldInterval>
-class unprotect
-{
+template <class OldInterval> class unprotect {
   typedef typename OldInterval::base_type T;
   typedef typename OldInterval::traits_type p;
   typedef typename p::rounding r;
   typedef typename r::unprotected_rounding newRounding;
+
 public:
   typedef typename change_rounding<OldInterval, newRounding>::type type;
 };
@@ -70,6 +65,5 @@ public:
 } // namespace interval_lib
 } // namespace numeric
 } // namespace boost
-
 
 #endif // BOOST_NUMERIC_INTERVAL_POLICIES_HPP

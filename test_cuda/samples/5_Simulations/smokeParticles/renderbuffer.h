@@ -83,25 +83,23 @@ Usage Notes:
         STENCIL_INDEX8_EXT
         STENCIL_INDEX16_EXT
 */
-class Renderbuffer
-{
-    public:
-        /// Ctors/Dtors
-        Renderbuffer();
-        Renderbuffer(GLenum internalFormat, int width, int height);
-        ~Renderbuffer();
+class Renderbuffer {
+public:
+  /// Ctors/Dtors
+  Renderbuffer();
+  Renderbuffer(GLenum internalFormat, int width, int height);
+  ~Renderbuffer();
 
-        void   Bind();
-        void   Unbind();
-        void   Set(GLenum internalFormat, int width, int height);
-        GLuint GetId() const;
+  void Bind();
+  void Unbind();
+  void Set(GLenum internalFormat, int width, int height);
+  GLuint GetId() const;
 
-        static GLint GetMaxSize();
+  static GLint GetMaxSize();
 
-    private:
-        GLuint m_bufId;
-        static GLuint _CreateBufferId();
+private:
+  GLuint m_bufId;
+  static GLuint _CreateBufferId();
 };
 
 #endif
-

@@ -14,7 +14,8 @@
 
 #include "cuda_drvapi_dynlink_cuda.h"
 
-#if defined(CUDA_INIT_D3D9)||defined(CUDA_INIT_D3D10)||defined(CUDA_INIT_D3D11)
+#if defined(CUDA_INIT_D3D9) || defined(CUDA_INIT_D3D10) ||                     \
+    defined(CUDA_INIT_D3D11)
 #include "cuda_drvapi_dynlink_d3d.h"
 #endif
 

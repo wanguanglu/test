@@ -1,10 +1,10 @@
 /**
-* @file   test_math.cpp
-* @author wanguanglu(mail@wanguanglu.com)
-* @date   2017/05/18 23:15:27
-* @brief 
-*  
-**/
+ * @file   test_math.cpp
+ * @author wanguanglu(mail@wanguanglu.com)
+ * @date   2017/05/18 23:15:27
+ * @brief
+ *
+ **/
 
 #include <cmath>
 #include <iostream>
@@ -87,7 +87,7 @@ void test_abs() {
   std::cout << "abs(x): " << abs(x) << std::endl;
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   test_numlimits();
   test_abs();
   return 0;

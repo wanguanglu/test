@@ -22,9 +22,8 @@ namespace boost {
 namespace numeric {
 namespace interval_lib {
 
-template<class I> inline
-I add(const typename I::base_type& x, const typename I::base_type& y)
-{
+template <class I>
+inline I add(const typename I::base_type &x, const typename I::base_type &y) {
   typedef typename I::traits_type Policies;
   if (detail::test_input<typename I::base_type, Policies>(x, y))
     return I::empty();
@@ -32,9 +31,8 @@ I add(const typename I::base_type& x, const typename I::base_type& y)
   return I(rnd.add_down(x, y), rnd.add_up(x, y), true);
 }
 
-template<class I> inline
-I sub(const typename I::base_type& x, const typename I::base_type& y)
-{
+template <class I>
+inline I sub(const typename I::base_type &x, const typename I::base_type &y) {
   typedef typename I::traits_type Policies;
   if (detail::test_input<typename I::base_type, Policies>(x, y))
     return I::empty();
@@ -42,9 +40,8 @@ I sub(const typename I::base_type& x, const typename I::base_type& y)
   return I(rnd.sub_down(x, y), rnd.sub_up(x, y), true);
 }
 
-template<class I> inline
-I mul(const typename I::base_type& x, const typename I::base_type& y)
-{
+template <class I>
+inline I mul(const typename I::base_type &x, const typename I::base_type &y) {
   typedef typename I::traits_type Policies;
   if (detail::test_input<typename I::base_type, Policies>(x, y))
     return I::empty();
@@ -52,11 +49,11 @@ I mul(const typename I::base_type& x, const typename I::base_type& y)
   return I(rnd.mul_down(x, y), rnd.mul_up(x, y), true);
 }
 
-template<class I> inline
-I div(const typename I::base_type& x, const typename I::base_type& y)
-{
+template <class I>
+inline I div(const typename I::base_type &x, const typename I::base_type &y) {
   typedef typename I::traits_type Policies;
-  if (detail::test_input<typename I::base_type, Policies>(x, y) || user::is_zero(y))
+  if (detail::test_input<typename I::base_type, Policies>(x, y) ||
+      user::is_zero(y))
     return I::empty();
   typename Policies::rounding rnd;
   return I(rnd.div_down(x, y), rnd.div_up(x, y), true);

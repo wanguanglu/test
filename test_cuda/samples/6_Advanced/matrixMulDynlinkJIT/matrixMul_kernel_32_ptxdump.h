@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-    extern unsigned char matrixMul_kernel_32_ptxdump[25784];
+extern unsigned char matrixMul_kernel_32_ptxdump[25784];
 
 #if defined __cplusplus
 }

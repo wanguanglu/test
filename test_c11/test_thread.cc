@@ -1,38 +1,33 @@
 /**
-* @file   test_thread.cpp
-* @author wanguanglu(mail@wanguanglu.com)
-* @date   2017/10/11 11:18:28
-* @brief 
-*  
-**/
+ * @file   test_thread.cpp
+ * @author wanguanglu(mail@wanguanglu.com)
+ * @date   2017/10/11 11:18:28
+ * @brief
+ *
+ **/
 
 #include <chrono>
 #include <future>
 #include <iostream>
 #include <thread>
 
-void func3() {
-  std::cout << "In func3." << std::endl;
-}
+void func3() { std::cout << "In func3." << std::endl; }
 
 void func4(int y, int z) {
-  std::cout << "In func4 " << "y: " << y << " z: " << z << std::endl;
+  std::cout << "In func4 "
+            << "y: " << y << " z: " << z << std::endl;
 }
 
 class C {
 public:
-    virtual void func1() = 0;
+  virtual void func1() = 0;
 };
 
 class B : public C {
 public:
-    void func1() override {
-        std::cout << "In class B func1." << std::endl;
-    }
+  void func1() override { std::cout << "In class B func1." << std::endl; }
 
-    int func2() {
-        return 0;
-    }
+  int func2() { return 0; }
 };
 
 class A {
@@ -61,9 +56,7 @@ public:
     // std::cout << "value: " << value << std::endl;
   }
 
-  void func1(){
-    std::cout << "In func1." << std::endl;
-  }
+  void func1() { std::cout << "In func1." << std::endl; }
 
   void func2(int y, int z) {
     std::cout << "In func2." << std::endl;
@@ -79,7 +72,7 @@ void Test() {
   a.TestThread();
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   Test();
   return 0;
 }

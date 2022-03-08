@@ -10,24 +10,24 @@
  */
 
 #ifdef _WIN32
-#  define WINDOWS_LEAN_AND_MEAN
-#  define NOMINMAX
-#  include <windows.h>
+#define WINDOWS_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
 #else
-#  include <sys/utsname.h>
+#include <sys/utsname.h>
 #endif
 
 // Includes, system
-#include <stdio.h>
 #include <cassert>
+#include <stdio.h>
 
 // Includes CUDA
-#include <cuda_runtime.h>
 #include "nvrtc_helper.h"
 #include <cudaProfiler.h>
+#include <cuda_runtime.h>
 
 // Utilities and timing functions
-#include <helper_functions.h>    // includes cuda.h and cuda_runtime_api.h
+#include <helper_functions.h> // includes cuda.h and cuda_runtime_api.h
 
 const char *sampleName = "simpleAssert_nvrtc";
 
@@ -35,74 +35,66 @@ const char *sampleName = "simpleAssert_nvrtc";
 // Auto-Verification Code
 bool testResult = true;
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Declaration, forward
 void runTest(int argc, char **argv);
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
 
-int main(int argc, char **argv)
-{
-    printf("%s starting...\n", sampleName);
+int main(int argc, char **argv) {
+  printf("%s starting...\n", sampleName);
 
-    runTest(argc, argv);
+  runTest(argc, argv);
 
-    cuProfilerStop();
+  cuProfilerStop();
 
-    exit(testResult ? EXIT_SUCCESS : EXIT_FAILURE);
+  exit(testResult ? EXIT_SUCCESS : EXIT_FAILURE);
 }
 
+void runTest(int argc, char **argv) {
+  int Nblocks = 2;
+  int Nthreads = 32;
 
+  // Kernel configuration, where a one-dimensional
+  // grid and one-dimensional blocks are configured.
 
-void runTest(int argc, char **argv)
-{
-    int Nblocks = 2;
-    int Nthreads = 32;
+  dim3 dimGrid(Nblocks);
+  dim3 dimBlock(Nthreads);
 
-    // Kernel configuration, where a one-dimensional
-    // grid and one-dimensional blocks are configured.
+  printf("Launch kernel to generate assertion failures\n");
+  char *ptx, *kernel_file;
+  size_t ptxSize;
 
-    dim3 dimGrid(Nblocks);
-    dim3 dimBlock(Nthreads);
+  kernel_file = sdkFindFilePath("simpleAssert_kernel.cu", argv[0]);
+  compileFileToPTX(kernel_file, 0, NULL, &ptx, &ptxSize);
 
-    printf("Launch kernel to generate assertion failures\n");
-    char *ptx, *kernel_file;
-    size_t ptxSize;
+  CUmodule module = loadPTX(ptx, argc, argv);
+  CUfunction kernel_addr;
 
-    kernel_file = sdkFindFilePath("simpleAssert_kernel.cu", argv[0]);
-    compileFileToPTX(kernel_file, 0, NULL, &ptx, &ptxSize);
+  checkCudaErrors(cuModuleGetFunction(&kernel_addr, module, "testKernel"));
 
-    CUmodule module = loadPTX(ptx, argc, argv);
-    CUfunction kernel_addr;
+  int count = 60;
+  void *args[] = {(void *)&count};
 
-    checkCudaErrors(cuModuleGetFunction(&kernel_addr, module, "testKernel"));
+  checkCudaErrors(cuLaunchKernel(
+      kernel_addr, dimGrid.x, dimGrid.y, dimGrid.z, /* grid dim */
+      dimBlock.x, dimBlock.y, dimBlock.z,           /* block dim */
+      0, 0,                                         /* shared mem, stream */
+      &args[0],                                     /* arguments */
+      0));
 
-    int count = 60;
-    void *args[] = { (void *)&count };
+  // Synchronize (flushes assert output).
+  printf("\n-- Begin assert output\n\n");
+  CUresult res = cuCtxSynchronize();
 
-    checkCudaErrors(cuLaunchKernel(kernel_addr,
-                                            dimGrid.x, dimGrid.y, dimGrid.z, /* grid dim */
-                                            dimBlock.x, dimBlock.y, dimBlock.z, /* block dim */
-                                            0,0, /* shared mem, stream */
-                                            &args[0], /* arguments */
-                                            0));
+  printf("\n-- End assert output\n\n");
 
-    //Synchronize (flushes assert output).
-    printf("\n-- Begin assert output\n\n");
-    CUresult res = cuCtxSynchronize();
+  // Check for errors and failed asserts in asynchronous kernel launch.
+  if (res == CUDA_ERROR_ASSERT) {
+    printf("Device assert failed as expected\n");
+  }
 
-    printf("\n-- End assert output\n\n");
-
-    //Check for errors and failed asserts in asynchronous kernel launch.
-    if (res == CUDA_ERROR_ASSERT)
-    {
-        printf("Device assert failed as expected\n");
-    }
-
-    testResult = res == CUDA_ERROR_ASSERT ;
+  testResult = res == CUDA_ERROR_ASSERT;
 }
-

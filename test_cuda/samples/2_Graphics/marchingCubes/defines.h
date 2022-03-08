@@ -19,11 +19,12 @@ typedef unsigned char uchar;
 // dataset is loaded from file
 #define SAMPLE_VOLUME 1
 
-// Using shared to store computed vertices and normals during triangle generation
-// improves performance
+// Using shared to store computed vertices and normals during triangle
+// generation improves performance
 #define USE_SHARED 1
 
-// The number of threads to use for triangle generation (limited by shared memory size)
+// The number of threads to use for triangle generation (limited by shared
+// memory size)
 #define NTHREADS 32
 
 #define SKIP_EMPTY_VOXELS 1

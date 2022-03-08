@@ -20,70 +20,52 @@
 
 // Wrapper class around the CUDA Video Decoding API.
 //
-class VideoDecoder
-{
-    public:
-        explicit
-        VideoDecoder(const CUVIDEOFORMAT &rVideoFormat, CUcontext &rContext,
-                     cudaVideoCreateFlags eCreateFlags, CUvideoctxlock &ctx);
+class VideoDecoder {
+public:
+  explicit VideoDecoder(const CUVIDEOFORMAT &rVideoFormat, CUcontext &rContext,
+                        cudaVideoCreateFlags eCreateFlags, CUvideoctxlock &ctx);
 
-        ~VideoDecoder();
+  ~VideoDecoder();
 
-        // Get the code-type currently used.
-        cudaVideoCodec
-        codec()
-        const;
+  // Get the code-type currently used.
+  cudaVideoCodec codec() const;
 
-        cudaVideoChromaFormat
-        chromaFormat()
-        const;
+  cudaVideoChromaFormat chromaFormat() const;
 
-        // Maximum number of decode surfaces used by decoder.
-        unsigned long
-        maxDecodeSurfaces()
-        const;
+  // Maximum number of decode surfaces used by decoder.
+  unsigned long maxDecodeSurfaces() const;
 
-        unsigned long
-        frameWidth()
-        const;
+  unsigned long frameWidth() const;
 
-        unsigned long
-        frameHeight()
-        const;
+  unsigned long frameHeight() const;
 
-        unsigned long
-        targetWidth()
-        const;
+  unsigned long targetWidth() const;
 
-        unsigned long
-        targetHeight()
-        const;
+  unsigned long targetHeight() const;
 
-        void
-        decodePicture(CUVIDPICPARAMS *pPictureParameters, CUcontext *pContext = NULL);
+  void decodePicture(CUVIDPICPARAMS *pPictureParameters,
+                     CUcontext *pContext = NULL);
 
-        void
-        mapFrame(int iPictureIndex, CUdeviceptr *ppDevice, unsigned int *nPitch, CUVIDPROCPARAMS *pVideoProcessingParameters);
+  void mapFrame(int iPictureIndex, CUdeviceptr *ppDevice, unsigned int *nPitch,
+                CUVIDPROCPARAMS *pVideoProcessingParameters);
 
-        void
-        unmapFrame(CUdeviceptr pDevice);
+  void unmapFrame(CUdeviceptr pDevice);
 
-    private:
-        // Default constructor. Don't implement.
-        VideoDecoder();
+private:
+  // Default constructor. Don't implement.
+  VideoDecoder();
 
-        // Copy constructor. Don't implement.
-        VideoDecoder(const VideoDecoder &);
+  // Copy constructor. Don't implement.
+  VideoDecoder(const VideoDecoder &);
 
-        // Assignment operator. Don't implement.
-        void
-        operator= (const VideoDecoder &);
+  // Assignment operator. Don't implement.
+  void operator=(const VideoDecoder &);
 
-        CUVIDDECODECREATEINFO   oVideoDecodeCreateInfo_;
-        CUvideodecoder          oDecoder_;
-        cudaVideoCreateFlags    m_VideoCreateFlags;
-        CUcontext               m_Context;
-        CUvideoctxlock          m_VidCtxLock;
+  CUVIDDECODECREATEINFO oVideoDecodeCreateInfo_;
+  CUvideodecoder oDecoder_;
+  cudaVideoCreateFlags m_VideoCreateFlags;
+  CUcontext m_Context;
+  CUvideoctxlock m_VidCtxLock;
 };
 
 #endif // NV_VIDEODECODER_H

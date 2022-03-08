@@ -16,24 +16,22 @@
 // Global types
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef struct
-{
-    float S;
-    float X;
-    float T;
-    float R;
-    float V;
+typedef struct {
+  float S;
+  float X;
+  float T;
+  float R;
+  float V;
 } TOptionData;
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Global parameters
 ////////////////////////////////////////////////////////////////////////////////
 
-//Number of time steps
-#define   NUM_STEPS 2048
+// Number of time steps
+#define NUM_STEPS 2048
 
-//Max option batch size
+// Max option batch size
 #define MAX_OPTIONS 1024
 
 #endif

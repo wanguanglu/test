@@ -1,10 +1,10 @@
 /**
-* @file   main.cpp
-* @author wanguanglu(mail@wanguanglu.com)
-* @date   2017/06/11 00:43:07
-* @brief 
-*  
-**/
+ * @file   main.cpp
+ * @author wanguanglu(mail@wanguanglu.com)
+ * @date   2017/06/11 00:43:07
+ * @brief
+ *
+ **/
 
 #include <glog/logging.h>
 
@@ -15,7 +15,7 @@ void BasicTest() {
   LOG(FATAL) << "FATAL log";
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   google::InitGoogleLogging(argv[0]);
   BasicTest();
 

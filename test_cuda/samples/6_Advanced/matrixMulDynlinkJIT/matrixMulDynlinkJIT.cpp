@@ -9,7 +9,6 @@
  *
  */
 
-
 /* Matrix multiplication: C = A * B.
  * Host code.
  *
@@ -27,10 +26,10 @@
  */
 
 // includes, system
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 // includes, CUDA
 #include "cuda_drvapi_dynlink.h"
@@ -41,12 +40,12 @@
 #include "matrixMul_kernel_32_ptxdump.h"
 #include "matrixMul_kernel_64_ptxdump.h"
 
-extern "C" void computeGold(float *, const float *, const float *, unsigned int, unsigned int, unsigned int);
+extern "C" void computeGold(float *, const float *, const float *, unsigned int,
+                            unsigned int, unsigned int);
 
 #if defined _MSC_VER
-#pragma warning (disable : 4312)
+#pragma warning(disable : 4312)
 #endif
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
@@ -56,293 +55,289 @@ bool noprompt = false;
 
 static const char *sSDKsample = "matrixMulDynlinkJIT (CUDA dynamic linking)";
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Allocates a matrix with random float entries
 ////////////////////////////////////////////////////////////////////////////////
-void randomInit(float *data, size_t size)
-{
-    for (size_t i = 0; i < size; ++i)
-    {
-        data[i] = rand() / (float)RAND_MAX;
-    }
+void randomInit(float *data, size_t size) {
+  for (size_t i = 0; i < size; ++i) {
+    data[i] = rand() / (float)RAND_MAX;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // CUDA driver runtime linking and initialization
 ////////////////////////////////////////////////////////////////////////////////
-CUresult initCUDA(int argc, char **argv, CUfunction *pMatrixMul, int *block_size_out)
-{
-    CUresult status;
-    CUdevice cuDevice;
-    CUmodule cuModule;
-    CUfunction cuFunction;
-    int major, minor, block_size, devID = 0;
-    char deviceName[256];
+CUresult initCUDA(int argc, char **argv, CUfunction *pMatrixMul,
+                  int *block_size_out) {
+  CUresult status;
+  CUdevice cuDevice;
+  CUmodule cuModule;
+  CUfunction cuFunction;
+  int major, minor, block_size, devID = 0;
+  char deviceName[256];
 
-    // link to cuda driver dynamically
-    status = cuInit(0, __CUDA_API_VERSION);
+  // link to cuda driver dynamically
+  status = cuInit(0, __CUDA_API_VERSION);
 
-    if (CUDA_SUCCESS != status)
-    {
-        fprintf(stderr, "Fatal error dynamically loading the CUDA driver\n");
-        fprintf(stderr, "cuInit(0), returned %d\n-> %s\n", status, getCudaDrvErrorString(status));
-        exit(EXIT_FAILURE);
-    }
+  if (CUDA_SUCCESS != status) {
+    fprintf(stderr, "Fatal error dynamically loading the CUDA driver\n");
+    fprintf(stderr, "cuInit(0), returned %d\n-> %s\n", status,
+            getCudaDrvErrorString(status));
+    exit(EXIT_FAILURE);
+  }
 
-    // This assumes that the user is attempting to specify a explicit device -device=n
-    if (argc > 1)
-    {
-        bool bFound = false;
+  // This assumes that the user is attempting to specify a explicit device
+  // -device=n
+  if (argc > 1) {
+    bool bFound = false;
 
-        for (int param=0; param < argc; param++)
-        {
-            if (!strncmp(argv[param], "-device", 7))
-            {
-                int i=(int)strlen(argv[1]);
+    for (int param = 0; param < argc; param++) {
+      if (!strncmp(argv[param], "-device", 7)) {
+        int i = (int)strlen(argv[1]);
 
-                while (argv[1][i] != '=')
-                {
-                    i--;
-                }
-
-                devID = atoi(&argv[1][++i]);
-                bFound = true;
-            }
-
-            if (bFound)
-                break;
+        while (argv[1][i] != '=') {
+          i--;
         }
+
+        devID = atoi(&argv[1][++i]);
+        bFound = true;
+      }
+
+      if (bFound)
+        break;
     }
+  }
 
-    // get cuda-capable device count
-    int deviceCount = 0;
-    checkCudaErrors(cuDeviceGetCount(&deviceCount));
+  // get cuda-capable device count
+  int deviceCount = 0;
+  checkCudaErrors(cuDeviceGetCount(&deviceCount));
 
-    if (deviceCount == 0)
-    {
-        fprintf(stderr, "No devices supporting CUDA detected, exiting...\n");
-        exit(EXIT_SUCCESS);
-    }
+  if (deviceCount == 0) {
+    fprintf(stderr, "No devices supporting CUDA detected, exiting...\n");
+    exit(EXIT_SUCCESS);
+  }
 
-    if (devID < 0) devID = 0;
+  if (devID < 0)
+    devID = 0;
 
-    if (devID > deviceCount -1)
-    {
-        fprintf(stderr, "initCUDA (Device=%d) invalid GPU device.  %d GPU device(s) detected.\n\n", devID, deviceCount);
-        status = CUDA_ERROR_NOT_FOUND;
+  if (devID > deviceCount - 1) {
+    fprintf(stderr,
+            "initCUDA (Device=%d) invalid GPU device.  %d GPU device(s) "
+            "detected.\n\n",
+            devID, deviceCount);
+    status = CUDA_ERROR_NOT_FOUND;
 
-        cuCtxDestroy(g_cuContext);
-        exit(EXIT_FAILURE);
-    }
+    cuCtxDestroy(g_cuContext);
+    exit(EXIT_FAILURE);
+  }
 
-    // pick up device with zero ordinal (default, or devID)
-    checkCudaErrors(cuDeviceGet(&cuDevice, devID));
+  // pick up device with zero ordinal (default, or devID)
+  checkCudaErrors(cuDeviceGet(&cuDevice, devID));
 
-    // get compute capabilities and the devicename
-    checkCudaErrors(cuDeviceComputeCapability(&major, &minor, cuDevice));
-    checkCudaErrors(cuDeviceGetName(deviceName, 256, cuDevice));
-    printf("> Device %d: \"%s\" with Compute %d.%d capability\n", cuDevice, deviceName, major, minor);
+  // get compute capabilities and the devicename
+  checkCudaErrors(cuDeviceComputeCapability(&major, &minor, cuDevice));
+  checkCudaErrors(cuDeviceGetName(deviceName, 256, cuDevice));
+  printf("> Device %d: \"%s\" with Compute %d.%d capability\n", cuDevice,
+         deviceName, major, minor);
 
-    // use a larger block size for Fermi and above
-    block_size = (major < 2) ? 16 : 32;
-    *block_size_out = block_size;
+  // use a larger block size for Fermi and above
+  block_size = (major < 2) ? 16 : 32;
+  *block_size_out = block_size;
 
-    // create context for picked device
-    status = cuCtxCreate(&g_cuContext, 0, cuDevice);
+  // create context for picked device
+  status = cuCtxCreate(&g_cuContext, 0, cuDevice);
 
-    if (CUDA_SUCCESS != status)
-    {
-        cuCtxDestroy(g_cuContext);
-        exit(EXIT_SUCCESS);
-    }
+  if (CUDA_SUCCESS != status) {
+    cuCtxDestroy(g_cuContext);
+    exit(EXIT_SUCCESS);
+  }
 
-    // setup JIT compilation options and perform compilation
-    {
-        // in this branch we use compilation with parameters
-        const unsigned int jitNumOptions = 3;
-        CUjit_option *jitOptions = new CUjit_option[jitNumOptions];
-        void **jitOptVals = new void *[jitNumOptions];
+  // setup JIT compilation options and perform compilation
+  {
+    // in this branch we use compilation with parameters
+    const unsigned int jitNumOptions = 3;
+    CUjit_option *jitOptions = new CUjit_option[jitNumOptions];
+    void **jitOptVals = new void *[jitNumOptions];
 
-        // set up size of compilation log buffer
-        jitOptions[0] = CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES;
-        int jitLogBufferSize = 1024;
-        jitOptVals[0] = (void *)(size_t)jitLogBufferSize;
+    // set up size of compilation log buffer
+    jitOptions[0] = CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES;
+    int jitLogBufferSize = 1024;
+    jitOptVals[0] = (void *)(size_t)jitLogBufferSize;
 
-        // set up pointer to the compilation log buffer
-        jitOptions[1] = CU_JIT_INFO_LOG_BUFFER;
-        char *jitLogBuffer = new char[jitLogBufferSize];
-        jitOptVals[1] = jitLogBuffer;
+    // set up pointer to the compilation log buffer
+    jitOptions[1] = CU_JIT_INFO_LOG_BUFFER;
+    char *jitLogBuffer = new char[jitLogBufferSize];
+    jitOptVals[1] = jitLogBuffer;
 
-        // set up pointer to set the Maximum # of registers for a particular kernel
-        jitOptions[2] = CU_JIT_MAX_REGISTERS;
-        int jitRegCount = 32;
-        jitOptVals[2] = (void *)(size_t)jitRegCount;
+    // set up pointer to set the Maximum # of registers for a particular kernel
+    jitOptions[2] = CU_JIT_MAX_REGISTERS;
+    int jitRegCount = 32;
+    jitOptVals[2] = (void *)(size_t)jitRegCount;
 
-        // compile with set parameters
-        printf("> Compiling CUDA module\n");
+    // compile with set parameters
+    printf("> Compiling CUDA module\n");
 
 #if defined(_WIN64) || defined(__LP64__)
-        status = cuModuleLoadDataEx(&cuModule, matrixMul_kernel_64_ptxdump, jitNumOptions, jitOptions, (void **)jitOptVals);
+    status = cuModuleLoadDataEx(&cuModule, matrixMul_kernel_64_ptxdump,
+                                jitNumOptions, jitOptions, (void **)jitOptVals);
 #else
-        status = cuModuleLoadDataEx(&cuModule, matrixMul_kernel_32_ptxdump, jitNumOptions, jitOptions, (void **)jitOptVals);
+    status = cuModuleLoadDataEx(&cuModule, matrixMul_kernel_32_ptxdump,
+                                jitNumOptions, jitOptions, (void **)jitOptVals);
 #endif
 
-        printf("> PTX JIT log:\n%s\n", jitLogBuffer);
+    printf("> PTX JIT log:\n%s\n", jitLogBuffer);
 
-        delete [] jitOptions;
-        delete [] jitOptVals;
-        delete [] jitLogBuffer;
-    }
+    delete[] jitOptions;
+    delete[] jitOptVals;
+    delete[] jitLogBuffer;
+  }
 
-    if (CUDA_SUCCESS != status)
-    {
-        printf("Error while compiling PTX\n");
-        cuCtxDestroy(g_cuContext);
-        exit(EXIT_FAILURE);
-    }
+  if (CUDA_SUCCESS != status) {
+    printf("Error while compiling PTX\n");
+    cuCtxDestroy(g_cuContext);
+    exit(EXIT_FAILURE);
+  }
 
-    // retrieve CUDA function from the compiled module
-    status = cuModuleGetFunction(&cuFunction, cuModule,
-                                 (block_size == 16) ? "matrixMul_bs16_32bit" : "matrixMul_bs32_32bit");
+  // retrieve CUDA function from the compiled module
+  status = cuModuleGetFunction(&cuFunction, cuModule,
+                               (block_size == 16) ? "matrixMul_bs16_32bit"
+                                                  : "matrixMul_bs32_32bit");
 
-    if (CUDA_SUCCESS != status)
-    {
-        cuCtxDestroy(g_cuContext);
-        exit(EXIT_FAILURE);
-    }
+  if (CUDA_SUCCESS != status) {
+    cuCtxDestroy(g_cuContext);
+    exit(EXIT_FAILURE);
+  }
 
-    *pMatrixMul = cuFunction;
-    return CUDA_SUCCESS;
+  *pMatrixMul = cuFunction;
+  return CUDA_SUCCESS;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Entry point
 ////////////////////////////////////////////////////////////////////////////////
-int main(int argc, char **argv)
-{
-    printf("[ %s ]\n", sSDKsample);
+int main(int argc, char **argv) {
+  printf("[ %s ]\n", sSDKsample);
 
-    // initialize CUDA
-    CUfunction matrixMul = NULL;
-    int block_size = 0;
-    checkCudaErrors(initCUDA(argc, argv, &matrixMul, &block_size));
+  // initialize CUDA
+  CUfunction matrixMul = NULL;
+  int block_size = 0;
+  checkCudaErrors(initCUDA(argc, argv, &matrixMul, &block_size));
 
-    // set seed for rand()
-    srand(2006);
+  // set seed for rand()
+  srand(2006);
 
-    // allocate host memory for matrices A and B
-    size_t       size_A = WA * HA;
-    size_t       mem_size_A = sizeof(float) * size_A;
-    size_t       size_B = WB * HB;
-    size_t       mem_size_B = sizeof(float) * size_B;
+  // allocate host memory for matrices A and B
+  size_t size_A = WA * HA;
+  size_t mem_size_A = sizeof(float) * size_A;
+  size_t size_B = WB * HB;
+  size_t mem_size_B = sizeof(float) * size_B;
 
-    float *h_A = (float *) malloc(mem_size_A);
-    float *h_B = (float *) malloc(mem_size_B);
+  float *h_A = (float *)malloc(mem_size_A);
+  float *h_B = (float *)malloc(mem_size_B);
 
-    // initialize host memory
-    randomInit(h_A, size_A);
-    randomInit(h_B, size_B);
+  // initialize host memory
+  randomInit(h_A, size_A);
+  randomInit(h_B, size_B);
 
-    // allocate device memory
-    CUdeviceptr d_A;
-    checkCudaErrors(cuMemAlloc(&d_A, mem_size_A));
-    CUdeviceptr d_B;
-    checkCudaErrors(cuMemAlloc(&d_B, mem_size_B));
+  // allocate device memory
+  CUdeviceptr d_A;
+  checkCudaErrors(cuMemAlloc(&d_A, mem_size_A));
+  CUdeviceptr d_B;
+  checkCudaErrors(cuMemAlloc(&d_B, mem_size_B));
 
-    // copy host memory to device
-    checkCudaErrors(cuMemcpyHtoD(d_A, h_A, mem_size_A));
-    checkCudaErrors(cuMemcpyHtoD(d_B, h_B, mem_size_B));
+  // copy host memory to device
+  checkCudaErrors(cuMemcpyHtoD(d_A, h_A, mem_size_A));
+  checkCudaErrors(cuMemcpyHtoD(d_B, h_B, mem_size_B));
 
-    // allocate device memory for result
-    size_t       size_C = WC * HC;
-    size_t       mem_size_C = sizeof(float) * size_C;
+  // allocate device memory for result
+  size_t size_C = WC * HC;
+  size_t mem_size_C = sizeof(float) * size_C;
 
-    CUdeviceptr d_C;
-    checkCudaErrors(cuMemAlloc(&d_C, mem_size_C));
+  CUdeviceptr d_C;
+  checkCudaErrors(cuMemAlloc(&d_C, mem_size_C));
 
-    // allocate mem for the result on host side
-    float *h_C = (float *) malloc(mem_size_C);
+  // allocate mem for the result on host side
+  float *h_C = (float *)malloc(mem_size_C);
 
 #if __CUDA_API_VERSION >= 4000
-    {
-        // This is the new CUDA 4.0 API for Kernel Parameter passing and Kernel Launching (simpler method)
-        int Matrix_Width_A = WA;
-        int Matrix_Width_B = WB;
-        void *args[5] = { &d_C, &d_A, &d_B, &Matrix_Width_A, &Matrix_Width_B };
+  {
+    // This is the new CUDA 4.0 API for Kernel Parameter passing and Kernel
+    // Launching (simpler method)
+    int Matrix_Width_A = WA;
+    int Matrix_Width_B = WB;
+    void *args[5] = {&d_C, &d_A, &d_B, &Matrix_Width_A, &Matrix_Width_B};
 
-        checkCudaErrors(cuLaunchKernel(matrixMul, (WC/block_size), (HC/block_size), 1,
-                                       block_size     , block_size     , 1,
-                                       0,
-                                       NULL, args, NULL));
-    }
+    checkCudaErrors(cuLaunchKernel(matrixMul, (WC / block_size),
+                                   (HC / block_size), 1, block_size, block_size,
+                                   1, 0, NULL, args, NULL));
+  }
 #else // __CUDA_API_VERSION <= 3020
+  {
+    // This is the older CUDA Driver API for Kernel Parameter passing and Kernel
+    // Launching
+    int offset = 0;
     {
-        // This is the older CUDA Driver API for Kernel Parameter passing and Kernel Launching
-        int offset = 0;
-        {
-            // setup execution parameters
-            checkCudaErrors(cuParamSetv(matrixMul, offset, &d_C, sizeof(d_C)));
-            offset += sizeof(d_C);
+      // setup execution parameters
+      checkCudaErrors(cuParamSetv(matrixMul, offset, &d_C, sizeof(d_C)));
+      offset += sizeof(d_C);
 
-            checkCudaErrors(cuParamSetv(matrixMul, offset, &d_A, sizeof(d_A)));
-            offset += sizeof(d_A);
+      checkCudaErrors(cuParamSetv(matrixMul, offset, &d_A, sizeof(d_A)));
+      offset += sizeof(d_A);
 
-            checkCudaErrors(cuParamSetv(matrixMul, offset, &d_B, sizeof(d_B)));
-            offset += sizeof(d_B);
-        }
-
-        int Matrix_Width_A = WA;
-        int Matrix_Width_B = WB;
-
-        checkCudaErrors(cuParamSeti(matrixMul, offset, Matrix_Width_A));
-        offset += sizeof(Matrix_Width_A);
-
-        checkCudaErrors(cuParamSeti(matrixMul, offset, Matrix_Width_B));
-        offset += sizeof(Matrix_Width_B);
-
-        checkCudaErrors(cuParamSetSize(matrixMul, offset));
-        checkCudaErrors(cuFuncSetBlockShape(matrixMul, block_size, block_size, 1));
-        checkCudaErrors(cuFuncSetSharedSize(matrixMul, 2*block_size*block_size*sizeof(float)));
-
-        // set execution configuration for the CUDA kernel
-        checkCudaErrors(cuLaunchGrid(matrixMul, WC / block_size, HC / block_size));
+      checkCudaErrors(cuParamSetv(matrixMul, offset, &d_B, sizeof(d_B)));
+      offset += sizeof(d_B);
     }
+
+    int Matrix_Width_A = WA;
+    int Matrix_Width_B = WB;
+
+    checkCudaErrors(cuParamSeti(matrixMul, offset, Matrix_Width_A));
+    offset += sizeof(Matrix_Width_A);
+
+    checkCudaErrors(cuParamSeti(matrixMul, offset, Matrix_Width_B));
+    offset += sizeof(Matrix_Width_B);
+
+    checkCudaErrors(cuParamSetSize(matrixMul, offset));
+    checkCudaErrors(cuFuncSetBlockShape(matrixMul, block_size, block_size, 1));
+    checkCudaErrors(cuFuncSetSharedSize(matrixMul, 2 * block_size * block_size *
+                                                       sizeof(float)));
+
+    // set execution configuration for the CUDA kernel
+    checkCudaErrors(cuLaunchGrid(matrixMul, WC / block_size, HC / block_size));
+  }
 #endif
 
-    checkCudaErrors(cuCtxSynchronize());
+  checkCudaErrors(cuCtxSynchronize());
 
-    // copy result from device to host
-    checkCudaErrors(cuMemcpyDtoH((void *) h_C, d_C, mem_size_C));
+  // copy result from device to host
+  checkCudaErrors(cuMemcpyDtoH((void *)h_C, d_C, mem_size_C));
 
-    // compute reference solution
-    float *reference = (float *) malloc(mem_size_C);
-    computeGold(reference, h_A, h_B, HA, WA, WB);
+  // compute reference solution
+  float *reference = (float *)malloc(mem_size_C);
+  computeGold(reference, h_A, h_B, HA, WA, WB);
 
-    // check result
-    float diff=0.0f;
+  // check result
+  float diff = 0.0f;
 
-    for (unsigned int i=0; i<size_C; i++)
-    {
-        float tmp = reference[i] - h_C[i];
-        diff += tmp*tmp;
-    }
+  for (unsigned int i = 0; i < size_C; i++) {
+    float tmp = reference[i] - h_C[i];
+    diff += tmp * tmp;
+  }
 
-    int res = (diff / (float)size_C < 1e-6f);
+  int res = (diff / (float)size_C < 1e-6f);
 
-    // clean up memory
-    free(h_A);
-    free(h_B);
-    free(h_C);
-    free(reference);
-    checkCudaErrors(cuMemFree(d_A));
-    checkCudaErrors(cuMemFree(d_B));
-    checkCudaErrors(cuMemFree(d_C));
-    checkCudaErrors(cuProfilerStop());
-    checkCudaErrors(cuCtxDestroy(g_cuContext));
+  // clean up memory
+  free(h_A);
+  free(h_B);
+  free(h_C);
+  free(reference);
+  checkCudaErrors(cuMemFree(d_A));
+  checkCudaErrors(cuMemFree(d_B));
+  checkCudaErrors(cuMemFree(d_C));
+  checkCudaErrors(cuProfilerStop());
+  checkCudaErrors(cuCtxDestroy(g_cuContext));
 
-    printf("Test run %s\n", (1==res) ? "success!" : "failed!");
+  printf("Test run %s\n", (1 == res) ? "success!" : "failed!");
 
-    exit((1 == res) ? EXIT_SUCCESS : EXIT_FAILURE);
+  exit((1 == res) ? EXIT_SUCCESS : EXIT_FAILURE);
 }

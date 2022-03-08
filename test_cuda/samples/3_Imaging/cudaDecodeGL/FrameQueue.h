@@ -19,79 +19,63 @@
 #define sleep(x) Sleep(x)
 
 #else
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 typedef unsigned int CRITICAL_SECTION;
 typedef unsigned int HANDLE;
 #endif
 
-class FrameQueue
-{
-    public:
-        static const unsigned int cnMaximumSize = 20; // MAX_FRM_CNT;
+class FrameQueue {
+public:
+  static const unsigned int cnMaximumSize = 20; // MAX_FRM_CNT;
 
-        FrameQueue();
+  FrameQueue();
 
-        virtual
-        ~FrameQueue();
+  virtual ~FrameQueue();
 
-        void
-        enter_CS(CRITICAL_SECTION *pCS);
+  void enter_CS(CRITICAL_SECTION *pCS);
 
-        void
-        leave_CS(CRITICAL_SECTION *pCS);
+  void leave_CS(CRITICAL_SECTION *pCS);
 
-        void
-        set_event(HANDLE event);
+  void set_event(HANDLE event);
 
-        void
-        reset_event(HANDLE event);
+  void reset_event(HANDLE event);
 
-        void
-        enqueue(const CUVIDPARSERDISPINFO *pPicParams);
+  void enqueue(const CUVIDPARSERDISPINFO *pPicParams);
 
-        // Dequeue the next frame.
-        // Parameters:
-        //      pDisplayInfo - New frame info gets placed into this object.
-        //          Note: This pointer must point to a valid struct. The method
-        //          does not create memory for this.
-        // Returns:
-        //      true, if a new frame was returned,
-        //      false, if the queue was empty and no new frame could be returned.
-        //          In that case, pPicParams doesn't contain valid data.
-        bool
-        dequeue(CUVIDPARSERDISPINFO *pDisplayInfo);
+  // Dequeue the next frame.
+  // Parameters:
+  //      pDisplayInfo - New frame info gets placed into this object.
+  //          Note: This pointer must point to a valid struct. The method
+  //          does not create memory for this.
+  // Returns:
+  //      true, if a new frame was returned,
+  //      false, if the queue was empty and no new frame could be returned.
+  //          In that case, pPicParams doesn't contain valid data.
+  bool dequeue(CUVIDPARSERDISPINFO *pDisplayInfo);
 
-        void
-        releaseFrame(const CUVIDPARSERDISPINFO *pPicParams);
+  void releaseFrame(const CUVIDPARSERDISPINFO *pPicParams);
 
-        bool
-        isInUse(int nPictureIndex)
-        const;
+  bool isInUse(int nPictureIndex) const;
 
-        bool
-        isDecodeFinished()
-        const;
+  bool isDecodeFinished() const;
 
-        void
-        endDecode();
+  void endDecode();
 
-        // Spins until frame becomes available or decoding
-        // gets canceled.
-        // If the requested frame is available the method returns true.
-        // If decoding was interrupted before the requested frame becomes
-        // available, the method returns false.
-        bool
-        waitUntilFrameAvailable(int nPictureIndex);
+  // Spins until frame becomes available or decoding
+  // gets canceled.
+  // If the requested frame is available the method returns true.
+  // If decoding was interrupted before the requested frame becomes
+  // available, the method returns false.
+  bool waitUntilFrameAvailable(int nPictureIndex);
 
-    private:
-
-        CRITICAL_SECTION    oCriticalSection_;
-        volatile int        nReadPosition_;
-        volatile int        nFramesInQueue_;
-        CUVIDPARSERDISPINFO aDisplayQueue_[cnMaximumSize];
-        volatile int        aIsFrameInUse_[cnMaximumSize];
-        volatile int        bEndOfDecode_;
+private:
+  CRITICAL_SECTION oCriticalSection_;
+  volatile int nReadPosition_;
+  volatile int nFramesInQueue_;
+  CUVIDPARSERDISPINFO aDisplayQueue_[cnMaximumSize];
+  volatile int aIsFrameInUse_[cnMaximumSize];
+  volatile int bEndOfDecode_;
 };
 
 #endif // FRAMEQUEUE_H

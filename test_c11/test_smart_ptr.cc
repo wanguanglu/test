@@ -1,10 +1,10 @@
 /**
-* @file   test_smart_ptr.cpp
-* @author wanguanglu(wanguanglu@qq.com)
-* @date   2017/04/11 15:50:37
-* @brief 
-*  
-**/
+ * @file   test_smart_ptr.cpp
+ * @author wanguanglu(wanguanglu@qq.com)
+ * @date   2017/04/11 15:50:37
+ * @brief
+ *
+ **/
 
 #include <iostream>
 #include <memory>
@@ -13,11 +13,11 @@
 // primary test of unique ptr
 void test1() {
   std::unique_ptr<int> a = std::unique_ptr<int>(new int(5));
-  std::cout << "a = " << *a <<std::endl;
+  std::cout << "a = " << *a << std::endl;
 
   std::unique_ptr<int> b = std::move(a);
   std::cout << "b = " << *b << std::endl;
-  std::cout << "a = " << *a << std::endl;  // It will core dump here.
+  std::cout << "a = " << *a << std::endl; // It will core dump here.
 }
 
 // test push unique ptr to vector
@@ -31,14 +31,12 @@ void test2() {
   vec.push_back(std::move(b));
   vec.push_back(std::move(c));
 
-  for (const auto& ptr : vec) {
+  for (const auto &ptr : vec) {
     std::cout << "current = " << *ptr << std::endl;
   }
 }
 
-std::unique_ptr<int> ret_ptr() {
-  return std::unique_ptr<int>(new int(1));
-}
+std::unique_ptr<int> ret_ptr() { return std::unique_ptr<int>(new int(1)); }
 
 void test3() {
   std::unique_ptr<int> a = ret_ptr();
@@ -46,33 +44,33 @@ void test3() {
   std::unique_ptr<int> c = ret_ptr();
 
   std::vector<std::unique_ptr<int>> vec;
-  vec.push_back(std::move(a));  // It's OK.
-  vec.push_back(std::move(a));  // It's OK.
-  vec.push_back(std::move(a));  // It's OK.
+  vec.push_back(std::move(a)); // It's OK.
+  vec.push_back(std::move(a)); // It's OK.
+  vec.push_back(std::move(a)); // It's OK.
 
-  for (const auto& ptr : vec) {
+  for (const auto &ptr : vec) {
     std::cout << "current = " << *ptr << std::endl;
   }
 }
 
 void test4() {
   std::vector<std::unique_ptr<int>> vec;
-  vec.push_back(ret_ptr());  // It's OK.
-  vec.push_back(ret_ptr());  // It's OK.
-  vec.push_back(ret_ptr());  // It's OK.
+  vec.push_back(ret_ptr()); // It's OK.
+  vec.push_back(ret_ptr()); // It's OK.
+  vec.push_back(ret_ptr()); // It's OK.
 
-  for (const auto& ptr : vec) {
+  for (const auto &ptr : vec) {
     std::cout << "current = " << *ptr << std::endl;
   }
 }
 
 void test5() {
   std::vector<std::unique_ptr<int>> vec;
-  vec.push_back(std::move(ret_ptr()));  // Warning
+  vec.push_back(std::move(ret_ptr())); // Warning
   vec.push_back(std::move(ret_ptr()));
   vec.push_back(std::move(ret_ptr()));
 
-  for (const auto& ptr : vec) {
+  for (const auto &ptr : vec) {
     std::cout << "current = " << *ptr << std::endl;
   }
 }
@@ -89,10 +87,10 @@ void test6() {
 void test7() {
   std::unique_ptr<int> uni_ptr(new int(1));
 
-  const std::unique_ptr<int>& uni_ptr_copy = uni_ptr;
+  const std::unique_ptr<int> &uni_ptr_copy = uni_ptr;
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   test6();
   return 0;
 }
