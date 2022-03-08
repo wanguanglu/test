@@ -1,16 +1,17 @@
-#/usr/bin/python
+#!/usr/bin/env python3
 
 import os
 import sys
-import ConfigParser
+import configparser
 
 
-cf = ConfigParser.ConfigParser()
+cf = configparser.ConfigParser()
 cf.read('test.conf')
 
-print 'sections:', cf.sections()
+print('sections:', cf.sections())
 
 for section in cf.sections():
-    print 'section:' + section
-    print cf.options(section)
-    print cf.items(section)
+    print('section:' + section)
+    print(cf.options(section))
+    print(cf.items(section))
+

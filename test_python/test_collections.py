@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 import time
 import collections
@@ -5,7 +7,7 @@ import collections
 def test_counter():
     a = ['1', '1', '2', '2', '3', '3', '3']
     counter=collections.Counter(a)
-    print counter.most_common(2)
+    print(counter.most_common(2))
 
 def test_deque():
     test = collections.deque()
@@ -14,17 +16,17 @@ def test_deque():
     test.append('b')
     test.appendleft('c')
 
-    print test
-    print test.count('a')
+    print(test)
+    print(test.count('a'))
 
-    print test.pop()
-    print test.popleft()
+    print(test.pop())
+    print(test.popleft())
 
     
     fancy_loading = collections.deque('>--------------------')
     
     while True:
-        print '\r%s' % ''.join(fancy_loading),
+        print('\r%s' % ''.join(fancy_loading),)
         fancy_loading.rotate(1)
         sys.stdout.flush()
         time.sleep(0.08)
