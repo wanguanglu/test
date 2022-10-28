@@ -8,23 +8,23 @@ cmake ../
 ## 详细介绍
 * CMakeLists.txt
 ```
-project (HELLO)
+project (Hello)
 ```
-项目名称为HELLO
+项目名称为Hello
 
 ```
-add_subdirectory (Hello)
+add_subdirectory (hello)
 ```
-添加`Hello`子目录。
+添加`hello`子目录。
 
-* Hello/CMakeLists.txt
+* hello/CMakeLists.txt
 ```
-add_library (Hello hello.cpp)
+add_library (hello hello.cc)
 ```
-添加`Hello` lib库，依赖于`hello.cpp`。
+添加`hello` lib库，依赖于`hello.cc`。
 
-* Demo/CMakeLists.txt
+* demo/CMakeLists.txt
 ```
-add_executable (helloDemo demo.cpp)
+add_executable (hello_demo demo.cc)
 ```
-添加`Demo`可执行程序，源代码文件为`demo.cpp`。
+添加`Demo`可执行程序，源代码文件为`demo.cc`。
